@@ -45,22 +45,26 @@ export default function RegisterForm() {
 
     setLoading(true);
     try {
-      // send metadata + filenames (you can add file upload later)
-      const fileNames = photos ? Array.from(photos).map((f) => f.name) : [];
+      // build FormData with files
+      const formData = new FormData();
+      formData.append("name", name.trim());
+      formData.append("email", email.trim());
+      formData.append("mobile", mobile.trim());
+      formData.append("car", car.trim());
+      formData.append("plate", plate.trim());
+      formData.append("description", desc.trim());
+      if (instagram.trim()) formData.append("instagram", instagram.trim());
 
+      if (photos) {
+        for (const f of Array.from(photos)) {
+          formData.append("photos", f);
+        }
+      }
+
+      // NOTE: do NOT set Content-Type — browser will set multipart/form-data boundary
       const res = await fetch("/api/register", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          email: email.trim(),
-          mobile: mobile.trim(),
-          car: car.trim(),
-          plate: plate.trim(),
-          description: desc.trim(),
-          instagram: instagram.trim() || null,
-          photos: fileNames,
-        }),
+        body: formData,
       });
 
       const json = await res.json();

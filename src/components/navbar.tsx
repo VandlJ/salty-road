@@ -24,10 +24,10 @@ export default function Navbar({ fixed = false }) {
           Home
         </Link>
         <Link
-          href="/gallery"
+          href="/vehicles"
           className="no-underline text-[#F8F7F3] font-semibold hover:text-[#C0C0C0] transition-colors duration-200"
         >
-          Gallery
+          Registered Vehicles
         </Link>
         <Link
           href="/check"
