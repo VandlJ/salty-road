@@ -24,6 +24,11 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // gallery state
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+
   async function checkAuthAndLoad() {
     // try load list; if 401 then not logged in
     try {
@@ -48,6 +53,34 @@ export default function AdminPage() {
   useEffect(() => {
     checkAuthAndLoad();
   }, []);
+
+  // keyboard controls for gallery
+  useEffect(() => {
+    if (!galleryOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setGalleryOpen(false);
+      if (e.key === "ArrowRight") setGalleryIndex((i) => (i + 1) % galleryPhotos.length);
+      if (e.key === "ArrowLeft") setGalleryIndex((i) => (i - 1 + galleryPhotos.length) % galleryPhotos.length);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [galleryOpen, galleryPhotos.length]);
+
+  function openGallery(photos: string[], index = 0) {
+    if (!photos || photos.length === 0) return;
+    setGalleryPhotos(photos);
+    setGalleryIndex(index);
+    setGalleryOpen(true);
+  }
+  function closeGallery() {
+    setGalleryOpen(false);
+  }
+  function nextImage() {
+    setGalleryIndex((i) => (i + 1) % galleryPhotos.length);
+  }
+  function prevImage() {
+    setGalleryIndex((i) => (i - 1 + galleryPhotos.length) % galleryPhotos.length);
+  }
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -120,7 +153,23 @@ export default function AdminPage() {
                 <div className="text-sm mt-2">{r.description}</div>
                 {r.instagram && <div className="text-sm text-blue-600">Instagram: {r.instagram}</div>}
                 {r.photos && r.photos.length > 0 && (
-                  <div className="text-sm mt-2">Photos: {r.photos.join(", ")}</div>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {r.photos.map((p, i) => (
+                      <button
+                        key={i}
+                        onClick={() => openGallery(r.photos || [], i)}
+                        className="block w-32 h-24 overflow-hidden border p-0 bg-transparent"
+                        aria-label={`Open photo ${i + 1} of ${r.name}`}
+                      >
+                        <img
+                          src={p}
+                          alt={`photo-${i}`}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
               <div className="text-right">
@@ -134,6 +183,57 @@ export default function AdminPage() {
           </div>
         ))}
       </div>
+
+      {/* Gallery modal */}
+      {galleryOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75"
+          role="dialog"
+          aria-modal="true"
+          onClick={closeGallery}
+        >
+          <div className="relative max-w-4xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={closeGallery}
+              className="absolute top-2 right-2 z-50 text-white bg-black/40 rounded-full p-2"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+
+            <div className="relative">
+              <img
+                src={galleryPhotos[galleryIndex]}
+                alt={`gallery-${galleryIndex}`}
+                className="w-full max-h-[80vh] object-contain bg-black"
+              />
+
+              {galleryPhotos.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2"
+                    aria-label="Previous"
+                  >
+                    ‹
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2"
+                    aria-label="Next"
+                  >
+                    ›
+                  </button>
+
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-white text-sm bg-black/40 px-3 py-1 rounded">
+                    {galleryIndex + 1} / {galleryPhotos.length}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
