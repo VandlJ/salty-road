@@ -11,7 +11,7 @@ export default function RegisterPage() {
         </h1>
         <p className="text-lg text-gray-600 mb-8 text-center">
           Fill out the form below to register your car for the Salty Road
-          exhibition yo.
+          exhibition.
         </p>
         <RegisterForm />
       </div>
