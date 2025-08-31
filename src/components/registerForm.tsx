@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 export default function RegisterForm() {
   const [agreed, setAgreed] = useState(false);
@@ -12,20 +12,82 @@ export default function RegisterForm() {
   const [desc, setDesc] = useState("");
   const [instagram, setInstagram] = useState("");
   const [photos, setPhotos] = useState<FileList | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const photosRef = useRef<HTMLInputElement | null>(null);
 
   const handlePhotosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhotos(e.target.files);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // final guard
-    if (!agreed) return;
-    if (!name || !email || !mobile || !car || !plate || !desc) return;
-    // placeholder submit action — collect form data
-    const payload = { name, email, mobile, car, plate, desc, instagram };
-    console.log("register form submitted", payload);
-    alert("Registration submitted (placeholder)");
+    setError(null);
+    setSuccess(null);
+
+    // client-side guards
+    if (
+      !name.trim() ||
+      !email.trim() ||
+      !mobile.trim() ||
+      !car.trim() ||
+      !plate.trim() ||
+      !desc.trim()
+    ) {
+      setError("Please fill all required fields.");
+      return;
+    }
+    if (!agreed) {
+      setError("You must agree to the rules.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // send metadata + filenames (you can add file upload later)
+      const fileNames = photos ? Array.from(photos).map((f) => f.name) : [];
+
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          mobile: mobile.trim(),
+          car: car.trim(),
+          plate: plate.trim(),
+          description: desc.trim(),
+          instagram: instagram.trim() || null,
+          photos: fileNames,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        setError(json?.error || "Submission failed");
+        setLoading(false);
+        return;
+      }
+
+      setSuccess("Registration submitted. ID: " + json.id);
+      // reset form
+      setName("");
+      setEmail("");
+      setMobile("");
+      setCar("");
+      setPlate("");
+      setDesc("");
+      setInstagram("");
+      setPhotos(null);
+      setAgreed(false);
+      if (photosRef.current) photosRef.current.value = "";
+    } catch (err) {
+      console.error(err);
+      setError("Network error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -169,6 +231,7 @@ export default function RegisterForm() {
           accept="image/*"
           onChange={handlePhotosChange}
           className="sr-only"
+          ref={photosRef}
         />
 
         {/* Custom styled label acts as the visible "Choose files" button */}
@@ -239,6 +302,43 @@ export default function RegisterForm() {
           </button>
         </div>
       </div>
+
+      {/* Error / Success messages */}
+      {error && (
+        <div className="mt-4 text-red-500 text-sm font-semibold">{error}</div>
+      )}
+      {success && (
+        <div className="mt-4 text-green-500 text-sm font-semibold">
+          {success}
+        </div>
+      )}
+
+      {/* Loading spinner (optional) */}
+      {loading && (
+        <div className="mt-4 flex items-center gap-2">
+          <svg
+            className="animate-spin h-5 w-5 text-[#C0C0C0]"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth={4}
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+          <span className="text-[#C0C0C0] font-semibold">Submitting...</span>
+        </div>
+      )}
     </form>
   );
 }
