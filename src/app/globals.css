@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@tailwind utilities;
+
+/* Custom base styles go in a Tailwind layer so they are processed predictably */
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0a0a0a;
+      --foreground: #ededed;
+    }
+  }
+
+  /* Small site defaults; prefer using Tailwind utility classes in components, but
+     keep a minimal system font stack here for pages that rely on global styles. */
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+  }
+}
