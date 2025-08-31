@@ -3,15 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-  "dev": "next dev --turbopack",
-  "build": "prisma generate && next build --turbopack",
-  "vercel-build": "prisma generate && next build --turbopack",
-  "postinstall": "prisma generate",
-  "start": "next start",
-  "lint": "eslint"
+    "dev": "next dev --turbopack",
+    "build": "prisma generate && next build --turbopack",
+    "vercel-build": "prisma generate && next build --turbopack",
+    "postinstall": "prisma generate",
+    "start": "next start",
+    "lint": "eslint",
+    "seed:admin": "node scripts/seedAdmin.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.15.0",
+    "bcryptjs": "^3.0.2",
     "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0"

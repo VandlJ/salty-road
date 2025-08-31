@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Admin {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  password     String
+  sessionToken String?
+  createdAt    DateTime @default(now())
+}
+
 model Registration {
   id          String   @id @default(cuid())
   name        String
@@ -18,4 +26,5 @@ model Registration {
   instagram   String?
   photos      String[] @default([])
   createdAt   DateTime @default(now())
+  status      String   @default("pending")
 }
