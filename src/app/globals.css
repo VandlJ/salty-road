@@ -3,10 +3,16 @@
 
 @font-face {
   font-family: 'Amika Blackletter';
-  src: url('/fonts/Amika_Blackletter.ttf') format('truetype');
+  src: url('/fonts/Amika_Blackletter.woff2') format('woff2'),
+       url('/fonts/Amika_Blackletter.woff') format('woff'),
+       url('/fonts/Amika_Blackletter.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+  /* Add font optimization */
+  font-smooth: always;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Custom base styles go in a Tailwind layer so they are processed predictably */
@@ -34,7 +40,16 @@
 
 @layer components {
   .font-amika {
-    font-family: 'Amika Blackletter', serif;
+    font-family: 'Amika Blackletter', 'Times New Roman', serif;
+    /* Add cross-browser font smoothing */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Force consistent metrics */
+    font-kerning: normal;
+    font-variant-ligatures: common-ligatures;
+    /* Ensure numbers use the same font */
+    font-variant-numeric: lining-nums;
   }
   
   .font-montserrat {
