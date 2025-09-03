@@ -19,7 +19,7 @@ export default function Hero() {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       {/* Content */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full">
-        <h1 className="text-5xl font-extrabold mb-4 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent animate-gradient">
+        <h1 className="text-9xl font-extrabold mb-4 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent animate-gradient font-amika">
           Salty Road
         </h1>
         <p className="text-lg text-white/90 mb-6 drop-shadow-lg">
@@ -27,7 +27,7 @@ export default function Hero() {
         </p>
         <div className="flex flex-row items-center justify-center gap-6 mb-8">
           <span className="text-white/80 text-base">Date: 25/07/2026</span>
-          <span className="text-white/80 text-base">Place: Náměstí Prachatice</span>
+          <span className="text-white/80 text-base">Place: Velké náměstí, Prachatice</span>
         </div>
         <div className="flex gap-4">
           <Link href="/register">

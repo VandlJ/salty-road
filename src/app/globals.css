@@ -1,6 +1,14 @@
 @import "tailwindcss";
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Amika Blackletter';
+  src: url('/fonts/Amika_Blackletter.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* Custom base styles go in a Tailwind layer so they are processed predictably */
 @layer base {
   :root {
@@ -21,5 +29,11 @@
     background: var(--background);
     color: var(--foreground);
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Liberation Sans', sans-serif;
+  }
+}
+
+@layer components {
+  .font-amika {
+    font-family: 'Amika Blackletter', serif;
   }
 }

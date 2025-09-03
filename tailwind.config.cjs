@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        'amika': ['Amika Blackletter', 'serif'],
+      },
       keyframes: {
         gradient: {
           '0%': { 'background-position': '0% 50%' },
