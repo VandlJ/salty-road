@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 
 type Registration = {
   id: number;
@@ -17,22 +18,42 @@ export default function VehiclesPage() {
   const [regs, setRegs] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [total, setTotal] = useState(0);
 
   // gallery state
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
-  async function load() {
+  // Helper functions for image optimization
+  const getThumbnailUrl = (originalUrl: string) => {
+    // Add Vercel Blob transformations for thumbnails
+    return `${originalUrl}?w=160&h=112&fit=cover&q=75`;
+  };
+
+  const getFullUrl = (originalUrl: string) => {
+    // Slightly compressed for gallery
+    return `${originalUrl}?q=90`;
+  };
+
+  async function load(pageNum = 1, append = false) {
     setLoading(true);
     try {
-      const res = await fetch("/api/vehicles");
+      const res = await fetch(`/api/vehicles?page=${pageNum}&limit=20`);
       const json = await res.json();
       if (!res.ok) {
         setError(json?.error || "Failed to load");
-        setRegs([]);
+        if (!append) setRegs([]);
       } else {
-        setRegs(json);
+        if (append) {
+          setRegs(prev => [...prev, ...json.data]);
+        } else {
+          setRegs(json.data);
+        }
+        setHasMore(json.hasMore);
+        setTotal(json.total);
         setError(null);
       }
     } catch (err) {
@@ -43,9 +64,17 @@ export default function VehiclesPage() {
     }
   }
 
+  function loadMore() {
+    if (!loading && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      load(nextPage, true);
+    }
+  }
+
   useEffect(() => {
     load();
-    const id = setInterval(load, 10000); // refresh every 10s
+    const id = setInterval(load, 60000); // refresh every 60s (1 minute)
     return () => clearInterval(id);
   }, []);
 
@@ -66,6 +95,13 @@ export default function VehiclesPage() {
     setGalleryPhotos(photos);
     setGalleryIndex(index);
     setGalleryOpen(true);
+    
+    // Preload adjacent images for better performance
+    const preloadIndexes = [index - 1, index, index + 1].filter(i => i >= 0 && i < photos.length);
+    preloadIndexes.forEach(i => {
+      const img = new window.Image();
+      img.src = getFullUrl(photos[i]);
+    });
   }
   function closeGallery() {
     setGalleryOpen(false);
@@ -80,10 +116,10 @@ export default function VehiclesPage() {
   return (
     <section className="p-8 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Registered Vehicles ({regs.length})</h1>
+        <h1 className="text-2xl font-bold">Registered Vehicles ({total > 0 ? total : regs.length})</h1>
         <div className="flex items-center gap-3">
           <button
-            onClick={load}
+            onClick={() => load(1, false)}
             className="px-3 py-1 bg-gray-800 text-white rounded"
             disabled={loading}
           >
@@ -111,14 +147,17 @@ export default function VehiclesPage() {
                   <button
                     key={i}
                     onClick={() => openGallery(r.photos || [], i)}
-                    className="p-0 border w-40 h-28 overflow-hidden bg-transparent"
+                    className="p-0 border w-40 h-28 overflow-hidden bg-transparent relative"
                     aria-label={`Open photo ${i + 1}`}
                   >
-                    <img
-                      src={p}
+                    <Image
+                      src={getThumbnailUrl(p)}
                       alt={`photo-${i}`}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       loading="lazy"
+                      sizes="160px"
+                      quality={75}
                     />
                   </button>
                 ))}
@@ -129,6 +168,19 @@ export default function VehiclesPage() {
           </div>
         ))}
       </div>
+
+      {/* Load More Button */}
+      {hasMore && (
+        <div className="text-center mt-8">
+          <button
+            onClick={loadMore}
+            className="px-6 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transition-colors"
+            disabled={loading}
+          >
+            {loading ? "Loading…" : "Load More"}
+          </button>
+        </div>
+      )}
 
       {/* Gallery modal */}
       {galleryOpen && (
@@ -147,31 +199,35 @@ export default function VehiclesPage() {
               ✕
             </button>
 
-            <div className="relative">
-              <img
-                src={galleryPhotos[galleryIndex]}
+            <div className="relative w-full h-[80vh]">
+              <Image
+                src={getFullUrl(galleryPhotos[galleryIndex])}
                 alt={`gallery-${galleryIndex}`}
-                className="w-full max-h-[80vh] object-contain bg-black"
+                fill
+                className="object-contain"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                quality={90}
+                priority
               />
 
               {galleryPhotos.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2 z-10"
                     aria-label="Previous"
                   >
                     ‹
                   </button>
                   <button
                     onClick={nextImage}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2 z-10"
                     aria-label="Next"
                   >
                     ›
                   </button>
 
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-white text-sm bg-black/40 px-3 py-1 rounded">
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-white text-sm bg-black/40 px-3 py-1 rounded z-10">
                     {galleryIndex + 1} / {galleryPhotos.length}
                   </div>
                 </>
