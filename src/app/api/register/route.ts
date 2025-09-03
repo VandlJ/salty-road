@@ -11,9 +11,12 @@ export async function POST(req: Request) {
     const email = form.get("email")?.toString() ?? "";
     const mobile = form.get("mobile")?.toString() ?? "";
     const car = form.get("car")?.toString() ?? "";
-    const plate = form.get("plate")?.toString() ?? "";
+    const plateRaw = form.get("plate")?.toString() ?? "";
     const description = form.get("description")?.toString() ?? "";
     const instagram = form.get("instagram")?.toString() ?? null;
+
+    // Normalize license plate: remove spaces and convert to uppercase
+    const plate = plateRaw.replace(/\s+/g, "").toUpperCase();
 
     if (!name || !email || !mobile || !car || !plate || !description) {
       return NextResponse.json(

@@ -20,6 +20,7 @@ export async function GET(req: Request) {
           car: true,
           plate: true,
           description: true,
+          instagram: true,
           photos: true,
           status: true,
           createdAt: true,

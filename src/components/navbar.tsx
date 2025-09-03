@@ -12,16 +12,20 @@ export default function Navbar({ fixed = false }) {
       {/* Logo */}
       <Link
         href="/"
-        className="no-underline  hover:opacity-75 transition-opacity duration-200"
+        className="no-underline hover:opacity-75 transition-opacity duration-200"
       >
-        <Image
-          src="/logo_saltyroad-cropped.svg"
-          alt="Salty Road Logo"
-          width={64}
-          height={64}
-          className="h-16 w-auto"
-          style={{ filter: "invert(1)" }}
-        />
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-amika text-white">Salty</span>
+          <Image
+            src="/logo_saltyroad-cropped.svg"
+            alt="Salty Road Logo"
+            width={64}
+            height={64}
+            className="h-16 w-auto"
+            style={{ filter: "invert(1)" }}
+          />
+          <span className="text-2xl font-amika text-white">Road</span>
+        </div>
       </Link>
       {/* Tabs */}
       <div className="flex gap-8">
