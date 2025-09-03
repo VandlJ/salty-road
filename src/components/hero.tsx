@@ -5,7 +5,7 @@ import React from "react";
 
 export default function Hero() {
   return (
-    <section className="fixed inset-0 z-0 overflow-hidden">
+    <section className="absolute inset-0 z-0 overflow-hidden">
       {/* Background video */}
       <video
         className="absolute inset-0 w-full h-full object-cover"

@@ -17,7 +17,7 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="overflow-hidden h-screen w-screen fixed inset-0">
+    <div className="overflow-hidden h-screen w-screen">
       <Hero />
     </div>
   );
