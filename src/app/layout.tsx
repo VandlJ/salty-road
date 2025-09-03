@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Salty Road",
   description: "",
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -31,7 +32,7 @@ export default function RootLayout({
         <div className="w-full">
           <ClientNavbarWrapper />
         </div>
-        <main className="pt-8">{children}</main>
+        <main className="pt-4 md:pt-8">{children}</main>
       </body>
     </html>
   );
