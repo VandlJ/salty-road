@@ -3,9 +3,18 @@
 import React, { useState } from "react";
 
 export default function CheckPage() {
-  const [plate, setPlate] = useState("");
+  const [idInput, setIdInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ id: number; status: string; name?: string; plate?: string; createdAt?: string } | null>(null);
+  const [result, setResult] = useState<{ 
+    id: string; 
+    status: string; 
+    firstName?: string; 
+    lastName?: string;
+    brand?: string;
+    model?: string;
+    year?: string;
+    createdAt?: string 
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Helper function for status indicator color
@@ -20,28 +29,20 @@ export default function CheckPage() {
     }
   }
 
-  // Helper function to format license plate for display (add space after first 3 characters)
-  function formatPlate(plate: string) {
-    if (!plate || plate.length <= 3) return plate;
-    return `${plate.slice(0, 3)} ${plate.slice(3)}`;
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setResult(null);
 
-    const q = plate.trim();
+    const q = idInput.trim();
     if (!q) {
-      setError("Enter licence plate");
+      setError("Enter Registration ID");
       return;
     }
 
     setLoading(true);
     try {
-      // Normalize the plate for search (remove spaces, uppercase)
-      const normalizedPlate = q.replace(/\s+/g, "").toUpperCase();
-      const res = await fetch(`/api/check?plate=${encodeURIComponent(normalizedPlate)}`);
+      const res = await fetch(`/api/check?id=${encodeURIComponent(q)}`);
       const json = await res.json();
       if (!res.ok) {
         setError(json?.error || "Lookup failed");
@@ -64,9 +65,9 @@ export default function CheckPage() {
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
           <input
-            value={plate}
-            onChange={(e) => setPlate(e.target.value)}
-            placeholder="Enter licence plate"
+            value={idInput}
+            onChange={(e) => setIdInput(e.target.value)}
+            placeholder="Enter Registration ID"
             className="p-3 sm:p-4 bg-gray-900/50 border border-[#C0C0C0]/30 rounded text-white placeholder-gray-400 focus:border-[#C0C0C0] focus:outline-none transition-colors text-sm sm:text-base"
           />
           <button 
@@ -88,7 +89,9 @@ export default function CheckPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
               <div>
                 <span className="text-[#C0C0C0] text-xs sm:text-sm">Name:</span>
-                <div className="text-white font-semibold text-base sm:text-lg">{result.name || "—"}</div>
+                <div className="text-white font-semibold text-base sm:text-lg">
+                  {result.firstName} {result.lastName}
+                </div>
               </div>
               <div>
                 <span className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 bg-[#C0C0C0]/10 border border-[#C0C0C0]/40 rounded text-xs sm:text-sm text-[#C0C0C0]">
@@ -98,8 +101,10 @@ export default function CheckPage() {
               </div>
             </div>
             <div className="mb-2">
-              <span className="text-[#C0C0C0] text-xs sm:text-sm">License Plate:</span>
-              <div className="text-white font-semibold text-base sm:text-lg">{formatPlate(result.plate || "")}</div>
+              <span className="text-[#C0C0C0] text-xs sm:text-sm">Vehicle:</span>
+              <div className="text-white font-semibold text-base sm:text-lg">
+                {result.brand} {result.model} ({result.year})
+              </div>
             </div>
             <div className="text-xs sm:text-sm text-gray-400">
               Created: {result.createdAt ? new Date(result.createdAt).toLocaleString() : "—"}

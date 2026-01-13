@@ -4,12 +4,13 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
 type Registration = {
-  id: number;
-  name: string;
+  id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  mobile: string;
-  car: string;
-  plate: string;
+  brand: string;
+  model: string;
+  year: string;
   description: string;
   instagram?: string | null;
   photos?: string[];
@@ -110,12 +111,6 @@ export default function AdminPage() {
     }
   }
 
-  // Helper function to format license plate for display (add space after first 3 characters)
-  function formatPlate(plate: string) {
-    if (!plate || plate.length <= 3) return plate;
-    return `${plate.slice(0, 3)} ${plate.slice(3)}`;
-  }
-
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -139,7 +134,7 @@ export default function AdminPage() {
     }
   }
 
-  async function handleAction(id: number, action: "accept" | "decline") {
+  async function handleAction(id: string, action: "accept" | "decline") {
     try {
       const res = await fetch("/api/admin/registrations", {
         method: "PATCH",
@@ -203,8 +198,8 @@ export default function AdminPage() {
           <div key={r.id} className="relative p-4 sm:p-6 border border-[#C0C0C0]/30 bg-gradient-to-br from-gray-900/40 to-black/60 backdrop-blur-md rounded-lg shadow-2xl hover:shadow-[#C0C0C0]/20 transition-all duration-300">
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
               <div className="flex-1">
-                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2">{r.name} <span className="text-sm sm:text-base lg:text-lg text-[#C0C0C0]">({r.email})</span></div>
-                <div className="text-[#C0C0C0] font-semibold text-base sm:text-lg mb-2">{r.car} — {formatPlate(r.plate)}</div>
+                <div className="text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2">{r.firstName} {r.lastName} <span className="text-sm sm:text-base lg:text-lg text-[#C0C0C0]">({r.email})</span></div>
+                <div className="text-[#C0C0C0] font-semibold text-base sm:text-lg mb-2">{r.brand} {r.model} ({r.year})</div>
                 <div className="text-gray-300 leading-relaxed mb-3 sm:mb-4 text-sm sm:text-base">{r.description}</div>
                 {r.instagram && (
                   <a
@@ -223,7 +218,7 @@ export default function AdminPage() {
                         key={i}
                         onClick={() => openGallery(r.photos || [], i)}
                         className="block w-24 h-16 sm:w-32 sm:h-24 overflow-hidden border border-[#C0C0C0]/40 p-0 bg-transparent relative hover:border-[#C0C0C0] hover:shadow-lg hover:shadow-[#C0C0C0]/20 hover:cursor-pointer transition-all duration-200 group rounded"
-                        aria-label={`Open photo ${i + 1} of ${r.name}`}
+                        aria-label={`Open photo ${i + 1} of ${r.firstName} ${r.lastName}`}
                       >
                         <Image
                           src={getThumbnailUrl(p)}

@@ -4,17 +4,23 @@ import prisma from "@/lib/prisma";
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
-    const plateRaw = (url.searchParams.get("plate") || "").trim();
-    if (!plateRaw) {
-      return NextResponse.json({ error: "Missing plate parameter" }, { status: 400 });
+    const id = (url.searchParams.get("id") || "").trim();
+    if (!id) {
+      return NextResponse.json({ error: "Missing id parameter" }, { status: 400 });
     }
 
-    // Normalize license plate: remove spaces and convert to uppercase for consistent search
-    const plate = plateRaw.replace(/\s+/g, "").toUpperCase();
-
-    const reg = await prisma.registration.findFirst({
-      where: { plate: { equals: plate, mode: "insensitive" } },
-      select: { id: true, status: true, name: true, plate: true, createdAt: true },
+    const reg = await prisma.registration.findUnique({
+      where: { id },
+      select: { 
+        id: true, 
+        status: true, 
+        firstName: true,
+        lastName: true,
+        brand: true,
+        model: true,
+        year: true,
+        createdAt: true 
+      },
     });
 
     if (!reg) return NextResponse.json({ error: "Not found" }, { status: 404 });

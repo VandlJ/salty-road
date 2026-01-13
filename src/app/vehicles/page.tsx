@@ -4,10 +4,12 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 
 type Registration = {
-  id: number;
-  name: string;
-  car: string;
-  plate: string;
+  id: string;
+  firstName: string;
+  lastName: string;
+  brand: string;
+  model: string;
+  year: string;
   description: string;
   instagram?: string | null;
   photos?: string[] | null;
@@ -141,7 +143,7 @@ export default function VehiclesPage() {
                 {/* Main car info */}
                 <div className="mb-3">
                   <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
-                    {r.car}
+                    {r.brand} {r.model} <span className="text-lg text-[#C0C0C0]">({r.year})</span>
                   </h2>
                   {/* Instagram handle */}
                   {r.instagram && (

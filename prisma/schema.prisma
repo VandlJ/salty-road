@@ -17,14 +17,15 @@ model Admin {
 
 model Registration {
   id          String   @id @default(cuid())
-  name        String
+  firstName   String
+  lastName    String
   email       String
-  mobile      String
-  car         String
-  plate       String
-  description String
   instagram   String?
+  brand       String
+  model       String
+  year        String
+  description String
   photos      String[] @default([])
-  createdAt   DateTime @default(now())
   status      String   @default("pending")
+  createdAt   DateTime @default(now())
 }

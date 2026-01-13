@@ -4,13 +4,14 @@ import React, { useState, useRef } from "react";
 
 export default function RegisterForm() {
   const [agreed, setAgreed] = useState(false);
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [car, setCar] = useState("");
-  const [plate, setPlate] = useState("");
-  const [desc, setDesc] = useState("");
   const [instagram, setInstagram] = useState("");
+  const [brand, setBrand] = useState("");
+  const [model, setModel] = useState("");
+  const [year, setYear] = useState("");
+  const [desc, setDesc] = useState("");
   const [photos, setPhotos] = useState<FileList | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,6 +19,12 @@ export default function RegisterForm() {
   const photosRef = useRef<HTMLInputElement | null>(null);
 
   const handlePhotosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 5) {
+      alert("You can select a maximum of 5 photos.");
+      e.target.value = ""; // clear
+      setPhotos(null);
+      return;
+    }
     setPhotos(e.target.files);
   };
 
@@ -28,11 +35,12 @@ export default function RegisterForm() {
 
     // client-side guards
     if (
-      !name.trim() ||
+      !firstName.trim() ||
+      !lastName.trim() ||
       !email.trim() ||
-      !mobile.trim() ||
-      !car.trim() ||
-      !plate.trim() ||
+      !brand.trim() ||
+      !model.trim() ||
+      !year.trim() ||
       !desc.trim()
     ) {
       setError("Please fill all required fields.");
@@ -43,15 +51,21 @@ export default function RegisterForm() {
       return;
     }
 
+    if (photos && photos.length > 5) {
+       setError("Maximum 5 photos allowed.");
+       return;
+    }
+
     setLoading(true);
     try {
       // build FormData with files
       const formData = new FormData();
-      formData.append("name", name.trim());
+      formData.append("firstName", firstName.trim());
+      formData.append("lastName", lastName.trim());
       formData.append("email", email.trim());
-      formData.append("mobile", mobile.trim());
-      formData.append("car", car.trim());
-      formData.append("plate", plate.trim());
+      formData.append("brand", brand.trim());
+      formData.append("model", model.trim());
+      formData.append("year", year.trim());
       formData.append("description", desc.trim());
       if (instagram.trim()) formData.append("instagram", instagram.trim());
 
@@ -61,7 +75,6 @@ export default function RegisterForm() {
         }
       }
 
-      // NOTE: do NOT set Content-Type — browser will set multipart/form-data boundary
       const res = await fetch("/api/register", {
         method: "POST",
         body: formData,
@@ -76,11 +89,12 @@ export default function RegisterForm() {
 
       setSuccess("Registration submitted. ID: " + json.id);
       // reset form
-      setName("");
+      setFirstName("");
+      setLastName("");
       setEmail("");
-      setMobile("");
-      setCar("");
-      setPlate("");
+      setBrand("");
+      setModel("");
+      setYear("");
       setDesc("");
       setInstagram("");
       setPhotos(null);
@@ -96,24 +110,43 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
-      {/* Row 1: Name, Email, Mobile */}
-      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Row 1: First Name, Last Name */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="name">
+          <label className="text-[#C0C0C0] font-semibold" htmlFor="firstName">
             Name
           </label>
           <input
-            id="name"
-            name="name"
+            id="firstName"
+            name="firstName"
             type="text"
-            placeholder="Your full name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="First Name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
             className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
             required
           />
         </div>
 
+        <div className="flex flex-col gap-2">
+          <label className="text-[#C0C0C0] font-semibold" htmlFor="lastName">
+            Surname
+          </label>
+          <input
+            id="lastName"
+            name="lastName"
+            type="text"
+            placeholder="Last Name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Row 2: Email, Instagram */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="email">
             Email
@@ -125,57 +158,6 @@ export default function RegisterForm() {
             placeholder="your@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
-            required
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="mobile">
-            Mobile number
-          </label>
-          <input
-            id="mobile"
-            name="mobile"
-            type="tel"
-            placeholder="+420 123 456 789"
-            value={mobile}
-            onChange={(e) => setMobile(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
-            required
-          />
-        </div>
-      </div>
-
-      {/* Row 2: Car make/model, Licence plate, Instagram handle */}
-      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="car">
-            Car make and model
-          </label>
-          <input
-            id="car"
-            name="car"
-            type="text"
-            placeholder="e.g. Škoda Octavia"
-            value={car}
-            onChange={(e) => setCar(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
-            required
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="plate">
-            Licence plate
-          </label>
-          <input
-            id="plate"
-            name="plate"
-            type="text"
-            placeholder="e.g. 1AB 2345"
-            value={plate}
-            onChange={(e) => setPlate(e.target.value)}
             className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
             required
           />
@@ -197,13 +179,64 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* Row 3: Description */}
+      {/* Row 3: Brand, Model, Year */}
+      <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-2">
+          <label className="text-[#C0C0C0] font-semibold" htmlFor="brand">
+            Car Brand
+          </label>
+          <input
+            id="brand"
+            name="brand"
+            type="text"
+            placeholder="e.g. Škoda"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[#C0C0C0] font-semibold" htmlFor="model">
+            Car Model
+          </label>
+          <input
+            id="model"
+            name="model"
+            type="text"
+            placeholder="e.g. Octavia"
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            required
+          />
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <label className="text-[#C0C0C0] font-semibold" htmlFor="year">
+            Year
+          </label>
+          <input
+            id="year"
+            name="year"
+            type="text"
+            placeholder="e.g. 2020"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            required
+          />
+        </div>
+      </div>
+
+      {/* Row 4: Description */}
       <div className="w-full">
         <label
           className="text-[#C0C0C0] font-semibold block mb-2"
           htmlFor="desc"
         >
-          Description of vehicle
+          Vehicle Information
         </label>
         <textarea
           id="desc"
@@ -217,13 +250,13 @@ export default function RegisterForm() {
         />
       </div>
 
-      {/* Row 4: Photos upload */}
+      {/* Row 5: Photos upload */}
       <div className="w-full">
         <label
           className="text-[#C0C0C0] font-semibold block mb-2"
           htmlFor="photos"
         >
-          Car photos upload
+          Car photos upload (Max 5)
         </label>
 
         {/* visually-hidden native file input */}
@@ -270,7 +303,7 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* Row 5: Agreement + submit */}
+      {/* Row 6: Agreement + submit */}
       <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-2">
           <input
@@ -293,11 +326,12 @@ export default function RegisterForm() {
             disabled={
               !(
                 agreed &&
-                name.trim() &&
+                firstName.trim() &&
+                lastName.trim() &&
                 email.trim() &&
-                mobile.trim() &&
-                car.trim() &&
-                plate.trim() &&
+                brand.trim() &&
+                model.trim() &&
+                year.trim() &&
                 desc.trim()
               )
             }

@@ -7,18 +7,16 @@ export async function POST(req: Request) {
     // parse multipart/form-data
     const form = await req.formData();
 
-    const name = form.get("name")?.toString() ?? "";
+    const firstName = form.get("firstName")?.toString() ?? "";
+    const lastName = form.get("lastName")?.toString() ?? "";
     const email = form.get("email")?.toString() ?? "";
-    const mobile = form.get("mobile")?.toString() ?? "";
-    const car = form.get("car")?.toString() ?? "";
-    const plateRaw = form.get("plate")?.toString() ?? "";
+    const brand = form.get("brand")?.toString() ?? "";
+    const model = form.get("model")?.toString() ?? "";
+    const year = form.get("year")?.toString() ?? "";
     const description = form.get("description")?.toString() ?? "";
     const instagram = form.get("instagram")?.toString() ?? null;
 
-    // Normalize license plate: remove spaces and convert to uppercase
-    const plate = plateRaw.replace(/\s+/g, "").toUpperCase();
-
-    if (!name || !email || !mobile || !car || !plate || !description) {
+    if (!firstName || !lastName || !email || !brand || !model || !year || !description) {
       return NextResponse.json(
         { error: "Missing or invalid required fields" },
         { status: 400 }
@@ -51,11 +49,12 @@ export async function POST(req: Request) {
 
     const record = await prisma.registration.create({
       data: {
-        name,
+        firstName,
+        lastName,
         email,
-        mobile,
-        car,
-        plate,
+        brand,
+        model,
+        year,
         description,
         instagram: instagram || null,
         photos: uploadedUrls,
