@@ -137,63 +137,65 @@ export default function VehiclesPage() {
         </div>
       )}
 
-      <div className="grid gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {regs.map((r) => (
-          <div key={r.id} className="relative p-4 sm:p-6 border border-gray-500 bg-black/80 backdrop-blur-md rounded-lg shadow-2xl hover:border-white transition-all duration-300">
-            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
-              <div className="flex-1 lg:pr-6">
-                {/* Main car info */}
-                <div className="mb-3">
-                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
-                    {r.brand} {r.model} <span className="text-lg text-gray-300 font-semibold">({r.year})</span>
-                  </h2>
-                  {/* Instagram handle */}
+          <div 
+            key={r.id} 
+            className="group relative aspect-[4/3] bg-black border border-gray-600 overflow-hidden hover:border-white transition-all duration-300 cursor-pointer shadow-xl"
+            onClick={() => openGallery(r.photos || [], 0)}
+          >
+            {/* Main Photo as background */}
+            {r.photos && r.photos.length > 0 ? (
+              <Image
+                src={getFullUrl(r.photos[0])}
+                alt={`${r.brand} ${r.model}`}
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500 italic text-sm">
+                {t("noPhotos")}
+              </div>
+            )}
+
+            {/* Gradient Overlay for better text contrast */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-80 group-hover:opacity-95 transition-all duration-300" />
+
+            {/* Content Overlay */}
+            <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-end">
+              <div className="transform transition-transform duration-300 group-hover:-translate-y-2">
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 drop-shadow-2xl">
+                  {r.brand} {r.model} <span className="text-sm sm:text-base font-normal text-gray-300">({r.year})</span>
+                </h2>
+                
+                {/* Expandable info on hover */}
+                <div className="max-h-0 overflow-hidden opacity-0 group-hover:max-h-32 group-hover:opacity-100 transition-all duration-500 ease-in-out">
+                  <p className="text-xs sm:text-sm text-gray-200 line-clamp-3 mb-3 font-medium">
+                    {r.description}
+                  </p>
                   {r.instagram && (
-                    <a
-                      href={`https://instagram.com/${r.instagram.replace('@', '')}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block text-xs sm:text-sm text-gray-300 bg-white/10 px-2 py-1 rounded border border-gray-500 hover:text-white hover:bg-white/20 hover:border-white transition-all duration-200 cursor-pointer mt-2 font-medium"
-                      aria-label={`Visit Instagram profile ${r.instagram}`}
-                    >
+                    <span className="inline-block text-[10px] sm:text-xs text-white bg-white/20 px-2 py-1 rounded border border-white/30 backdrop-blur-md uppercase tracking-wider font-bold">
                       @{r.instagram.replace('@', '')}
-                    </a>
+                    </span>
                   )}
                 </div>
-                
-                {/* Description */}
-                <div className="mb-4 sm:mb-6 text-gray-200 leading-relaxed text-sm sm:text-base font-medium">
-                  {r.description}
-                </div>
               </div>
+              
+              {/* Photo count indicator if multiple photos */}
+              {r.photos && r.photos.length > 1 && (
+                 <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white font-bold transition-opacity duration-300 group-hover:opacity-0">
+                   +{r.photos.length - 1}
+                 </div>
+              )}
+            </div>
 
-              {/* Photos - mobile optimized */}
-              <div className="flex-shrink-0">
-                {r.photos && r.photos.length > 0 ? (
-                  <div className="flex flex-wrap gap-2 sm:gap-3 max-w-full lg:max-w-xs pt-2">
-                    {r.photos.map((p, i) => (
-                      <button
-                        key={i}
-                        onClick={() => openGallery(r.photos || [], i)}
-                        className="p-0 border border-gray-500 w-20 h-14 sm:w-24 sm:h-18 overflow-hidden bg-transparent relative hover:border-white hover:shadow-lg hover:cursor-pointer transition-all duration-200 group rounded"
-                        aria-label={`Open photo ${i + 1}`}
-                      >
-                        <Image
-                          src={getThumbnailUrl(p)}
-                          alt={`photo-${i}`}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-300 rounded"
-                          loading="lazy"
-                          sizes="(max-width: 640px) 80px, 96px"
-                          quality={75}
-                        />
-                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-200 rounded" />
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-gray-400 italic text-xs sm:text-sm font-medium">{t("noPhotos")}</div>
-                )}
+            {/* Hint overlay on hover */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+              <div className="bg-white/10 backdrop-blur-sm p-3 rounded-full border border-white/20 scale-50 group-hover:scale-100 transition-transform duration-300">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                </svg>
               </div>
             </div>
           </div>
