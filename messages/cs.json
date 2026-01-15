@@ -109,5 +109,23 @@
       "errorMaxPhotos": "Maximálně je povoleno 5 fotografií.",
       "errorSubmission": "Odeslání se nezdařilo",
       "errorMaxPhotosAlert": "Můžete vybrat maximálně 5 fotografií."
+  },
+  "AdminPage": {
+    "loginTitle": "Přihlášení administrátora",
+    "username": "Uživatelské jméno",
+    "password": "Heslo",
+    "login": "Přihlásit se",
+    "loginError": "Chyba přihlášení",
+    "registrations": "Registrace",
+    "loading": "Načítám…",
+    "errorLoad": "Nelze načíst registrace.",
+    "accept": "Přijmout",
+    "decline": "Zamítnout",
+    "remove": "Odstranit",
+    "confirmRemove": "Opravdu chcete odstranit tuto registraci?",
+    "removeFailed": "Odstranění selhalo",
+    "actionFailed": "Akce selhala",
+    "networkError": "Chyba sítě",
+    "cancel": "Zrušit"
   }
 }

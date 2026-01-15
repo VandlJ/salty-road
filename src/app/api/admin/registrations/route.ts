@@ -33,3 +33,14 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({ success: true, updated });
 }
+
+export async function DELETE(req: Request) {
+  const admin = await getAdminFromReq(req);
+  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { id } = await req.json();
+  if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+
+  await prisma.registration.delete({ where: { id } });
+  return NextResponse.json({ success: true });
+}

@@ -109,5 +109,23 @@
       "errorMaxPhotos": "Maximum 5 photos allowed.",
       "errorSubmission": "Submission failed",
       "errorMaxPhotosAlert": "You can select a maximum of 5 photos."
+  },
+  "AdminPage": {
+    "loginTitle": "Admin Login",
+    "username": "Username",
+    "password": "Password",
+    "login": "Login",
+    "loginError": "Login error",
+    "registrations": "Registrations",
+    "loading": "Loading…",
+    "errorLoad": "Could not load registrations.",
+    "accept": "Accept",
+    "decline": "Decline",
+    "remove": "Remove",
+    "confirmRemove": "Are you sure you want to remove this registration?",
+    "removeFailed": "Removal failed",
+    "actionFailed": "Action failed",
+    "networkError": "Network error",
+    "cancel": "Cancel"
   }
 }
