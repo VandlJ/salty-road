@@ -117,13 +117,13 @@ export default function VehiclesPage() {
   return (
     <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <h1 className="pb-1 text-2xl sm:text-3xl lg:text-5xl font-extrabold bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent">
+        <h1 className="pb-1 text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white drop-shadow-md">
           {t("title")} ({total > 0 ? total : regs.length})
         </h1>
         <div className="flex items-center gap-3">
           <button
             onClick={() => load(1, false)}
-            className="px-4 py-2 sm:px-6 sm:py-2 bg-gradient-to-r from-white to-[#C0C0C0] text-black font-semibold rounded-none border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base"
+            className="px-4 py-2 sm:px-6 sm:py-2 bg-white text-black font-semibold rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base uppercase tracking-wider"
             disabled={loading}
           >
             {loading ? t("refreshing") : t("refresh")}
@@ -132,20 +132,20 @@ export default function VehiclesPage() {
       </div>
 
       {error && (
-        <div className="text-red-400 mb-6 p-4 border border-red-400/30 bg-red-900/20 rounded">
+        <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded font-bold">
           {error}
         </div>
       )}
 
       <div className="grid gap-4 sm:gap-6">
         {regs.map((r) => (
-          <div key={r.id} className="relative p-4 sm:p-6 border border-[#C0C0C0]/30 bg-gradient-to-br from-gray-900/40 to-black/60 backdrop-blur-md rounded-lg shadow-2xl hover:shadow-[#C0C0C0]/20 transition-all duration-300">
+          <div key={r.id} className="relative p-4 sm:p-6 border border-gray-500 bg-black/80 backdrop-blur-md rounded-lg shadow-2xl hover:border-white transition-all duration-300">
             <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
               <div className="flex-1 lg:pr-6">
                 {/* Main car info */}
                 <div className="mb-3">
                   <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
-                    {r.brand} {r.model} <span className="text-lg text-[#C0C0C0]">({r.year})</span>
+                    {r.brand} {r.model} <span className="text-lg text-gray-300 font-semibold">({r.year})</span>
                   </h2>
                   {/* Instagram handle */}
                   {r.instagram && (
@@ -153,7 +153,7 @@ export default function VehiclesPage() {
                       href={`https://instagram.com/${r.instagram.replace('@', '')}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block text-xs sm:text-sm text-[#C0C0C0]/70 bg-black/40 px-2 py-1 rounded border border-[#C0C0C0]/20 hover:text-[#C0C0C0] hover:bg-black/60 hover:border-[#C0C0C0]/40 transition-all duration-200 cursor-pointer mt-2"
+                      className="inline-block text-xs sm:text-sm text-gray-300 bg-white/10 px-2 py-1 rounded border border-gray-500 hover:text-white hover:bg-white/20 hover:border-white transition-all duration-200 cursor-pointer mt-2 font-medium"
                       aria-label={`Visit Instagram profile ${r.instagram}`}
                     >
                       @{r.instagram.replace('@', '')}
@@ -162,7 +162,7 @@ export default function VehiclesPage() {
                 </div>
                 
                 {/* Description */}
-                <div className="mb-4 sm:mb-6 text-gray-300 leading-relaxed text-sm sm:text-base">
+                <div className="mb-4 sm:mb-6 text-gray-200 leading-relaxed text-sm sm:text-base font-medium">
                   {r.description}
                 </div>
               </div>
@@ -175,7 +175,7 @@ export default function VehiclesPage() {
                       <button
                         key={i}
                         onClick={() => openGallery(r.photos || [], i)}
-                        className="p-0 border border-[#C0C0C0]/40 w-20 h-14 sm:w-24 sm:h-18 overflow-hidden bg-transparent relative hover:border-[#C0C0C0] hover:shadow-lg hover:shadow-[#C0C0C0]/20 hover:cursor-pointer transition-all duration-200 group rounded"
+                        className="p-0 border border-gray-500 w-20 h-14 sm:w-24 sm:h-18 overflow-hidden bg-transparent relative hover:border-white hover:shadow-lg hover:cursor-pointer transition-all duration-200 group rounded"
                         aria-label={`Open photo ${i + 1}`}
                       >
                         <Image
@@ -187,12 +187,12 @@ export default function VehiclesPage() {
                           sizes="(max-width: 640px) 80px, 96px"
                           quality={75}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded" />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-200 rounded" />
                       </button>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-[#C0C0C0]/60 italic text-xs sm:text-sm">{t("noPhotos")}</div>
+                  <div className="text-gray-400 italic text-xs sm:text-sm font-medium">{t("noPhotos")}</div>
                 )}
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function VehiclesPage() {
         <div className="text-center mt-8 sm:mt-12">
           <button
             onClick={loadMore}
-            className="px-6 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-white to-[#C0C0C0] text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-none border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:shadow-2xl hover:cursor-pointer transition-all duration-200"
+            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-2xl hover:cursor-pointer transition-all duration-200"
             disabled={loading}
           >
             {loading ? t("loading") : t("loadMore")}

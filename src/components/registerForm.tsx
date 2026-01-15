@@ -115,7 +115,7 @@ export default function RegisterForm() {
       {/* Row 1: First Name, Last Name */}
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="firstName">
+          <label className="text-white font-bold tracking-wide" htmlFor="firstName">
             {t("firstName")}
           </label>
           <input
@@ -125,13 +125,13 @@ export default function RegisterForm() {
             placeholder={t("firstName")}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="lastName">
+          <label className="text-white font-bold tracking-wide" htmlFor="lastName">
             {t("lastName")}
           </label>
           <input
@@ -141,7 +141,7 @@ export default function RegisterForm() {
             placeholder={t("lastName")}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -150,7 +150,7 @@ export default function RegisterForm() {
       {/* Row 2: Email, Instagram */}
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="email">
+          <label className="text-white font-bold tracking-wide" htmlFor="email">
             {t("email")}
           </label>
           <input
@@ -160,13 +160,13 @@ export default function RegisterForm() {
             placeholder="your@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="instagram">
+          <label className="text-white font-bold tracking-wide" htmlFor="instagram">
             {t("instagram")}
           </label>
           <input
@@ -176,7 +176,7 @@ export default function RegisterForm() {
             placeholder="@yourhandle"
             value={instagram}
             onChange={(e) => setInstagram(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
           />
         </div>
       </div>
@@ -184,7 +184,7 @@ export default function RegisterForm() {
       {/* Row 3: Brand, Model, Year */}
       <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="brand">
+          <label className="text-white font-bold tracking-wide" htmlFor="brand">
             {t("brand")}
           </label>
           <input
@@ -194,13 +194,13 @@ export default function RegisterForm() {
             placeholder="e.g. Škoda"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="model">
+          <label className="text-white font-bold tracking-wide" htmlFor="model">
             {t("model")}
           </label>
           <input
@@ -210,13 +210,13 @@ export default function RegisterForm() {
             placeholder="e.g. Octavia"
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[#C0C0C0] font-semibold" htmlFor="year">
+          <label className="text-white font-bold tracking-wide" htmlFor="year">
             {t("year")}
           </label>
           <input
@@ -226,7 +226,7 @@ export default function RegisterForm() {
             placeholder="e.g. 2020"
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -235,7 +235,7 @@ export default function RegisterForm() {
       {/* Row 4: Description */}
       <div className="w-full">
         <label
-          className="text-[#C0C0C0] font-semibold block mb-2"
+          className="text-white font-bold tracking-wide block mb-2"
           htmlFor="desc"
         >
           {t("description")}
@@ -246,7 +246,7 @@ export default function RegisterForm() {
           placeholder={t("descriptionPlaceholder")}
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
-          className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0] resize-none"
+          className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 resize-none transition-all duration-200"
           rows={3}
           required
         />
@@ -255,7 +255,7 @@ export default function RegisterForm() {
       {/* Row 5: Photos upload */}
       <div className="w-full">
         <label
-          className="text-[#C0C0C0] font-semibold block mb-2"
+          className="text-white font-bold tracking-wide block mb-2"
           htmlFor="photos"
         >
           {t("photos")}
@@ -276,12 +276,12 @@ export default function RegisterForm() {
         {/* Custom styled label acts as the visible "Choose files" button */}
         <label
           htmlFor="photos"
-          className="inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-[#C0C0C0] text-[#F8F7F3] rounded-none cursor-pointer hover:bg-[#1a1a1a] transition-colors duration-150"
+          className="inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-white text-white rounded-none cursor-pointer hover:bg-white hover:text-black transition-colors duration-200 font-semibold"
         >
           {/* simple upload icon */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 text-[#C0C0C0]"
+            className="h-5 w-5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -298,7 +298,7 @@ export default function RegisterForm() {
         </label>
 
         {/* selected files summary */}
-        <div className="mt-2 text-sm text-[#C0C0C0]">
+        <div className="mt-2 text-sm text-gray-300 font-medium">
           {photos && photos.length > 0
             ? t("filesSelected", {count: photos.length})
             : t("noFiles")}
@@ -314,9 +314,9 @@ export default function RegisterForm() {
             checked={agreed}
             onChange={(e) => setAgreed(e.target.checked)}
             required
-            className="accent-[#C0C0C0] w-5 h-5"
+            className="accent-white w-5 h-5 cursor-pointer"
           />
-          <label htmlFor="agree" className="text-[#C0C0C0] font-semibold">
+          <label htmlFor="agree" className="text-white font-bold tracking-wide cursor-pointer">
             {t("agreement")}
           </label>
         </div>
@@ -324,7 +324,7 @@ export default function RegisterForm() {
         <div className="flex-shrink-0">
           <button
             type="submit"
-            className="mt-0 px-8 py-3 rounded-none font-bold text-lg tracking-widest uppercase bg-gradient-to-r from-white to-[#C0C0C0] text-[#222] shadow-lg border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:text-[#444] hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-0 px-8 py-3 rounded-none font-bold text-lg tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={
               !(
                 agreed &&

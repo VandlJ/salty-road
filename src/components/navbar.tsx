@@ -53,19 +53,19 @@ export default function Navbar({ fixed = false }) {
         <div className="hidden md:flex gap-8 absolute left-1/2 transform -translate-x-1/2 items-center">
           <Link
             href="/vehicles"
-            className="no-underline text-[#F8F7F3] font-semibold hover:text-[#C0C0C0] transition-colors duration-200"
+            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
           >
             {t("vehicles")}
           </Link>
           <Link
             href="/check"
-            className="no-underline text-[#F8F7F3] font-semibold hover:text-[#C0C0C0] transition-colors duration-200"
+            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
           >
             {t("check")}
           </Link>
           <Link
             href="/info"
-            className="no-underline text-[#F8F7F3] font-semibold hover:text-[#C0C0C0] transition-colors duration-200"
+            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
           >
             {t("info")}
           </Link>
@@ -75,14 +75,14 @@ export default function Navbar({ fixed = false }) {
         <div className="hidden md:flex items-center gap-2">
           <button 
             onClick={() => switchLocale('cs')}
-            className={`bg-transparent border-none font-semibold cursor-pointer hover:text-[#C0C0C0] transition-colors duration-200 ${locale === 'cs' ? 'text-[#C0C0C0]' : 'text-[#F8F7F3]'}`}
+            className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'cs' ? 'text-gray-400' : 'text-white'}`}
           >
             cs
           </button>
-          <span className="text-[#C0C0C0]">/</span>
+          <span className="text-white">/</span>
           <button 
             onClick={() => switchLocale('en')}
-            className={`bg-transparent border-none font-semibold cursor-pointer hover:text-[#C0C0C0] transition-colors duration-200 ${locale === 'en' ? 'text-[#C0C0C0]' : 'text-[#F8F7F3]'}`}
+            className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'en' ? 'text-gray-400' : 'text-white'}`}
           >
             en
           </button>
@@ -130,28 +130,28 @@ export default function Navbar({ fixed = false }) {
           <div className="flex flex-col space-y-4 text-center mt-8">
             <Link
               href="/vehicles"
-              className="no-underline text-[#F8F7F3] text-xl font-semibold hover:text-[#C0C0C0] transition-colors duration-200 py-3 border-b border-[#C0C0C0]/20"
+              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("vehicles")}
             </Link>
             <Link
               href="/check"
-              className="no-underline text-[#F8F7F3] text-xl font-semibold hover:text-[#C0C0C0] transition-colors duration-200 py-3 border-b border-[#C0C0C0]/20"
+              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("check")}
             </Link>
             
             {/* Mobile Information Section */}
-            <div className="py-2 border-b border-[#C0C0C0]/20">
-              <span className="block text-[#C0C0C0] text-sm uppercase tracking-widest mb-4">{t("info")}</span>
+            <div className="py-2 border-b border-gray-600">
+              <span className="block text-gray-300 text-sm uppercase tracking-widest mb-4">{t("info")}</span>
               <div className="flex flex-col gap-4 pl-4">
-                 <Link href="/info#parking" onClick={closeMenu} className="text-[#F8F7F3] text-lg hover:text-[#C0C0C0]">{t("parking")}</Link>
-                 <Link href="/info#map" onClick={closeMenu} className="text-[#F8F7F3] text-lg hover:text-[#C0C0C0]">{t("map")}</Link>
-                 <Link href="/info#sponsors" onClick={closeMenu} className="text-[#F8F7F3] text-lg hover:text-[#C0C0C0]">{t("sponsors")}</Link>
-                 <Link href="/info#program" onClick={closeMenu} className="text-[#F8F7F3] text-lg hover:text-[#C0C0C0]">{t("program")}</Link>
-                 <Link href="/info#rules" onClick={closeMenu} className="text-[#F8F7F3] text-lg hover:text-[#C0C0C0]">{t("rules")}</Link>
+                 <Link href="/info#parking" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("parking")}</Link>
+                 <Link href="/info#map" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("map")}</Link>
+                 <Link href="/info#sponsors" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("sponsors")}</Link>
+                 <Link href="/info#program" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("program")}</Link>
+                 <Link href="/info#rules" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("rules")}</Link>
               </div>
             </div>
 
@@ -159,14 +159,14 @@ export default function Navbar({ fixed = false }) {
             <div className="flex items-center justify-center gap-4 pt-8 pb-12">
               <button 
                 onClick={() => switchLocale('cs')}
-                className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-[#C0C0C0] transition-colors duration-200 px-4 py-2 ${locale === 'cs' ? 'text-[#C0C0C0]' : 'text-[#F8F7F3]'}`}
+                className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'cs' ? 'text-gray-400' : 'text-white'}`}
               >
                 cs
               </button>
-              <span className="text-[#C0C0C0] text-lg">/</span>
+              <span className="text-white text-lg">/</span>
               <button 
                 onClick={() => switchLocale('en')}
-                className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-[#C0C0C0] transition-colors duration-200 px-4 py-2 ${locale === 'en' ? 'text-[#C0C0C0]' : 'text-[#F8F7F3]'}`}
+                className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'en' ? 'text-gray-400' : 'text-white'}`}
               >
                 en
               </button>

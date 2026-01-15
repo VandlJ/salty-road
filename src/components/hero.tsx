@@ -53,28 +53,28 @@ export default function Hero() {
           {/* Left column - Date */}
           <div className="flex-1 flex justify-center sm:justify-end sm:pr-12 md:pr-24 mb-3 sm:mb-0">
             <div className="flex flex-col items-center group">
-              <span className="text-[#C0C0C0]/60 text-xs sm:text-xs uppercase tracking-widest font-montserrat mb-1">
+              <span className="text-white text-xs sm:text-xs uppercase tracking-widest font-montserrat mb-1 drop-shadow-md font-semibold">
                 {t("dateLabel")}
               </span>
-              <span className="text-base sm:text-lg md:text-xl font-bold tracking-wide bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent">
+              <span className="text-base sm:text-lg md:text-xl font-bold tracking-wide text-white drop-shadow-md">
                 {t("dateValue")}
               </span>
             </div>
           </div>
           
           {/* Center separator line - hidden on mobile */}
-          <div className="hidden sm:block absolute left-1/2 transform -translate-x-1/2 w-px h-12 md:h-16 bg-gradient-to-b from-transparent via-[#C0C0C0]/70 to-transparent shadow-lg"></div>
+          <div className="hidden sm:block absolute left-1/2 transform -translate-x-1/2 w-px h-12 md:h-16 bg-white shadow-lg"></div>
           
           {/* Mobile separator line */}
-          <div className="block sm:hidden w-20 h-px bg-gradient-to-r from-transparent via-[#C0C0C0]/70 to-transparent mb-3"></div>
+          <div className="block sm:hidden w-20 h-px bg-white mb-3 shadow-lg"></div>
           
           {/* Right column - Location */}
           <div className="flex-1 flex justify-center sm:justify-start sm:pl-12 md:pl-24">
             <div className="flex flex-col items-center group">
-              <span className="text-[#C0C0C0]/60 text-xs sm:text-xs uppercase tracking-widest font-montserrat mb-1">
+              <span className="text-white text-xs sm:text-xs uppercase tracking-widest font-montserrat mb-1 drop-shadow-md font-semibold">
                 {t("locationLabel")}
               </span>
-              <span className="text-base sm:text-lg md:text-xl font-bold tracking-wide bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent text-center">
+              <span className="text-base sm:text-lg md:text-xl font-bold tracking-wide text-white text-center drop-shadow-md">
                 {t("locationValue")}
               </span>
             </div>
@@ -82,7 +82,7 @@ export default function Hero() {
         </div>
         <div className="flex items-center justify-center">
           <Link href="/register">
-            <button className="mt-4 md:mt-6 px-8 md:px-12 py-3 md:py-4 text-base md:text-lg rounded-none font-bold tracking-widest uppercase bg-gradient-to-r from-white to-[#C0C0C0] text-[#222] shadow-lg border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:text-[#444] hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer">
+            <button className="mt-4 md:mt-6 px-8 md:px-12 py-3 md:py-4 text-base md:text-lg rounded-none font-bold tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 hover:text-black hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer">
               {t("registerButton")}
             </button>
           </Link>

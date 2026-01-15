@@ -62,7 +62,7 @@ export default function CheckPage() {
   return (
     <section className="bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
       <div className="w-full">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 sm:mb-8 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent text-center leading-tight">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 sm:mb-8 text-white text-center leading-tight drop-shadow-md">
           {t("title")}
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
@@ -70,10 +70,10 @@ export default function CheckPage() {
             value={idInput}
             onChange={(e) => setIdInput(e.target.value)}
             placeholder={t("placeholder")}
-            className="p-3 sm:p-4 bg-gray-900/50 border border-[#C0C0C0]/30 rounded text-white placeholder-gray-400 focus:border-[#C0C0C0] focus:outline-none transition-colors text-sm sm:text-base"
+            className="p-3 sm:p-4 bg-white/10 border-2 border-gray-400 rounded-none text-white placeholder-gray-300 focus:border-white focus:bg-white/20 focus:outline-none transition-all duration-200 text-sm sm:text-base font-medium"
           />
           <button 
-            className="px-6 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-white to-[#C0C0C0] text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-none border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:shadow-2xl hover:cursor-pointer transition-all duration-200 disabled:opacity-50" 
+            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-none border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl hover:cursor-pointer transition-all duration-200 disabled:opacity-50" 
             disabled={loading}
           >
             {loading ? t("loading") : t("button")}
@@ -81,34 +81,34 @@ export default function CheckPage() {
         </form>
 
         {error && (
-          <div className="text-red-400 mb-6 p-4 border border-red-400/30 bg-red-900/20 rounded text-center">
+          <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded text-center font-bold">
             {error}
           </div>
         )}
 
         {result && (
-          <div className="p-4 sm:p-6 border border-[#C0C0C0]/30 bg-gradient-to-br from-gray-900/40 to-black/60 backdrop-blur-md rounded-lg shadow-2xl">
+          <div className="p-4 sm:p-6 border-2 border-white bg-black/80 backdrop-blur-md rounded-none shadow-2xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
               <div>
-                <span className="text-[#C0C0C0] text-xs sm:text-sm">{t("resultName")} </span>
-                <div className="text-white font-semibold text-base sm:text-lg">
+                <span className="text-gray-300 text-xs sm:text-sm font-semibold uppercase tracking-wide">{t("resultName")} </span>
+                <div className="text-white font-bold text-base sm:text-lg tracking-wide">
                   {result.firstName} {result.lastName}
                 </div>
               </div>
               <div>
-                <span className="inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 bg-[#C0C0C0]/10 border border-[#C0C0C0]/40 rounded text-xs sm:text-sm text-[#C0C0C0]">
-                  <div className={`w-2 h-2 ${getStatusColor(result.status)} rounded-full mr-2`}></div>
+                <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-white/50 rounded text-xs sm:text-sm text-white font-semibold">
+                  <div className={`w-2 h-2 ${getStatusColor(result.status)} rounded-full mr-2 shadow-[0_0_8px_rgba(255,255,255,0.8)]`}></div>
                   {result.status || "pending"}
                 </span>
               </div>
             </div>
             <div className="mb-2">
-              <span className="text-[#C0C0C0] text-xs sm:text-sm">{t("resultVehicle")} </span>
-              <div className="text-white font-semibold text-base sm:text-lg">
+              <span className="text-gray-300 text-xs sm:text-sm font-semibold uppercase tracking-wide">{t("resultVehicle")} </span>
+              <div className="text-white font-bold text-base sm:text-lg tracking-wide">
                 {result.brand} {result.model} ({result.year})
               </div>
             </div>
-            <div className="text-xs sm:text-sm text-gray-400">
+            <div className="text-xs sm:text-sm text-gray-400 font-medium">
               {t("resultCreated")} {result.createdAt ? new Date(result.createdAt).toLocaleString() : "—"}
             </div>
           </div>
