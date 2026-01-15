@@ -1,0 +1,113 @@
+{
+  "Navbar": {
+    "vehicles": "Registrovaná vozidla",
+    "check": "Kontrola registrace",
+    "info": "Informace",
+    "parking": "Parkování",
+    "map": "Mapa",
+    "sponsors": "Sponzoři",
+    "program": "Program",
+    "rules": "Návštěvní řád"
+  },
+  "Hero": {
+    "title1": "Salty Road Meet",
+    "title2": "Volume 1",
+    "dateLabel": "Datum",
+    "dateValue": "25. 07. 2026",
+    "locationLabel": "Místo",
+    "locationValue": "Velké náměstí, Prachatice",
+    "registerButton": "Registrovat"
+  },
+  "RegisterPage": {
+    "title": "Zaregistrujte své auto",
+    "subtitle": "Vyplňte formulář níže pro registraci vašeho vozu na výstavu Salty Road.",
+    "importantInfoTitle": "Důležité informace pro vystavovatele",
+    "arrival": {
+      "title": "Příjezd vozidel",
+      "text": "Velké náměstí v Prachaticích je přístupné pro příjezd:",
+      "time1": "<strong>Pátek 24. července 2026</strong>, od 19:00 do 22:00",
+      "time2": "<strong>Sobota 25. července 2026</strong>, od 8:00 do 11:00",
+      "warning": "Mimo tyto časy není vjezd vozidel na náměstí povolen."
+    },
+    "departure": {
+      "title": "Odjezd z místa konání",
+      "time1": "<strong>Sobota 25. července 2026</strong>, po 18:00",
+      "time2": "<strong>Neděle 26. července 2026</strong>, do 10:00"
+    },
+    "conditions": {
+        "title": "Registrace a podmínky",
+        "p1": "K dispozici je jedna výstavní plocha – <strong>Velké náměstí, Prachatice</strong> s kapacitou až 100 vozidel. Proběhne výběr vozidel ke schválení.",
+        "p2": "Všechny registrace budou zodpovězeny e-mailem. Jakmile bude vaše registrace na Salty Road Meet schválena, obdržíte potvrzovací e-mail s pokyny k zaplacení registračního poplatku.",
+        "feeIncludes": "Registrační poplatek zahrnuje:",
+        "feeList1": "Výstavní plochu pro vaše vozidlo",
+        "feeList2": "Vstupenku pro řidiče",
+        "feeList3": "Uvítací balíček od Salty Road Meet a našich partnerů",
+        "p3": "Po přijetí platby vám zašleme potvrzení o registraci s registračním číslem (potřebné pro akreditaci) a kompletní instrukce pro vystavovatele."
+    },
+    "fee": {
+        "title": "Registrační poplatek",
+        "p1": "Registrační poplatek musí být zaplacen předem bankovním převodem jako potvrzení vaší účasti.",
+        "refund1": "Při zrušení do 14 dnů před akcí: <strong>Vrácení v plné výši</strong>",
+        "refund2": "Při zrušení méně než 14 dní před akcí: <strong>Nevratné</strong>",
+        "label": "Registrační poplatek:",
+        "amount": "299 Kč / 12 €"
+    }
+  },
+  "CheckPage": {
+      "title": "Kontrola registrace",
+      "placeholder": "Zadejte SPZ registrovaného vozu",
+      "button": "Zkontrolovat",
+      "loading": "Kontroluji…",
+      "errorEmpty": "Zadejte SPZ registrovaného vozu",
+      "errorNetwork": "Chyba sítě",
+      "errorLookup": "Vyhledávání se nezdařilo",
+      "resultName": "Jméno:",
+      "resultVehicle": "Vozidlo:",
+      "resultCreated": "Vytvořeno:"
+  },
+  "InfoPage": {
+      "title": "Informace",
+      "parkingTitle": "Parkování",
+      "parkingText": "Informace o parkování budou brzy k dispozici.",
+      "mapTitle": "Mapa",
+      "mapText": "Mapa akce bude brzy k dispozici.",
+      "sponsorsTitle": "Sponzoři",
+      "sponsorsText": "Naši partneři a sponzoři.",
+      "programTitle": "Program",
+      "programText": "Harmonogram akce bude brzy zveřejněn.",
+      "rulesTitle": "Návštěvní řád",
+      "rulesText": "Pravidla a předpisy pro návštěvníky."
+  },
+  "VehiclesPage": {
+      "title": "Registrovaná vozidla",
+      "refresh": "Obnovit",
+      "refreshing": "Obnovuji…",
+      "loadMore": "Načíst další",
+      "loading": "Načítám…",
+      "noPhotos": "Nebyly nahrány žádné fotky"
+  },
+  "RegisterForm": {
+      "firstName": "Jméno",
+      "lastName": "Příjmení",
+      "email": "E-mail",
+      "instagram": "Instagram",
+      "brand": "Značka vozu",
+      "model": "Model vozu",
+      "year": "Rok výroby",
+      "description": "Informace o vozidle",
+      "descriptionPlaceholder": "Stručný popis vašeho vozidla",
+      "photos": "Nahrání fotografií vozu (Max 5)",
+      "chooseFiles": "Vybrat soubory",
+      "filesSelected": "{count} vybraných souborů",
+      "noFiles": "Nebyly vybrány žádné soubory",
+      "agreement": "Souhlasím s pravidly registrace",
+      "send": "Odeslat",
+      "submitting": "Odesílám...",
+      "success": "Registrace byla odeslána. ID: {id}",
+      "errorRequired": "Prosím vyplňte všechna povinná pole.",
+      "errorAgreement": "Musíte souhlasit s pravidly.",
+      "errorMaxPhotos": "Maximálně je povoleno 5 fotografií.",
+      "errorSubmission": "Odeslání se nezdařilo",
+      "errorMaxPhotosAlert": "Můžete vybrat maximálně 5 fotografií."
+  }
+}

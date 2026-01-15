@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 
 type Registration = {
   id: string;
@@ -18,6 +19,7 @@ type Registration = {
 };
 
 export default function VehiclesPage() {
+  const t = useTranslations("VehiclesPage");
   const [regs, setRegs] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -116,7 +118,7 @@ export default function VehiclesPage() {
     <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
         <h1 className="pb-1 text-2xl sm:text-3xl lg:text-5xl font-extrabold bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent">
-          Registered Vehicles ({total > 0 ? total : regs.length})
+          {t("title")} ({total > 0 ? total : regs.length})
         </h1>
         <div className="flex items-center gap-3">
           <button
@@ -124,7 +126,7 @@ export default function VehiclesPage() {
             className="px-4 py-2 sm:px-6 sm:py-2 bg-gradient-to-r from-white to-[#C0C0C0] text-black font-semibold rounded-none border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base"
             disabled={loading}
           >
-            {loading ? "Refreshing…" : "Refresh"}
+            {loading ? t("refreshing") : t("refresh")}
           </button>
         </div>
       </div>
@@ -190,7 +192,7 @@ export default function VehiclesPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-[#C0C0C0]/60 italic text-xs sm:text-sm">No photos uploaded</div>
+                  <div className="text-[#C0C0C0]/60 italic text-xs sm:text-sm">{t("noPhotos")}</div>
                 )}
               </div>
             </div>
@@ -206,7 +208,7 @@ export default function VehiclesPage() {
             className="px-6 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-white to-[#C0C0C0] text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-none border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:shadow-2xl hover:cursor-pointer transition-all duration-200"
             disabled={loading}
           >
-            {loading ? "Loading…" : "Load More"}
+            {loading ? t("loading") : t("loadMore")}
           </button>
         </div>
       )}

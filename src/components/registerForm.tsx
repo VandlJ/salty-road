@@ -1,8 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React, { useState, useRef } from "react";
 
 export default function RegisterForm() {
+  const t = useTranslations("RegisterForm");
   const [agreed, setAgreed] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -20,7 +22,7 @@ export default function RegisterForm() {
 
   const handlePhotosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 5) {
-      alert("You can select a maximum of 5 photos.");
+      alert(t("errorMaxPhotosAlert"));
       e.target.value = ""; // clear
       setPhotos(null);
       return;
@@ -43,16 +45,16 @@ export default function RegisterForm() {
       !year.trim() ||
       !desc.trim()
     ) {
-      setError("Please fill all required fields.");
+      setError(t("errorRequired"));
       return;
     }
     if (!agreed) {
-      setError("You must agree to the rules.");
+      setError(t("errorAgreement"));
       return;
     }
 
     if (photos && photos.length > 5) {
-       setError("Maximum 5 photos allowed.");
+       setError(t("errorMaxPhotos"));
        return;
     }
 
@@ -82,12 +84,12 @@ export default function RegisterForm() {
 
       const json = await res.json();
       if (!res.ok) {
-        setError(json?.error || "Submission failed");
+        setError(json?.error || t("errorSubmission"));
         setLoading(false);
         return;
       }
 
-      setSuccess("Registration submitted. ID: " + json.id);
+      setSuccess(t("success", { id: json.id }));
       // reset form
       setFirstName("");
       setLastName("");
@@ -102,7 +104,7 @@ export default function RegisterForm() {
       if (photosRef.current) photosRef.current.value = "";
     } catch (err) {
       console.error(err);
-      setError("Network error");
+      setError(t("errorSubmission")); // Or network error specifically
     } finally {
       setLoading(false);
     }
@@ -114,13 +116,13 @@ export default function RegisterForm() {
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="firstName">
-            Name
+            {t("firstName")}
           </label>
           <input
             id="firstName"
             name="firstName"
             type="text"
-            placeholder="First Name"
+            placeholder={t("firstName")}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
@@ -130,13 +132,13 @@ export default function RegisterForm() {
 
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="lastName">
-            Surname
+            {t("lastName")}
           </label>
           <input
             id="lastName"
             name="lastName"
             type="text"
-            placeholder="Last Name"
+            placeholder={t("lastName")}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0]"
@@ -149,7 +151,7 @@ export default function RegisterForm() {
       <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="email">
-            Email
+            {t("email")}
           </label>
           <input
             id="email"
@@ -165,7 +167,7 @@ export default function RegisterForm() {
 
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="instagram">
-            Instagram
+            {t("instagram")}
           </label>
           <input
             id="instagram"
@@ -183,7 +185,7 @@ export default function RegisterForm() {
       <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="brand">
-            Car Brand
+            {t("brand")}
           </label>
           <input
             id="brand"
@@ -199,7 +201,7 @@ export default function RegisterForm() {
 
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="model">
-            Car Model
+            {t("model")}
           </label>
           <input
             id="model"
@@ -215,7 +217,7 @@ export default function RegisterForm() {
 
         <div className="flex flex-col gap-2">
           <label className="text-[#C0C0C0] font-semibold" htmlFor="year">
-            Year
+            {t("year")}
           </label>
           <input
             id="year"
@@ -236,12 +238,12 @@ export default function RegisterForm() {
           className="text-[#C0C0C0] font-semibold block mb-2"
           htmlFor="desc"
         >
-          Vehicle Information
+          {t("description")}
         </label>
         <textarea
           id="desc"
           name="desc"
-          placeholder="Brief description of your vehicle"
+          placeholder={t("descriptionPlaceholder")}
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
           className="w-full px-4 py-3 bg-transparent text-white border-2 border-[#C0C0C0] rounded-none focus:outline-none focus:border-white placeholder-[#C0C0C0] resize-none"
@@ -256,7 +258,7 @@ export default function RegisterForm() {
           className="text-[#C0C0C0] font-semibold block mb-2"
           htmlFor="photos"
         >
-          Car photos upload (Max 5)
+          {t("photos")}
         </label>
 
         {/* visually-hidden native file input */}
@@ -292,14 +294,14 @@ export default function RegisterForm() {
               d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 3v12m0-12l4 4m-4-4-4 4"
             />
           </svg>
-          <span className="font-semibold">Choose files</span>
+          <span className="font-semibold">{t("chooseFiles")}</span>
         </label>
 
         {/* selected files summary */}
         <div className="mt-2 text-sm text-[#C0C0C0]">
           {photos && photos.length > 0
-            ? `${photos.length} file${photos.length > 1 ? "s" : ""} selected`
-            : "No files selected"}
+            ? t("filesSelected", {count: photos.length})
+            : t("noFiles")}
         </div>
       </div>
 
@@ -315,7 +317,7 @@ export default function RegisterForm() {
             className="accent-[#C0C0C0] w-5 h-5"
           />
           <label htmlFor="agree" className="text-[#C0C0C0] font-semibold">
-            I agree with the rules of registration
+            {t("agreement")}
           </label>
         </div>
 
@@ -336,7 +338,7 @@ export default function RegisterForm() {
               )
             }
           >
-            Send
+            {t("send")}
           </button>
         </div>
       </div>
@@ -374,7 +376,7 @@ export default function RegisterForm() {
               d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
             />
           </svg>
-          <span className="text-[#C0C0C0] font-semibold">Submitting...</span>
+          <span className="text-[#C0C0C0] font-semibold">{t("submitting")}</span>
         </div>
       )}
     </form>

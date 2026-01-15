@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import ClientNavbarWrapper from "@/components/clientNavbarWrapper";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,20 +25,27 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params
 }: Readonly<{
   children: React.ReactNode;
+  params: Promise<{locale: string}>;
 }>) {
+  const { locale } = await params;
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
       >
-        <div className="w-full">
-          <ClientNavbarWrapper />
-        </div>
-        <main className="pt-4 md:pt-8">{children}</main>
+        <NextIntlClientProvider messages={messages}>
+          <div className="w-full">
+            <ClientNavbarWrapper />
+          </div>
+          <main className="pt-4 md:pt-8">{children}</main>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

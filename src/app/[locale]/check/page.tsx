@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function CheckPage() {
+  const t = useTranslations("CheckPage");
   const [idInput, setIdInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ 
@@ -36,7 +38,7 @@ export default function CheckPage() {
 
     const q = idInput.trim();
     if (!q) {
-      setError("Enter Registration ID");
+      setError(t("errorEmpty"));
       return;
     }
 
@@ -45,13 +47,13 @@ export default function CheckPage() {
       const res = await fetch(`/api/check?id=${encodeURIComponent(q)}`);
       const json = await res.json();
       if (!res.ok) {
-        setError(json?.error || "Lookup failed");
+        setError(json?.error || t("errorLookup"));
       } else {
         setResult(json);
       }
     } catch (err) {
       console.error(err);
-      setError("Network error");
+      setError(t("errorNetwork"));
     } finally {
       setLoading(false);
     }
@@ -61,20 +63,20 @@ export default function CheckPage() {
     <section className="bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
       <div className="w-full">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 sm:mb-8 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent text-center leading-tight">
-          Check Registration
+          {t("title")}
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
           <input
             value={idInput}
             onChange={(e) => setIdInput(e.target.value)}
-            placeholder="Enter Registration ID"
+            placeholder={t("placeholder")}
             className="p-3 sm:p-4 bg-gray-900/50 border border-[#C0C0C0]/30 rounded text-white placeholder-gray-400 focus:border-[#C0C0C0] focus:outline-none transition-colors text-sm sm:text-base"
           />
           <button 
             className="px-6 py-2 sm:px-8 sm:py-3 bg-gradient-to-r from-white to-[#C0C0C0] text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-none border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:shadow-2xl hover:cursor-pointer transition-all duration-200 disabled:opacity-50" 
             disabled={loading}
           >
-            {loading ? "Checking…" : "Check"}
+            {loading ? t("loading") : t("button")}
           </button>
         </form>
 
@@ -88,7 +90,7 @@ export default function CheckPage() {
           <div className="p-4 sm:p-6 border border-[#C0C0C0]/30 bg-gradient-to-br from-gray-900/40 to-black/60 backdrop-blur-md rounded-lg shadow-2xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
               <div>
-                <span className="text-[#C0C0C0] text-xs sm:text-sm">Name:</span>
+                <span className="text-[#C0C0C0] text-xs sm:text-sm">{t("resultName")} </span>
                 <div className="text-white font-semibold text-base sm:text-lg">
                   {result.firstName} {result.lastName}
                 </div>
@@ -101,13 +103,13 @@ export default function CheckPage() {
               </div>
             </div>
             <div className="mb-2">
-              <span className="text-[#C0C0C0] text-xs sm:text-sm">Vehicle:</span>
+              <span className="text-[#C0C0C0] text-xs sm:text-sm">{t("resultVehicle")} </span>
               <div className="text-white font-semibold text-base sm:text-lg">
                 {result.brand} {result.model} ({result.year})
               </div>
             </div>
             <div className="text-xs sm:text-sm text-gray-400">
-              Created: {result.createdAt ? new Date(result.createdAt).toLocaleString() : "—"}
+              {t("resultCreated")} {result.createdAt ? new Date(result.createdAt).toLocaleString() : "—"}
             </div>
           </div>
         )}
