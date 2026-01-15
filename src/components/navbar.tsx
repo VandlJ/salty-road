@@ -142,18 +142,13 @@ export default function Navbar({ fixed = false }) {
             >
               {t("check")}
             </Link>
-            
-            {/* Mobile Information Section */}
-            <div className="py-2 border-b border-gray-600">
-              <span className="block text-gray-300 text-sm uppercase tracking-widest mb-4">{t("info")}</span>
-              <div className="flex flex-col gap-4 pl-4">
-                 <Link href="/info#parking" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("parking")}</Link>
-                 <Link href="/info#map" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("map")}</Link>
-                 <Link href="/info#sponsors" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("sponsors")}</Link>
-                 <Link href="/info#program" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("program")}</Link>
-                 <Link href="/info#rules" onClick={closeMenu} className="text-white text-lg hover:text-gray-300">{t("rules")}</Link>
-              </div>
-            </div>
+            <Link
+              href="/info"
+              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              onClick={closeMenu}
+            >
+              {t("info")}
+            </Link>
 
             {/* Mobile Language Switch */}
             <div className="flex items-center justify-center gap-4 pt-8 pb-12">
