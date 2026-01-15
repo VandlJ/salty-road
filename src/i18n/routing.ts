@@ -6,7 +6,7 @@ export const routing = defineRouting({
   locales: ['en', 'cs'],
 
   // Used when no locale matches
-  defaultLocale: 'en'
+  defaultLocale: 'cs'
 });
 
 export const {Link, redirect, usePathname, useRouter} =
