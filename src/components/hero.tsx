@@ -2,13 +2,14 @@
 
 import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import React from "react";
 
 export default function Hero() {
   const t = useTranslations("Hero");
   return (
     <section className="absolute inset-0 z-0 overflow-hidden">
-      {/* Background video */}
+      {/* Background video - commented out
       <video
         className="absolute inset-0 w-full h-full object-cover"
         src="/background.mp4"
@@ -16,6 +17,15 @@ export default function Hero() {
         loop
         muted
         playsInline
+      />
+      */}
+      {/* Background Image */}
+      <Image
+        src="/hero.jpg"
+        alt="Hero Background"
+        fill
+        className="object-cover"
+        priority
       />
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
