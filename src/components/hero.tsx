@@ -30,16 +30,26 @@ export default function Hero() {
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       {/* Content */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden">
-        <div className="relative mb-4">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-8 md:-translate-y-24">
+        <div className="relative mb-0 max-w-5xl w-full">
+          {/* Heading text - commented out
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent animate-gradient font-amika text-center leading-tight">
             {t("title1")}
           </h1>
           <h2 className="absolute bottom-0 -right-2 sm:-right-10 md:-right-15 text-lg sm:text-2xl md:text-3xl lg:text-4xl drop-shadow-lg translate-y-1/2 bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent animate-gradient font-amika">
             {t("title2")}
           </h2>
+          */}
+          <Image
+            src="/SaltyRoad/SRM_text.png"
+            alt="Salty Road Meet Vol. 1"
+            width={1200}
+            height={600}
+            className="w-full h-auto drop-shadow-2xl"
+            priority
+          />
         </div>
-        <div className="relative w-full flex flex-col sm:flex-row items-center justify-center mb-4 md:mb-8 mt-4 md:mt-8">
+        <div className="relative w-full flex flex-col sm:flex-row items-center justify-center mb-2 md:mb-4 -mt-12 sm:-mt-20 md:-mt-32 z-20">
           {/* Left column - Date */}
           <div className="flex-1 flex justify-center sm:justify-end sm:pr-12 md:pr-24 mb-3 sm:mb-0">
             <div className="flex flex-col items-center group">
@@ -72,7 +82,7 @@ export default function Hero() {
         </div>
         <div className="flex items-center justify-center">
           <Link href="/register">
-            <button className="mt-6 md:mt-12 px-8 md:px-12 py-3 md:py-4 text-base md:text-lg rounded-none font-bold tracking-widest uppercase bg-gradient-to-r from-white to-[#C0C0C0] text-[#222] shadow-lg border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:text-[#444] hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer">
+            <button className="mt-4 md:mt-6 px-8 md:px-12 py-3 md:py-4 text-base md:text-lg rounded-none font-bold tracking-widest uppercase bg-gradient-to-r from-white to-[#C0C0C0] text-[#222] shadow-lg border-2 border-[#C0C0C0] hover:from-[#C0C0C0] hover:to-white hover:text-[#444] hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer">
               {t("registerButton")}
             </button>
           </Link>
