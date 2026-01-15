@@ -55,10 +55,10 @@
   },
   "CheckPage": {
       "title": "Check Registration",
-      "placeholder": "Enter Registered Vehicle License Plate",
+      "placeholder": "Enter Registration ID",
       "button": "Check",
       "loading": "Checking…",
-      "errorEmpty": "Enter Registered Vehicle License Plate",
+      "errorEmpty": "Enter Registration ID",
       "errorNetwork": "Network error",
       "errorLookup": "Lookup failed",
       "resultName": "Name:",

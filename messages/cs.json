@@ -55,10 +55,10 @@
   },
   "CheckPage": {
       "title": "Kontrola registrace",
-      "placeholder": "Zadejte SPZ registrovaného vozu",
+      "placeholder": "Zadejte ID registrace",
       "button": "Zkontrolovat",
       "loading": "Kontroluji…",
-      "errorEmpty": "Zadejte SPZ registrovaného vozu",
+      "errorEmpty": "Zadejte ID registrace",
       "errorNetwork": "Chyba sítě",
       "errorLookup": "Vyhledávání se nezdařilo",
       "resultName": "Jméno:",
