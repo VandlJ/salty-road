@@ -30,7 +30,7 @@ export default function Hero() {
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       {/* Content */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-8 md:-translate-y-24">
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-4 md:-translate-y-12">
         <div className="relative mb-0 max-w-5xl w-full">
           {/* Heading text - commented out
           <h1 className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent animate-gradient font-amika text-center leading-tight">
@@ -49,7 +49,7 @@ export default function Hero() {
             priority
           />
         </div>
-        <div className="relative w-full flex flex-col sm:flex-row items-center justify-center mb-2 md:mb-4 -mt-12 sm:-mt-20 md:-mt-32 z-20">
+        <div className="relative w-full flex flex-col sm:flex-row items-center justify-center mb-2 md:mb-4 mt-4 md:mt-8 z-20">
           {/* Left column - Date */}
           <div className="flex-1 flex justify-center sm:justify-end sm:pr-12 md:pr-24 mb-3 sm:mb-0">
             <div className="flex flex-col items-center group">
