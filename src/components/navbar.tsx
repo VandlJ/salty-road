@@ -22,10 +22,10 @@ export default function Navbar({ fixed = false }) {
   return (
     <nav
       className={`${
-        fixed ? "fixed top-0 left-0 w-full z-30" : "w-full z-30"
+        fixed ? "fixed top-0 left-0 w-full z-30" : "relative w-full z-30"
       } ${
         isMenuOpen ? "bg-black" : "bg-gradient-to-b from-black/60 via-black/50 to-transparent"
-      } border-b border-[#C0C0C0] backdrop-blur-md relative transition-all duration-300 ease-in-out`}
+      } border-b border-[#C0C0C0] backdrop-blur-md transition-all duration-300 ease-in-out`}
     >
       {/* Main navbar */}
       <div className="flex items-center justify-between px-4 md:px-8 py-3 md:py-4">
@@ -52,7 +52,19 @@ export default function Navbar({ fixed = false }) {
         {/* Desktop Navigation */}
         <div className="hidden md:flex gap-8 absolute left-1/2 transform -translate-x-1/2 items-center">
           <Link
-            href="/vehicles"
+            href="/#info"
+            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
+          >
+            {t("info")}
+          </Link>
+          <Link
+            href="/#register"
+            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
+          >
+            {t("register")}
+          </Link>
+          <Link
+            href="/#vehicles"
             className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
           >
             {t("vehicles")}
@@ -62,12 +74,6 @@ export default function Navbar({ fixed = false }) {
             className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
           >
             {t("check")}
-          </Link>
-          <Link
-            href="/info"
-            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
-          >
-            {t("info")}
           </Link>
         </div>
 
@@ -129,7 +135,21 @@ export default function Navbar({ fixed = false }) {
           {/* Mobile Navigation Links */}
           <div className="flex flex-col space-y-4 text-center mt-8">
             <Link
-              href="/vehicles"
+              href="/#info"
+              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              onClick={closeMenu}
+            >
+              {t("info")}
+            </Link>
+            <Link
+              href="/#register"
+              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              onClick={closeMenu}
+            >
+              {t("register")}
+            </Link>
+            <Link
+              href="/#vehicles"
               className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
@@ -141,13 +161,6 @@ export default function Navbar({ fixed = false }) {
               onClick={closeMenu}
             >
               {t("check")}
-            </Link>
-            <Link
-              href="/info"
-              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={closeMenu}
-            >
-              {t("info")}
             </Link>
 
             {/* Mobile Language Switch */}

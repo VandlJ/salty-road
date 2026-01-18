@@ -1,6 +1,7 @@
 {
   "Navbar": {
     "vehicles": "Registrovaná vozidla",
+    "register": "Registrace",
     "check": "Kontrola registrace",
     "info": "Informace",
     "parking": "Parkování",

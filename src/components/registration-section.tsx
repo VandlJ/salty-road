@@ -2,13 +2,14 @@
 
 import RegisterForm from "@/components/registerForm";
 import { useTranslations } from "next-intl";
+import React from "react";
 
-export default function RegisterPage() {
+export default function RegistrationSection() {
   const t = useTranslations("RegisterPage");
   const strong = (chunks: React.ReactNode) => <strong className="text-white">{chunks}</strong>;
 
   return (
-    <section className="bg-transparent text-white px-4 pt-6 sm:pt-8 pb-8 sm:pb-12 max-w-4xl mx-auto">
+    <section id="register" className="bg-transparent text-white px-4 pt-8 pb-12 max-w-4xl mx-auto min-h-screen scroll-mt-24">
       <div className="flex flex-col items-center">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent animate-gradient text-center leading-tight">
           {t("title")}

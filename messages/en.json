@@ -1,6 +1,7 @@
 {
   "Navbar": {
     "vehicles": "Registered Vehicles",
+    "register": "Registration",
     "check": "Registration Check",
     "info": "Information",
     "parking": "Parking",

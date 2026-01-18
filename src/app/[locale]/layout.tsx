@@ -44,7 +44,7 @@ export default async function RootLayout({
           <div className="w-full">
             <ClientNavbarWrapper />
           </div>
-          <main className="pt-4 md:pt-8">{children}</main>
+          <main>{children}</main>
         </NextIntlClientProvider>
       </body>
     </html>

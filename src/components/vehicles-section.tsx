@@ -18,7 +18,7 @@ type Registration = {
   createdAt?: string | null;
 };
 
-export default function VehiclesPage() {
+export default function VehiclesSection() {
   const t = useTranslations("VehiclesPage");
   const [regs, setRegs] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,10 +33,6 @@ export default function VehiclesPage() {
   const [galleryIndex, setGalleryIndex] = useState(0);
 
   // Helper functions for image optimization
-  const getThumbnailUrl = (originalUrl: string) => {
-    return `${originalUrl}?w=160&h=112&fit=cover&q=75`;
-  };
-
   const getFullUrl = (originalUrl: string) => {
     return `${originalUrl}?q=90`;
   };
@@ -115,7 +111,7 @@ export default function VehiclesPage() {
   }
 
   return (
-    <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-5xl mx-auto">
+    <section id="vehicles" className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-5xl mx-auto scroll-mt-24">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
         <h1 className="pb-1 text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white drop-shadow-md">
           {t("title")} ({total > 0 ? total : regs.length})

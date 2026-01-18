@@ -1,24 +1,21 @@
 "use client";
 
 import Hero from "@/components/hero";
-import { useEffect } from "react";
+import InfoSection from "@/components/info-section";
+import RegistrationSection from "@/components/registration-section";
+import VehiclesSection from "@/components/vehicles-section";
 
 export default function Page() {
-  useEffect(() => {
-    // Disable scrolling on homepage
-    document.body.style.overflow = 'hidden';
-    document.documentElement.style.overflow = 'hidden';
-    
-    // Cleanup function to re-enable scrolling when leaving the page
-    return () => {
-      document.body.style.overflow = 'unset';
-      document.documentElement.style.overflow = 'unset';
-    };
-  }, []);
-
   return (
-    <div className="overflow-hidden h-screen w-screen">
-      <Hero />
+    <div className="w-full">
+      <div className="relative h-screen w-full">
+        <Hero />
+      </div>
+      <div className="bg-gradient-to-b from-black via-[#0a0a0a] to-black">
+        <InfoSection />
+        <RegistrationSection />
+        <VehiclesSection />
+      </div>
     </div>
   );
 }
