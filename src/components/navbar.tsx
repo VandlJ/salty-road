@@ -33,7 +33,13 @@ export default function Navbar({ fixed = false }) {
         <Link
           href="/"
           className="no-underline hover:opacity-75 transition-opacity duration-200"
-          onClick={closeMenu}
+          onClick={(e) => {
+            closeMenu();
+            if (pathname === '/') {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+          }}
         >
           <div className="flex items-center gap-1">
             <span className="text-lg md:text-2xl font-amika text-white">Salty</span>
