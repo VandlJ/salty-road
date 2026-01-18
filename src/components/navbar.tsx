@@ -50,35 +50,41 @@ export default function Navbar({ fixed = false }) {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex gap-8 absolute left-1/2 transform -translate-x-1/2 items-center">
+        <div className="hidden lg:flex flex-1 justify-center items-center gap-6 px-4">
           <Link
             href="/#info"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
           >
             {t("info")}
           </Link>
           <Link
             href="/#register"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
           >
             {t("register")}
           </Link>
           <Link
             href="/#vehicles"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
           >
             {t("vehicles")}
           </Link>
+          {/* <Link
+            href="/shop"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
+          >
+            {t("shop")}
+          </Link> */}
           <Link
             href="/check"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
           >
             {t("check")}
           </Link>
         </div>
 
         {/* Desktop Language Switch */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden lg:flex items-center gap-2 min-w-[60px] justify-end">
           <button 
             onClick={() => switchLocale('cs')}
             className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'cs' ? 'text-gray-400' : 'text-white'}`}
@@ -97,7 +103,7 @@ export default function Navbar({ fixed = false }) {
         {/* Mobile Burger Menu Button */}
         <button
           onClick={toggleMenu}
-          className="md:hidden flex flex-col items-center justify-center w-8 h-8 space-y-1 focus:outline-none"
+          className="lg:hidden flex flex-col items-center justify-center w-8 h-8 space-y-1 focus:outline-none"
           aria-label="Toggle menu"
         >
           <span
@@ -120,7 +126,7 @@ export default function Navbar({ fixed = false }) {
 
       {/* Mobile Menu Overlay */}
       <div
-        className={`md:hidden fixed left-0 right-0 bottom-0 bg-black transition-all duration-300 ease-in-out z-40 ${
+        className={`lg:hidden fixed left-0 right-0 bottom-0 bg-black transition-all duration-300 ease-in-out z-40 ${
           isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
         style={{ top: "calc(100% + 0px)" }}
@@ -154,6 +160,13 @@ export default function Navbar({ fixed = false }) {
               onClick={closeMenu}
             >
               {t("vehicles")}
+            </Link>
+            <Link
+              href="/shop"
+              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              onClick={closeMenu}
+            >
+              {t("shop")}
             </Link>
             <Link
               href="/check"

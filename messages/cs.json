@@ -4,11 +4,19 @@
     "register": "Registrace",
     "check": "Kontrola registrace",
     "info": "Informace",
+    "shop": "E-shop",
     "parking": "Parkování",
     "map": "Mapa",
     "sponsors": "Sponzoři",
     "program": "Program",
     "rules": "Návštěvní řád"
+  },
+  "ShopPage": {
+    "title": "Salty Road E-shop",
+    "subtitle": "Náš oficiální obchod s merchandise se právě připravuje. Pracujeme na tom, abychom vám přinesli to nejlepší vybavení Salty Road.",
+    "integrationTitle": "Integrace WooCommerce",
+    "integrationText": "Tato sekce je připravena k propojení s vaším WooCommerce backendem. Zde se zobrazí produkty.",
+    "mockupNote": "Náhled rozložení produktů"
   },
   "Hero": {
     "title1": "Salty Road Meet",

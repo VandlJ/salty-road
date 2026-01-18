@@ -4,11 +4,19 @@
     "register": "Registration",
     "check": "Registration Check",
     "info": "Information",
+    "shop": "Shop",
     "parking": "Parking",
     "map": "Map",
     "sponsors": "Sponsors",
     "program": "Program",
     "rules": "Visitor Rules"
+  },
+  "ShopPage": {
+    "title": "Salty Road Shop",
+    "subtitle": "Our official merchandise store is currently under construction. We are working hard to bring you the best Salty Road gear.",
+    "integrationTitle": "WooCommerce Integration",
+    "integrationText": "This section is ready to be connected to your WooCommerce backend. Products will appear here.",
+    "mockupNote": "Mockup preview of product grid"
   },
   "Hero": {
     "title1": "Salty Road Meet",
