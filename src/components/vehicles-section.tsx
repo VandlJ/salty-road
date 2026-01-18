@@ -113,8 +113,8 @@ export default function VehiclesSection() {
   return (
     <section id="vehicles" className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-5xl mx-auto scroll-mt-24">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <h1 className="pb-1 text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white drop-shadow-md">
-          {t("title")} ({total > 0 ? total : regs.length})
+        <h1 className="pb-1 text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white drop-shadow-md uppercase tracking-wide">
+          {t("title")}
         </h1>
         <div className="flex items-center gap-3">
           <button

@@ -53,25 +53,25 @@ export default function Navbar({ fixed = false }) {
         <div className="hidden md:flex gap-8 absolute left-1/2 transform -translate-x-1/2 items-center">
           <Link
             href="/#info"
-            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
           >
             {t("info")}
           </Link>
           <Link
             href="/#register"
-            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
           >
             {t("register")}
           </Link>
           <Link
             href="/#vehicles"
-            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
           >
             {t("vehicles")}
           </Link>
           <Link
             href="/check"
-            className="no-underline text-white font-semibold hover:text-gray-300 transition-colors duration-200"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200"
           >
             {t("check")}
           </Link>
@@ -136,28 +136,28 @@ export default function Navbar({ fixed = false }) {
           <div className="flex flex-col space-y-4 text-center mt-8">
             <Link
               href="/#info"
-              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("info")}
             </Link>
             <Link
               href="/#register"
-              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("register")}
             </Link>
             <Link
               href="/#vehicles"
-              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("vehicles")}
             </Link>
             <Link
               href="/check"
-              className="no-underline text-white text-xl font-semibold hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("check")}

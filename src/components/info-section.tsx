@@ -5,7 +5,7 @@ export default function InfoSection() {
   
   return (
     <section id="info" className="bg-transparent text-white px-4 pt-8 pb-12 max-w-4xl mx-auto min-h-screen scroll-mt-24">
-      <h1 className="text-4xl md:text-5xl font-extrabold mb-8 text-center text-white drop-shadow-md">
+      <h1 className="text-4xl md:text-5xl font-extrabold mb-8 text-center text-white drop-shadow-md uppercase tracking-wide">
         {t("title")}
       </h1>
       
