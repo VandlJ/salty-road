@@ -11,7 +11,7 @@ export default function Page() {
       <div className="relative h-screen w-full">
         <Hero />
       </div>
-      <div className="bg-gradient-to-b from-black via-[#0a0a0a] to-black">
+      <div className="bg-gradient-to-b from-black via-zinc-800 to-black">
         <InfoSection />
         <RegistrationSection />
         <VehiclesSection />
