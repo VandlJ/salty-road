@@ -83,7 +83,7 @@
         "item2": "Vehicles without valid registration will not be allowed to enter or park in these locations.",
         "item3": "Given that the event takes place in the historical city center, we recommend local visitors to arrive on foot.",
         "item4": "For visitors who need to arrive by car, we recommend using adjacent parking areas outside the city center.",
-        "item5": "Exhibitors bringing their vehicles on a trailer can use the Menšíkova parking lot for trailer parking: <mapLink>https://mapy.cz/s/cozufafuru</mapLink>",
+        "item5": "Exhibitors bringing their vehicles on a trailer can use the Menšíkova parking lot for trailer parking: <mapLink>map</mapLink>",
         "item6": "We ask all event participants to follow these rules, which are necessary to ensure safety, smooth traffic, and the smooth running of the event."
       },
       "mapTitle": "Map",
@@ -101,7 +101,7 @@
         "item7": "from 22:00 - Afterparty at Music Club Hrozen",
         "item8": "<strong>Side program throughout the day:</strong>",
         "item9": "Hairstylist Jakub Bouda",
-        "item10": "Hair braiding - Cherry braid PT",
+        "item10": "Hair braiding – Cherry braid PT",
         "item11": "Face painting – ČÁRY MÁRY"
       },
       "rulesTitle": "Visitor Rules",
@@ -155,7 +155,8 @@
       "errorTotalSize": "Total file size exceeds 4 MB.",
       "errorSubmission": "Submission failed",
       "errorMaxPhotosAlert": "You can select a maximum of 5 photos.",
-      "errorHeicUnsupported": "This HEIC photo could not be processed. Please use JPEG/PNG."
+      "errorHeicUnsupported": "This HEIC photo could not be processed. Please use JPEG/PNG.",
+      "photosHint": "Change the order or remove"
   },
   "AdminPage": {
     "loginTitle": "Admin Login",

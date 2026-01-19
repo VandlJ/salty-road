@@ -83,7 +83,7 @@
         "item2": "Vozidlům bez platné registrace nebude umožněn vjezd ani parkování v těchto lokalitách.",
         "item3": "Vzhledem k tomu, že se akce koná v historickém centru města, doporučujeme místním návštěvníkům příchod pěšky.",
         "item4": "Návštěvníkům, kteří potřebují dorazit automobilem, doporučujeme využít přilehlé parkovací plochy mimo centrum města.",
-        "item5": "Vystavovatelé, kteří přivážejí svá vozidla na soupravě (vlek, podval), mohou pro parkování soupravy využít parkoviště Menšíkova: <mapLink>https://mapy.cz/s/cozufafuru</mapLink>",
+        "item5": "Vystavovatelé, kteří přivážejí svá vozidla na soupravě (vlek, podval), mohou pro parkování soupravy využít parkoviště Menšíkova: <mapLink>mapa</mapLink>",
         "item6": "Žádáme všechny účastníky akce o dodržování uvedených pravidel, která jsou nezbytná pro zajištění bezpečnosti, plynulého provozu a hladkého průběhu akce."
       },
       "mapTitle": "Mapa",
@@ -101,7 +101,7 @@
         "item7": "od 22:00 - Afterparty v Music Club Hrozen",
         "item8": "<strong>Doprovodný program po celý den:</strong>",
         "item9": "Hairstylist Jakub Bouda",
-        "item10": "Zaplétání copánků - Cherry braid PT",
+        "item10": "Zaplétání copánků – Cherry braid PT",
         "item11": "Malování na obličej – ČÁRY MÁRY"
       },
       "rulesTitle": "Návštěvní řád",
@@ -155,7 +155,8 @@
       "errorTotalSize": "Celková velikost souborů překračuje 4 MB.",
       "errorSubmission": "Odeslání se nezdařilo",
       "errorMaxPhotosAlert": "Můžete vybrat maximálně 5 fotografií.",
-      "errorHeicUnsupported": "Tuto HEIC fotografii nelze zpracovat. Použijte prosím JPEG/PNG."
+      "errorHeicUnsupported": "Tuto HEIC fotografii nelze zpracovat. Použijte prosím JPEG/PNG.",
+      "photosHint": "Změňte pořadí nebo odstraňte"
   },
   "AdminPage": {
     "loginTitle": "Přihlášení administrátora",

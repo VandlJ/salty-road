@@ -11,9 +11,9 @@ export default function RegistrationSection() {
   return (
     <section id="register" className="bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24">
       <div className="flex flex-col items-center">
-        <div className="relative pb-1 mb-8 sm:mb-12 inline-block">
+        <div className="relative pb-1 mb-16 inline-block">
           {/* Outline Layer - Red */}
-          <h1 className="absolute inset-0 text-4xl sm:text-5xl font-extrabold text-transparent [-webkit-text-stroke:4px_#ff0302] uppercase tracking-widest select-none z-0 flex items-center justify-center">
+          <h1 className="absolute inset-0 text-4xl sm:text-5xl font-extrabold text-transparent [-webkit-text-stroke:4px_#ff0302] uppercase tracking-widest select-none z-0 flex items-center justify-center text-center">
             {t("title")}
           </h1>
           {/* Text Layer - White */}
@@ -26,10 +26,7 @@ export default function RegistrationSection() {
         </p>
 
         {/* Info Section */}
-        <div className="w-full bg-[#111]/90 border border-gray-800 p-8 md:p-12 mb-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative group overflow-hidden">
-           {/* Subtle glow effect */}
-           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-           
+        <div className="w-full bg-[#111]/90 border border-gray-800 p-6 md:p-12 mb-12 md:mb-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative overflow-hidden">
           <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-white border-b border-gray-800 pb-4 inline-block px-8 uppercase tracking-widest">
             {t("importantInfoTitle")}
           </h2>
@@ -63,12 +60,21 @@ export default function RegistrationSection() {
               <p className="mb-4 text-gray-200 font-light text-lg">
                 {t("conditions.p2")}
               </p>
-              <div className="bg-white/5 p-6 rounded-sm border border-white/10">
-                <p className="mb-4 font-bold text-white uppercase tracking-wide">{t("conditions.feeIncludes")}</p>
+              <div className="bg-white/5 p-6 rounded-sm border border-white/10 text-left">
+                <p className="mb-4 font-bold text-white uppercase tracking-wide text-center">{t("conditions.feeIncludes")}</p>
                 <ul className="list-none space-y-3 mb-4 text-gray-300">
-                  <li className="flex items-center justify-center gap-2"><span className="w-1.5 h-1.5 bg-white rounded-full" /> {t("conditions.feeList1")}</li>
-                  <li className="flex items-center justify-center gap-2"><span className="w-1.5 h-1.5 bg-white rounded-full" /> {t("conditions.feeList2")}</li>
-                  <li className="flex items-center justify-center gap-2"><span className="w-1.5 h-1.5 bg-white rounded-full" /> {t("conditions.feeList3")}</li>
+                  <li className="flex items-start justify-start md:justify-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-white rounded-full mt-2.5 shrink-0" /> 
+                    <span>{t("conditions.feeList1")}</span>
+                  </li>
+                  <li className="flex items-start justify-start md:justify-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-white rounded-full mt-2.5 shrink-0" /> 
+                    <span>{t("conditions.feeList2")}</span>
+                  </li>
+                  <li className="flex items-start justify-start md:justify-center gap-3">
+                    <span className="w-1.5 h-1.5 bg-white rounded-full mt-2.5 shrink-0" /> 
+                    <span>{t("conditions.feeList3")}</span>
+                  </li>
                 </ul>
               </div>
               <p className="text-gray-200 font-light mt-4">
@@ -85,7 +91,7 @@ export default function RegistrationSection() {
                 <li>{t.rich("fee.refund1", { strong })}</li>
                 <li>{t.rich("fee.refund2", { strong })}</li>
               </ul>
-              <div className="text-base sm:text-xl text-white border border-white/30 inline-block px-8 py-4 font-medium bg-gradient-to-r from-white/10 to-transparent hover:from-white/20 transition-all duration-300 uppercase tracking-widest shadow-lg">
+              <div className="text-base sm:text-xl text-white border border-white/30 inline-block px-8 py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg">
                 {t("fee.label")} <span className="font-bold ml-2 text-white">{t("fee.amount")}</span>
               </div>
             </div>

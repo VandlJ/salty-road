@@ -113,7 +113,7 @@ export default function VehiclesSection() {
       <div className="flex flex-col items-center mb-16 gap-4">
         <div className="relative pb-1 inline-block">
           {/* Outline Layer - Red */}
-          <h1 className="absolute inset-0 text-4xl sm:text-5xl font-extrabold text-transparent [-webkit-text-stroke:4px_#ff0302] uppercase tracking-widest select-none z-0 flex items-center justify-center">
+          <h1 className="absolute inset-0 text-4xl sm:text-5xl font-extrabold text-transparent [-webkit-text-stroke:4px_#ff0302] uppercase tracking-widest select-none z-0 flex items-center justify-center text-center">
             {t("title")}
           </h1>
           {/* Text Layer - White */}

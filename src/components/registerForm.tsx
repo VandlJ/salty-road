@@ -266,7 +266,7 @@ export default function RegisterForm() {
             id="brand"
             name="brand"
             type="text"
-            placeholder="e.g. Škoda"
+            placeholder="Škoda"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
             className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
@@ -282,7 +282,7 @@ export default function RegisterForm() {
             id="model"
             name="model"
             type="text"
-            placeholder="e.g. Octavia"
+            placeholder="Octavia"
             value={model}
             onChange={(e) => setModel(e.target.value)}
             className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
@@ -298,7 +298,7 @@ export default function RegisterForm() {
             id="year"
             name="year"
             type="text"
-            placeholder="e.g. 2020"
+            placeholder="2020"
             value={year}
             onChange={(e) => setYear(e.target.value)}
             className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
@@ -328,139 +328,154 @@ export default function RegisterForm() {
       </div>
 
       {/* Row 5: Photos upload */}
-      <div className="w-full">
+      <div className="w-full flex flex-col items-center md:items-start">
         <label
-          className="text-white font-bold tracking-wide block mb-2"
+          className="text-white font-bold tracking-wide block mb-4 text-center md:text-left"
           htmlFor="photos"
         >
           {t("photos")}
         </label>
 
         {/* visually-hidden native file input */}
-        <input
-          id="photos"
-          name="photos"
-          type="file"
-          multiple
-          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
-          onChange={handlePhotosChange}
-          className="sr-only"
-          ref={photosRef}
-        />
+        <div className="flex flex-col items-center md:items-start w-full">
+          <input
+            id="photos"
+            name="photos"
+            type="file"
+            multiple
+            accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+            onChange={handlePhotosChange}
+            className="sr-only"
+            ref={photosRef}
+          />
 
-        {/* Custom styled label acts as the visible "Choose files" button */}
-        <label
-          htmlFor="photos"
-          className={`inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-white text-white rounded-none cursor-pointer hover:bg-white hover:text-black transition-colors duration-200 font-semibold ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {/* simple upload icon */}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 3v12m0-12l4 4m-4-4-4 4"
-            />
-          </svg>
-          <span className="font-semibold">{t("chooseFiles")}</span>
-        </label>
+          {/* Custom styled label acts as the visible "Choose files" button */}
+          <div className="flex justify-center md:justify-start w-full">
+            <label
+              htmlFor="photos"
+              className={`inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-white text-white rounded-none cursor-pointer hover:bg-white hover:text-black transition-colors duration-200 font-semibold ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {/* simple upload icon */}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 3v12m0-12l4 4m-4-4-4 4"
+                />
+              </svg>
+              <span className="font-semibold">{t("chooseFiles")}</span>
+            </label>
+          </div>
+        </div>
 
         {/* Selected photos preview and reordering */}
         {photos.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-4">
-            {photos.map((item, index) => (
-              <div key={item.id} className="relative group aspect-square border border-gray-600 bg-black/50 overflow-hidden">
-                {item.loading ? (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
-                    <svg className="animate-spin h-8 w-8 text-white mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                    </svg>
-                    <span className="text-xs text-gray-400 font-mono animate-pulse">UPLOADING</span>
-                  </div>
-                ) : item.error ? (
-                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900/20">
-                    <svg className="h-8 w-8 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="text-xs text-red-400 font-mono">ERROR</span>
-                  </div>
-                ) : item.url ? (
-                  <Image
-                    src={item.url}
-                    alt={`Preview ${index}`}
-                    fill
-                    className="object-cover"
-                  />
-                ) : null}
-                
-                {/* Overlay actions (only if not loading) */}
-                {!item.loading && (
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => removePhoto(index)}
-                        className="text-red-500 hover:text-red-400 p-1"
-                        title="Remove"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
+          <div className="w-full">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-6">
+              {photos.map((item, index) => (
+                <div key={item.id} className="relative group aspect-square border border-gray-600 bg-black/50 overflow-hidden">
+                  {item.loading ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
+                      <svg className="animate-spin h-8 w-8 text-white mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                      </svg>
+                      <span className="text-xs text-gray-400 font-mono animate-pulse">UPLOADING</span>
                     </div>
-                    
-                    <div className="flex justify-between items-end">
-                      <button
-                        type="button"
-                        onClick={() => movePhoto(index, 'left')}
-                        disabled={index === 0}
-                        className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
-                        title="Move Left"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                      </button>
+                  ) : item.error ? (
+                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900/20">
+                      <svg className="h-8 w-8 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-xs text-red-400 font-mono">ERROR</span>
+                    </div>
+                  ) : item.url ? (
+                    <Image
+                      src={item.url}
+                      alt={`Preview ${index}`}
+                      fill
+                      className="object-cover"
+                    />
+                  ) : null}
+                  
+                  {/* Overlay actions (only if not loading) */}
+                  {!item.loading && (
+                    <div className="absolute inset-0 bg-black/60 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => removePhoto(index)}
+                          className="text-red-500 hover:text-red-400 p-1"
+                          title="Remove"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
                       
-                      <span className="text-xs text-gray-400 font-mono">{index + 1}</span>
+                      <div className="flex justify-between items-end">
+                        <button
+                          type="button"
+                          onClick={() => movePhoto(index, 'left')}
+                          disabled={index === 0}
+                          className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                          title="Move Left"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                          </svg>
+                        </button>
+                        
+                        <span className="text-xs text-gray-400 font-mono">{index + 1}</span>
 
-                      <button
-                        type="button"
-                        onClick={() => movePhoto(index, 'right')}
-                        disabled={index === photos.length - 1}
-                        className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
-                        title="Move Right"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => movePhoto(index, 'right')}
+                          disabled={index === photos.length - 1}
+                          className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                          title="Move Right"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* selected files summary */}
+            <div className="mt-4 text-sm text-gray-300 font-medium flex flex-col items-center md:items-start gap-2">
+              <div className="flex items-center gap-3">
+                <span className="w-8 h-px bg-gray-700 md:hidden"></span>
+                <span>
+                  {photos.length > 0
+                    ? t("filesSelected", {count: photos.length})
+                    : t("noFiles")}
+                </span>
+                <span className="w-8 h-px bg-gray-700 md:hidden"></span>
               </div>
-            ))}
+              <span className="text-[10px] uppercase tracking-widest text-gray-500 block md:hidden animate-pulse">
+                {t("photosHint")}
+              </span>
+            </div>
           </div>
         )}
-
-        {/* selected files summary */}
-        <div className="mt-2 text-sm text-gray-300 font-medium">
-          {photos.length > 0
-            ? t("filesSelected", {count: photos.length})
-            : t("noFiles")}
-        </div>
       </div>
 
       {/* Row 6: Agreement + submit */}
-      <div className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="w-full flex flex-col items-center md:flex-row md:justify-between gap-4">
         <div className="flex items-center gap-2">
           <input
             id="agree"

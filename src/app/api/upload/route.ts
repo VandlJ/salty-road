@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    let buffer = Buffer.from(arrayBuffer);
+    let buffer: Buffer = Buffer.from(arrayBuffer);
     let fileName = file.name;
     let contentType = file.type || "application/octet-stream";
 
@@ -35,10 +35,10 @@ export async function POST(req: Request) {
     if (isHeic) {
       try {
         console.log(`Converting HEIC file: ${fileName}`);
-        buffer = await sharp(buffer)
+        buffer = (await sharp(buffer)
           .rotate()
           .toFormat("jpeg", { quality: 90 })
-          .toBuffer();
+          .toBuffer()) as unknown as Buffer;
         
         fileName = fileName.replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
         if (!fileName.toLowerCase().endsWith(".jpg")) fileName += ".jpg";
@@ -47,11 +47,11 @@ export async function POST(req: Request) {
         console.error(`Sharp conversion failed for ${fileName}, trying fallback:`, err);
         try {
           const heicConvert = (await import('heic-convert')).default || (await import('heic-convert'));
-          buffer = await heicConvert({
-            buffer: buffer,
+          buffer = (await heicConvert({
+            buffer: buffer as any,
             format: 'JPEG',
             quality: 0.9
-          });
+          })) as unknown as Buffer;
           fileName = fileName.replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
           contentType = "image/jpeg";
           console.log(`Fallback conversion successful for ${fileName}`);
