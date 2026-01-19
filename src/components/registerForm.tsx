@@ -3,7 +3,13 @@
 import { useTranslations } from "next-intl";
 import React, { useState, useRef } from "react";
 import Image from "next/image";
-import imageCompression from "browser-image-compression";
+
+type PhotoItem = {
+  id: string;
+  url?: string;
+  loading: boolean;
+  error?: boolean;
+};
 
 export default function RegisterForm() {
   const t = useTranslations("RegisterForm");
@@ -16,71 +22,66 @@ export default function RegisterForm() {
   const [model, setModel] = useState("");
   const [year, setYear] = useState("");
   const [desc, setDesc] = useState("");
-  const [photos, setPhotos] = useState<File[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [compressing, setCompressing] = useState(false);
+  const [photos, setPhotos] = useState<PhotoItem[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const photosRef = useRef<HTMLInputElement | null>(null);
 
   const handlePhotosChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setCompressing(true);
-      const newFiles = Array.from(e.target.files);
-      
-      // Check count
-      if (photos.length + newFiles.length > 5) {
-        alert(t("errorMaxPhotosAlert"));
-        e.target.value = "";
-        setCompressing(false);
-        return;
-      }
+    if (!e.target.files) return;
 
-      const compressedFiles: File[] = [];
-      const options = {
-        maxSizeMB: 0.8,
-        maxWidthOrHeight: 1920,
-        useWebWorker: true,
-      };
-
-      try {
-        for (const file of newFiles) {
-          if (file.type.startsWith("image/")) {
-            try {
-              const compressedBlob = await imageCompression(file, options);
-              const compressedFile = new File([compressedBlob], file.name, {
-                type: file.type,
-                lastModified: Date.now(),
-              });
-              compressedFiles.push(compressedFile);
-            } catch (err) {
-              console.error("Compression failed for", file.name, err);
-              compressedFiles.push(file);
-            }
-          } else {
-            compressedFiles.push(file);
-          }
-        }
-      } catch (err) {
-        console.error("Global compression error", err);
-      }
-
-      // Check size (4MB limit)
-      const MAX_SIZE = 4 * 1024 * 1024;
-      const currentSize = photos.reduce((acc, file) => acc + file.size, 0);
-      const newSize = compressedFiles.reduce((acc, file) => acc + file.size, 0);
-
-      if (currentSize + newSize > MAX_SIZE) {
-        alert(t("errorTotalSize"));
-        e.target.value = "";
-        setCompressing(false);
-        return;
-      }
-
-      setPhotos((prev) => [...prev, ...compressedFiles]);
-      e.target.value = "";
-      setCompressing(false);
+    const newFiles = Array.from(e.target.files);
+    
+    // Check count
+    if (photos.length + newFiles.length > 5) {
+      setError(t("errorMaxPhotosAlert"));
+      if (photosRef.current) photosRef.current.value = "";
+      return;
     }
+
+    // Initialize placeholders
+    const newPhotoItems: PhotoItem[] = newFiles.map(() => ({
+      id: crypto.randomUUID(),
+      loading: true,
+    }));
+
+    setPhotos((prev) => [...prev, ...newPhotoItems]);
+    setError(null);
+
+    // Process uploads concurrently
+    // We use a tracking index to update the correct placeholder
+    let currentIndex = photos.length; 
+
+    for (const file of newFiles) {
+      const itemId = newPhotoItems[currentIndex - photos.length].id; // Match based on relative index
+      
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Upload failed");
+
+        const blob = await res.json();
+        
+        setPhotos((prev) => 
+          prev.map((p) => p.id === itemId ? { ...p, url: blob.url, loading: false } : p)
+        );
+      } catch (err) {
+        console.error(err);
+        setPhotos((prev) => 
+          prev.map((p) => p.id === itemId ? { ...p, loading: false, error: true } : p)
+        );
+      }
+      currentIndex++;
+    }
+
+    if (photosRef.current) photosRef.current.value = "";
   };
 
   const removePhoto = (index: number) => {
@@ -122,37 +123,42 @@ export default function RegisterForm() {
       return;
     }
 
-    if (photos.length > 5) {
+    // Filter out photos that are still loading or failed
+    const validPhotos = photos.filter(p => p.url && !p.loading).map(p => p.url);
+
+    if (photos.length > 0 && validPhotos.length === 0 && photos.some(p => p.loading)) {
+       // Wait for uploads? For now, just error or block button.
+       // Ideally button is disabled while loading.
+       return;
+    }
+
+    if (validPhotos.length > 5) {
        setError(t("errorMaxPhotos"));
        return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
     try {
-      // build FormData with files
-      const formData = new FormData();
-      formData.append("firstName", firstName.trim());
-      formData.append("lastName", lastName.trim());
-      formData.append("email", email.trim());
-      formData.append("brand", brand.trim());
-      formData.append("model", model.trim());
-      formData.append("year", year.trim());
-      formData.append("description", desc.trim());
-      if (instagram.trim()) formData.append("instagram", instagram.trim());
-
-      photos.forEach((file) => {
-        formData.append("photos", file);
-      });
-
       const res = await fetch("/api/register", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          email: email.trim(),
+          brand: brand.trim(),
+          model: model.trim(),
+          year: year.trim(),
+          description: desc.trim(),
+          instagram: instagram.trim() || null,
+          photos: validPhotos
+        }),
       });
 
       const json = await res.json();
       if (!res.ok) {
         setError(json?.error || t("errorSubmission"));
-        setLoading(false);
+        setIsSubmitting(false);
         return;
       }
 
@@ -168,14 +174,16 @@ export default function RegisterForm() {
       setInstagram("");
       setPhotos([]);
       setAgreed(false);
-      if (photosRef.current) photosRef.current.value = "";
     } catch (err) {
       console.error(err);
-      setError(t("errorSubmission")); // Or network error specifically
+      setError(t("errorSubmission")); 
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  // Helper to determine if any uploads are in progress
+  const isUploading = photos.some(p => p.loading);
 
   return (
     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-6">
@@ -334,7 +342,7 @@ export default function RegisterForm() {
           name="photos"
           type="file"
           multiple
-          accept="image/*"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           onChange={handlePhotosChange}
           className="sr-only"
           ref={photosRef}
@@ -343,7 +351,7 @@ export default function RegisterForm() {
         {/* Custom styled label acts as the visible "Choose files" button */}
         <label
           htmlFor="photos"
-          className="inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-white text-white rounded-none cursor-pointer hover:bg-white hover:text-black transition-colors duration-200 font-semibold"
+          className={`inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-white text-white rounded-none cursor-pointer hover:bg-white hover:text-black transition-colors duration-200 font-semibold ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {/* simple upload icon */}
           <svg
@@ -367,58 +375,77 @@ export default function RegisterForm() {
         {/* Selected photos preview and reordering */}
         {photos.length > 0 && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-4">
-            {photos.map((file, index) => (
-              <div key={index} className="relative group aspect-square border border-gray-600 bg-black/50">
-                <Image
-                  src={URL.createObjectURL(file)}
-                  alt={`Preview ${index}`}
-                  fill
-                  className="object-cover"
-                />
+            {photos.map((item, index) => (
+              <div key={item.id} className="relative group aspect-square border border-gray-600 bg-black/50 overflow-hidden">
+                {item.loading ? (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
+                    <svg className="animate-spin h-8 w-8 text-white mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4}></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                    </svg>
+                    <span className="text-xs text-gray-400 font-mono animate-pulse">UPLOADING</span>
+                  </div>
+                ) : item.error ? (
+                   <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900/20">
+                    <svg className="h-8 w-8 text-red-500 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="text-xs text-red-400 font-mono">ERROR</span>
+                  </div>
+                ) : item.url ? (
+                  <Image
+                    src={item.url}
+                    alt={`Preview ${index}`}
+                    fill
+                    className="object-cover"
+                  />
+                ) : null}
                 
-                {/* Overlay actions */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => removePhoto(index)}
-                      className="text-red-500 hover:text-red-400 p-1"
-                      title="Remove"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  <div className="flex justify-between items-end">
-                    <button
-                      type="button"
-                      onClick={() => movePhoto(index, 'left')}
-                      disabled={index === 0}
-                      className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
-                      title="Move Left"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
+                {/* Overlay actions (only if not loading) */}
+                {!item.loading && (
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-between p-2">
+                    <div className="flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="text-red-500 hover:text-red-400 p-1"
+                        title="Remove"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
                     
-                    <span className="text-xs text-gray-400 font-mono">{index + 1}</span>
+                    <div className="flex justify-between items-end">
+                      <button
+                        type="button"
+                        onClick={() => movePhoto(index, 'left')}
+                        disabled={index === 0}
+                        className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                        title="Move Left"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                      </button>
+                      
+                      <span className="text-xs text-gray-400 font-mono">{index + 1}</span>
 
-                    <button
-                      type="button"
-                      onClick={() => movePhoto(index, 'right')}
-                      disabled={index === photos.length - 1}
-                      className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
-                      title="Move Right"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => movePhoto(index, 'right')}
+                        disabled={index === photos.length - 1}
+                        className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
+                        title="Move Right"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
           </div>
@@ -462,7 +489,7 @@ export default function RegisterForm() {
                 model.trim() &&
                 year.trim() &&
                 desc.trim()
-              ) || loading
+              ) || isSubmitting || isUploading
             }
           >
             {t("send")}
@@ -470,9 +497,37 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      {/* Error messages */}
+      {/* Error Modal */}
       {error && (
-        <div className="mt-4 text-red-500 text-sm font-semibold">{error}</div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl">
+            <button
+              onClick={() => setError(null)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-900/30 mb-4 border border-red-500">
+                <svg className="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h3>
+              <p className="text-gray-300 mb-6 font-medium">
+                {error}
+              </p>
+              <button
+                onClick={() => setError(null)}
+                className="w-full px-4 py-2 bg-red-600 text-white font-bold uppercase tracking-widest hover:bg-red-700 transition-colors"
+              >
+                {t("close")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Success Modal */}
@@ -493,7 +548,7 @@ export default function RegisterForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
+              <h3 className="text-xl font-bold text-white mb-2">{t("successTitle")}</h3>
               <p className="text-gray-300 mb-6 font-medium">
                 {success}
               </p>
@@ -501,15 +556,15 @@ export default function RegisterForm() {
                 onClick={() => setSuccess(null)}
                 className="w-full px-4 py-2 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors"
               >
-                Close
+                {t("close")}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Loading Modal */}
-      {loading && (
+      {/* Submitting Modal */}
+      {isSubmitting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
           <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center">
             <div className="mx-auto flex items-center justify-center h-12 w-12 mb-6">
@@ -536,39 +591,6 @@ export default function RegisterForm() {
             </div>
             <h3 className="text-xl font-bold text-white uppercase tracking-widest animate-pulse">
               {t("submitting")}
-            </h3>
-          </div>
-        </div>
-      )}
-
-      {/* Compressing Modal */}
-      {compressing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 mb-6">
-              <svg
-                className="animate-spin h-10 w-10 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth={4}
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-white uppercase tracking-widest animate-pulse">
-              {t("compressing")}
             </h3>
           </div>
         </div>

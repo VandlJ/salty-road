@@ -145,13 +145,17 @@
       "send": "Send",
       "submitting": "Submitting...",
       "compressing": "Compressing photos...",
+      "successTitle": "Success!",
+      "close": "Close",
+      "errorTitle": "Error",
       "success": "Registration submitted. ID: {id}",
       "errorRequired": "Please fill all required fields.",
       "errorAgreement": "You must agree to the rules.",
       "errorMaxPhotos": "Maximum 5 photos allowed.",
       "errorTotalSize": "Total file size exceeds 4 MB.",
       "errorSubmission": "Submission failed",
-      "errorMaxPhotosAlert": "You can select a maximum of 5 photos."
+      "errorMaxPhotosAlert": "You can select a maximum of 5 photos.",
+      "errorHeicUnsupported": "This HEIC photo could not be processed. Please use JPEG/PNG."
   },
   "AdminPage": {
     "loginTitle": "Admin Login",
