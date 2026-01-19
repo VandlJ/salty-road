@@ -19,7 +19,7 @@ export default function RegistrationSection() {
         </p>
 
         {/* Info Section */}
-        <div className="w-full bg-[#111]/90 border border-gray-600 p-6 md:p-8 mb-12 rounded-none backdrop-blur-md shadow-2xl">
+        <div className="w-full bg-[#111]/90 border border-gray-600 p-6 md:p-8 mb-12 rounded-none backdrop-blur-md shadow-2xl text-center">
           <h2 className="text-2xl font-bold mb-6 text-white border-b border-gray-600 pb-2 uppercase tracking-wide">
             {t("importantInfoTitle")}
           </h2>
@@ -28,7 +28,7 @@ export default function RegistrationSection() {
             <div>
               <h3 className="text-white font-bold mb-2 uppercase text-lg">{t("arrival.title")}</h3>
               <p className="mb-2 text-gray-100">{t("arrival.text")}</p>
-              <ul className="list-disc list-inside space-y-1 ml-2 text-gray-300">
+              <ul className="list-none space-y-1 text-gray-300">
                 <li>{t.rich("arrival.time1", { strong })}</li>
                 <li>{t.rich("arrival.time2", { strong })}</li>
               </ul>
@@ -39,7 +39,7 @@ export default function RegistrationSection() {
 
             <div>
               <h3 className="text-white font-bold mb-2 uppercase text-lg">{t("departure.title")}</h3>
-              <ul className="list-disc list-inside space-y-1 ml-2 text-gray-300">
+              <ul className="list-none space-y-1 text-gray-300">
                 <li>{t.rich("departure.time1", { strong })}</li>
                 <li>{t.rich("departure.time2", { strong })}</li>
               </ul>
@@ -54,7 +54,7 @@ export default function RegistrationSection() {
                 {t("conditions.p2")}
               </p>
               <p className="mb-2 font-bold text-white">{t("conditions.feeIncludes")}</p>
-              <ul className="list-disc list-inside space-y-1 ml-2 mb-4 text-gray-300">
+              <ul className="list-none space-y-1 mb-4 text-gray-300">
                 <li>{t("conditions.feeList1")}</li>
                 <li>{t("conditions.feeList2")}</li>
                 <li>{t("conditions.feeList3")}</li>
@@ -69,7 +69,7 @@ export default function RegistrationSection() {
               <p className="mb-4 text-gray-100">
                 {t("fee.p1")}
               </p>
-              <ul className="list-disc list-inside space-y-1 ml-2 mb-4 text-gray-300">
+              <ul className="list-none space-y-1 mb-4 text-gray-300">
                 <li>{t.rich("fee.refund1", { strong })}</li>
                 <li>{t.rich("fee.refund2", { strong })}</li>
               </ul>

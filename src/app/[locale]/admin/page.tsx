@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -43,7 +43,7 @@ export default function AdminPage() {
     return `${originalUrl}?q=90`;
   };
 
-  async function checkAuthAndLoad() {
+  const checkAuthAndLoad = useCallback(async () => {
     // try load list; if 401 then not logged in
     try {
       setLoading(true);
@@ -62,11 +62,11 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [t]);
 
   useEffect(() => {
     checkAuthAndLoad();
-  }, []);
+  }, [checkAuthAndLoad]);
 
   // keyboard controls for gallery
   useEffect(() => {
@@ -108,18 +108,6 @@ export default function AdminPage() {
     setGalleryIndex(
       (i) => (i - 1 + galleryPhotos.length) % galleryPhotos.length
     );
-  }
-
-  // Helper function for status indicator color
-  function getStatusColor(status?: string) {
-    switch (status?.toLowerCase()) {
-      case "accepted":
-        return "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]";
-      case "declined":
-        return "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]";
-      default: // pending or undefined
-        return "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]";
-    }
   }
 
   async function handleLogin(e: React.FormEvent) {

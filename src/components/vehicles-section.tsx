@@ -25,7 +25,6 @@ export default function VehiclesSection() {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [total, setTotal] = useState(0);
 
   // gallery state
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -52,7 +51,6 @@ export default function VehiclesSection() {
           setRegs(json.data);
         }
         setHasMore(json.hasMore);
-        setTotal(json.total);
         setError(null);
       }
     } catch (err) {

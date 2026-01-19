@@ -18,13 +18,11 @@ export default function InfoSection() {
         <div className="space-y-6 w-full flex flex-col items-center">
           <h2 className="text-2xl font-bold text-white uppercase tracking-wider">{t("mapTitle")}</h2>
           <div className="w-full h-96 md:h-[500px] w-full max-w-3xl overflow-hidden border border-gray-800 shadow-2xl relative group">
-             {/* Map overlay for styling */}
-            <div className="absolute inset-0 pointer-events-none z-10 mix-blend-overlay bg-black/20" />
             <iframe 
               src="https://maps.google.com/maps?q=Velk%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2C%20Prachatice&t=&z=17&ie=UTF8&iwloc=&output=embed"
               width="100%" 
               height="100%" 
-              style={{ border: 0, filter: 'grayscale(100%) invert(90%) contrast(120%)' }} 
+              style={{ border: 0 }} 
               allowFullScreen={true} 
               loading="lazy" 
               referrerPolicy="no-referrer-when-downgrade"
