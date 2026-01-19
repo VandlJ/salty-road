@@ -111,20 +111,18 @@ export default function VehiclesSection() {
   }
 
   return (
-    <section id="vehicles" className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-5xl mx-auto scroll-mt-24">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 sm:mb-8 gap-4">
-        <h1 className="pb-1 text-2xl sm:text-3xl lg:text-5xl font-extrabold text-white drop-shadow-md uppercase tracking-wide">
+    <section id="vehicles" className="bg-transparent text-white px-4 pt-8 pb-12 sm:px-8 max-w-5xl mx-auto scroll-mt-24 text-center">
+      <div className="flex flex-col items-center mb-8 gap-4">
+        <h1 className="pb-1 text-3xl font-extrabold text-white drop-shadow-md uppercase tracking-wide">
           {t("title")}
         </h1>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => load(1, false)}
-            className="px-4 py-2 sm:px-6 sm:py-2 bg-white text-black font-semibold rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base uppercase tracking-wider"
-            disabled={loading}
-          >
-            {loading ? t("refreshing") : t("refresh")}
-          </button>
-        </div>
+        {/* <button
+          onClick={() => load(1, false)}
+          className="px-4 py-2 sm:px-6 sm:py-2 bg-white text-black font-semibold rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base uppercase tracking-wider"
+          disabled={loading}
+        >
+          {loading ? t("refreshing") : t("refresh")}
+        </button> */}
       </div>
 
       {error && (
@@ -161,15 +159,15 @@ export default function VehiclesSection() {
             {/* Content Overlay */}
             <div className="absolute inset-0 p-4 sm:p-6 flex flex-col justify-end">
               <div className="transform transition-transform duration-300 group-hover:-translate-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold text-white mb-1 drop-shadow-2xl">
+                <h2 className="text-2xl font-bold text-white mb-1 drop-shadow-2xl">
                   {r.brand} {r.model} <span className="text-sm sm:text-base font-normal text-gray-300">({r.year})</span>
                 </h2>
                 
                 {/* Expandable info on hover */}
                 <div className="max-h-0 overflow-hidden opacity-0 group-hover:max-h-32 group-hover:opacity-100 transition-all duration-500 ease-in-out">
-                  <p className="text-xs sm:text-sm text-gray-200 line-clamp-3 mb-3 font-medium">
+                  {/* <p className="text-xs sm:text-sm text-gray-200 line-clamp-3 mb-3 font-medium">
                     {r.description}
-                  </p>
+                  </p> */}
                   {r.instagram && (
                     <span className="inline-block text-[10px] sm:text-xs text-white bg-white/20 px-2 py-1 rounded border border-white/30 backdrop-blur-md uppercase tracking-wider font-bold">
                       @{r.instagram.replace('@', '')}

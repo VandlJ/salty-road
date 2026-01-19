@@ -11,7 +11,7 @@ export default function RegistrationSection() {
   return (
     <section id="register" className="bg-transparent text-white px-4 pt-8 pb-12 max-w-4xl mx-auto min-h-screen scroll-mt-24">
       <div className="flex flex-col items-center">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent animate-gradient text-center leading-tight uppercase tracking-wide">
+        <h1 className="text-3xl font-extrabold mb-4 sm:mb-6 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent animate-gradient text-center leading-tight uppercase tracking-wide">
           {t("title")}
         </h1>
         <p className="text-base sm:text-lg text-white mb-8 sm:mb-12 text-center leading-relaxed px-2 max-w-2xl font-medium drop-shadow-sm">

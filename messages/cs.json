@@ -1,5 +1,6 @@
 {
   "Navbar": {
+    "home": "Úvod",
     "vehicles": "Registrovaná vozidla",
     "register": "Registrace",
     "check": "Kontrola registrace",

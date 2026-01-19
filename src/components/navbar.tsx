@@ -58,32 +58,44 @@ export default function Navbar({ fixed = false }) {
         {/* Desktop Navigation */}
         <div className="hidden lg:flex flex-1 justify-center items-center gap-6 px-4">
           <Link
+            href="/"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
+            onClick={(e) => {
+              if (pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+          >
+            {t("home")}
+          </Link>
+          <Link
             href="/#info"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
           >
             {t("info")}
           </Link>
           <Link
             href="/#register"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
           >
             {t("register")}
           </Link>
           <Link
             href="/#vehicles"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
           >
             {t("vehicles")}
           </Link>
           {/* <Link
             href="/shop"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
           >
             {t("shop")}
           </Link> */}
           <Link
             href="/check"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-sm xl:text-base whitespace-nowrap"
+            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
           >
             {t("check")}
           </Link>
@@ -147,36 +159,49 @@ export default function Navbar({ fixed = false }) {
           {/* Mobile Navigation Links */}
           <div className="flex flex-col space-y-4 text-center mt-8">
             <Link
+              href="/"
+              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              onClick={(e) => {
+                closeMenu();
+                if (pathname === '/') {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+            >
+              {t("home")}
+            </Link>
+            <Link
               href="/#info"
-              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("info")}
             </Link>
             <Link
               href="/#register"
-              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("register")}
             </Link>
             <Link
               href="/#vehicles"
-              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("vehicles")}
             </Link>
             <Link
               href="/shop"
-              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("shop")}
             </Link>
             <Link
               href="/check"
-              className="no-underline text-white text-xl font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("check")}
