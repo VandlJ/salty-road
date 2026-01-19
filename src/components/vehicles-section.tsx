@@ -109,11 +109,18 @@ export default function VehiclesSection() {
   }
 
   return (
-    <section id="vehicles" className="bg-transparent text-white px-4 pt-8 pb-12 sm:px-8 max-w-5xl mx-auto scroll-mt-24 text-center">
-      <div className="flex flex-col items-center mb-8 gap-4">
-        <h1 className="pb-1 text-3xl font-extrabold text-white drop-shadow-md uppercase tracking-wide">
-          {t("title")}
-        </h1>
+    <section id="vehicles" className="bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center">
+      <div className="flex flex-col items-center mb-16 gap-4">
+        <div className="relative pb-1 inline-block">
+          {/* Outline Layer - Red */}
+          <h1 className="absolute inset-0 text-4xl sm:text-5xl font-extrabold text-transparent [-webkit-text-stroke:4px_#ff0302] uppercase tracking-widest select-none z-0 flex items-center justify-center">
+            {t("title")}
+          </h1>
+          {/* Text Layer - White */}
+          <h1 className="relative text-4xl sm:text-5xl font-extrabold text-white text-center uppercase tracking-widest drop-shadow-sm z-10">
+            {t("title")}
+          </h1>
+        </div>
         {/* <button
           onClick={() => load(1, false)}
           className="px-4 py-2 sm:px-6 sm:py-2 bg-white text-black font-semibold rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base uppercase tracking-wider"

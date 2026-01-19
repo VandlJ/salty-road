@@ -9,78 +9,90 @@ export default function RegistrationSection() {
   const strong = (chunks: React.ReactNode) => <strong className="text-white">{chunks}</strong>;
 
   return (
-    <section id="register" className="bg-transparent text-white px-4 pt-8 pb-12 max-w-4xl mx-auto min-h-screen scroll-mt-24">
+    <section id="register" className="bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24">
       <div className="flex flex-col items-center">
-        <h1 className="text-3xl font-extrabold mb-4 sm:mb-6 bg-gradient-to-r from-white to-[#C0C0C0] bg-clip-text text-transparent animate-gradient text-center leading-tight uppercase tracking-wide">
-          {t("title")}
-        </h1>
-        <p className="text-base sm:text-lg text-white mb-8 sm:mb-12 text-center leading-relaxed px-2 max-w-2xl font-medium drop-shadow-sm">
+        <div className="relative pb-1 mb-8 sm:mb-12 inline-block">
+          {/* Outline Layer - Red */}
+          <h1 className="absolute inset-0 text-4xl sm:text-5xl font-extrabold text-transparent [-webkit-text-stroke:4px_#ff0302] uppercase tracking-widest select-none z-0 flex items-center justify-center">
+            {t("title")}
+          </h1>
+          {/* Text Layer - White */}
+          <h1 className="relative text-4xl sm:text-5xl font-extrabold text-white text-center uppercase tracking-widest drop-shadow-sm z-10">
+            {t("title")}
+          </h1>
+        </div>
+        <p className="text-lg sm:text-xl text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">
           {t("subtitle")}
         </p>
 
         {/* Info Section */}
-        <div className="w-full bg-[#111]/90 border border-gray-600 p-6 md:p-8 mb-12 rounded-none backdrop-blur-md shadow-2xl text-center">
-          <h2 className="text-2xl font-bold mb-6 text-white border-b border-gray-600 pb-2 uppercase tracking-wide">
+        <div className="w-full bg-[#111]/90 border border-gray-800 p-8 md:p-12 mb-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative group overflow-hidden">
+           {/* Subtle glow effect */}
+           <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+           
+          <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-white border-b border-gray-800 pb-4 inline-block px-8 uppercase tracking-widest">
             {t("importantInfoTitle")}
           </h2>
           
-          <div className="space-y-8 text-gray-200">
-            <div>
-              <h3 className="text-white font-bold mb-2 uppercase text-lg">{t("arrival.title")}</h3>
-              <p className="mb-2 text-gray-100">{t("arrival.text")}</p>
-              <ul className="list-none space-y-1 text-gray-300">
+          <div className="space-y-12 text-gray-200">
+            <div className="space-y-4">
+              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("arrival.title")}</h3>
+              <p className="mb-2 text-gray-200 font-light text-lg">{t("arrival.text")}</p>
+              <ul className="list-none space-y-2 text-gray-300">
                 <li>{t.rich("arrival.time1", { strong })}</li>
                 <li>{t.rich("arrival.time2", { strong })}</li>
               </ul>
-              <p className="mt-2 text-sm text-red-400 italic font-semibold">
+              <p className="mt-4 text-sm text-red-400 font-medium tracking-wide uppercase border border-red-900/50 bg-red-900/10 inline-block px-4 py-1">
                 {t("arrival.warning")}
               </p>
             </div>
 
-            <div>
-              <h3 className="text-white font-bold mb-2 uppercase text-lg">{t("departure.title")}</h3>
-              <ul className="list-none space-y-1 text-gray-300">
+            <div className="space-y-4">
+              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("departure.title")}</h3>
+              <ul className="list-none space-y-2 text-gray-300">
                 <li>{t.rich("departure.time1", { strong })}</li>
                 <li>{t.rich("departure.time2", { strong })}</li>
               </ul>
             </div>
 
-            <div>
-              <h3 className="text-white font-bold mb-2 uppercase text-lg">{t("conditions.title")}</h3>
-              <p className="mb-4 text-gray-100">
+            <div className="space-y-4">
+              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("conditions.title")}</h3>
+              <p className="mb-4 text-gray-200 font-light text-lg">
                 {t.rich("conditions.p1", { strong })}
               </p>
-              <p className="mb-4 text-gray-100">
+              <p className="mb-4 text-gray-200 font-light text-lg">
                 {t("conditions.p2")}
               </p>
-              <p className="mb-2 font-bold text-white">{t("conditions.feeIncludes")}</p>
-              <ul className="list-none space-y-1 mb-4 text-gray-300">
-                <li>{t("conditions.feeList1")}</li>
-                <li>{t("conditions.feeList2")}</li>
-                <li>{t("conditions.feeList3")}</li>
-              </ul>
-              <p className="text-gray-100">
+              <div className="bg-white/5 p-6 rounded-sm border border-white/10">
+                <p className="mb-4 font-bold text-white uppercase tracking-wide">{t("conditions.feeIncludes")}</p>
+                <ul className="list-none space-y-3 mb-4 text-gray-300">
+                  <li className="flex items-center justify-center gap-2"><span className="w-1.5 h-1.5 bg-white rounded-full" /> {t("conditions.feeList1")}</li>
+                  <li className="flex items-center justify-center gap-2"><span className="w-1.5 h-1.5 bg-white rounded-full" /> {t("conditions.feeList2")}</li>
+                  <li className="flex items-center justify-center gap-2"><span className="w-1.5 h-1.5 bg-white rounded-full" /> {t("conditions.feeList3")}</li>
+                </ul>
+              </div>
+              <p className="text-gray-200 font-light mt-4">
                 {t("conditions.p3")}
               </p>
             </div>
 
-            <div>
-              <h3 className="text-white font-bold mb-2 uppercase text-lg">{t("fee.title")}</h3>
-              <p className="mb-4 text-gray-100">
+            <div className="space-y-6">
+              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("fee.title")}</h3>
+              <p className="mb-4 text-gray-200 font-light">
                 {t("fee.p1")}
               </p>
-              <ul className="list-none space-y-1 mb-4 text-gray-300">
+              <ul className="list-none space-y-2 mb-6 text-gray-300">
                 <li>{t.rich("fee.refund1", { strong })}</li>
                 <li>{t.rich("fee.refund2", { strong })}</li>
               </ul>
-              <div className="text-xl text-white border-2 border-white inline-block px-6 py-3 mt-2 font-medium bg-white/5">
-                {t("fee.label")} <span className="font-bold">{t("fee.amount")}</span>
+              <div className="text-base sm:text-xl text-white border border-white/30 inline-block px-8 py-4 font-medium bg-gradient-to-r from-white/10 to-transparent hover:from-white/20 transition-all duration-300 uppercase tracking-widest shadow-lg">
+                {t("fee.label")} <span className="font-bold ml-2 text-white">{t("fee.amount")}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-3xl">
           <RegisterForm />
         </div>
       </div>

@@ -1,9 +1,9 @@
 {
   "Navbar": {
     "home": "Úvod",
-    "vehicles": "Registrovaná vozidla",
+    "vehicles": "Registrované vozy",
     "register": "Registrace",
-    "check": "Kontrola registrace",
+    "check": "Stav registrace",
     "info": "Informace",
     "shop": "E-shop",
     "parking": "Parkování",
@@ -64,7 +64,7 @@
     }
   },
   "CheckPage": {
-      "title": "Kontrola registrace",
+      "title": "Stav registrace",
       "placeholder": "Zadejte ID registrace",
       "button": "Zkontrolovat",
       "loading": "Kontroluji…",
@@ -78,18 +78,46 @@
   "InfoPage": {
       "title": "Informace",
       "parkingTitle": "Parkování",
-      "parkingText": "Informace o parkování budou brzy k dispozici.",
+      "parkingList": {
+        "item1": "Parkování na Velkém náměstí a Kostelním náměstí je povoleno výhradně vozidlům s potvrzenou registrací.",
+        "item2": "Vozidlům bez platné registrace nebude umožněn vjezd ani parkování v těchto lokalitách.",
+        "item3": "Vzhledem k tomu, že se akce koná v historickém centru města, doporučujeme místním návštěvníkům příchod pěšky.",
+        "item4": "Návštěvníkům, kteří potřebují dorazit automobilem, doporučujeme využít přilehlé parkovací plochy mimo centrum města.",
+        "item5": "Vystavovatelé, kteří přivážejí svá vozidla na soupravě (vlek, podval), mohou pro parkování soupravy využít parkoviště Menšíkova: <mapLink>https://mapy.cz/s/cozufafuru</mapLink>",
+        "item6": "Žádáme všechny účastníky akce o dodržování uvedených pravidel, která jsou nezbytná pro zajištění bezpečnosti, plynulého provozu a hladkého průběhu akce."
+      },
       "mapTitle": "Mapa",
       "mapText": "Mapa akce bude brzy k dispozici.",
       "sponsorsTitle": "Sponzoři",
       "sponsorsText": "Naši partneři a sponzoři.",
       "programTitle": "Program",
-      "programText": "Harmonogram akce bude brzy zveřejněn.",
+      "programList": {
+        "item1": "do 11:00 - Příjezd vystavovaných vozů",
+        "item2": "12:00 - Zahájení akce + start hlasování o TOP 3 vozidla srazu",
+        "item3": "14:00 - soutěž ve výměně kola",
+        "item4": "16:00 - soutěž v tahání auta",
+        "item5": "17:30 - Vyhlášení TOP3 vozidel srazu",
+        "item6": "18:00–22:00 - DJ Raty",
+        "item7": "od 22:00 - Afterparty v Music Club Hrozen",
+        "item8": "<strong>Doprovodný program po celý den:</strong>",
+        "item9": "Hairstylist Jakub Bouda",
+        "item10": "Zaplétání copánků - Cherry braid PT",
+        "item11": "Malování na obličej – ČÁRY MÁRY"
+      },
       "rulesTitle": "Návštěvní řád",
-      "rulesText": "Pravidla a předpisy pro návštěvníky."
+      "rulesList": {
+        "item1": "Prosíme, nedotýkejte se vozů bez svolení jejich majitele nebo pověřené osoby. V případě poškození (i Vaším dítětem) přebíráte plnou odpovědnost a majitel vozu si může vyžádat náhradu škody. Takové jednání může vést k vyvedení z prostoru akce.",
+        "item2": "Vyhněte se jakémukoliv chování, které by mohlo ohrozit zdraví nebo majetek.",
+        "item3": "Dáváte svolení k bezpečnostní kontrole při vstupu a případnému uložení zakázaných předmětů do úschovy.",
+        "item4": "Souhlasíte s pořizováním fotografií a videí z akce a berete na vědomí, že se můžete objevit na zveřejněných materiálech.",
+        "item5": "Nepřicházejte pod vlivem alkoholu nebo omamných látek a ani je v prostoru akce nepožívejte.",
+        "item6": "Pokud uvidíte někoho poškozovat majetek, ihned to nahlaste organizačnímu týmu.",
+        "item7": "Veškerý pohyb v prostoru akce je na vlastní nebezpečí.",
+        "item8": "Pořadatelé si vyhrazují právo změn v programu, účastnících nebo partnerech."
+      }
   },
   "VehiclesPage": {
-      "title": "Registrovaná vozidla",
+      "title": "Registrované vozy",
       "refresh": "Obnovit",
       "refreshing": "Obnovuji…",
       "loadMore": "Načíst další",
@@ -98,7 +126,9 @@
   },
   "RegisterForm": {
       "firstName": "Jméno",
+      "firstNamePlaceholder": "Jan",
       "lastName": "Příjmení",
+      "lastNamePlaceholder": "Novák",
       "email": "E-mail",
       "instagram": "Instagram",
       "brand": "Značka vozu",
@@ -107,16 +137,19 @@
       "description": "Informace o vozidle",
       "descriptionPlaceholder": "Stručný popis vašeho vozidla",
       "photos": "Nahrání fotografií vozu (Max 5)",
+      "photosSizeLimit": "Fotografie budou automaticky optimalizovány.",
       "chooseFiles": "Vybrat soubory",
       "filesSelected": "{count} vybraných souborů",
       "noFiles": "Nebyly vybrány žádné soubory",
       "agreement": "Souhlasím s pravidly registrace",
       "send": "Odeslat",
       "submitting": "Odesílám...",
+      "compressing": "Komprimuji fotografie...",
       "success": "Registrace byla odeslána. ID: {id}",
       "errorRequired": "Prosím vyplňte všechna povinná pole.",
       "errorAgreement": "Musíte souhlasit s pravidly.",
       "errorMaxPhotos": "Maximálně je povoleno 5 fotografií.",
+      "errorTotalSize": "Celková velikost souborů překračuje 4 MB.",
       "errorSubmission": "Odeslání se nezdařilo",
       "errorMaxPhotosAlert": "Můžete vybrat maximálně 5 fotografií."
   },

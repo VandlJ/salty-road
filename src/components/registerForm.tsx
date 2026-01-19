@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import React, { useState, useRef } from "react";
 import Image from "next/image";
+import imageCompression from "browser-image-compression";
 
 export default function RegisterForm() {
   const t = useTranslations("RegisterForm");
@@ -17,20 +18,68 @@ export default function RegisterForm() {
   const [desc, setDesc] = useState("");
   const [photos, setPhotos] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
+  const [compressing, setCompressing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const photosRef = useRef<HTMLInputElement | null>(null);
 
-  const handlePhotosChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotosChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
+      setCompressing(true);
       const newFiles = Array.from(e.target.files);
+      
+      // Check count
       if (photos.length + newFiles.length > 5) {
         alert(t("errorMaxPhotosAlert"));
-      } else {
-        setPhotos((prev) => [...prev, ...newFiles]);
+        e.target.value = "";
+        setCompressing(false);
+        return;
       }
-      // reset input
+
+      const compressedFiles: File[] = [];
+      const options = {
+        maxSizeMB: 0.8,
+        maxWidthOrHeight: 1920,
+        useWebWorker: true,
+      };
+
+      try {
+        for (const file of newFiles) {
+          if (file.type.startsWith("image/")) {
+            try {
+              const compressedBlob = await imageCompression(file, options);
+              const compressedFile = new File([compressedBlob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              compressedFiles.push(compressedFile);
+            } catch (err) {
+              console.error("Compression failed for", file.name, err);
+              compressedFiles.push(file);
+            }
+          } else {
+            compressedFiles.push(file);
+          }
+        }
+      } catch (err) {
+        console.error("Global compression error", err);
+      }
+
+      // Check size (4MB limit)
+      const MAX_SIZE = 4 * 1024 * 1024;
+      const currentSize = photos.reduce((acc, file) => acc + file.size, 0);
+      const newSize = compressedFiles.reduce((acc, file) => acc + file.size, 0);
+
+      if (currentSize + newSize > MAX_SIZE) {
+        alert(t("errorTotalSize"));
+        e.target.value = "";
+        setCompressing(false);
+        return;
+      }
+
+      setPhotos((prev) => [...prev, ...compressedFiles]);
       e.target.value = "";
+      setCompressing(false);
     }
   };
 
@@ -140,7 +189,7 @@ export default function RegisterForm() {
             id="firstName"
             name="firstName"
             type="text"
-            placeholder={t("firstName")}
+            placeholder={t("firstNamePlaceholder")}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
@@ -156,7 +205,7 @@ export default function RegisterForm() {
             id="lastName"
             name="lastName"
             type="text"
-            placeholder={t("lastName")}
+            placeholder={t("lastNamePlaceholder")}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
@@ -487,6 +536,39 @@ export default function RegisterForm() {
             </div>
             <h3 className="text-xl font-bold text-white uppercase tracking-widest animate-pulse">
               {t("submitting")}
+            </h3>
+          </div>
+        </div>
+      )}
+
+      {/* Compressing Modal */}
+      {compressing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 mb-6">
+              <svg
+                className="animate-spin h-10 w-10 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth={4}
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-bold text-white uppercase tracking-widest animate-pulse">
+              {t("compressing")}
             </h3>
           </div>
         </div>

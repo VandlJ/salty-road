@@ -192,13 +192,13 @@ export default function Navbar({ fixed = false }) {
             >
               {t("vehicles")}
             </Link>
-            <Link
+            {/* <Link
               href="/shop"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("shop")}
-            </Link>
+            </Link> */}
             <Link
               href="/check"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"

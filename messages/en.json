@@ -78,15 +78,43 @@
   "InfoPage": {
       "title": "Information",
       "parkingTitle": "Parking",
-      "parkingText": "Information about parking will be available soon.",
+      "parkingList": {
+        "item1": "Parking on Velké náměstí and Kostelní náměstí is allowed exclusively for vehicles with confirmed registration.",
+        "item2": "Vehicles without valid registration will not be allowed to enter or park in these locations.",
+        "item3": "Given that the event takes place in the historical city center, we recommend local visitors to arrive on foot.",
+        "item4": "For visitors who need to arrive by car, we recommend using adjacent parking areas outside the city center.",
+        "item5": "Exhibitors bringing their vehicles on a trailer can use the Menšíkova parking lot for trailer parking: <mapLink>https://mapy.cz/s/cozufafuru</mapLink>",
+        "item6": "We ask all event participants to follow these rules, which are necessary to ensure safety, smooth traffic, and the smooth running of the event."
+      },
       "mapTitle": "Map",
       "mapText": "Event map will be available soon.",
       "sponsorsTitle": "Sponsors",
       "sponsorsText": "Our partners and sponsors.",
       "programTitle": "Program",
-      "programText": "Event schedule will be published soon.",
+      "programList": {
+        "item1": "until 11:00 - Arrival of exhibited vehicles",
+        "item2": "12:00 - Event opening + start of voting for TOP 3 vehicles of the meet",
+        "item3": "14:00 - Wheel change competition",
+        "item4": "16:00 - Car pulling competition",
+        "item5": "17:30 - TOP 3 vehicles announcement",
+        "item6": "18:00–22:00 - DJ Raty",
+        "item7": "from 22:00 - Afterparty at Music Club Hrozen",
+        "item8": "<strong>Side program throughout the day:</strong>",
+        "item9": "Hairstylist Jakub Bouda",
+        "item10": "Hair braiding - Cherry braid PT",
+        "item11": "Face painting – ČÁRY MÁRY"
+      },
       "rulesTitle": "Visitor Rules",
-      "rulesText": "Rules and regulations for visitors."
+      "rulesList": {
+        "item1": "Please do not touch the vehicles without the permission of the owner or authorized person. In case of damage (including by your child), you take full responsibility and the vehicle owner may claim damages. Such behavior may lead to expulsion from the event area.",
+        "item2": "Avoid any behavior that could endanger health or property.",
+        "item3": "You give consent to a security check upon entry and potential storage of prohibited items.",
+        "item4": "You agree to the taking of photos and videos from the event and acknowledge that you may appear in published materials.",
+        "item5": "Do not enter under the influence of alcohol or drugs, and do not consume them in the event area.",
+        "item6": "If you see anyone damaging property, report it immediately to the organizing team.",
+        "item7": "All movement in the event area is at your own risk.",
+        "item8": "The organizers reserve the right to change the program, participants, or partners."
+      }
   },
   "VehiclesPage": {
       "title": "Registered Vehicles",
@@ -98,7 +126,9 @@
   },
   "RegisterForm": {
       "firstName": "Name",
+      "firstNamePlaceholder": "Joe",
       "lastName": "Surname",
+      "lastNamePlaceholder": "Doe",
       "email": "Email",
       "instagram": "Instagram",
       "brand": "Car Brand",
@@ -107,16 +137,19 @@
       "description": "Vehicle Information",
       "descriptionPlaceholder": "Brief description of your vehicle",
       "photos": "Car photos upload (Max 5)",
+      "photosSizeLimit": "Photos will be automatically optimized.",
       "chooseFiles": "Choose files",
       "filesSelected": "{count} file(s) selected",
       "noFiles": "No files selected",
       "agreement": "I agree with the rules of registration",
       "send": "Send",
       "submitting": "Submitting...",
+      "compressing": "Compressing photos...",
       "success": "Registration submitted. ID: {id}",
       "errorRequired": "Please fill all required fields.",
       "errorAgreement": "You must agree to the rules.",
       "errorMaxPhotos": "Maximum 5 photos allowed.",
+      "errorTotalSize": "Total file size exceeds 4 MB.",
       "errorSubmission": "Submission failed",
       "errorMaxPhotosAlert": "You can select a maximum of 5 photos."
   },

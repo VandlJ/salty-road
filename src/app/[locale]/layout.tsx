@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Roboto } from "next/font/google";
+import localFont from "next/font/local";
 import "../globals.css";
 import ClientNavbarWrapper from "@/components/clientNavbarWrapper";
 import { NextIntlClientProvider } from 'next-intl';
@@ -9,6 +10,28 @@ const roboto = Roboto({
   weight: ['400', '500', '700'],
   subsets: ['latin'],
   variable: '--font-roboto',
+});
+
+const amika = localFont({
+  src: [
+    {
+      path: '../fonts/Amika_Blackletter.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../fonts/Amika_Blackletter.woff',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../fonts/Amika_Blackletter.ttf',
+      weight: '400',
+      style: 'normal',
+    }
+  ],
+  variable: '--font-amika',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -34,7 +57,7 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${roboto.variable} antialiased min-h-screen font-roboto`}
+        className={`${roboto.variable} ${amika.variable} antialiased min-h-screen font-roboto`}
       >
         <NextIntlClientProvider messages={messages}>
           <div className="w-full">
