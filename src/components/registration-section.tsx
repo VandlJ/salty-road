@@ -6,7 +6,6 @@ import React from "react";
 
 export default function RegistrationSection() {
   const t = useTranslations("RegisterPage");
-  const strong = (chunks: React.ReactNode) => <strong className="text-white">{chunks}</strong>;
 
   return (
     <section id="register" className="bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24">
