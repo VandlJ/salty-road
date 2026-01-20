@@ -11,17 +11,21 @@ export default function RegistrationSection() {
   return (
     <section id="register" className="bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24">
       <div className="flex flex-col items-center">
-        <div className="relative mb-16 inline-block border-b-2 border-white/80 pb-6 px-12">
+        <div className="relative mb-16 inline-block pb-6 px-12">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-center uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
             {t("title")}
           </h1>
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
         </div>
 
         {/* Info Section */}
         <div className="w-full bg-[#111]/90 border border-gray-800 p-6 md:p-12 mb-12 md:mb-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative overflow-hidden">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-white border-b-2 border-gray-700 pb-4 inline-block px-8 uppercase tracking-widest">
-            {t("importantInfoTitle")}
-          </h2>
+          <div className="relative inline-block px-8 pb-4 mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">
+              {t("importantInfoTitle")}
+            </h2>
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+          </div>
           
           <div className="space-y-12 text-gray-200">
             <div className="space-y-4">
