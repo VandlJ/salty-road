@@ -5,7 +5,7 @@ import "../globals.css";
 import ClientNavbarWrapper from "@/components/clientNavbarWrapper";
 import Footer from "@/components/footer";
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, getTranslations } from 'next-intl/server';
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -35,10 +35,45 @@ const amika = localFont({
   display: 'swap',
 });
 
-export const metadata: Metadata = {
-  title: "Salty Road",
-  description: "",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Hero' });
+  const tReg = await getTranslations({ locale, namespace: 'RegisterPage' });
+
+  const title = `${t('title1')} ${t('title2')}`;
+  const description = tReg('subtitle');
+
+  return {
+    title: {
+      template: `%s | ${title}`,
+      default: title,
+    },
+    description,
+    openGraph: {
+      title,
+      description,
+      url: 'https://www.saltyroad.cz',
+      siteName: title,
+      locale,
+      type: 'website',
+      images: [
+        {
+          url: '/OG_image.jpg',
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/OG_image.jpg'],
+    },
+    metadataBase: new URL('https://www.saltyroad.cz'),
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
