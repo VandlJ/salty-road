@@ -30,38 +30,7 @@
   },
   "RegisterPage": {
     "title": "Register Your Car",
-    "subtitle": "Fill out the form below to register your car for the Salty Road exhibition.",
-    "importantInfoTitle": "Important Information for Exhibitors",
-    "arrival": {
-      "title": "Arrival of vehicles",
-      "text": "Velké náměstí in Prachatice is accessible for arrival:",
-      "time1": "<strong>Friday, July 24, 2026</strong>, from 19:00 to 22:00",
-      "time2": "<strong>Saturday, July 25, 2026</strong>, from 8:00 to 11:00",
-      "warning": "Outside these times, vehicles are not allowed to enter the square."
-    },
-    "departure": {
-      "title": "Departure from the venue",
-      "time1": "<strong>Saturday, July 25, 2026</strong>, after 18:00",
-      "time2": "<strong>Sunday, July 26, 2026</strong>, until 10:00"
-    },
-    "conditions": {
-        "title": "Registration & Conditions",
-        "p1": "There is one exhibition area – <strong>Velké náměstí, Prachatice</strong> with a capacity of up to 100 vehicles. Selection of vehicles for approval will take place.",
-        "p2": "All registrations are responded to by email. Once your registration for Salty Road Meet is approved, you will receive a confirmation email with instructions for paying the registration fee.",
-        "feeIncludes": "The registration fee includes:",
-        "feeList1": "Exhibition space for your vehicle",
-        "feeList2": "Driver entry ticket",
-        "feeList3": "Welcome package from Salty Road Meet and our partners",
-        "p3": "After payment is received, we will send you your registration confirmation with a registration number (needed for accreditation) and complete exhibitor instructions."
-    },
-    "fee": {
-        "title": "Registration Fee",
-        "p1": "The registration fee must be paid in advance via bank transfer as confirmation of your participation.",
-        "refund1": "If canceled up to 14 days before the event: <strong>Full refund</strong>",
-        "refund2": "If canceled less than 14 days before the event: <strong>Non-refundable</strong>",
-        "label": "Registration Fee:",
-        "amount": "299 CZK / 12 €"
-    }
+    "subtitle": "Fill out the form below to register your car for the Salty Road exhibition."
   },
   "CheckPage": {
       "title": "Check Registration",
@@ -76,10 +45,10 @@
       "resultCreated": "Created:"
   },
   "InfoPage": {
-      "title": "Information",
+      "title": "What are you interested in?",
       "parkingTitle": "Parking",
       "parkingList": {
-        "item1": "Parking on Velké náměstí and Kostelní náměstí is allowed exclusively for vehicles with confirmed registration.",
+        "item1": "Parking on Velké náměstí and Kostelním náměstí is allowed exclusively for vehicles with confirmed registration.",
         "item2": "Vehicles without valid registration will not be allowed to enter or park in these locations.",
         "item3": "Given that the event takes place in the historical city center, we recommend local visitors to arrive on foot.",
         "item4": "For visitors who need to arrive by car, we recommend using adjacent parking areas outside the city center.",
@@ -114,6 +83,37 @@
         "item6": "If you see anyone damaging property, report it immediately to the organizing team.",
         "item7": "All movement in the event area is at your own risk.",
         "item8": "The organizers reserve the right to change the program, participants, or partners."
+      },
+      "importantInfoTitle": "Important Information for Exhibitors",
+      "arrival": {
+        "title": "Arrival of vehicles",
+        "text": "Velké náměstí in Prachatice is accessible for arrival:",
+        "time1": "<strong>Friday, July 24, 2026</strong>, from 19:00 to 22:00",
+        "time2": "<strong>Saturday, July 25, 2026</strong>, from 8:00 to 11:00",
+        "warning": "Outside these times, vehicles are not allowed to enter the square."
+      },
+      "departure": {
+        "title": "Departure from the venue",
+        "time1": "<strong>Saturday, July 25, 2026</strong>, after 18:00",
+        "time2": "<strong>Sunday, July 26, 2026</strong>, until 10:00"
+      },
+      "conditions": {
+          "title": "Registration & Conditions",
+          "p1": "There is one exhibition area – <strong>Velké náměstí, Prachatice</strong> with a capacity of up to 100 vehicles. Selection of vehicles for approval will take place.",
+          "p2": "All registrations are responded to by email. Once your registration for Salty Road Meet is approved, you will receive a confirmation email with instructions for paying the registration fee.",
+          "feeIncludes": "The registration fee includes:",
+          "feeList1": "Exhibition space for your vehicle",
+          "feeList2": "Driver entry ticket",
+          "feeList3": "Welcome package from Salty Road Meet and our partners",
+          "p3": "After payment is received, we will send you your registration confirmation with a registration number (needed for accreditation) and complete exhibitor instructions."
+      },
+      "fee": {
+          "title": "Registration Fee",
+          "p1": "The registration fee must be paid in advance via bank transfer as confirmation of your participation.",
+          "refund1": "If canceled up to 14 days before the event: <strong>Full refund</strong>",
+          "refund2": "If canceled less than 14 days before the event: <strong>Non-refundable</strong>",
+          "label": "Registration Fee:",
+          "amount": "299 CZK / 12 €"
       }
   },
   "VehiclesPage": {
