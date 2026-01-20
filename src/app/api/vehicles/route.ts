@@ -11,7 +11,10 @@ export async function GET(req: Request) {
     const [regs, total] = await Promise.all([
       prisma.registration.findMany({
         where: { status: "accepted" },
-        orderBy: { createdAt: "desc" },
+        orderBy: [
+          { order: "asc" },
+          { createdAt: "desc" }
+        ],
         skip,
         take: limit,
         select: {

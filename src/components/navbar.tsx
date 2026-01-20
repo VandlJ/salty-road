@@ -16,7 +16,7 @@ export default function Navbar({ fixed = false }) {
   const closeMenu = () => setIsMenuOpen(false);
 
   const switchLocale = (nextLocale: string) => {
-    router.replace(pathname, { locale: nextLocale });
+    router.replace(pathname, { locale: nextLocale, scroll: false });
   };
 
   return (

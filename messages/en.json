@@ -83,7 +83,7 @@
         "item2": "Vehicles without valid registration will not be allowed to enter or park in these locations.",
         "item3": "Given that the event takes place in the historical city center, we recommend local visitors to arrive on foot.",
         "item4": "For visitors who need to arrive by car, we recommend using adjacent parking areas outside the city center.",
-        "item5": "Exhibitors bringing their vehicles on a trailer can use the Menšíkova parking lot for trailer parking: <mapLink>map</mapLink>",
+        "item5": "Exhibitors bringing their vehicles on a trailer can use the <mapLink>Menšíkova</mapLink> parking lot for trailer parking.",
         "item6": "We ask all event participants to follow these rules, which are necessary to ensure safety, smooth traffic, and the smooth running of the event."
       },
       "mapTitle": "Map",
@@ -175,5 +175,8 @@
     "actionFailed": "Action failed",
     "networkError": "Network error",
     "cancel": "Cancel"
+  },
+  "Footer": {
+    "rights": "All rights reserved."
   }
 }

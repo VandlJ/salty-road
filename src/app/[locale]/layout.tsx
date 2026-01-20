@@ -3,6 +3,7 @@ import { Roboto } from "next/font/google";
 import localFont from "next/font/local";
 import "../globals.css";
 import ClientNavbarWrapper from "@/components/clientNavbarWrapper";
+import Footer from "@/components/footer";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 
@@ -64,6 +65,7 @@ export default async function RootLayout({
             <ClientNavbarWrapper />
           </div>
           <main>{children}</main>
+          <Footer />
         </NextIntlClientProvider>
       </body>
     </html>

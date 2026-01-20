@@ -1,46 +1,120 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { cookies } from "next/headers";
 
-async function getAdminFromReq(req: Request) {
-  const cookie = req.headers.get("cookie") || "";
-  const match = /admin_token=([^;]+)/.exec(cookie);
-  if (!match) return null;
-  const token = match[1];
+async function getAdminFromReq() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("admin_token")?.value;
+  if (!token) return null;
   return prisma.admin.findFirst({ where: { sessionToken: token } });
 }
 
-export async function GET(req: Request) {
-  const admin = await getAdminFromReq(req);
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+export async function GET() {
+  try {
+    console.log("GET /api/admin/registrations - Starting");
+    if (!prisma) {
+      console.error("Prisma client is not initialized!");
+      return NextResponse.json({ error: "Prisma not initialized" }, { status: 500 });
+    }
+    const admin = await getAdminFromReq();
+    console.log("Admin check:", admin ? "Found" : "Not Found");
+    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const regs = await prisma.registration.findMany({ orderBy: { createdAt: "desc" } });
-  return NextResponse.json(regs);
+    const regs = await prisma.registration.findMany({ 
+      orderBy: [
+        { order: "asc" },
+        { createdAt: "desc" }
+      ]
+    });
+    console.log("Registrations fetched:", regs.length);
+    return NextResponse.json(regs);
+  } catch (err) {
+    console.error("GET /api/admin/registrations error:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return NextResponse.json({
+      error: "Failed to fetch registrations",
+      details: message,
+      stack: stack
+    }, { status: 500 });
+  }
 }
 
 export async function PATCH(req: Request) {
-  const admin = await getAdminFromReq(req);
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const admin = await getAdminFromReq();
+    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id, action } = await req.json();
-  if (!id || !["accept", "decline"].includes(action))
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    const body = await req.json();
+    const { id, action } = body;
+    
+    if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
-  const status = action === "accept" ? "accepted" : "declined";
-  const updated = await prisma.registration.update({
-    where: { id },
-    data: { status },
-  });
+    if (action === "accept" || action === "decline") {
+      const status = action === "accept" ? "accepted" : "declined";
+      const updated = await prisma.registration.update({
+        where: { id },
+        data: { status },
+      });
+      return NextResponse.json({ success: true, updated });
+    }
 
-  return NextResponse.json({ success: true, updated });
+    if (action === "reorder") {
+      const { direction } = body;
+      const current = await prisma.registration.findUnique({ where: { id } });
+      if (!current) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+      const other = await prisma.registration.findFirst({
+        where: {
+          order: direction === "up" ? { lt: current.order } : { gt: current.order }
+        },
+        orderBy: { order: direction === "up" ? "desc" : "asc" }
+      });
+
+      if (other) {
+        const currentOrder = current.order;
+        await prisma.$transaction([
+          prisma.registration.update({ where: { id: current.id }, data: { order: other.order } }),
+          prisma.registration.update({ where: { id: other.id }, data: { order: currentOrder } })
+        ]);
+      } else {
+        const all = await prisma.registration.findMany({ orderBy: { createdAt: "desc" } });
+        for (let i = 0; i < all.length; i++) {
+          await prisma.registration.update({ where: { id: all[i].id }, data: { order: i } });
+        }
+      }
+      return NextResponse.json({ success: true });
+    }
+
+    if (action === "updatePhotos") {
+      const { photos } = body;
+      if (!Array.isArray(photos)) return NextResponse.json({ error: "Invalid photos" }, { status: 400 });
+      const updated = await prisma.registration.update({
+        where: { id },
+        data: { photos },
+      });
+      return NextResponse.json({ success: true, updated });
+    }
+
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+  } catch (err) {
+    console.error("PATCH /api/admin/registrations error:", err);
+    return NextResponse.json({ error: "Failed to update registration" }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: Request) {
-  const admin = await getAdminFromReq(req);
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const admin = await getAdminFromReq();
+    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id } = await req.json();
-  if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    const { id } = await req.json();
+    if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
-  await prisma.registration.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+    await prisma.registration.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("DELETE /api/admin/registrations error:", err);
+    return NextResponse.json({ error: "Failed to delete registration" }, { status: 500 });
+  }
 }

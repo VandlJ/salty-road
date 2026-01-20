@@ -21,7 +21,7 @@ export default function RegistrationSection() {
             {t("title")}
           </h1>
         </div>
-        <p className="text-lg sm:text-xl text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">
+        <p className="text-base sm:text-base text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">
           {t("subtitle")}
         </p>
 
@@ -33,8 +33,8 @@ export default function RegistrationSection() {
           
           <div className="space-y-12 text-gray-200">
             <div className="space-y-4">
-              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("arrival.title")}</h3>
-              <p className="mb-2 text-gray-200 font-light text-lg">{t("arrival.text")}</p>
+              <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("arrival.title")}</h3>
+              <p className="mb-2 text-gray-200 font-light text-base">{t("arrival.text")}</p>
               <ul className="list-none space-y-2 text-gray-300">
                 <li>{t.rich("arrival.time1", { strong })}</li>
                 <li>{t.rich("arrival.time2", { strong })}</li>
@@ -45,7 +45,7 @@ export default function RegistrationSection() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("departure.title")}</h3>
+              <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("departure.title")}</h3>
               <ul className="list-none space-y-2 text-gray-300">
                 <li>{t.rich("departure.time1", { strong })}</li>
                 <li>{t.rich("departure.time2", { strong })}</li>
@@ -53,11 +53,11 @@ export default function RegistrationSection() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("conditions.title")}</h3>
-              <p className="mb-4 text-gray-200 font-light text-lg">
+              <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("conditions.title")}</h3>
+              <p className="mb-4 text-gray-200 font-light text-base">
                 {t.rich("conditions.p1", { strong })}
               </p>
-              <p className="mb-4 text-gray-200 font-light text-lg">
+              <p className="mb-4 text-gray-200 font-light text-base">
                 {t("conditions.p2")}
               </p>
               <div className="bg-white/5 p-6 rounded-sm border border-white/10 text-left">
@@ -83,7 +83,7 @@ export default function RegistrationSection() {
             </div>
 
             <div className="space-y-6">
-              <h3 className="text-white font-bold mb-2 uppercase text-lg tracking-wider">{t("fee.title")}</h3>
+              <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("fee.title")}</h3>
               <p className="mb-4 text-gray-200 font-light">
                 {t("fee.p1")}
               </p>
@@ -91,7 +91,7 @@ export default function RegistrationSection() {
                 <li>{t.rich("fee.refund1", { strong })}</li>
                 <li>{t.rich("fee.refund2", { strong })}</li>
               </ul>
-              <div className="text-base sm:text-xl text-white border border-white/30 inline-block px-8 py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg">
+              <div className="text-base sm:text-base text-white border border-white/30 inline-block px-8 py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg">
                 {t("fee.label")} <span className="font-bold ml-2 text-white">{t("fee.amount")}</span>
               </div>
             </div>

@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         try {
           const heicConvert = (await import('heic-convert')).default || (await import('heic-convert'));
           buffer = (await heicConvert({
-            buffer: buffer as any,
+            buffer: buffer as unknown as ArrayBufferLike,
             format: 'JPEG',
             quality: 0.9
           })) as unknown as Buffer;

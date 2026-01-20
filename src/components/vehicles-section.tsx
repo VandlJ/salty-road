@@ -206,7 +206,7 @@ export default function VehiclesSection() {
         <div className="text-center mt-8 sm:mt-12">
           <button
             onClick={loadMore}
-            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-2xl hover:cursor-pointer transition-all duration-200"
+            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black font-bold text-base tracking-widest uppercase rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-2xl hover:cursor-pointer transition-all duration-200"
             disabled={loading}
           >
             {loading ? t("loading") : t("loadMore")}

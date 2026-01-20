@@ -83,7 +83,7 @@
         "item2": "Vozidlům bez platné registrace nebude umožněn vjezd ani parkování v těchto lokalitách.",
         "item3": "Vzhledem k tomu, že se akce koná v historickém centru města, doporučujeme místním návštěvníkům příchod pěšky.",
         "item4": "Návštěvníkům, kteří potřebují dorazit automobilem, doporučujeme využít přilehlé parkovací plochy mimo centrum města.",
-        "item5": "Vystavovatelé, kteří přivážejí svá vozidla na soupravě (vlek, podval), mohou pro parkování soupravy využít parkoviště Menšíkova: <mapLink>mapa</mapLink>",
+        "item5": "Vystavovatelé, kteří přivážejí svá vozidla na soupravě (vlek, podval), mohou pro parkování soupravy využít parkoviště <mapLink>Menšíkova</mapLink>.",
         "item6": "Žádáme všechny účastníky akce o dodržování uvedených pravidel, která jsou nezbytná pro zajištění bezpečnosti, plynulého provozu a hladkého průběhu akce."
       },
       "mapTitle": "Mapa",
@@ -175,5 +175,8 @@
     "actionFailed": "Akce selhala",
     "networkError": "Chyba sítě",
     "cancel": "Zrušit"
+  },
+  "Footer": {
+    "rights": "Všechna práva vyhrazena."
   }
 }

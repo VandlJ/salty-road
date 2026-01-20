@@ -493,7 +493,7 @@ export default function RegisterForm() {
         <div className="flex-shrink-0">
           <button
             type="submit"
-            className="mt-0 px-8 py-3 rounded-none font-bold text-lg tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-0 px-8 py-3 rounded-none font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={
               !(
                 agreed &&

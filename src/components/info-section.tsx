@@ -19,7 +19,7 @@ export default function InfoSection() {
       <div className="space-y-16 md:space-y-24">
         <div className="space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("parkingTitle")}</h2>
-          <div className="text-gray-200 text-lg leading-relaxed max-w-3xl mx-auto space-y-6 font-light">
+          <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto space-y-6 font-light">
             <ul className="list-disc list-outside ml-5 space-y-4 text-left inline-block max-w-full">
               {[1, 2, 3, 4, 5].map((item) => (
                 <li key={item} className="pl-2">
@@ -57,7 +57,7 @@ export default function InfoSection() {
 
         <div className="space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("sponsorsTitle")}</h2>
-          <p className="text-gray-200 text-lg leading-relaxed max-w-3xl mx-auto font-light">{t("sponsorsText")}</p>
+          <p className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto font-light">{t("sponsorsText")}</p>
         </div>
 
         <div className="space-y-6">
@@ -75,8 +75,8 @@ export default function InfoSection() {
                  
                  return (
                    <div key={item} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 text-center sm:text-left justify-center sm:justify-start p-2 rounded">
-                     <span className="text-white font-extrabold text-lg sm:w-40 sm:text-right shrink-0 tracking-wider">{time}</span>
-                     <span className="text-gray-200 text-lg font-light">{event}</span>
+                     <span className="text-white font-extrabold text-base sm:w-40 sm:text-right shrink-0 tracking-wider">{time}</span>
+                     <span className="text-gray-200 text-base font-light">{event}</span>
                    </div>
                  );
               })}
@@ -85,14 +85,14 @@ export default function InfoSection() {
             {/* Side Program */}
             <div className="pt-6 border-t border-gray-800">
                <div className="mb-6">
-                 <p className="text-white text-lg font-bold uppercase tracking-widest">
+                 <p className="text-white text-base font-bold uppercase tracking-widest">
                    {t.rich("programList.item8", { strong: (chunks) => chunks })}
                  </p>
                </div>
                
                <div className="space-y-3">
                  {[9, 10, 11].map((item) => (
-                   <p key={item} className="text-gray-300 text-lg font-light flex items-center justify-center gap-2">
+                   <p key={item} className="text-gray-300 text-base font-light flex items-center justify-center gap-2">
                      <span className="w-1.5 h-1.5 bg-white rounded-full opacity-70"></span>
                      {t(`programList.item${item}`)}
                    </p>
@@ -104,7 +104,7 @@ export default function InfoSection() {
 
         <div className="space-y-6">
           <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("rulesTitle")}</h2>
-          <div className="text-gray-200 text-lg leading-relaxed max-w-3xl mx-auto text-center space-y-6 font-light">
+          <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto text-center space-y-6 font-light">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
               <p key={item}>{t(`rulesList.item${item}`)}</p>
             ))}

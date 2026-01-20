@@ -53,8 +53,13 @@ export default function AdminPage() {
         setRegs([]);
       } else {
         const data = await res.json();
-        setRegs(data);
-        setLoggedIn(true);
+        if (Array.isArray(data)) {
+          setRegs(data);
+          setLoggedIn(true);
+        } else {
+          setError(data.error || "Invalid data received");
+          setRegs([]);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -133,12 +138,12 @@ export default function AdminPage() {
     }
   }
 
-  async function handleAction(id: string, action: "accept" | "decline") {
+  async function handleAction(id: string, action: "accept" | "decline" | "reorder" | "updatePhotos", extra?: Record<string, unknown>) {
     try {
       const res = await fetch("/api/admin/registrations", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, action }),
+        body: JSON.stringify({ id, action, ...extra }),
       });
       if (!res.ok) {
         setError(t("actionFailed"));
@@ -148,6 +153,50 @@ export default function AdminPage() {
     } catch (err) {
       console.error(err);
       setError(t("networkError"));
+    }
+  }
+
+  async function handlePhotoUpload(id: string, index: number, photos: string[], file: File) {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      const blob = await uploadRes.json();
+
+      const newPhotos = [...photos];
+      newPhotos[index] = blob.url;
+
+      await handleAction(id, "updatePhotos", { photos: newPhotos });
+    } catch (err) {
+      console.error(err);
+      setError("Photo replacement failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function downloadPhoto(url: string, filename: string) {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+      window.open(url, "_blank");
     }
   }
 
@@ -250,7 +299,25 @@ export default function AdminPage() {
           >
             {/* Header / Status Bar */}
             <div className="flex items-center justify-between px-6 py-4 bg-white/5 border-b border-gray-700">
-              <div className="flex items-center gap-8">
+              <div className="flex items-center gap-6 sm:gap-8">
+                {/* Reorder Buttons */}
+                <div className="flex flex-col gap-1">
+                  <button 
+                    onClick={() => handleAction(r.id, "reorder", { direction: "up" })}
+                    className="p-1 hover:bg-white/10 rounded transition-colors cursor-pointer"
+                    title="Move Up"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                  </button>
+                  <button 
+                    onClick={() => handleAction(r.id, "reorder", { direction: "down" })}
+                    className="p-1 hover:bg-white/10 rounded transition-colors cursor-pointer"
+                    title="Move Down"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                  </button>
+                </div>
+
                 <div className="flex flex-col">
                   <span className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">
                     Status
@@ -276,7 +343,7 @@ export default function AdminPage() {
                     {r.status || "pending"}
                   </span>
                 </div>
-                <div className="flex flex-col">
+                <div className="flex flex-col hidden sm:flex">
                   <span className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">
                     ID
                   </span>
@@ -301,43 +368,51 @@ export default function AdminPage() {
               <div className="lg:col-span-5 xl:col-span-4">
                 {r.photos && r.photos.length > 0 ? (
                   <div className="grid grid-cols-2 gap-2 h-full content-start">
-                    {/* Main large photo */}
-                    <button
-                      onClick={() => openGallery(r.photos || [], 0)}
-                      className="col-span-2 aspect-video relative border border-gray-700 hover:border-white transition-all overflow-hidden group/photo"
-                    >
-                      <Image
-                        src={getThumbnailUrl(r.photos[0])}
-                        alt="Main vehicle photo"
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover/photo:scale-105"
-                      />
-                    </button>
-                    {/* Smaller thumbnails */}
-                    {r.photos.slice(1, 3).map((p, i) => (
-                      <button
-                        key={i + 1}
-                        onClick={() => openGallery(r.photos || [], i + 1)}
-                        className="aspect-video relative border border-gray-700 hover:border-white transition-all overflow-hidden group/photo"
-                      >
+                    {r.photos.map((p, i) => (
+                      <div key={i} className="relative aspect-video group/photo border border-gray-700 hover:border-white transition-all overflow-hidden bg-black">
                         <Image
                           src={getThumbnailUrl(p)}
-                          alt={`Vehicle photo ${i + 2}`}
+                          alt={`Vehicle photo ${i + 1}`}
                           fill
                           className="object-cover transition-transform duration-500 group-hover/photo:scale-105"
                         />
-                      </button>
+                        {/* Photo Actions Overlay */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                           <button 
+                             onClick={() => openGallery(r.photos || [], i)}
+                             className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer"
+                             title="View"
+                           >
+                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                           </button>
+                           <div className="flex gap-2">
+                             <button 
+                               onClick={() => downloadPhoto(p, `registration_${r.id}_photo_${i+1}.jpg`)}
+                               className="p-1.5 bg-blue-600/80 hover:bg-blue-600 rounded-full text-white transition-colors cursor-pointer"
+                               title="Download"
+                             >
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                             </button>
+                             <label 
+                               className="p-1.5 bg-green-600/80 hover:bg-green-600 rounded-full text-white transition-colors cursor-pointer"
+                               title="Replace"
+                             >
+                               <input 
+                                 type="file" 
+                                 className="hidden" 
+                                 accept="image/*"
+                                 onChange={(e) => {
+                                   if (e.target.files?.[0]) {
+                                     handlePhotoUpload(r.id, i, r.photos || [], e.target.files[0]);
+                                   }
+                                 }}
+                               />
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                             </label>
+                           </div>
+                        </div>
+                      </div>
                     ))}
-                    {r.photos.length > 3 && (
-                      <button
-                        onClick={() => openGallery(r.photos || [], 3)}
-                        className="aspect-video relative border border-gray-700 hover:border-white transition-all overflow-hidden flex items-center justify-center bg-gray-800 group/photo"
-                      >
-                        <span className="text-white font-bold text-lg">
-                          +{r.photos.length - 3}
-                        </span>
-                      </button>
-                    )}
                   </div>
                 ) : (
                   <div className="aspect-video bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-500 italic">
@@ -417,7 +492,7 @@ export default function AdminPage() {
                 <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
                   <button
                     onClick={() => handleAction(r.id, "accept")}
-                    className="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider text-xs rounded shadow-lg hover:shadow-green-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+                    className="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider text-xs rounded shadow-lg hover:shadow-green-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
                   >
                     <svg
                       className="w-4 h-4"
@@ -436,7 +511,7 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => handleAction(r.id, "decline")}
-                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-xs rounded shadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2"
+                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-xs rounded shadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
                   >
                     <svg
                       className="w-4 h-4"
@@ -456,7 +531,7 @@ export default function AdminPage() {
                   <div className="w-px h-8 bg-gray-700 mx-2 hidden sm:block"></div>
                   <button
                     onClick={() => setRemoveId(r.id)}
-                    className="px-6 py-2.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-xs border border-red-900/50 hover:border-red-500 rounded transition-all flex items-center gap-2"
+                    className="px-6 py-2.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-xs border border-red-900/50 hover:border-red-500 rounded transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <svg
                       className="w-4 h-4"
@@ -493,13 +568,13 @@ export default function AdminPage() {
             <div className="flex gap-4">
               <button
                 onClick={() => setRemoveId(null)}
-                className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
+                className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
               >
                 {t("cancel")}
               </button>
               <button
                 onClick={confirmRemove}
-                className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all"
+                className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all cursor-pointer"
               >
                 {t("remove")}
               </button>
