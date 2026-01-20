@@ -60,9 +60,9 @@ export default function CheckPage() {
   }
 
   return (
-    <section className="bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
+    <section className="flex-1 bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
       <div className="w-full">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 sm:mb-8 text-white text-center leading-tight drop-shadow-md">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mb-6 sm:mb-8 uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent text-center leading-tight">
           {t("title")}
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">

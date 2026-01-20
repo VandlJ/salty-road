@@ -111,13 +111,8 @@ export default function VehiclesSection() {
   return (
     <section id="vehicles" className="bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center">
       <div className="flex flex-col items-center mb-16 gap-4">
-        <div className="relative pb-1 inline-block">
-          {/* Outline Layer - Red */}
-          <h1 className="absolute inset-0 text-4xl sm:text-5xl font-extrabold text-transparent [-webkit-text-stroke:4px_#ff0302] uppercase tracking-widest select-none z-0 flex items-center justify-center text-center">
-            {t("title")}
-          </h1>
-          {/* Text Layer - White */}
-          <h1 className="relative text-4xl sm:text-5xl font-extrabold text-white text-center uppercase tracking-widest drop-shadow-sm z-10">
+        <div className="relative">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-center uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
             {t("title")}
           </h1>
         </div>

@@ -58,13 +58,13 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body
-        className={`${roboto.variable} ${amika.variable} antialiased min-h-screen font-roboto`}
+        className={`${roboto.variable} ${amika.variable} antialiased min-h-screen font-roboto flex flex-col`}
       >
         <NextIntlClientProvider messages={messages}>
           <div className="w-full">
             <ClientNavbarWrapper />
           </div>
-          <main>{children}</main>
+          <main className="flex-1 flex flex-col">{children}</main>
           <Footer />
         </NextIntlClientProvider>
       </body>
