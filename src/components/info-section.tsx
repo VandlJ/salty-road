@@ -5,7 +5,7 @@ export default function InfoSection() {
   
   return (
     <section id="info" className="bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24 text-center">
-      <div className="relative mb-16">
+      <div className="relative mb-16 inline-block border-b-2 border-white/80 pb-6 px-12">
         <h1 className="text-4xl sm:text-5xl font-extrabold uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
           {t("title")}
         </h1>
@@ -13,7 +13,7 @@ export default function InfoSection() {
       
       <div className="space-y-16 md:space-y-24">
         <div className="space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("parkingTitle")}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b-2 border-gray-700 pb-4 inline-block px-8">{t("parkingTitle")}</h2>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto space-y-6 font-light">
             <ul className="list-disc list-outside ml-5 space-y-4 text-left inline-block max-w-full">
               {[1, 2, 3, 4, 5].map((item) => (
@@ -35,7 +35,7 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-8 w-full flex flex-col items-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("mapTitle")}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b-2 border-gray-700 pb-4 inline-block px-8">{t("mapTitle")}</h2>
           <div className="w-full h-64 sm:h-96 md:h-[500px] max-w-4xl overflow-hidden border border-gray-700 shadow-2xl relative group">
             <iframe 
               src="https://maps.google.com/maps?q=Velk%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2C%20Prachatice&t=&z=17&ie=UTF8&iwloc=&output=embed"
@@ -51,12 +51,12 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("sponsorsTitle")}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b-2 border-gray-700 pb-4 inline-block px-8">{t("sponsorsTitle")}</h2>
           <p className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto font-light">{t("sponsorsText")}</p>
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("programTitle")}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b-2 border-gray-700 pb-4 inline-block px-8">{t("programTitle")}</h2>
           
           <div className="max-w-3xl mx-auto">
             {/* Main Program */}
@@ -98,7 +98,7 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 inline-block px-8">{t("rulesTitle")}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest border-b-2 border-gray-700 pb-4 inline-block px-8">{t("rulesTitle")}</h2>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto text-center space-y-6 font-light">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
               <p key={item}>{t(`rulesList.item${item}`)}</p>

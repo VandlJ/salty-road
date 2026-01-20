@@ -11,18 +11,15 @@ export default function RegistrationSection() {
   return (
     <section id="register" className="bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24">
       <div className="flex flex-col items-center">
-        <div className="relative mb-16">
+        <div className="relative mb-16 inline-block border-b-2 border-white/80 pb-6 px-12">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-center uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
             {t("title")}
           </h1>
         </div>
-        <p className="text-base sm:text-base text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">
-          {t("subtitle")}
-        </p>
 
         {/* Info Section */}
         <div className="w-full bg-[#111]/90 border border-gray-800 p-6 md:p-12 mb-12 md:mb-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative overflow-hidden">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-white border-b border-gray-800 pb-4 inline-block px-8 uppercase tracking-widest">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-10 text-white border-b-2 border-gray-700 pb-4 inline-block px-8 uppercase tracking-widest">
             {t("importantInfoTitle")}
           </h2>
           
@@ -92,6 +89,10 @@ export default function RegistrationSection() {
             </div>
           </div>
         </div>
+
+        <p className="text-base sm:text-base text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">
+          {t("subtitle")}
+        </p>
 
         <div className="w-full max-w-3xl">
           <RegisterForm />
