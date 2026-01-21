@@ -1,7 +1,7 @@
 {
   "Navbar": {
     "home": "Home",
-    "vehicles": "Registered Vehicles",
+    "vehicles": "Confirmed Vehicles",
     "register": "Registration",
     "check": "Registration Check",
     "info": "Information",
@@ -69,9 +69,14 @@
         "item6": "18:00–22:00 - DJ Raty",
         "item7": "from 22:00 - Afterparty at Music Club Hrozen",
         "item8": "<strong>Side program throughout the day:</strong>",
-        "item9": "Hairstylist Jakub Bouda",
-        "item10": "Hair braiding – Cherry braid PT",
-        "item11": "Face painting – ČÁRY MÁRY"
+        "item9": "Hairstylist – <link>Jakub Bouda</link>",
+        "item10": "Hair braiding – <link>Cherry Braids PT</link>",
+        "item11": "Face painting – <link>carymary_pt</link>",
+        "item12": "Drinks and beer – <link>Music club Hrozen</link>",
+        "item13": "Cafe – <link>Cafe Madona</link>",
+        "item14": "Burger & Grill – <link>Black Bear</link>",
+        "item15": "Musical accompaniment throughout the event",
+        "item16": "Possibility to use local terraces for seating, food, and drinks"
       },
       "rulesTitle": "Visitor Rules",
       "rulesList": {
@@ -99,12 +104,14 @@
       },
       "conditions": {
           "title": "Registration & Conditions",
-          "p1": "There is one exhibition area – <strong>Velké náměstí, Prachatice</strong> with a capacity of up to 100 vehicles. Selection of vehicles for approval will take place.",
+          "p1": "There is one exhibition area – <strong>Velké náměstí, Prachatice</strong> with a capacity of up to 100 vehicles.",
+          "p1_selection": "Selection of vehicles for approval will take place.",
+          "warning": "Strict ban on burnouts and pops & bangs in the entire exhibition area.",
           "p2": "All registrations are responded to by email. Once your registration for Salty Road Meet is approved, you will receive a confirmation email with instructions for paying the registration fee.",
           "feeIncludes": "The registration fee includes:",
-          "feeList1": "Exhibition space for your vehicle",
-          "feeList2": "Driver entry ticket",
-          "feeList3": "Welcome package from Salty Road Meet and our partners",
+          "feeList1": "Reserved spot for your car",
+          "feeList2": "Gift package from Salty Road and our partners",
+          "feeList3": "Ticket to the afterparty",
           "p3": "After payment is received, we will send you your registration confirmation with a registration number (needed for accreditation) and complete exhibitor instructions."
       },
       "fee": {
@@ -117,7 +124,7 @@
       }
   },
   "VehiclesPage": {
-      "title": "Registered Vehicles",
+      "title": "Confirmed Vehicles",
       "refresh": "Refresh",
       "refreshing": "Refreshing…",
       "loadMore": "Load More",

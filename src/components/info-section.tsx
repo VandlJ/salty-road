@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 
 export default function InfoSection() {
   const t = useTranslations("InfoPage");
@@ -44,16 +45,13 @@ export default function InfoSection() {
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           <div className="w-full h-64 sm:h-96 md:h-[500px] max-w-4xl overflow-hidden border border-gray-700 shadow-2xl relative group">
-            <iframe 
-              src="https://maps.google.com/maps?q=Velk%C3%A9%20n%C3%A1m%C4%9Bst%C3%AD%2C%20Prachatice&t=&z=17&ie=UTF8&iwloc=&output=embed"
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              allowFullScreen={true} 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-              className="w-full h-full"
-            ></iframe>
+            <Image 
+              src="/map_namesti.webp"
+              alt="Map"
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
 
@@ -99,12 +97,34 @@ export default function InfoSection() {
                </div>
                
                <div className="space-y-3">
-                 {[9, 10, 11].map((item) => (
-                   <p key={item} className="text-gray-300 text-base font-light flex items-center justify-center gap-2">
-                     <span className="w-1.5 h-1.5 bg-white rounded-full opacity-70"></span>
-                     {t(`programList.item${item}`)}
-                   </p>
-                 ))}
+                 {[9, 10, 11, 12, 13, 14, 15, 16].map((item) => {
+                   const links: Record<number, string> = {
+                     9: "https://www.instagram.com/jakub_bouda_/",
+                     10: "https://www.instagram.com/cherry.braids.pt/",
+                     11: "https://www.instagram.com/carymary_pt/",
+                     12: "https://www.instagram.com/club_hrozen_prachatice/",
+                     13: "https://www.instagram.com/cafe.madona/",
+                     14: "https://www.instagram.com/blackbearprachatice/",
+                   };
+
+                   return (
+                     <p key={item} className="text-gray-300 text-base font-light flex items-center justify-center gap-2">
+                       <span className="w-1.5 h-1.5 bg-white rounded-full opacity-70"></span>
+                       {t.rich(`programList.item${item}`, {
+                         link: (chunks) => (
+                           <a 
+                             href={links[item]} 
+                             target="_blank" 
+                             rel="noopener noreferrer" 
+                             className="text-white font-medium underline hover:text-gray-300 transition-colors"
+                           >
+                             {chunks}
+                           </a>
+                         ),
+                       })}
+                     </p>
+                   );
+                 })}
                </div>
             </div>
           </div>
@@ -154,8 +174,14 @@ export default function InfoSection() {
 
             <div className="space-y-4">
               <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("conditions.title")}</h3>
-              <p className="mb-4 text-gray-200 font-light text-base">
+              <p className="mb-2 text-gray-200 font-light text-base">
                 {t.rich("conditions.p1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}
+              </p>
+              <p className="mb-2 text-gray-200 font-light text-base">
+                {t("conditions.p1_selection")}
+              </p>
+              <p className="mt-4 mb-4 text-sm text-red-400 font-medium tracking-wide uppercase border border-red-900/50 bg-red-900/10 inline-block px-4 py-1">
+                {t("conditions.warning")}
               </p>
               <p className="mb-4 text-gray-200 font-light text-base">
                 {t("conditions.p2")}

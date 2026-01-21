@@ -1,7 +1,7 @@
 {
   "Navbar": {
     "home": "Úvod",
-    "vehicles": "Registrované vozy",
+    "vehicles": "Potvrzené vozy",
     "register": "Registrace",
     "check": "Stav registrace",
     "info": "Informace",
@@ -69,9 +69,14 @@
         "item6": "18:00–22:00 - DJ Raty",
         "item7": "od 22:00 - Afterparty v Music Club Hrozen",
         "item8": "<strong>Doprovodný program po celý den:</strong>",
-        "item9": "Hairstylist Jakub Bouda",
-        "item10": "Zaplétání copánků – Cherry braid PT",
-        "item11": "Malování na obličej – ČÁRY MÁRY"
+        "item9": "Hairstylist – <link>Jakub Bouda</link>",
+        "item10": "Zaplétání copánků – <link>Cherry Braids PT</link>",
+        "item11": "Malování na obličej – <link>carymary_pt</link>",
+        "item12": "Drinks and beer – <link>Music club Hrozen</link>",
+        "item13": "Cafe – <link>Cafe Madona</link>",
+        "item14": "Burger & Grill – <link>Black Bear</link>",
+        "item15": "Hudební doprovod po dobu konání akce",
+        "item16": "Možnost využití lokálních zahrádek k posezení, jídlu a pití"
       },
       "rulesTitle": "Návštěvní řád",
       "rulesList": {
@@ -99,12 +104,14 @@
       },
       "conditions": {
           "title": "Registrace a podmínky",
-          "p1": "K dispozici je jedna výstavní plocha – <strong>Velké náměstí, Prachatice</strong> s kapacitou až 100 vozidel. Proběhne výběr vozidel ke schválení.",
+          "p1": "K dispozici je jedna výstavní plocha – <strong>Velké náměstí, Prachatice</strong> s kapacitou až 100 vozidel.",
+          "p1_selection": "Proběhne výběr vozidel ke schválení.",
+          "warning": "Na celé výstavní ploše je přísný zákaz „pálení gum“ a pops and bangs.",
           "p2": "Všechny registrace budou zodpovězeny e-mailem. Jakmile bude vaše registrace na Salty Road Meet schválena, obdržíte potvrzovací e-mail s pokyny k zaplacení registračního poplatku.",
           "feeIncludes": "Registrační poplatek zahrnuje:",
-          "feeList1": "Výstavní plochu pro vaše vozidlo",
-          "feeList2": "Vstupenku pro řidiče",
-          "feeList3": "Uvítací balíček od Salty Road Meet a našich partnerů",
+          "feeList1": "Vyhrazené místo pro váš vůz",
+          "feeList2": "Dárkový balíček od Salty Road a našich partnerů",
+          "feeList3": "Vstupenku na afterparty",
           "p3": "Po přijetí platby vám zašleme potvrzení o registraci s registračním číslem (potřebné pro akreditaci) a kompletní instrukce pro vystavovatele."
       },
       "fee": {
@@ -117,7 +124,7 @@
       }
   },
   "VehiclesPage": {
-      "title": "Registrované vozy",
+      "title": "Potvrzené vozy",
       "refresh": "Obnovit",
       "refreshing": "Obnovuji…",
       "loadMore": "Načíst další",
