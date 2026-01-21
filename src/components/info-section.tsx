@@ -5,9 +5,9 @@ export default function InfoSection() {
   const t = useTranslations("InfoPage");
   
   return (
-    <section id="info" className="bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24 text-center">
-      <div className="relative mb-16 inline-block pb-6 px-12">
-        <h1 className="text-4xl sm:text-5xl font-extrabold uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
+    <section id="info" className="bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24 text-center overflow-hidden">
+      <div className="relative mb-16 inline-block pb-6 px-4 sm:px-12">
+        <h1 className="text-4xl sm:text-5xl font-extrabold uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent break-words">
           {t("title")}
         </h1>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
@@ -15,12 +15,12 @@ export default function InfoSection() {
       
       <div className="space-y-16 md:space-y-24">
         <div className="space-y-6">
-          <div className="relative inline-block px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">{t("parkingTitle")}</h2>
+          <div className="relative inline-block px-2 sm:px-8 pb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("parkingTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto space-y-6 font-light">
-            <ul className="list-disc list-outside ml-5 space-y-4 text-left inline-block max-w-full">
+            <ul className="list-disc list-outside pl-5 space-y-4 text-left block w-full max-w-full">
               {[1, 2, 3, 4, 5].map((item) => (
                 <li key={item} className="pl-2">
                   {t.rich(`parkingList.item${item}`, {
@@ -40,8 +40,8 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-8 w-full flex flex-col items-center">
-          <div className="relative inline-block px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">{t("mapTitle")}</h2>
+          <div className="relative inline-block px-2 sm:px-8 pb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("mapTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           <div className="w-full h-64 sm:h-96 md:h-[500px] max-w-4xl overflow-hidden border border-gray-700 shadow-2xl relative group">
@@ -57,11 +57,11 @@ export default function InfoSection() {
 
         <div className="space-y-12">
           <div className="space-y-12">
-            <div className="relative inline-block px-8 pb-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">{t("sponsorsTitle")}</h2>
+            <div className="relative inline-block px-2 sm:px-8 pb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("sponsorsTitle")}</h2>
               <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-4 overflow-hidden">
               <div className="relative w-full h-12 sm:h-16">
                 <Image src="/sponsors/prachatice.webp" alt="Prachatice" fill className="object-contain" />
               </div>
@@ -75,11 +75,11 @@ export default function InfoSection() {
           </div>
 
           <div className="space-y-12">
-            <div className="relative inline-block px-8 pb-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">{t("mediaPartnersTitle")}</h2>
+            <div className="relative inline-block px-2 sm:px-8 pb-4">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("mediaPartnersTitle")}</h2>
               <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
-            <div className="flex justify-center items-center max-w-4xl mx-auto px-4">
+            <div className="flex justify-center items-center max-w-4xl mx-auto px-4 overflow-hidden">
                <div className="relative w-full max-w-[280px] h-12 sm:h-16">
                 <Image src="/sponsors/denik.webp" alt="Deník" fill className="object-contain" />
               </div>
@@ -88,8 +88,8 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-6">
-          <div className="relative inline-block px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">{t("programTitle")}</h2>
+          <div className="relative inline-block px-2 sm:px-8 pb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("programTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           
@@ -120,7 +120,7 @@ export default function InfoSection() {
                  </p>
                </div>
                
-               <div className="space-y-3">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 max-w-2xl mx-auto">
                  {[9, 10, 11, 12, 13, 14, 15, 16].map((item) => {
                    const links: Record<number, string> = {
                      9: "https://www.instagram.com/jakub_bouda_/",
@@ -132,21 +132,25 @@ export default function InfoSection() {
                    };
 
                    return (
-                     <p key={item} className="text-gray-300 text-base font-light flex items-center justify-center gap-2">
-                       <span className="w-1.5 h-1.5 bg-white rounded-full opacity-70"></span>
-                       {t.rich(`programList.item${item}`, {
-                         link: (chunks) => (
-                           <a 
-                             href={links[item]} 
-                             target="_blank" 
-                             rel="noopener noreferrer" 
-                             className="text-white font-medium underline hover:text-gray-300 transition-colors"
-                           >
-                             {chunks}
-                           </a>
-                         ),
-                       })}
-                     </p>
+                     <div key={item} className="text-center md:text-left text-gray-300 text-base font-light">
+                       <div className="inline-flex items-start text-left break-words max-w-full md:max-w-none text-pretty">
+                         <span className="w-1.5 h-1.5 bg-white/60 rounded-full mt-2.5 mr-3 shrink-0"></span>
+                         <span>
+                           {t.rich(`programList.item${item}`, {
+                             link: (chunks) => (
+                               <a 
+                                 href={links[item]} 
+                                 target="_blank" 
+                                 rel="noopener noreferrer" 
+                                 className="text-white font-medium underline hover:text-gray-300 transition-colors"
+                               >
+                                 {chunks}
+                               </a>
+                             ),
+                           })}
+                         </span>
+                       </div>
+                     </div>
                    );
                  })}
                </div>
@@ -161,8 +165,8 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-6">
-          <div className="relative inline-block px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">{t("rulesTitle")}</h2>
+          <div className="relative inline-block px-2 sm:px-8 pb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("rulesTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto text-center space-y-6 font-light">
@@ -174,8 +178,8 @@ export default function InfoSection() {
 
         {/* Exhibitor Info Section */}
         <div className="w-full bg-[#111]/90 border border-gray-800 p-6 md:p-12 mt-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative overflow-hidden">
-          <div className="relative inline-block px-8 pb-4 mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest">
+          <div className="relative inline-block px-2 sm:px-8 pb-4 mb-10">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">
               {t("importantInfoTitle")}
             </h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
@@ -247,8 +251,11 @@ export default function InfoSection() {
                 <li>{t.rich("fee.refund1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
                 <li>{t.rich("fee.refund2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
               </ul>
-              <div className="text-base sm:text-base text-white border border-white/30 inline-block px-8 py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg">
-                {t("fee.label")} <span className="font-bold ml-2 text-white">{t("fee.amount")}</span>
+              <div className="text-sm sm:text-base text-white border border-white/30 inline-block px-10 py-3 sm:px-20 sm:py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg min-w-[260px] sm:min-w-[380px]">
+                <div className="flex flex-col items-center gap-1">
+                  <span>{t("fee.label")}</span>
+                  <span className="font-bold text-white text-lg sm:text-xl">{t("fee.amount")}</span>
+                </div>
               </div>
             </div>
           </div>

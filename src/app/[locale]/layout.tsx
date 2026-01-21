@@ -99,7 +99,7 @@ export default async function RootLayout({
           <div className="w-full">
             <ClientNavbarWrapper />
           </div>
-          <main className="flex-1 flex flex-col">{children}</main>
+          <main className="flex-1 flex flex-col overflow-x-hidden">{children}</main>
           <Footer />
         </NextIntlClientProvider>
       </body>

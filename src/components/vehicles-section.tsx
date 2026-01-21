@@ -109,9 +109,9 @@ export default function VehiclesSection() {
   }
 
   return (
-    <section id="vehicles" className="bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center">
+    <section id="vehicles" className="bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="flex flex-col items-center mb-16 gap-4">
-        <div className="relative inline-block pb-6 px-12">
+        <div className="relative inline-block pb-6 px-4 sm:px-12">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-center uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
             {t("title")}
           </h1>
