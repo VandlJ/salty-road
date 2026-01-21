@@ -63,13 +63,13 @@ export default function InfoSection() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-4">
               <div className="relative w-full h-12 sm:h-16">
-                <Image src="/sponsors/prachatice.webp" alt="Prachatice" fill className="object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300" />
+                <Image src="/sponsors/prachatice.webp" alt="Prachatice" fill className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16">
-                <Image src="/sponsors/sts_prachatice.webp" alt="STS Prachatice" fill className="object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300" />
+                <Image src="/sponsors/sts_prachatice.webp" alt="STS Prachatice" fill className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16">
-                <Image src="/sponsors/zephyron.webp" alt="Zephyron" fill className="object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300" />
+                <Image src="/sponsors/zephyron.webp" alt="Zephyron" fill className="object-contain" />
               </div>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function InfoSection() {
             </div>
             <div className="flex justify-center items-center max-w-4xl mx-auto px-4">
                <div className="relative w-full max-w-[280px] h-12 sm:h-16">
-                <Image src="/sponsors/denik.webp" alt="Deník" fill className="object-contain filter brightness-0 invert opacity-70 hover:opacity-100 transition-all duration-300" />
+                <Image src="/sponsors/denik.webp" alt="Deník" fill className="object-contain" />
               </div>
             </div>
           </div>
