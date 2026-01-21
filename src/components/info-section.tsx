@@ -150,6 +150,12 @@ export default function InfoSection() {
                    );
                  })}
                </div>
+
+               <div className="mt-8 flex justify-center">
+                 <p className="text-sm text-white font-medium tracking-wide uppercase border border-white/50 bg-white/10 inline-block px-4 py-1">
+                   {t("programList.freeEntrance")}
+                 </p>
+               </div>
             </div>
           </div>
         </div>
