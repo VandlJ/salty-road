@@ -19,6 +19,19 @@ export default function Navbar({ fixed = false }) {
     router.replace(pathname, { locale: nextLocale, scroll: false });
   };
 
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    closeMenu();
+    if (pathname === '/') {
+      e.preventDefault();
+      const targetId = href.replace('/#', '');
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        window.history.pushState(null, '', `/#${targetId}`);
+      }
+    }
+  };
+
   return (
     <nav
       className={`${
@@ -72,18 +85,21 @@ export default function Navbar({ fixed = false }) {
           <Link
             href="/#info"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
+            onClick={(e) => handleScroll(e, '/#info')}
           >
             {t("info")}
           </Link>
           <Link
             href="/#register"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
+            onClick={(e) => handleScroll(e, '/#register')}
           >
             {t("register")}
           </Link>
           <Link
             href="/#vehicles"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
+            onClick={(e) => handleScroll(e, '/#vehicles')}
           >
             {t("vehicles")}
           </Link>
@@ -174,21 +190,21 @@ export default function Navbar({ fixed = false }) {
             <Link
               href="/#info"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={closeMenu}
+              onClick={(e) => handleScroll(e, '/#info')}
             >
               {t("info")}
             </Link>
             <Link
               href="/#register"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={closeMenu}
+              onClick={(e) => handleScroll(e, '/#register')}
             >
               {t("register")}
             </Link>
             <Link
               href="/#vehicles"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={closeMenu}
+              onClick={(e) => handleScroll(e, '/#vehicles')}
             >
               {t("vehicles")}
             </Link>
