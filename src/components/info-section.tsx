@@ -61,14 +61,14 @@ export default function InfoSection() {
               <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("sponsorsTitle")}</h2>
               <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-4 overflow-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-8 py-10 overflow-hidden bg-[radial-gradient(circle_at_center,_#ffffff_0%,_#e5e7eb_50%,_#9ca3af_100%)] border border-white/30 shadow-lg">
               <div className="relative w-full h-12 sm:h-16">
                 <Image src="/sponsors/prachatice.webp" alt="Prachatice" fill className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16">
                 <Image src="/sponsors/sts_prachatice.webp" alt="STS Prachatice" fill className="object-contain" />
               </div>
-              <div className="relative w-full h-12 sm:h-16">
+              <div className="relative w-full h-12 sm:h-16 scale-180">
                 <Image src="/sponsors/zephyron.webp" alt="Zephyron" fill className="object-contain" />
               </div>
             </div>
@@ -79,9 +79,9 @@ export default function InfoSection() {
               <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("mediaPartnersTitle")}</h2>
               <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
-            <div className="flex justify-center items-center max-w-4xl mx-auto px-4 overflow-hidden">
+            <div className="flex justify-center items-center max-w-4xl mx-auto px-8 py-10 overflow-hidden bg-[radial-gradient(circle_at_center,_#ffffff_0%,_#e5e7eb_50%,_#9ca3af_100%)] border border-white/30 shadow-lg">
                <div className="relative w-full max-w-[280px] h-12 sm:h-16">
-                <Image src="/sponsors/denik.webp" alt="Deník" fill className="object-contain" />
+                <Image src="/sponsors/denik.png" alt="Deník" fill className="object-contain" />
               </div>
             </div>
           </div>
