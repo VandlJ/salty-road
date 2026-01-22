@@ -179,7 +179,7 @@ export default function InfoSection() {
         {/* Exhibitor Info Section */}
         <div className="w-full bg-[#111]/90 border border-gray-800 p-6 md:p-12 mt-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative overflow-hidden">
           <div className="relative inline-block px-2 sm:px-8 pb-4 mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">
               {t("importantInfoTitle")}
             </h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
