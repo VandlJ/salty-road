@@ -82,7 +82,7 @@ export default function Hero() {
         </div>
         <div className="flex items-center justify-center mt-2 sm:mt-4 z-30">
           <Link href="/#register">
-            <button className="px-8 md:px-12 py-3 md:py-4 text-base rounded-none font-bold tracking-widest uppercase bg-white text-black shadow-2xl border-2 border-white hover:bg-gray-200 hover:text-black hover:scale-110 transition-all duration-300 cursor-pointer">
+            <button className="px-8 md:px-12 py-3 md:py-4 text-base rounded-sm font-bold tracking-widest uppercase bg-white text-black shadow-2xl border-2 border-white hover:bg-gray-200 hover:text-black hover:scale-110 transition-all duration-300 cursor-pointer">
               {t("registerButton")}
             </button>
           </Link>

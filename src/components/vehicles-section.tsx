@@ -119,7 +119,7 @@ export default function VehiclesSection() {
         </div>
         {/* <button
           onClick={() => load(1, false)}
-          className="px-4 py-2 sm:px-6 sm:py-2 bg-white text-black font-semibold rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base uppercase tracking-wider"
+          className="px-4 py-2 sm:px-6 sm:py-2 bg-white text-black font-semibold rounded-sm border-2 border-white hover:bg-gray-200 hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base uppercase tracking-wider"
           disabled={loading}
         >
           {loading ? t("refreshing") : t("refresh")}
@@ -127,7 +127,7 @@ export default function VehiclesSection() {
       </div>
 
       {error && (
-        <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded font-bold">
+        <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded-sm font-bold">
           {error}
         </div>
       )}
@@ -136,7 +136,7 @@ export default function VehiclesSection() {
         {regs.map((r) => (
           <div 
             key={r.id} 
-            className="group relative aspect-[4/3] bg-black border border-gray-600 overflow-hidden hover:border-white transition-all duration-300 cursor-pointer shadow-xl"
+            className="group relative aspect-[4/3] bg-black border border-gray-600 overflow-hidden hover:border-white transition-all duration-300 cursor-pointer shadow-xl rounded-sm"
             onClick={() => openGallery(r.photos || [], 0)}
           >
             {/* Main Photo as background */}
@@ -170,7 +170,7 @@ export default function VehiclesSection() {
                     {r.description}
                   </p> */}
                   {r.instagram && (
-                    <span className="inline-block text-[10px] sm:text-xs text-white bg-white/20 px-2 py-1 rounded border border-white/30 backdrop-blur-md uppercase tracking-wider font-bold">
+                    <span className="inline-block text-[10px] sm:text-xs text-white bg-white/20 px-2 py-1 rounded-sm border border-white/30 backdrop-blur-md uppercase tracking-wider font-bold">
                       @{r.instagram.replace('@', '')}
                     </span>
                   )}
@@ -179,7 +179,7 @@ export default function VehiclesSection() {
               
               {/* Photo count indicator if multiple photos */}
               {r.photos && r.photos.length > 1 && (
-                 <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white font-bold transition-opacity duration-300 group-hover:opacity-0">
+                 <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white font-bold transition-opacity duration-300 group-hover:opacity-0 rounded-sm">
                    +{r.photos.length - 1}
                  </div>
               )}
@@ -202,7 +202,7 @@ export default function VehiclesSection() {
         <div className="text-center mt-8 sm:mt-12">
           <button
             onClick={loadMore}
-            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black font-bold text-base tracking-widest uppercase rounded-none border-2 border-white hover:bg-gray-200 hover:shadow-2xl hover:cursor-pointer transition-all duration-200"
+            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black rounded-sm border-2 border-white hover:bg-gray-200 hover:shadow-2xl hover:cursor-pointer transition-all duration-200"
             disabled={loading}
           >
             {loading ? t("loading") : t("loadMore")}
@@ -229,7 +229,7 @@ export default function VehiclesSection() {
           </button>
 
           <div className="relative max-w-6xl w-full mx-2 sm:mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="relative w-full h-[80vh] sm:h-[85vh] bg-black">
+            <div className="relative w-full h-[80vh] sm:h-[85vh] bg-black rounded-sm">
               <Image
                 src={getFullUrl(galleryPhotos[galleryIndex])}
                 alt={`gallery-${galleryIndex}`}
@@ -261,7 +261,7 @@ export default function VehiclesSection() {
                     </svg>
                   </button>
 
-                  <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-white text-xs sm:text-sm bg-black/60 px-3 py-1 sm:px-4 sm:py-2 rounded border border-[#C0C0C0] z-10">
+                  <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-white text-xs sm:text-sm bg-black/60 px-3 py-1 sm:px-4 sm:py-2 rounded-sm border border-[#C0C0C0] z-10">
                     {galleryIndex + 1} / {galleryPhotos.length}
                   </div>
                 </>

@@ -200,7 +200,7 @@ export default function RegisterForm() {
             placeholder={t("firstNamePlaceholder")}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -216,7 +216,7 @@ export default function RegisterForm() {
             placeholder={t("lastNamePlaceholder")}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -235,7 +235,7 @@ export default function RegisterForm() {
             placeholder="your@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -251,7 +251,7 @@ export default function RegisterForm() {
             placeholder="@yourhandle"
             value={instagram}
             onChange={(e) => setInstagram(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
           />
         </div>
       </div>
@@ -269,7 +269,7 @@ export default function RegisterForm() {
             placeholder="Škoda"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -285,7 +285,7 @@ export default function RegisterForm() {
             placeholder="Octavia"
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -301,7 +301,7 @@ export default function RegisterForm() {
             placeholder="2020"
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
+            className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 transition-all duration-200"
             required
           />
         </div>
@@ -321,7 +321,7 @@ export default function RegisterForm() {
           placeholder={t("descriptionPlaceholder")}
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
-          className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-none focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 resize-none transition-all duration-200"
+          className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white focus:bg-white/10 placeholder-gray-400 resize-none transition-all duration-200"
           rows={3}
           required
         />
@@ -353,7 +353,7 @@ export default function RegisterForm() {
           <div className="flex justify-center md:justify-start w-full">
             <label
               htmlFor="photos"
-              className={`inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-white text-white rounded-none cursor-pointer hover:bg-white hover:text-black transition-colors duration-200 font-semibold ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`inline-flex items-center gap-3 px-4 py-2 bg-[#111] border-2 border-white text-white rounded-sm cursor-pointer hover:bg-white hover:text-black transition-colors duration-200 font-semibold ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {/* simple upload icon */}
               <svg
@@ -381,7 +381,7 @@ export default function RegisterForm() {
           <div className="w-full">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-6">
               {photos.map((item, index) => (
-                <div key={item.id} className="relative group aspect-square border border-gray-600 bg-black/50 overflow-hidden">
+                <div key={item.id} className="relative group aspect-square border border-gray-600 bg-black/50 overflow-hidden rounded-sm">
                   {item.loading ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
                       <svg className="animate-spin h-8 w-8 text-white mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -493,7 +493,7 @@ export default function RegisterForm() {
         <div className="flex-shrink-0">
           <button
             type="submit"
-            className="mt-0 px-8 py-3 rounded-none font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-0 px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={
               !(
                 agreed &&
@@ -515,7 +515,7 @@ export default function RegisterForm() {
       {/* Error Modal */}
       {error && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl">
+          <div className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl rounded-sm">
             <button
               onClick={() => setError(null)}
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
@@ -536,7 +536,7 @@ export default function RegisterForm() {
               </p>
               <button
                 onClick={() => setError(null)}
-                className="w-full px-4 py-2 bg-red-600 text-white font-bold uppercase tracking-widest hover:bg-red-700 transition-colors"
+                className="w-full px-4 py-2 bg-red-600 text-white font-bold uppercase tracking-widest hover:bg-red-700 transition-colors rounded-sm"
               >
                 {t("close")}
               </button>
@@ -548,7 +548,7 @@ export default function RegisterForm() {
       {/* Success Modal */}
       {success && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl">
+          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl rounded-sm">
             <button
               onClick={() => setSuccess(null)}
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
@@ -569,7 +569,7 @@ export default function RegisterForm() {
               </p>
               <button
                 onClick={() => setSuccess(null)}
-                className="w-full px-4 py-2 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors"
+                className="w-full px-4 py-2 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors rounded-sm"
               >
                 {t("close")}
               </button>
@@ -581,7 +581,7 @@ export default function RegisterForm() {
       {/* Submitting Modal */}
       {isSubmitting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center">
+          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center rounded-sm">
             <div className="mx-auto flex items-center justify-center h-12 w-12 mb-6">
               <svg
                 className="animate-spin h-10 w-10 text-white"

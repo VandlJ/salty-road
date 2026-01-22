@@ -304,14 +304,14 @@ export default function AdminPage() {
                 <div className="flex flex-col gap-1">
                   <button 
                     onClick={() => handleAction(r.id, "reorder", { direction: "up" })}
-                    className="p-1 hover:bg-white/10 rounded transition-colors cursor-pointer"
+                    className="p-1 hover:bg-white/10 rounded-smtransition-colors cursor-pointer"
                     title="Move Up"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
                   </button>
                   <button 
                     onClick={() => handleAction(r.id, "reorder", { direction: "down" })}
-                    className="p-1 hover:bg-white/10 rounded transition-colors cursor-pointer"
+                    className="p-1 hover:bg-white/10 rounded-smtransition-colors cursor-pointer"
                     title="Move Down"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -471,7 +471,7 @@ export default function AdminPage() {
                     )}
                   </div>
 
-                  <div className="bg-white/5 p-4 rounded border border-gray-700 mb-6">
+                  <div className="bg-white/5 p-4 rounded-smborder border-gray-700 mb-6">
                     <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-3">
                       Vehicle Details
                     </h3>
@@ -492,7 +492,7 @@ export default function AdminPage() {
                 <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
                   <button
                     onClick={() => handleAction(r.id, "accept")}
-                    className="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider text-xs rounded shadow-lg hover:shadow-green-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider text-xs rounded-smshadow-lg hover:shadow-green-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
                   >
                     <svg
                       className="w-4 h-4"
@@ -511,7 +511,7 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => handleAction(r.id, "decline")}
-                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-xs rounded shadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-xs rounded-smshadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
                   >
                     <svg
                       className="w-4 h-4"
@@ -531,7 +531,7 @@ export default function AdminPage() {
                   <div className="w-px h-8 bg-gray-700 mx-2 hidden sm:block"></div>
                   <button
                     onClick={() => setRemoveId(r.id)}
-                    className="px-6 py-2.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-xs border border-red-900/50 hover:border-red-500 rounded transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-2.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-xs border border-red-900/50 hover:border-red-500 rounded-smtransition-all flex items-center gap-2 cursor-pointer"
                   >
                     <svg
                       className="w-4 h-4"

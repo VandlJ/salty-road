@@ -44,7 +44,7 @@ export default function InfoSection() {
             <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("mapTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
-          <div className="w-full h-64 sm:h-96 md:h-[500px] max-w-4xl overflow-hidden border border-gray-700 shadow-2xl relative group">
+          <div className="w-full h-64 sm:h-96 md:h-[500px] max-w-4xl overflow-hidden border border-gray-700 shadow-2xl relative group rounded-sm">
             <Image 
               src="/map_namesti.webp"
               alt="Map"
@@ -126,7 +126,7 @@ export default function InfoSection() {
                </div>
 
                <div className="mt-8 flex justify-center">
-                 <p className="text-sm text-white font-medium tracking-wide uppercase border border-white/50 bg-white/10 inline-block px-4 py-1">
+                 <p className="text-sm text-white font-medium tracking-wide uppercase border border-white/50 bg-white/10 inline-block px-4 py-1 rounded-sm">
                    {t("programList.freeEntrance")}
                  </p>
                </div>
@@ -163,7 +163,7 @@ export default function InfoSection() {
                 <li>{t.rich("arrival.time1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
                 <li>{t.rich("arrival.time2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
               </ul>
-              <p className="mt-4 text-sm text-red-400 font-medium tracking-wide uppercase border border-red-900/50 bg-red-900/10 inline-block px-4 py-1">
+              <p className="mt-4 text-sm text-red-400 font-medium tracking-wide uppercase border border-red-900/50 bg-red-900/10 inline-block px-4 py-1 rounded-sm">
                 {t("arrival.warning")}
               </p>
             </div>
@@ -184,7 +184,7 @@ export default function InfoSection() {
               <p className="mb-2 text-gray-200 font-light text-base">
                 {t("conditions.p1_selection")}
               </p>
-              <p className="mt-4 mb-4 text-sm text-red-400 font-medium tracking-wide uppercase border border-red-900/50 bg-red-900/10 inline-block px-4 py-1">
+              <p className="mt-4 mb-4 text-sm text-red-400 font-medium tracking-wide uppercase border border-red-900/50 bg-red-900/10 inline-block px-4 py-1 rounded-sm">
                 {t("conditions.warning")}
               </p>
               <p className="mb-4 text-gray-200 font-light text-base">
@@ -221,7 +221,7 @@ export default function InfoSection() {
                 <li>{t.rich("fee.refund1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
                 <li>{t.rich("fee.refund2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
               </ul>
-              <div className="text-sm sm:text-base text-white border border-white/30 inline-block px-10 py-3 sm:px-20 sm:py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg min-w-[260px] sm:min-w-[380px]">
+              <div className="text-sm sm:text-base text-white border border-white/30 inline-block px-10 py-3 sm:px-20 sm:py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg min-w-[260px] sm:min-w-[380px] rounded-sm">
                 <div className="flex flex-col items-center gap-1">
                   <span>{t("fee.label")}</span>
                   <span className="font-bold text-white text-lg sm:text-xl">{t("fee.amount")}</span>
