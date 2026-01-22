@@ -13,7 +13,7 @@ export default function SponsorsSection() {
               <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("sponsorsTitle")}</h2>
               <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-8 py-10 overflow-hidden bg-white border border-white/30 shadow-lg">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-8 py-10 overflow-hidden bg-white border border-white/30 shadow-lg rounded-sm">
               <div className="relative w-full h-12 sm:h-16">
                 <Image src="/sponsors/prachatice.webp" alt="Prachatice" fill className="object-contain" />
               </div>
