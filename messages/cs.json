@@ -56,10 +56,9 @@
         "item6": "Žádáme všechny účastníky akce o dodržování uvedených pravidel, která jsou nezbytná pro zajištění bezpečnosti, plynulého provozu a hladkého průběhu akce."
       },
       "mapTitle": "Mapa",
-      "mapText": "Mapa akce bude brzy k dispozici.",
-      "sponsorsTitle": "Sponzoři",
-      "sponsorsText": "Naši partneři a sponzoři.",
-      "mediaPartnersTitle": "Mediální partneři",
+    "mapText": "Mapa areálu bude brzy doplněna.",
+    "sponsorsTitle": "Sponzoři a mediální partneři",
+    "sponsorsText": "Naši partneři a sponzoři.",
       "programTitle": "Program",
       "programList": {
         "item1": "do 11:00 - Příjezd vystavovaných vozů",
