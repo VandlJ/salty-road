@@ -10,7 +10,7 @@ export default function SponsorsSection() {
     <section id="sponsors" className="bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 text-center overflow-hidden">
         <div className="space-y-12">
             <div className="relative inline-block px-2 sm:px-8 pb-4">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("sponsorsTitle")}</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("sponsorsTitle")}</h2>
               <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-8 py-10 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
@@ -29,7 +29,7 @@ export default function SponsorsSection() {
               <div className="relative w-full h-12 sm:h-16 scale-140">
                 <Image src="/sponsors/kuta.webp" alt="Kuta Servis" fill className="object-contain" />
               </div>
-              <div className="relative w-full h-12 sm:h-16 scale-110">
+              <div className="relative w-full h-12 sm:h-16 scale-190">
                 <Image src="/sponsors/dovoz.webp" alt="Dovoz aut" fill className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16 scale-225">

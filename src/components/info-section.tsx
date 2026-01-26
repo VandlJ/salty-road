@@ -16,7 +16,7 @@ export default function InfoSection() {
       <div className="space-y-16 md:space-y-24">
         <div className="space-y-6">
           <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("parkingTitle")}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("parkingTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto space-y-6 font-light">
@@ -41,7 +41,7 @@ export default function InfoSection() {
 
         <div className="space-y-8 w-full flex flex-col items-center">
           <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("mapTitle")}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("mapTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           <div className="w-full h-64 sm:h-96 md:h-[500px] max-w-4xl overflow-hidden border border-gray-700 shadow-2xl relative group rounded-sm">
@@ -59,7 +59,7 @@ export default function InfoSection() {
 
         <div className="space-y-6">
           <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("programTitle")}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("programTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           
@@ -136,7 +136,7 @@ export default function InfoSection() {
 
         <div className="space-y-6">
           <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-auto">{t("rulesTitle")}</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("rulesTitle")}</h2>
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
           </div>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto text-center space-y-6 font-light">
