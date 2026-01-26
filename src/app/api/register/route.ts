@@ -49,35 +49,49 @@ export async function POST(req: Request) {
     // 1. Email to User (Bilingual)
     const userSubject = `Registration Confirmation / Potvrzení registrace - Salty Road Meet`;
     const userText = `
-Hello / Ahoj ${firstName} ${lastName},
+Ahoj,
+děkujeme za registraci na Salty Road Meet – registraci jsme v pořádku přijali 🙌
 
-Thank you for registering for Salty Road Meet Vol. 1.
-We have received your registration details:
+Teď nás čeká schvalovací proces vozů. Jakmile projdeme přihlášené registrace, dáme ti vědět jedním z následujících e-mailů:
+- v případě schválení ti pošleme potvrzení o zařazení vozu na akci,
+- pokud vůz nevybereme, dostaneš od nás informaci o neschválení.
 
-Vehicle: ${brand} ${model} (${year})
-Description: ${description}
-Registration ID: ${record.id}
+👉 I v případě, že vůz nebude vybrán, jsi stále vítán/a dorazit se na akci podívat jako návštěvník.
 
-You can check the status of your registration here: ${siteUrl}/check
-Just enter your registration ID: ${record.id}
+🆔 ID tvé registrace: ${record.id}
+🔍 Stav registrace můžeš sledovat zde:
+${siteUrl}/cs/check
 
-We will review your application and get back to you soon.
+📅 Datum konání: 25. 7. 2026
+📍 Místo konání: Velké náměstí a Kostelní náměstí, Prachatice
 
----
+Pokud máš mezitím jakýkoliv dotaz, ozvi se nám na info@saltyroad.cz.
 
-Děkujeme za registraci na Salty Road Meet Vol. 1.
-Přijali jsme vaše údaje k registraci:
+Těšíme se,
+Salty Road Meet tým
 
-Vozidlo: ${brand} ${model} (${year})
-Popis: ${description}
-ID registrace: ${record.id}
+--------------------------------------------------
 
-Stav své registrace můžete zkontrolovat zde: ${siteUrl}/check
-Zadejte své ID registrace: ${record.id}
+Hello,
+thank you for registering for Salty Road Meet – we have successfully received your registration 🙌
 
-Vaši žádost posoudíme a brzy se vám ozveme.
+We are now starting the vehicle approval process. Once we review the registrations, we will inform you via email:
+- If approved, we will send you a confirmation of your vehicle’s acceptance to the event.
+- If your vehicle is not selected, we will send you a notification regarding the decision.
 
-Salty Road Team
+👉 Even if your vehicle is not selected, you are still welcome to come and visit the event as a spectator.
+
+🆔 Your Registration ID: ${record.id}
+🔍 You can check your registration status here:
+${siteUrl}/en/check
+
+📅 Date: July 25, 2026
+📍 Location: Velké náměstí and Kostelní náměstí, Prachatice
+
+If you have any questions in the meantime, please contact us at info@saltyroad.cz.
+
+We look forward to seeing you,
+Salty Road Meet Team
     `;
 
     // 2. Email to Admin (Czech)
