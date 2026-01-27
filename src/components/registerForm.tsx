@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import React, { useState, useRef } from "react";
 import Image from "next/image";
+import imageCompression from "browser-image-compression";
 
 type PhotoItem = {
   id: string;
@@ -57,8 +58,25 @@ export default function RegisterForm() {
       const itemId = newPhotoItems[currentIndex - photos.length].id; // Match based on relative index
       
       try {
+        // Compress image before upload to avoid 413 Payload Too Large
+        const options = {
+          maxSizeMB: 4,
+          maxWidthOrHeight: 1920,
+          useWebWorker: true,
+        };
+        
+        let fileToUpload = file;
+        try {
+          // Only attempt compression for image types
+          if (file.type.startsWith("image/")) {
+            fileToUpload = await imageCompression(file, options);
+          }
+        } catch (compressionError) {
+          console.warn("Image compression failed, trying to upload original:", compressionError);
+        }
+
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", fileToUpload);
 
         const res = await fetch("/api/upload", {
           method: "POST",

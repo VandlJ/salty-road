@@ -365,11 +365,11 @@ export default function AdminPage() {
 
             <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Left Column: Photos (Gallery Grid) */}
-              <div className="lg:col-span-5 xl:col-span-4">
+              <div className="lg:col-span-6 xl:col-span-5">
                 {r.photos && r.photos.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-2 h-full content-start">
+                  <div className="grid grid-cols-2 gap-3 h-full content-start">
                     {r.photos.map((p, i) => (
-                      <div key={i} className="relative aspect-video group/photo border border-gray-700 hover:border-white transition-all overflow-hidden bg-black">
+                      <div key={i} className="relative aspect-[4/3] group/photo border border-gray-700 hover:border-white transition-all overflow-hidden bg-black rounded-sm shadow-md">
                         <Image
                           src={getThumbnailUrl(p)}
                           alt={`Vehicle photo ${i + 1}`}
@@ -377,24 +377,24 @@ export default function AdminPage() {
                           className="object-cover transition-transform duration-500 group-hover/photo:scale-105"
                         />
                         {/* Photo Actions Overlay */}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
                            <button 
                              onClick={() => openGallery(r.photos || [], i)}
-                             className="p-1.5 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer"
+                             className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer border border-white/20 backdrop-blur-sm"
                              title="View"
                            >
-                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                            </button>
-                           <div className="flex gap-2">
+                           <div className="flex gap-3">
                              <button 
                                onClick={() => downloadPhoto(p, `registration_${r.id}_photo_${i+1}.jpg`)}
-                               className="p-1.5 bg-blue-600/80 hover:bg-blue-600 rounded-full text-white transition-colors cursor-pointer"
+                               className="p-2 bg-blue-600/80 hover:bg-blue-600 rounded-full text-white transition-colors cursor-pointer border border-blue-400"
                                title="Download"
                              >
-                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                              </button>
                              <label 
-                               className="p-1.5 bg-green-600/80 hover:bg-green-600 rounded-full text-white transition-colors cursor-pointer"
+                               className="p-2 bg-green-600/80 hover:bg-green-600 rounded-full text-white transition-colors cursor-pointer border border-green-400"
                                title="Replace"
                              >
                                <input 
@@ -407,7 +407,7 @@ export default function AdminPage() {
                                    }
                                  }}
                                />
-                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                              </label>
                            </div>
                         </div>
@@ -415,14 +415,14 @@ export default function AdminPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="aspect-video bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-500 italic">
+                  <div className="aspect-video bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-500 italic rounded-sm">
                     No photos
                   </div>
                 )}
               </div>
 
               {/* Middle Column: Info & Details */}
-              <div className="lg:col-span-7 xl:col-span-8 flex flex-col justify-between">
+              <div className="lg:col-span-6 xl:col-span-7 flex flex-col justify-between">
                 <div>
                   <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 mb-6 border-b border-gray-800 pb-6">
                     <div>
