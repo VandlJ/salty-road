@@ -31,6 +31,13 @@ export default function CheckPage() {
     }
   }
 
+  function getStatusLabel(status?: string) {
+    const s = status?.toLowerCase() || "pending";
+    if (s === "accepted") return t("statusAccepted");
+    if (s === "declined") return t("statusDeclined");
+    return t("statusPending");
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -99,9 +106,9 @@ export default function CheckPage() {
                 </div>
               </div>
               <div>
-                <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-white/50 rounded-sm text-xs sm:text-sm text-white font-semibold">
+                <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-white/50 rounded-sm text-xs sm:text-sm text-white font-semibold uppercase">
                   <div className={`w-2 h-2 ${getStatusColor(result.status)} rounded-full mr-2 shadow-[0_0_8px_rgba(255,255,255,0.8)]`}></div>
-                  {result.status || "pending"}
+                  {getStatusLabel(result.status)}
                 </span>
               </div>
             </div>

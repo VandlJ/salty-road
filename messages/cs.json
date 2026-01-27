@@ -42,7 +42,10 @@
       "errorLookup": "Vyhledávání se nezdařilo",
       "resultName": "Jméno:",
       "resultVehicle": "Vozidlo:",
-      "resultCreated": "Vytvořeno:"
+      "resultCreated": "Vytvořeno:",
+      "statusPending": "Čeká na schválení",
+      "statusAccepted": "Schváleno",
+      "statusDeclined": "Zamítnuto"
   },
   "InfoPage": {
       "title": "Co vás zajímá?",

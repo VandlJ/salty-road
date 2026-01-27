@@ -42,7 +42,10 @@
       "errorLookup": "Lookup failed",
       "resultName": "Name:",
       "resultVehicle": "Vehicle:",
-      "resultCreated": "Created:"
+      "resultCreated": "Created:",
+      "statusPending": "Pending",
+      "statusAccepted": "Accepted",
+      "statusDeclined": "Declined"
   },
   "InfoPage": {
       "title": "What are you interested in?",
