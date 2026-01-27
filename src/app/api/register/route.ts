@@ -110,11 +110,16 @@ Počet fotek: ${uploadedUrls.length}
 Zkontrolujte registraci v administraci: ${siteUrl}/admin
     `;
 
-    // Send asynchronously without blocking response
-    Promise.allSettled([
-      sendEmail(email, userSubject, userText),
-      adminEmail ? sendEmail(adminEmail, adminSubject, adminText) : Promise.resolve(),
-    ]).catch((err) => console.error("Error sending emails:", err));
+    // Await email sending to ensure execution before response closes
+    try {
+      await Promise.all([
+        sendEmail(email, userSubject, userText),
+        adminEmail ? sendEmail(adminEmail, adminSubject, adminText) : Promise.resolve(),
+      ]);
+    } catch (err) {
+      console.error("Error sending emails:", err);
+      // We don't block the success response if emails fail, but we log it.
+    }
 
     return NextResponse.json({ id: record.id }, { status: 201 });
   } catch (err) {
