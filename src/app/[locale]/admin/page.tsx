@@ -182,6 +182,49 @@ export default function AdminPage() {
     }
   }
 
+  async function handleAddPhoto(id: string, photos: string[], file: File) {
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      const blob = await uploadRes.json();
+
+      const newPhotos = [...photos, blob.url];
+
+      await handleAction(id, "updatePhotos", { photos: newPhotos });
+    } catch (err) {
+      console.error(err);
+      setError("Photo upload failed");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleReorderPhoto(id: string, photos: string[], fromIndex: number, direction: 'prev' | 'next') {
+    const toIndex = direction === 'prev' ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex < 0 || toIndex >= photos.length) return;
+
+    const newPhotos = [...photos];
+    const [moved] = newPhotos.splice(fromIndex, 1);
+    newPhotos.splice(toIndex, 0, moved);
+
+    await handleAction(id, "updatePhotos", { photos: newPhotos });
+  }
+
+  async function handleDeletePhoto(id: string, photos: string[], index: number) {
+    if (!confirm("Are you sure you want to delete this photo?")) return;
+    
+    const newPhotos = photos.filter((_, i) => i !== index);
+    await handleAction(id, "updatePhotos", { photos: newPhotos });
+  }
+
   async function downloadPhoto(url: string, filename: string) {
     try {
       const response = await fetch(url);
@@ -366,59 +409,101 @@ export default function AdminPage() {
             <div className="p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
               {/* Left Column: Photos (Gallery Grid) */}
               <div className="lg:col-span-6 xl:col-span-5">
-                {r.photos && r.photos.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-3 h-full content-start">
-                    {r.photos.map((p, i) => (
-                      <div key={i} className="relative aspect-[4/3] group/photo border border-gray-700 hover:border-white transition-all overflow-hidden bg-black rounded-sm shadow-md">
-                        <Image
-                          src={getThumbnailUrl(p)}
-                          alt={`Vehicle photo ${i + 1}`}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover/photo:scale-105"
-                        />
-                        {/* Photo Actions Overlay */}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
-                           <button 
-                             onClick={() => openGallery(r.photos || [], i)}
-                             className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer border border-white/20 backdrop-blur-sm"
-                             title="View"
-                           >
-                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                           </button>
-                           <div className="flex gap-3">
-                             <button 
-                               onClick={() => downloadPhoto(p, `registration_${r.id}_photo_${i+1}.jpg`)}
-                               className="p-2 bg-blue-600/80 hover:bg-blue-600 rounded-full text-white transition-colors cursor-pointer border border-blue-400"
-                               title="Download"
-                             >
-                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                             </button>
-                             <label 
-                               className="p-2 bg-green-600/80 hover:bg-green-600 rounded-full text-white transition-colors cursor-pointer border border-green-400"
-                               title="Replace"
-                             >
-                               <input 
-                                 type="file" 
-                                 className="hidden" 
-                                 accept="image/*"
-                                 onChange={(e) => {
-                                   if (e.target.files?.[0]) {
-                                     handlePhotoUpload(r.id, i, r.photos || [], e.target.files[0]);
-                                   }
-                                 }}
-                               />
-                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                             </label>
-                           </div>
-                        </div>
+                <div className="grid grid-cols-2 gap-3 h-full content-start">
+                  {r.photos && r.photos.length > 0 && r.photos.map((p, i) => (
+                    <div key={i} className="relative aspect-[4/3] group/photo border border-gray-700 hover:border-white transition-all overflow-hidden bg-black rounded-sm shadow-md">
+                      <Image
+                        src={getThumbnailUrl(p)}
+                        alt={`Vehicle photo ${i + 1}`}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover/photo:scale-105"
+                      />
+                      
+                      {/* Photo Reorder Controls (Always Visible on Hover) */}
+                      <div className="absolute top-2 left-2 flex gap-1 z-10 opacity-0 group-hover/photo:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleReorderPhoto(r.id, r.photos || [], i, 'prev'); }}
+                          disabled={i === 0}
+                          className="p-1 bg-black/50 hover:bg-black/80 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          title="Move Previous"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleReorderPhoto(r.id, r.photos || [], i, 'next'); }}
+                          disabled={i === (r.photos?.length || 0) - 1}
+                          className="p-1 bg-black/50 hover:bg-black/80 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                          title="Move Next"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="aspect-video bg-gray-800 border border-gray-700 flex items-center justify-center text-gray-500 italic rounded-sm">
-                    No photos
-                  </div>
-                )}
+
+                      {/* Photo Actions Overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3">
+                          <button 
+                            onClick={() => openGallery(r.photos || [], i)}
+                            className="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer border border-white/20 backdrop-blur-sm"
+                            title="View"
+                          >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                          </button>
+                          <div className="flex gap-3">
+                            <button 
+                              onClick={() => downloadPhoto(p, `registration_${r.id}_photo_${i+1}.jpg`)}
+                              className="p-2 bg-blue-600/80 hover:bg-blue-600 rounded-full text-white transition-colors cursor-pointer border border-blue-400"
+                              title="Download"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            </button>
+                            <label 
+                              className="p-2 bg-green-600/80 hover:bg-green-600 rounded-full text-white transition-colors cursor-pointer border border-green-400"
+                              title="Replace"
+                            >
+                              <input 
+                                type="file" 
+                                className="hidden" 
+                                accept="image/*"
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) {
+                                    handlePhotoUpload(r.id, i, r.photos || [], e.target.files[0]);
+                                  }
+                                }}
+                              />
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                            </label>
+                            <button 
+                               onClick={() => handleDeletePhoto(r.id, r.photos || [], i)}
+                               className="p-2 bg-red-600/80 hover:bg-red-600 rounded-full text-white transition-colors cursor-pointer border border-red-400"
+                               title="Delete"
+                             >
+                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                             </button>
+                          </div>
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Add New Photo Card */}
+                  <label className="relative aspect-[4/3] border-2 border-dashed border-gray-700 hover:border-gray-400 hover:bg-white/5 transition-all cursor-pointer rounded-sm flex flex-col items-center justify-center gap-2 group/add">
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handleAddPhoto(r.id, r.photos || [], e.target.files[0]);
+                        }
+                      }}
+                    />
+                    <div className="p-3 bg-gray-800 rounded-full group-hover/add:bg-gray-700 transition-colors">
+                      <svg className="w-6 h-6 text-gray-400 group-hover/add:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-gray-500 group-hover/add:text-gray-300">Add Photo</span>
+                  </label>
+                </div>
               </div>
 
               {/* Middle Column: Info & Details */}
