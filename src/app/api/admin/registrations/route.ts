@@ -50,8 +50,11 @@ export async function PATCH(req: Request) {
     
     if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
-    if (action === "accept" || action === "decline") {
-      const status = action === "accept" ? "accepted" : "declined";
+    if (action === "accept" || action === "decline" || action === "pending") {
+      let status = "pending";
+      if (action === "accept") status = "accepted";
+      if (action === "decline") status = "declined";
+
       const updated = await prisma.registration.update({
         where: { id },
         data: { status },

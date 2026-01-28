@@ -183,6 +183,7 @@
     "remove": "Odstranit",
     "confirmRemove": "Opravdu chcete odstranit tuto registraci?",
     "removeFailed": "Odstranění selhalo",
+    "revert": "Vrátit",
     "actionFailed": "Akce selhala",
     "networkError": "Chyba sítě",
     "cancel": "Zrušit"

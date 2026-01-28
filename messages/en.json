@@ -183,6 +183,7 @@
     "remove": "Remove",
     "confirmRemove": "Are you sure you want to remove this registration?",
     "removeFailed": "Removal failed",
+    "revert": "Revert",
     "actionFailed": "Action failed",
     "networkError": "Network error",
     "cancel": "Cancel"

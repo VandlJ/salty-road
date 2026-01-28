@@ -138,7 +138,7 @@ export default function AdminPage() {
     }
   }
 
-  async function handleAction(id: string, action: "accept" | "decline" | "reorder" | "updatePhotos", extra?: Record<string, unknown>) {
+  async function handleAction(id: string, action: "accept" | "decline" | "pending" | "reorder" | "updatePhotos", extra?: Record<string, unknown>) {
     try {
       const res = await fetch("/api/admin/registrations", {
         method: "PATCH",
@@ -511,7 +511,7 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => handleAction(r.id, "decline")}
-                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-xs rounded-smshadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
+                    className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-xs rounded-sm shadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
                   >
                     <svg
                       className="w-4 h-4"
@@ -527,6 +527,25 @@ export default function AdminPage() {
                       />
                     </svg>
                     {t("decline")}
+                  </button>
+                  <button
+                    onClick={() => handleAction(r.id, "pending")}
+                    className="px-6 py-2.5 bg-gray-600 hover:bg-gray-500 text-white font-bold uppercase tracking-wider text-xs rounded-sm shadow-lg hover:shadow-gray-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                      />
+                    </svg>
+                    {t("revert")}
                   </button>
                   <div className="w-px h-8 bg-gray-700 mx-2 hidden sm:block"></div>
                   <button
