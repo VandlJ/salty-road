@@ -29,6 +29,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [removeId, setRemoveId] = useState<string | null>(null);
+  const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null);
+  const [tempDescription, setTempDescription] = useState("");
 
   // gallery state
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -139,7 +141,7 @@ export default function AdminPage() {
     }
   }
 
-  async function handleAction(id: string, action: "accept" | "decline" | "pending" | "reorder" | "updatePhotos" | "updatePaymentStatus", extra?: Record<string, unknown>) {
+  async function handleAction(id: string, action: "accept" | "decline" | "pending" | "reorder" | "updatePhotos" | "updatePaymentStatus" | "updateDescription", extra?: Record<string, unknown>) {
     try {
       const res = await fetch("/api/admin/registrations", {
         method: "PATCH",
@@ -155,6 +157,13 @@ export default function AdminPage() {
       console.error(err);
       setError(t("networkError"));
     }
+  }
+
+  async function saveDescription(id: string) {
+    if (!tempDescription) return;
+    await handleAction(id, "updateDescription", { description: tempDescription });
+    setEditingDescriptionId(null);
+    setTempDescription("");
   }
 
   async function handlePhotoUpload(id: string, index: number, photos: string[], file: File) {
@@ -612,10 +621,23 @@ export default function AdminPage() {
                     )}
                   </div>
 
-                  <div className="bg-white/5 p-4 rounded-smborder border-gray-700 mb-6">
-                    <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-3">
-                      {t("vehicleDetails")}
-                    </h3>
+                  <div className="bg-white/5 p-4 rounded-smborder border-gray-700 mb-6 group/desc relative">
+                    <div className="flex justify-between items-center mb-3">
+                      <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest">
+                        {t("vehicleDetails")}
+                      </h3>
+                      {!editingDescriptionId && (
+                        <button
+                          onClick={() => {
+                            setEditingDescriptionId(r.id);
+                            setTempDescription(r.description);
+                          }}
+                          className="opacity-0 group-hover/desc:opacity-100 transition-opacity text-xs text-blue-400 hover:text-blue-300 font-bold uppercase tracking-wider cursor-pointer"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
                     <div className="flex items-center gap-4 text-xl text-white mb-2">
                       <span className="font-bold">
                         {r.brand} {r.model}
@@ -623,9 +645,33 @@ export default function AdminPage() {
                       <span className="text-gray-500">|</span>
                       <span className="font-mono text-gray-300">{r.year}</span>
                     </div>
-                    <p className="text-gray-300 leading-relaxed text-sm">
-                      {r.description}
-                    </p>
+                    {editingDescriptionId === r.id ? (
+                      <div className="flex flex-col gap-2">
+                        <textarea
+                          value={tempDescription}
+                          onChange={(e) => setTempDescription(e.target.value)}
+                          className="w-full bg-black/20 border border-gray-600 rounded p-2 text-white text-sm focus:border-blue-500 focus:outline-none min-h-[100px]"
+                        />
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => setEditingDescriptionId(null)}
+                            className="px-3 py-1 bg-gray-700 text-white text-xs rounded hover:bg-gray-600 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => saveDescription(r.id)}
+                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-500 cursor-pointer"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-gray-300 leading-relaxed text-sm whitespace-pre-wrap">
+                        {r.description}
+                      </p>
+                    )}
                   </div>
                 </div>
 

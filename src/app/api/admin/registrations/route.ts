@@ -127,6 +127,16 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ success: true, updated });
     }
 
+    if (action === "updateDescription") {
+      const { description } = body;
+      if (typeof description !== "string") return NextResponse.json({ error: "Invalid description" }, { status: 400 });
+      const updated = await prisma.registration.update({
+        where: { id },
+        data: { description },
+      });
+      return NextResponse.json({ success: true, updated });
+    }
+
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (err) {
     console.error("PATCH /api/admin/registrations error:", err);
