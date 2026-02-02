@@ -186,7 +186,18 @@
     "revert": "Vrátit",
     "actionFailed": "Akce selhala",
     "networkError": "Chyba sítě",
-    "cancel": "Zrušit"
+    "cancel": "Zrušit",
+    "statusPending": "Čeká na schválení",
+    "statusAccepted": "Schváleno",
+    "statusDeclined": "Zamítnuto",
+    "paymentPending": "Čeká na platbu",
+    "paymentPaid": "Zaplaceno",
+    "status": "Stav",
+    "payment": "Platba",
+    "id": "ID",
+    "created": "Vytvořeno",
+    "vehicleDetails": "Detaily vozidla",
+    "addPhoto": "Přidat fotku"
   },
   "Footer": {
     "rights": "Všechna práva vyhrazena."

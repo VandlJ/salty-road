@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { sendAcceptanceEmail, sendRejectionEmail } from "@/lib/email";
+import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
 
 async function getAdminFromReq() {
   const cookieStore = await cookies();
@@ -55,9 +57,35 @@ export async function PATCH(req: Request) {
       if (action === "accept") status = "accepted";
       if (action === "decline") status = "declined";
 
+      // Fetch registration first to get details for email
+      const reg = await prisma.registration.findUnique({ where: { id } });
+      if (!reg) return NextResponse.json({ error: "Registration not found" }, { status: 404 });
+
+      // Send emails only if status is changing to accept or decline
+      if (action === "accept" && reg.status !== "accepted") {
+        const spd = generateSPD({
+          brand: reg.brand,
+          model: reg.model,
+          lastName: reg.lastName
+        });
+        const qrCodeBase64 = await generateQRCodeBase64(spd);
+        await sendAcceptanceEmail(reg.email, qrCodeBase64);
+      } else if (action === "decline" && reg.status !== "declined") {
+        await sendRejectionEmail(reg.email);
+      }
+
       const updated = await prisma.registration.update({
         where: { id },
         data: { status },
+      });
+      return NextResponse.json({ success: true, updated });
+    }
+
+    if (action === "updatePaymentStatus") {
+      const { paymentStatus } = body;
+      const updated = await prisma.registration.update({
+        where: { id },
+        data: { paymentStatus },
       });
       return NextResponse.json({ success: true, updated });
     }

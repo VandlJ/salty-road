@@ -186,7 +186,18 @@
     "revert": "Revert",
     "actionFailed": "Action failed",
     "networkError": "Network error",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "statusPending": "Pending",
+    "statusAccepted": "Accepted",
+    "statusDeclined": "Declined",
+    "paymentPending": "Pending payment",
+    "paymentPaid": "Paid",
+    "status": "Status",
+    "payment": "Payment",
+    "id": "ID",
+    "created": "Created",
+    "vehicleDetails": "Vehicle Details",
+    "addPhoto": "Add Photo"
   },
   "Footer": {
     "rights": "All rights reserved."

@@ -16,6 +16,7 @@ type Registration = {
   instagram?: string | null;
   photos?: string[];
   status?: string;
+  paymentStatus?: string;
   createdAt?: string;
 };
 
@@ -363,7 +364,7 @@ export default function AdminPage() {
 
                 <div className="flex flex-col">
                   <span className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">
-                    Status
+                    {t("status")}
                   </span>
                   <span
                     className={`inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${
@@ -383,12 +384,67 @@ export default function AdminPage() {
                           : "bg-orange-500 shadow-[0_0_8px_rgba(251,146,60,0.6)]"
                       }`}
                     ></span>
-                    {r.status || "pending"}
+                    {r.status === "accepted"
+                      ? t("statusAccepted")
+                      : r.status === "declined"
+                      ? t("statusDeclined")
+                      : t("statusPending")}
                   </span>
                 </div>
+
+                <div className="flex flex-col">
+                  <span className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">
+                    {t("payment")}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${
+                        r.paymentStatus === "paid"
+                          ? "text-green-400"
+                          : "text-orange-400"
+                      }`}
+                    >
+                      <span
+                        className={`w-2 h-2 rounded-full ${
+                          r.paymentStatus === "paid"
+                            ? "bg-green-500 shadow-[0_0_8px_rgba(74,222,128,0.6)]"
+                            : "bg-orange-500 shadow-[0_0_8px_rgba(251,146,60,0.6)]"
+                        }`}
+                      ></span>
+                      {r.paymentStatus === "paid"
+                        ? t("paymentPaid")
+                        : t("paymentPending")}
+                    </span>
+                    <button
+                      onClick={() =>
+                        handleAction(r.id, "updatePaymentStatus", {
+                          paymentStatus:
+                            r.paymentStatus === "paid" ? "pending" : "paid",
+                        })
+                      }
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-white/10 rounded-sm cursor-pointer text-gray-400 hover:text-white"
+                      title="Toggle Payment Status"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="flex flex-col hidden sm:flex">
                   <span className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1">
-                    ID
+                    {t("id")}
                   </span>
                   <span className="text-sm font-mono text-white/70">
                     #{r.id.toUpperCase()}
@@ -398,7 +454,7 @@ export default function AdminPage() {
 
               <div className="text-right">
                 <span className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-1 block">
-                  Created
+                  {t("created")}
                 </span>
                 <span className="text-sm font-mono text-gray-300">
                   {r.createdAt ? new Date(r.createdAt).toLocaleString() : "—"}
@@ -501,7 +557,7 @@ export default function AdminPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                     </div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-gray-500 group-hover/add:text-gray-300">Add Photo</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-gray-500 group-hover/add:text-gray-300">{t("addPhoto")}</span>
                   </label>
                 </div>
               </div>
@@ -558,7 +614,7 @@ export default function AdminPage() {
 
                   <div className="bg-white/5 p-4 rounded-smborder border-gray-700 mb-6">
                     <h3 className="text-gray-400 text-xs font-bold uppercase tracking-widest mb-3">
-                      Vehicle Details
+                      {t("vehicleDetails")}
                     </h3>
                     <div className="flex items-center gap-4 text-xl text-white mb-2">
                       <span className="font-bold">
