@@ -139,7 +139,7 @@ export default function AdminPage() {
     }
   }
 
-  async function handleAction(id: string, action: "accept" | "decline" | "pending" | "reorder" | "updatePhotos", extra?: Record<string, unknown>) {
+  async function handleAction(id: string, action: "accept" | "decline" | "pending" | "reorder" | "updatePhotos" | "updatePaymentStatus", extra?: Record<string, unknown>) {
     try {
       const res = await fetch("/api/admin/registrations", {
         method: "PATCH",
