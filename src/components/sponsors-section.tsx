@@ -17,6 +17,9 @@ export default function SponsorsSection() {
               <div className="relative w-full h-12 sm:h-16">
                 <Image src="/sponsors/prachatice.webp" alt="Prachatice" fill className="object-contain" />
               </div>
+              <div className="relative w-full h-12 sm:h-16 scale-175">
+                <Image src="/sponsors/hrozen.webp" alt="Music Club Hrozen" fill className="object-contain" />
+              </div>
               <div className="relative w-full h-12 sm:h-16">
                 <Image src="/sponsors/sts_prachatice.webp" alt="STS Prachatice" fill className="object-contain" />
               </div>
@@ -46,6 +49,12 @@ export default function SponsorsSection() {
               </div>
               <div className="relative w-full h-12 sm:h-16 scale-130">
                 <Image src="/sponsors/mx777.webp" alt="MX 777" fill className="object-contain" />
+              </div>
+              <div className="relative w-full h-12 sm:h-16 scale-180">
+                <Image src="/sponsors/siska_hospoda.webp" alt="Podolská hospůdka" fill className="object-contain" />
+              </div>
+              <div className="relative w-full h-12 sm:h-16 scale-140">
+                <Image src="/sponsors/siska_taxi.webp" alt="Antonín Šiška Taxi" fill className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16 sm:col-span-3">
                 <Image src="/sponsors/denik.png" alt="Deník" fill className="object-contain" />
