@@ -4,8 +4,8 @@
 /* Custom base styles go in a Tailwind layer so they are processed predictably */
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    --background: #0a0a0a;
+    --foreground: #ededed;
   }
 
   @media (prefers-color-scheme: dark) {
