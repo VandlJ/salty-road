@@ -50,11 +50,20 @@ export default function SponsorsSection() {
               <div className="relative w-full h-12 sm:h-16 scale-130">
                 <Image src="/sponsors/mx777.webp" alt="MX 777" fill className="object-contain" />
               </div>
-              <div className="relative w-full h-12 sm:h-16 scale-180">
+              <div className="relative w-full h-12 sm:h-16 scale-160">
                 <Image src="/sponsors/siska_hospoda.webp" alt="Podolská hospůdka" fill className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16 scale-140">
                 <Image src="/sponsors/siska_taxi.webp" alt="Antonín Šiška Taxi" fill className="object-contain" />
+              </div>
+              <div className="relative w-full h-12 sm:h-16 scale-180">
+                <Image src="/sponsors/lacoffee.webp" alt="LA Coffee" fill className="object-contain" />
+              </div>
+              <div className="relative w-full h-12 sm:h-16 scale-210">
+                <Image src="/sponsors/lavape.webp" alt="LA Vape" fill className="object-contain" />
+              </div>
+              <div className="relative w-full h-12 sm:h-16 scale-180">
+                <Image src="/sponsors/rdetailing.webp" alt="R Detailing" fill className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16 sm:col-span-3">
                 <Image src="/sponsors/denik.png" alt="Deník" fill className="object-contain" />
