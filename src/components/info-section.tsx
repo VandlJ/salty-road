@@ -91,7 +91,7 @@ export default function InfoSection() {
                </div>
                
                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 max-w-2xl mx-auto">
-                 {[9, 10, 11, 12, 13, 14, 15, 16].map((item) => {
+                 {[9, 10, 11, 12, 13, 14, 15, 16, 17].map((item) => {
                    const links: Record<number, string> = {
                      9: "https://www.instagram.com/jakub_bouda_/",
                      10: "https://www.instagram.com/cherry.braids.pt/",
@@ -99,6 +99,7 @@ export default function InfoSection() {
                      12: "https://www.instagram.com/club_hrozen_prachatice/",
                      13: "https://www.instagram.com/cafe.madona/",
                      14: "https://www.instagram.com/blackbearprachatice/",
+                     15: "https://www.instagram.com/tukan_klub/",
                    };
 
                    return (
