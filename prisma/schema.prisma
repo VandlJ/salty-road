@@ -30,4 +30,5 @@ model Registration {
   paymentStatus String @default("pending")
   order       Int      @default(0)
   createdAt   DateTime @default(now())
+  infoEmailSentAt DateTime?
 }
