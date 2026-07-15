@@ -30,7 +30,9 @@
   },
   "RegisterPage": {
     "title": "Zaregistrujte své auto",
-    "subtitle": "Vyplňte formulář níže pro registraci vašeho vozu na výstavu Salty Road."
+    "subtitle": "Vyplňte formulář níže pro registraci vašeho vozu na výstavu Salty Road.",
+    "closedTitle": "Registrace uzavřeny",
+    "closedMessage": "Kapacita akce je naplněna, další registrace už nepřijímáme. Děkujeme za zájem!"
   },
   "CheckPage": {
       "title": "Stav registrace",

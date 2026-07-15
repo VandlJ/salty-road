@@ -74,6 +74,9 @@ export default function SponsorsSection() {
               <div className="relative w-full h-12 sm:h-16 scale-180">
                 <Image src="/sponsors/ze_statku.webp" alt="Reklamní studio Ze Statku" fill className="object-contain" />
               </div>
+              <div className="relative w-full h-12 sm:h-16 scale-180">
+                <Image src="/sponsors/bart.webp" alt="Železářství Bártovi" fill className="object-contain" />
+              </div>
               <div className="relative w-full h-12 sm:h-16 sm:col-span-3">
                 <Image src="/sponsors/denik.png" alt="Deník" fill className="object-contain" />
               </div>

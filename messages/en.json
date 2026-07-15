@@ -30,7 +30,9 @@
   },
   "RegisterPage": {
     "title": "Register<line>Your Car</line>",
-    "subtitle": "Fill out the form below to register your car for the Salty Road exhibition."
+    "subtitle": "Fill out the form below to register your car for the Salty Road exhibition.",
+    "closedTitle": "Registration Closed",
+    "closedMessage": "The event capacity is full, we are no longer accepting new registrations. Thank you for your interest!"
   },
   "CheckPage": {
       "title": "Check Registration",
