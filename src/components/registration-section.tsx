@@ -18,9 +18,11 @@ export default function RegistrationSection() {
           <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
         </div>
 
-        <p className="text-base sm:text-base text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">
-          {t("subtitle")}
-        </p>
+        {REGISTRATION_OPEN && (
+          <p className="text-base sm:text-base text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">
+            {t("subtitle")}
+          </p>
+        )}
 
         {REGISTRATION_OPEN ? (
           <div className="w-full max-w-3xl">
