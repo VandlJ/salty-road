@@ -29,6 +29,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [removeId, setRemoveId] = useState<string | null>(null);
+  const [registrationOpen, setRegistrationOpenState] = useState(false);
+  const [togglingRegistration, setTogglingRegistration] = useState(false);
   const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null);
   const [tempDescription, setTempDescription] = useState("");
 
@@ -59,6 +61,12 @@ export default function AdminPage() {
         if (Array.isArray(data)) {
           setRegs(data);
           setLoggedIn(true);
+
+          const settingsRes = await fetch("/api/admin/settings");
+          if (settingsRes.ok) {
+            const settingsData = await settingsRes.json();
+            setRegistrationOpenState(!!settingsData.registrationOpen);
+          }
         } else {
           setError(data.error || "Invalid data received");
           setRegs([]);
@@ -71,6 +79,28 @@ export default function AdminPage() {
       setLoading(false);
     }
   }, [t]);
+
+  async function toggleRegistrationOpen() {
+    const next = !registrationOpen;
+    setTogglingRegistration(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ registrationOpen: next }),
+      });
+      if (res.ok) {
+        setRegistrationOpenState(next);
+      } else {
+        setError(t("actionFailed"));
+      }
+    } catch (err) {
+      console.error(err);
+      setError(t("networkError"));
+    } finally {
+      setTogglingRegistration(false);
+    }
+  }
 
   useEffect(() => {
     checkAuthAndLoad();
@@ -326,6 +356,27 @@ export default function AdminPage() {
 
   return (
     <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between gap-4 mb-6 px-4 py-4 sm:px-6 bg-[#111]/90 border border-gray-700 rounded-sm">
+        <span className="font-bold uppercase tracking-widest text-sm sm:text-base">
+          {t("registrationForm")}
+        </span>
+        <button
+          onClick={toggleRegistrationOpen}
+          disabled={togglingRegistration}
+          role="switch"
+          aria-checked={registrationOpen}
+          className={`relative inline-flex h-7 w-14 flex-shrink-0 items-center rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+            registrationOpen ? "bg-green-600" : "bg-gray-600"
+          }`}
+        >
+          <span
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
+              registrationOpen ? "translate-x-8" : "translate-x-1"
+            }`}
+          />
+        </button>
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
           {t("registrations")}{" "}

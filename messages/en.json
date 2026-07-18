@@ -200,7 +200,8 @@
     "id": "ID",
     "created": "Created",
     "vehicleDetails": "Vehicle Details",
-    "addPhoto": "Add Photo"
+    "addPhoto": "Add Photo",
+    "registrationForm": "Registration Form"
   },
   "Footer": {
     "rights": "All rights reserved."

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
-import { REGISTRATION_OPEN } from "@/lib/registration";
+import { getRegistrationOpen } from "@/lib/registration";
 
 export async function POST(req: Request) {
-  if (!REGISTRATION_OPEN) {
+  if (!(await getRegistrationOpen())) {
     return NextResponse.json(
       { error: "Registration is closed" },
       { status: 403 }

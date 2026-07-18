@@ -200,7 +200,8 @@
     "id": "ID",
     "created": "Vytvořeno",
     "vehicleDetails": "Detaily vozidla",
-    "addPhoto": "Přidat fotku"
+    "addPhoto": "Přidat fotku",
+    "registrationForm": "Registrační formulář"
   },
   "Footer": {
     "rights": "Všechna práva vyhrazena."
