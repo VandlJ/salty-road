@@ -1,16 +1,21 @@
 import { PrismaClient } from "@prisma/client";
+import { withAccelerate } from "@prisma/extension-accelerate";
 
-declare global {
-  // allow global var across module reloads in dev
-  var __prismaClient__: PrismaClient | undefined;
+function createClient() {
+  return new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "info"] : [],
+  }).$extends(withAccelerate());
 }
 
-const prisma =
-  global.__prismaClient__ ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "info"] : [],
-  });
+type ExtendedPrismaClient = ReturnType<typeof createClient>;
 
-if (process.env.NODE_ENV === "development") global.__prismaClient__ = prisma;
+declare global {
+  // allow global var across module reloads / warm serverless invocations
+  var __prismaClient__: ExtendedPrismaClient | undefined;
+}
+
+const prisma = global.__prismaClient__ ?? createClient();
+
+global.__prismaClient__ = prisma;
 
 export default prisma;

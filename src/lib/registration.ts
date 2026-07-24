@@ -5,6 +5,7 @@ const REGISTRATION_OPEN_KEY = "registration_open";
 export async function getRegistrationOpen(): Promise<boolean> {
   const setting = await prisma.setting.findUnique({
     where: { key: REGISTRATION_OPEN_KEY },
+    cacheStrategy: { ttl: 15 },
   });
   return setting?.value === "true";
 }

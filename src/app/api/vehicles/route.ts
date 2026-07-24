@@ -30,8 +30,12 @@ export async function GET(req: Request) {
           status: true,
           createdAt: true,
         },
+        cacheStrategy: { ttl: 30 },
       }),
-      prisma.registration.count({ where: { status: "accepted" } })
+      prisma.registration.count({
+        where: { status: "accepted" },
+        cacheStrategy: { ttl: 30 },
+      })
     ]);
 
     return NextResponse.json({
