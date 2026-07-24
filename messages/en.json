@@ -203,6 +203,20 @@
     "addPhoto": "Add Photo",
     "registrationForm": "Registration Form"
   },
+  "EntryPage": {
+    "title": "Entry",
+    "searchPlaceholder": "Search name or car...",
+    "notArrived": "Not arrived",
+    "arrived": "Arrived",
+    "markArrived": "Arrived",
+    "markNotArrived": "Undo",
+    "paymentPaid": "Paid",
+    "paymentPending": "Unpaid",
+    "noResults": "No results",
+    "loading": "Loading…",
+    "errorLoad": "Could not load list.",
+    "actionFailed": "Action failed"
+  },
   "Footer": {
     "rights": "All rights reserved."
   }

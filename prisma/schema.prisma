@@ -36,4 +36,6 @@ model Registration {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   infoEmailSentAt DateTime?
+  arrived     Boolean  @default(false)
+  arrivedAt   DateTime?
 }

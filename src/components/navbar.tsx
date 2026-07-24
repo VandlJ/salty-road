@@ -61,6 +61,7 @@ export default function Navbar({ fixed = false }) {
               alt="Salty Road Logo"
               width={64}
               height={64}
+              priority
               className="h-12 md:h-16 w-auto"
               style={{ filter: "invert(1)" }}
             />

@@ -203,6 +203,20 @@
     "addPhoto": "Přidat fotku",
     "registrationForm": "Registrační formulář"
   },
+  "EntryPage": {
+    "title": "Vjezd",
+    "searchPlaceholder": "Hledat jméno nebo auto...",
+    "notArrived": "Nepřijeli",
+    "arrived": "Přijeli",
+    "markArrived": "Přijel",
+    "markNotArrived": "Vrátit zpět",
+    "paymentPaid": "Zaplaceno",
+    "paymentPending": "Nezaplaceno",
+    "noResults": "Nic nenalezeno",
+    "loading": "Načítám…",
+    "errorLoad": "Nelze načíst seznam.",
+    "actionFailed": "Akce selhala"
+  },
   "Footer": {
     "rights": "Všechna práva vyhrazena."
   }
