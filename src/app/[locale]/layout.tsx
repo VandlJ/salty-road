@@ -6,6 +6,7 @@ import ClientNavbarWrapper from "@/components/clientNavbarWrapper";
 import Footer from "@/components/footer";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
+import { Analytics } from "@vercel/analytics/next";
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -102,6 +103,7 @@ export default async function RootLayout({
           <main className="flex-1 flex flex-col overflow-x-hidden">{children}</main>
           <Footer />
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );
