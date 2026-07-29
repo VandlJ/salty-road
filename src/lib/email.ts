@@ -103,3 +103,80 @@ Tým Salty Road Meet`;
     }
   ]);
 }
+
+interface MerchOrderItem {
+  name: string;
+  label: string;
+  price: number; // halire
+  qty: number;
+}
+
+interface MerchOrderDetails {
+  orderId: string;
+  items: MerchOrderItem[];
+  totalAmount: number; // halire
+  paymentMethod: string; // "bank_transfer" | "cod"
+}
+
+function formatHalire(halire: number): string {
+  return `${(halire / 100).toLocaleString('cs-CZ')} Kč`;
+}
+
+export async function sendMerchOrderConfirmationEmail(
+  to: string,
+  order: MerchOrderDetails,
+  qrCodeBase64?: string
+) {
+  const subject = `Potvrzení objednávky #${order.orderId} - Salty Road Shop`;
+
+  const itemLines = order.items
+    .map((i) => `- ${i.name} (${i.label}) x${i.qty} - ${formatHalire(i.price * i.qty)}`)
+    .join('\n');
+
+  const paymentText =
+    order.paymentMethod === 'bank_transfer'
+      ? 'Platba: bankovním převodem — QR kód s platebními údaji najdeš níže.'
+      : 'Platba: dobírkou při doručení.';
+
+  const text = `Ahoj,
+
+děkujeme za objednávku v Salty Road Shopu!
+
+Objednávka: #${order.orderId}
+${itemLines}
+
+Celkem: ${formatHalire(order.totalAmount)}
+
+${paymentText}
+
+Tým Salty Road Meet`;
+
+  const itemsHtml = order.items
+    .map((i) => `<li>${i.name} (${i.label}) x${i.qty} — ${formatHalire(i.price * i.qty)}</li>`)
+    .join('');
+
+  const html = `
+    <p>Ahoj,</p>
+    <p>děkujeme za objednávku v Salty Road Shopu!</p>
+    <p><strong>Objednávka: #${order.orderId}</strong></p>
+    <ul>${itemsHtml}</ul>
+    <p><strong>Celkem: ${formatHalire(order.totalAmount)}</strong></p>
+    <p>${paymentText}</p>
+    ${
+      qrCodeBase64
+        ? '<div style="margin: 20px 0;"><img src="cid:qr-code" alt="QR Platba" style="width: 200px; height: 200px;" /></div>'
+        : ''
+    }
+    <p>Tým Salty Road Meet</p>
+  `;
+
+  await sendEmail(
+    to,
+    subject,
+    text,
+    html,
+    qrCodeBase64
+      ? [{ filename: 'qr-platba.png', content: qrCodeBase64, contentId: 'qr-code' }]
+      : undefined
+  );
+}

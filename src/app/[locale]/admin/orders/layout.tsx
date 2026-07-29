@@ -7,14 +7,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ShopPage" });
+  const t = await getTranslations({ locale, namespace: "AdminOrdersPage" });
 
   return {
     title: t("title"),
-    description: t("subtitle"),
+    robots: { index: false, follow: false },
   };
 }
 
-export default function ShopLayout({ children }: { children: React.ReactNode }) {
+export default function AdminOrdersLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

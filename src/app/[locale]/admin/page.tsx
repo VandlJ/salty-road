@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import { useModalA11y } from "@/lib/useModalA11y";
 import PhotoGallery from "@/components/photo-gallery";
 
@@ -362,12 +363,26 @@ export default function AdminPage() {
           {t("registrations")}{" "}
           <span className="text-gray-400 text-2xl ml-2">({regs.length})</span>
         </h1>
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
-        >
-          {t("logout")}
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/merch"
+            className="px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
+          >
+            {t("merchLink")}
+          </Link>
+          <Link
+            href="/admin/orders"
+            className="px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
+          >
+            {t("ordersLink")}
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
+          >
+            {t("logout")}
+          </button>
+        </div>
       </div>
 
       {loading && (

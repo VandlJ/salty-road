@@ -44,3 +44,43 @@ model Registration {
 
   @@index([status, order])
 }
+
+model MerchProduct {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  category    String // "hoodie" | "tshirt" | "car-scent" | "cap"
+  name        String
+  description String
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  variants    MerchVariant[]
+}
+
+model MerchVariant {
+  id        String       @id @default(cuid())
+  productId String
+  product   MerchProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku       String       @unique
+  label     String // free text, e.g. "M / Black" or "Design: Shark"
+  price     Int // halire
+  quantity  Int          @default(0)
+  image     String? // Vercel Blob URL
+  active    Boolean      @default(true)
+
+  @@index([productId])
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  customerName  String
+  customerEmail String
+  customerPhone String
+  address       String
+  items         Json // snapshot: [{ sku, name, label, price, qty }]
+  totalAmount   Int // halire
+  paymentMethod String // "bank_transfer" | "cod"
+  status        String   @default("pending") // "pending" | "paid" | "shipped"
+
+  @@index([status])
+}

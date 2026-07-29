@@ -11,6 +11,7 @@ const ALLOWED_TYPES = new Set([
   "image/heic",
   "image/heif",
 ]);
+const ALLOWED_FOLDERS = new Set(["registrations", "merch"]);
 
 export async function POST(req: Request) {
   try {
@@ -20,6 +21,11 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File;
+    const requestedFolder = formData.get("folder");
+    const folder =
+      typeof requestedFolder === "string" && ALLOWED_FOLDERS.has(requestedFolder)
+        ? requestedFolder
+        : "registrations";
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -84,9 +90,9 @@ export async function POST(req: Request) {
     }
 
     const now = Date.now();
-    // Use a 'temp' prefix or just standard structure. 
-    // We will rely on DB reconciliation to clean up unused files.
-    const remotePath = `registrations/${now}_${fileName.replace(/\s+/g, "_")}`;
+    // We rely on DB reconciliation to clean up unused files (see
+    // /api/cron/cleanup for the registrations folder).
+    const remotePath = `${folder}/${now}_${fileName.replace(/\s+/g, "_")}`;
     
     const blob = await put(remotePath, buffer, {
       access: "public",

@@ -25,7 +25,8 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "resend": "^6.7.0",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

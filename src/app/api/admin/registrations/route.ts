@@ -44,9 +44,8 @@ export async function PATCH(req: Request) {
       // Send emails only if status is changing to accept or decline
       if (action === "accept" && reg.status !== "accepted") {
         const spd = generateSPD({
-          brand: reg.brand,
-          model: reg.model,
-          lastName: reg.lastName
+          amount: 299,
+          message: `SaltyRoad ${reg.brand} ${reg.model} ${reg.lastName}`,
         });
         const qrCodeBase64 = await generateQRCodeBase64(spd);
         await sendAcceptanceEmail(reg.email, qrCodeBase64);

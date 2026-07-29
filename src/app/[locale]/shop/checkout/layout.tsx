@@ -10,11 +10,11 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "ShopPage" });
 
   return {
-    title: t("title"),
-    description: t("subtitle"),
+    title: t("checkoutTitle"),
+    robots: { index: false, follow: false },
   };
 }
 
-export default function ShopLayout({ children }: { children: React.ReactNode }) {
+export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

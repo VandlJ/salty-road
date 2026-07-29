@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
+import CartLink from "@/components/cart-link";
 
 export default function Navbar({ fixed = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -104,12 +105,12 @@ export default function Navbar({ fixed = false }) {
           >
             {t("vehicles")}
           </Link>
-          {/* <Link
+          <Link
             href="/shop"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
           >
             {t("shop")}
-          </Link> */}
+          </Link>
           <Link
             href="/check"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
@@ -118,26 +119,32 @@ export default function Navbar({ fixed = false }) {
           </Link>
         </div>
 
-        {/* Desktop Language Switch */}
-        <div className="hidden lg:flex items-center gap-2 min-w-[60px] justify-end">
-          <button 
-            onClick={() => switchLocale('cs')}
-            aria-label="Přepnout na češtinu"
-            aria-current={locale === 'cs' ? 'true' : undefined}
-            className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'cs' ? 'text-white' : 'text-gray-400'}`}
-          >
-            cs
-          </button>
-          <span className="text-white" aria-hidden="true">/</span>
-          <button 
-            onClick={() => switchLocale('en')}
-            aria-label="Switch to English"
-            aria-current={locale === 'en' ? 'true' : undefined}
-            className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'en' ? 'text-white' : 'text-gray-400'}`}
-          >
-            en
-          </button>
+        {/* Desktop Cart + Language Switch */}
+        <div className="hidden lg:flex items-center gap-4 min-w-[60px] justify-end">
+          <CartLink />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => switchLocale('cs')}
+              aria-label="Přepnout na češtinu"
+              aria-current={locale === 'cs' ? 'true' : undefined}
+              className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'cs' ? 'text-white' : 'text-gray-400'}`}
+            >
+              cs
+            </button>
+            <span className="text-white" aria-hidden="true">/</span>
+            <button
+              onClick={() => switchLocale('en')}
+              aria-label="Switch to English"
+              aria-current={locale === 'en' ? 'true' : undefined}
+              className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'en' ? 'text-white' : 'text-gray-400'}`}
+            >
+              en
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Cart */}
+        <CartLink className="lg:hidden mr-2" />
 
         {/* Mobile Burger Menu Button */}
         <button
@@ -213,13 +220,13 @@ export default function Navbar({ fixed = false }) {
             >
               {t("vehicles")}
             </Link>
-            {/* <Link
+            <Link
               href="/shop"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("shop")}
-            </Link> */}
+            </Link>
             <Link
               href="/check"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
