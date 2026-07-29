@@ -17,19 +17,30 @@ type Entry = {
 
 export default function EntryPage() {
   const t = useTranslations("EntryPage");
+  const [authorized, setAuthorized] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState<string | null>(null);
+
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
+  const [undoTarget, setUndoTarget] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/entry");
+      if (res.status === 401) {
+        setAuthorized(false);
+        return;
+      }
       if (!res.ok) throw new Error("failed");
       const data = await res.json();
       if (Array.isArray(data)) {
         setEntries(data);
+        setAuthorized(true);
         setError(null);
       } else {
         setError(t("errorLoad"));
@@ -39,16 +50,44 @@ export default function EntryPage() {
       setError(t("errorLoad"));
     } finally {
       setLoading(false);
+      setCheckingAuth(false);
     }
   }, [t]);
 
   useEffect(() => {
     load();
-    const interval = setInterval(load, 30000);
-    return () => clearInterval(interval);
   }, [load]);
 
-  async function toggleArrived(id: string, arrived: boolean) {
+  useEffect(() => {
+    if (!authorized) return;
+    const interval = setInterval(load, 30000);
+    return () => clearInterval(interval);
+  }, [authorized, load]);
+
+  async function handlePinSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPinError(null);
+    try {
+      const res = await fetch("/api/entry/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pin }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => null);
+        setPinError(j?.error === "Invalid PIN" ? t("pinError") : t("actionFailed"));
+        return;
+      }
+      setPin("");
+      setLoading(true);
+      await load();
+    } catch (e) {
+      console.error(e);
+      setPinError(t("actionFailed"));
+    }
+  }
+
+  async function applyArrived(id: string, arrived: boolean) {
     setEntries((prev) =>
       prev.map((e) => (e.id === id ? { ...e, arrived } : e))
     );
@@ -66,6 +105,22 @@ export default function EntryPage() {
       );
       setError(t("actionFailed"));
     }
+  }
+
+  function toggleArrived(id: string, arrived: boolean) {
+    // Marking as arrived is a one-tap action; undoing it needs a confirmation
+    // so crew don't accidentally kick someone off the arrived list mid-scroll.
+    if (!arrived) {
+      setUndoTarget(id);
+      return;
+    }
+    applyArrived(id, arrived);
+  }
+
+  async function confirmUndo() {
+    if (!undoTarget) return;
+    await applyArrived(undoTarget, false);
+    setUndoTarget(null);
   }
 
   const filtered = useMemo(() => {
@@ -125,6 +180,54 @@ export default function EntryPage() {
     );
   }
 
+  if (checkingAuth) {
+    return (
+      <section className="min-h-screen bg-transparent text-white p-4 flex items-center justify-center">
+        <div className="text-white font-bold animate-pulse">{t("loading")}</div>
+      </section>
+    );
+  }
+
+  if (!authorized) {
+    return (
+      <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
+        <div className="w-full">
+          <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 sm:mb-8 text-white text-center drop-shadow-md">
+            {t("pinTitle")}
+          </h1>
+          <form
+            onSubmit={handlePinSubmit}
+            className="flex flex-col gap-4 sm:gap-6 bg-[#111]/80 p-8 border border-gray-600 shadow-2xl backdrop-blur-md"
+          >
+            <div className="flex flex-col gap-2">
+              <label className="text-white font-bold tracking-wide">
+                {t("pinLabel")}
+              </label>
+              <input
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                placeholder={t("pinPlaceholder")}
+                type="password"
+                inputMode="numeric"
+                autoFocus
+                required
+                className="p-3 sm:p-4 bg-white/5 border-2 border-gray-500 text-white placeholder-gray-400 focus:border-white focus:outline-none transition-colors text-lg tracking-widest text-center"
+              />
+            </div>
+            <button className="px-6 py-3 bg-white text-black font-bold text-lg tracking-widest uppercase hover:bg-gray-200 hover:shadow-xl transition-all duration-200 mt-2 cursor-pointer">
+              {t("unlock")}
+            </button>
+            {pinError && (
+              <div className="text-red-400 p-3 border border-red-500/50 bg-red-900/20 text-center text-sm font-bold">
+                {pinError}
+              </div>
+            )}
+          </form>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="min-h-screen bg-transparent text-white p-4 max-w-5xl mx-auto w-full">
       <h1 className="text-2xl font-extrabold text-white mb-4 uppercase tracking-widest">
@@ -172,6 +275,33 @@ export default function EntryPage() {
             ))}
           </div>
         </>
+      )}
+
+      {undoTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
+          <div className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)]">
+            <h3 className="text-xl font-bold text-white mb-4 text-center">
+              {t("confirmUndoTitle")}
+            </h3>
+            <p className="text-gray-300 mb-8 text-center font-medium">
+              {t("confirmUndoText")}
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setUndoTarget(null)}
+                className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
+              >
+                {t("cancel")}
+              </button>
+              <button
+                onClick={confirmUndo}
+                className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all cursor-pointer"
+              >
+                {t("confirm")}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
+import { getAdminFromReq } from "@/lib/adminAuth";
+import { verifyCrewToken, CREW_COOKIE_NAME } from "@/lib/crewAuth";
+
+async function isAuthorized(): Promise<boolean> {
+  const cookieStore = await cookies();
+  if (verifyCrewToken(cookieStore.get(CREW_COOKIE_NAME)?.value)) return true;
+  return !!(await getAdminFromReq());
+}
 
 export async function GET() {
+  if (!(await isAuthorized())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const regs = await prisma.registration.findMany({
       where: { status: "accepted" },
@@ -30,6 +43,10 @@ export async function GET() {
 }
 
 export async function PATCH(req: Request) {
+  if (!(await isAuthorized())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const body = await req.json();
     const { id, arrived } = body;

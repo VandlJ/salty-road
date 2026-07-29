@@ -1,14 +1,37 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
+
+const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB
+const ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "image/heif",
+]);
 
 export async function POST(req: Request) {
   try {
+    if (!rateLimit(`upload:${getClientIp(req)}`, 30, 60 * 60 * 1000)) {
+      return NextResponse.json({ error: "Too many uploads, try again later" }, { status: 429 });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
+
+    if (file.size > MAX_FILE_BYTES) {
+      return NextResponse.json({ error: "File too large" }, { status: 413 });
+    }
+
+    const isHeicName = /\.(heic|heif)$/i.test(file.name);
+    if (file.type && !ALLOWED_TYPES.has(file.type) && !isHeicName) {
+      return NextResponse.json({ error: "Unsupported file type" }, { status: 415 });
     }
 
     const arrayBuffer = await file.arrayBuffer();

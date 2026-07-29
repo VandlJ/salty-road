@@ -2,8 +2,17 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { getRegistrationOpen } from "@/lib/registration";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_PHOTOS = 5;
+const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
 
 export async function POST(req: Request) {
+  if (!rateLimit(`register:${getClientIp(req)}`, 5, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: "Too many requests, try again later" }, { status: 429 });
+  }
+
   if (!(await getRegistrationOpen())) {
     return NextResponse.json(
       { error: "Registration is closed" },
@@ -14,16 +23,16 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    const { 
-      firstName, 
-      lastName, 
-      email, 
-      brand, 
-      model, 
-      year, 
-      description, 
+    const {
+      firstName,
+      lastName,
+      email,
+      brand,
+      model,
+      year,
+      description,
       instagram,
-      photos 
+      photos
     } = body;
 
     // Server-side validation
@@ -34,7 +43,20 @@ export async function POST(req: Request) {
       );
     }
 
-    const uploadedUrls: string[] = Array.isArray(photos) ? photos : [];
+    if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+    }
+
+    for (const [field, maxLen] of Object.entries(MAX_LEN)) {
+      const value = body[field];
+      if (value != null && typeof value === "string" && value.length > maxLen) {
+        return NextResponse.json({ error: `Field ${field} too long` }, { status: 400 });
+      }
+    }
+
+    const uploadedUrls: string[] = Array.isArray(photos)
+      ? photos.filter((p): p is string => typeof p === "string").slice(0, MAX_PHOTOS)
+      : [];
 
     const record = await prisma.registration.create({
       data: {

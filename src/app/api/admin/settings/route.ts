@@ -1,14 +1,6 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAdminFromReq } from "@/lib/adminAuth";
 import { getRegistrationOpen, setRegistrationOpen } from "@/lib/registration";
-
-async function getAdminFromReq() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("admin_token")?.value;
-  if (!token) return null;
-  return prisma.admin.findFirst({ where: { sessionToken: token } });
-}
 
 export async function GET() {
   const admin = await getAdminFromReq();

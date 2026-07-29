@@ -171,6 +171,17 @@ export default function AdminPage() {
     }
   }
 
+  async function handleLogout() {
+    try {
+      await fetch("/api/admin/login", { method: "DELETE" });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoggedIn(false);
+      setRegs([]);
+    }
+  }
+
   async function handleAction(id: string, action: "accept" | "decline" | "pending" | "reorder" | "updatePhotos" | "updatePaymentStatus" | "updateDescription", extra?: Record<string, unknown>) {
     try {
       const res = await fetch("/api/admin/registrations", {
@@ -382,6 +393,12 @@ export default function AdminPage() {
           {t("registrations")}{" "}
           <span className="text-gray-400 text-2xl ml-2">({regs.length})</span>
         </h1>
+        <button
+          onClick={handleLogout}
+          className="px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
+        >
+          {t("logout")}
+        </button>
       </div>
 
       {loading && (

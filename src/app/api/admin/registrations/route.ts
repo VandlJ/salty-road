@@ -1,44 +1,24 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { cookies } from "next/headers";
+import { getAdminFromReq } from "@/lib/adminAuth";
 import { sendAcceptanceEmail, sendRejectionEmail } from "@/lib/email";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
 
-async function getAdminFromReq() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("admin_token")?.value;
-  if (!token) return null;
-  return prisma.admin.findFirst({ where: { sessionToken: token } });
-}
-
 export async function GET() {
   try {
-    console.log("GET /api/admin/registrations - Starting");
-    if (!prisma) {
-      console.error("Prisma client is not initialized!");
-      return NextResponse.json({ error: "Prisma not initialized" }, { status: 500 });
-    }
     const admin = await getAdminFromReq();
-    console.log("Admin check:", admin ? "Found" : "Not Found");
     if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const regs = await prisma.registration.findMany({ 
+    const regs = await prisma.registration.findMany({
       orderBy: [
         { order: "asc" },
         { createdAt: "desc" }
       ]
     });
-    console.log("Registrations fetched:", regs.length);
     return NextResponse.json(regs);
   } catch (err) {
     console.error("GET /api/admin/registrations error:", err);
-    const message = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error ? err.stack : undefined;
-    return NextResponse.json({
-      error: "Failed to fetch registrations",
-      details: message,
-      stack: stack
-    }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch registrations" }, { status: 500 });
   }
 }
 

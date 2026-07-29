@@ -201,7 +201,8 @@
     "created": "Created",
     "vehicleDetails": "Vehicle Details",
     "addPhoto": "Add Photo",
-    "registrationForm": "Registration Form"
+    "registrationForm": "Registration Form",
+    "logout": "Log out"
   },
   "EntryPage": {
     "title": "Entry",
@@ -215,7 +216,17 @@
     "noResults": "No results",
     "loading": "Loading…",
     "errorLoad": "Could not load list.",
-    "actionFailed": "Action failed"
+    "actionFailed": "Action failed",
+    "pinTitle": "Crew Access",
+    "pinLabel": "PIN code",
+    "pinPlaceholder": "Enter PIN",
+    "unlock": "Enter",
+    "pinError": "Incorrect PIN",
+    "logout": "Log out",
+    "confirmUndoTitle": "Undo arrival?",
+    "confirmUndoText": "Are you sure you want to undo this vehicle's arrival?",
+    "confirm": "Yes, undo",
+    "cancel": "Cancel"
   },
   "Footer": {
     "rights": "All rights reserved."

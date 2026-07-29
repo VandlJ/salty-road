@@ -201,7 +201,8 @@
     "created": "Vytvořeno",
     "vehicleDetails": "Detaily vozidla",
     "addPhoto": "Přidat fotku",
-    "registrationForm": "Registrační formulář"
+    "registrationForm": "Registrační formulář",
+    "logout": "Odhlásit"
   },
   "EntryPage": {
     "title": "Vjezd",
@@ -215,7 +216,17 @@
     "noResults": "Nic nenalezeno",
     "loading": "Načítám…",
     "errorLoad": "Nelze načíst seznam.",
-    "actionFailed": "Akce selhala"
+    "actionFailed": "Akce selhala",
+    "pinTitle": "Vstup pro Crew",
+    "pinLabel": "PIN kód",
+    "pinPlaceholder": "Zadejte PIN",
+    "unlock": "Vstoupit",
+    "pinError": "Nesprávný PIN",
+    "logout": "Odhlásit",
+    "confirmUndoTitle": "Vrátit zpět?",
+    "confirmUndoText": "Opravdu chcete zrušit příjezd tohoto vozu?",
+    "confirm": "Ano, vrátit",
+    "cancel": "Zrušit"
   },
   "Footer": {
     "rights": "Všechna práva vyhrazena."
