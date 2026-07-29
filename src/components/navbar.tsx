@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
-import CartLink from "@/components/cart-link";
+// import CartLink from "@/components/cart-link"; // re-enable once /shop has real products
 
 export default function Navbar({ fixed = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -105,12 +105,13 @@ export default function Navbar({ fixed = false }) {
           >
             {t("vehicles")}
           </Link>
-          <Link
+          {/* Hidden until the shop has real products — see navbar "shop"/CartLink toggles below. */}
+          {/* <Link
             href="/shop"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
           >
             {t("shop")}
-          </Link>
+          </Link> */}
           <Link
             href="/check"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
@@ -121,7 +122,7 @@ export default function Navbar({ fixed = false }) {
 
         {/* Desktop Cart + Language Switch */}
         <div className="hidden lg:flex items-center gap-4 min-w-[60px] justify-end">
-          <CartLink />
+          {/* <CartLink /> */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => switchLocale('cs')}
@@ -144,7 +145,7 @@ export default function Navbar({ fixed = false }) {
         </div>
 
         {/* Mobile Cart */}
-        <CartLink className="lg:hidden mr-2" />
+        {/* <CartLink className="lg:hidden mr-2" /> */}
 
         {/* Mobile Burger Menu Button */}
         <button
@@ -220,13 +221,13 @@ export default function Navbar({ fixed = false }) {
             >
               {t("vehicles")}
             </Link>
-            <Link
+            {/* <Link
               href="/shop"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
               onClick={closeMenu}
             >
               {t("shop")}
-            </Link>
+            </Link> */}
             <Link
               href="/check"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"

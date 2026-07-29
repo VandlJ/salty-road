@@ -27,7 +27,12 @@ export async function GET(
       return NextResponse.json({ error: "not_found" }, { status: 404 });
     }
 
-    return NextResponse.json(product);
+    // Matches the Accelerate cacheStrategy ttl above — browser/CDN cache the
+    // response itself for 30s (no round trip at all on back/forth shop
+    // navigation), then serve stale for up to 5min while revalidating.
+    return NextResponse.json(product, {
+      headers: { "Cache-Control": "public, max-age=30, stale-while-revalidate=300" },
+    });
   } catch (err) {
     console.error("GET /api/merch/products/[slug] error:", err);
     return NextResponse.json({ error: "server_error" }, { status: 500 });
