@@ -26,6 +26,10 @@ type Registration = {
 export default function AdminPage() {
   const t = useTranslations("AdminPage");
   const [loggedIn, setLoggedIn] = useState(false);
+  // Distinct from the initial auth check below: without it, the component
+  // renders the login form for one frame before the auth check resolves,
+  // even for an already-logged-in admin (visible flash on every visit).
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [regs, setRegs] = useState<Registration[]>([]);
@@ -80,6 +84,7 @@ export default function AdminPage() {
       setError(t("errorLoad"));
     } finally {
       setLoading(false);
+      setCheckingAuth(false);
     }
   }, [t]);
 
@@ -284,6 +289,8 @@ export default function AdminPage() {
       setRemoveId(null);
     }
   }
+
+  if (checkingAuth) return null;
 
   if (!loggedIn) {
     return (

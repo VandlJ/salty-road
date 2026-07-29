@@ -54,7 +54,7 @@ export default function AdminMerchPage() {
   if (!loggedIn) return <AdminLoginForm onSuccess={recheck} />;
 
   return (
-    <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-5xl mx-auto">
+    <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white drop-shadow-md">
           {t("title")}
@@ -89,11 +89,76 @@ export default function AdminMerchPage() {
 
 type Translate = ReturnType<typeof useTranslations<"AdminMerchPage">>;
 
+const CATEGORY_OPTIONS = ["hoodie", "tshirt", "car-scent", "cap"] as const;
+const CATEGORY_LABEL_KEY: Record<(typeof CATEGORY_OPTIONS)[number], string> = {
+  hoodie: "categoryHoodie",
+  tshirt: "categoryTshirt",
+  "car-scent": "categoryCarScent",
+  cap: "categoryCap",
+};
+
+function CategorySelect({
+  value,
+  onChange,
+  t,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  t: Translate;
+}) {
+  const isKnown = (CATEGORY_OPTIONS as readonly string[]).includes(value);
+  const [custom, setCustom] = useState(value !== "" && !isKnown);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <select
+        value={custom ? "__custom__" : value}
+        onChange={(e) => {
+          if (e.target.value === "__custom__") {
+            setCustom(true);
+            onChange("");
+          } else {
+            setCustom(false);
+            onChange(e.target.value);
+          }
+        }}
+        className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm cursor-pointer"
+      >
+        <option value="" disabled className="bg-[#111]">
+          —
+        </option>
+        {CATEGORY_OPTIONS.map((c) => (
+          <option key={c} value={c} className="bg-[#111]">
+            {t(CATEGORY_LABEL_KEY[c] as "categoryHoodie")}
+          </option>
+        ))}
+        <option value="__custom__" className="bg-[#111]">
+          {t("categoryCustom")}
+        </option>
+      </select>
+      {custom && (
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={t("categoryCustomPlaceholder")}
+          maxLength={40}
+          className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+        />
+      )}
+    </div>
+  );
+}
+
 function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void }) {
   const [slug, setSlug] = useState("");
   const [category, setCategory] = useState("");
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [variantSku, setVariantSku] = useState("");
+  const [variantLabel, setVariantLabel] = useState("");
+  const [variantPrice, setVariantPrice] = useState("");
+  const [variantQuantity, setVariantQuantity] = useState("0");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -102,20 +167,59 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch("/api/admin/merch/products", {
+      const productRes = await fetch("/api/admin/merch/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug, category, name, description }),
       });
-      const json = await res.json();
-      if (!res.ok) {
-        setError(t(ERROR_KEY_MAP[json?.error] ?? "errorGeneric"));
+      const product = await productRes.json();
+      if (!productRes.ok) {
+        setError(t(ERROR_KEY_MAP[product?.error] ?? "errorGeneric"));
         return;
       }
+
+      let image: string | null = null;
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        formData.append("folder", "merch");
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        if (uploadRes.ok) {
+          const blob = await uploadRes.json();
+          image = blob.url;
+        }
+      }
+
+      const priceHalire = Math.round(Number(variantPrice) * 100);
+      const variantRes = await fetch(`/api/admin/merch/products/${product.id}/variants`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sku: variantSku,
+          label: variantLabel,
+          price: priceHalire,
+          quantity: Number(variantQuantity),
+          image,
+        }),
+      });
+      const variant = await variantRes.json();
+      if (!variantRes.ok) {
+        // The product was created but the variant failed — surface the
+        // error and let the admin add the variant from the product card.
+        setError(t(ERROR_KEY_MAP[variant?.error] ?? "errorGeneric"));
+        onCreated();
+        return;
+      }
+
       setSlug("");
       setCategory("");
       setName("");
       setDescription("");
+      setVariantSku("");
+      setVariantLabel("");
+      setVariantPrice("");
+      setVariantQuantity("0");
+      setImageFile(null);
       onCreated();
     } catch (err) {
       console.error(err);
@@ -134,40 +238,33 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
         {t("newProductTitle")}
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-white text-sm font-bold">{t("slug")}</label>
           <input
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            placeholder={t("slugHint")}
+            placeholder={t("slugPlaceholder")}
             required
             maxLength={80}
             className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
           />
+          <span className="text-[11px] text-gray-500">{t("slugHint")}</span>
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-white text-sm font-bold">{t("category")}</label>
+          <CategorySelect value={category} onChange={setCategory} t={t} />
+        </div>
+        <div className="flex flex-col gap-1 lg:col-span-2">
+          <label className="text-white text-sm font-bold">{t("name")}</label>
           <input
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            placeholder="hoodie / tshirt / car-scent / cap"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
-            maxLength={40}
+            maxLength={100}
             className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
           />
         </div>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className="text-white text-sm font-bold">{t("name")}</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          maxLength={100}
-          className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-        />
       </div>
 
       <div className="flex flex-col gap-1">
@@ -180,6 +277,75 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
           rows={2}
           className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm resize-none"
         />
+      </div>
+
+      <div className="pt-4 border-t border-gray-800 flex flex-col gap-3">
+        <div>
+          <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400">
+            {t("firstVariantTitle")}
+          </h3>
+          <p className="text-[11px] text-gray-500">{t("firstVariantHint")}</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-white text-sm font-bold">{t("variantSku")}</label>
+            <input
+              value={variantSku}
+              onChange={(e) => setVariantSku(e.target.value)}
+              placeholder={t("variantSkuPlaceholder")}
+              required
+              maxLength={80}
+              className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+            />
+            <span className="text-[11px] text-gray-500">{t("variantSkuHint")}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-white text-sm font-bold">{t("variantLabel")}</label>
+            <input
+              value={variantLabel}
+              onChange={(e) => setVariantLabel(e.target.value)}
+              placeholder={t("variantLabelPlaceholder")}
+              required
+              maxLength={100}
+              className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+            />
+            <span className="text-[11px] text-gray-500">{t("variantLabelHint")}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-white text-sm font-bold">{t("variantPrice")}</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={variantPrice}
+              onChange={(e) => setVariantPrice(e.target.value)}
+              required
+              className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-white text-sm font-bold">{t("variantQuantity")}</label>
+            <input
+              type="number"
+              min="0"
+              value={variantQuantity}
+              onChange={(e) => setVariantQuantity(e.target.value)}
+              required
+              className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-white text-sm font-bold">{t("variantImage")}</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            className="text-sm text-gray-300 file:mr-3 file:px-3 file:py-2 file:bg-[#111] file:border file:border-white/50 file:text-white file:rounded-sm file:cursor-pointer file:hover:bg-white file:hover:text-black file:transition-colors cursor-pointer"
+          />
+        </div>
       </div>
 
       {error && (
@@ -284,12 +450,7 @@ function ProductCard({
             maxLength={100}
             className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm font-bold"
           />
-          <input
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            maxLength={40}
-            className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-          />
+          <CategorySelect value={category} onChange={setCategory} t={t} />
         </div>
         <textarea
           value={description}
@@ -575,40 +736,48 @@ function AddVariantForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2 bg-white/5 border border-gray-700 rounded-sm p-3">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <input
-          value={sku}
-          onChange={(e) => setSku(e.target.value)}
-          placeholder={t("variantSkuHint")}
-          required
-          maxLength={80}
-          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-        />
-        <input
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          placeholder={t("variantLabelHint")}
-          required
-          maxLength={100}
-          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-        />
+    <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-3 bg-white/5 border border-gray-700 rounded-sm p-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="flex flex-col gap-1">
+          <input
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+            placeholder={t("variantSkuPlaceholder")}
+            required
+            maxLength={80}
+            className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+          />
+          <span className="text-[11px] text-gray-500">{t("variantSkuHint")}</span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <input
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder={t("variantLabelPlaceholder")}
+            required
+            maxLength={100}
+            className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+          />
+          <span className="text-[11px] text-gray-500">{t("variantLabelHint")}</span>
+        </div>
         <input
           type="number"
           step="0.01"
+          min="0"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           placeholder={t("variantPrice")}
           required
-          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm h-fit"
         />
         <input
           type="number"
+          min="0"
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
           placeholder={t("variantQuantity")}
           required
-          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm h-fit"
         />
       </div>
       {error && <div className="text-red-400 text-xs font-bold">{error}</div>}
