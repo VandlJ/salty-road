@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 
@@ -30,6 +30,11 @@ export default function VehiclesSection() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
+
+  const pageRef = useRef(page);
+  const galleryOpenRef = useRef(galleryOpen);
+  useEffect(() => { pageRef.current = page; }, [page]);
+  useEffect(() => { galleryOpenRef.current = galleryOpen; }, [galleryOpen]);
 
   // Helper functions for image optimization
   const getFullUrl = (originalUrl: string) => {
@@ -69,9 +74,27 @@ export default function VehiclesSection() {
     }
   }
 
+  // Background refresh: refetches only as many items as are already
+  // visible, so it never truncates pages the user already loaded and
+  // never touches `loading` (no flicker on the load-more button).
+  async function refreshQuiet() {
+    if (galleryOpenRef.current) return;
+    try {
+      const currentLimit = pageRef.current * 20;
+      const res = await fetch(`/api/vehicles?page=1&limit=${currentLimit}`);
+      const json = await res.json();
+      if (res.ok) {
+        setRegs(json.data);
+        setHasMore(json.hasMore);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   useEffect(() => {
     load();
-    const id = setInterval(load, 60000);
+    const id = setInterval(refreshQuiet, 60000);
     return () => clearInterval(id);
   }, []);
 
