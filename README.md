@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Salty Road Meet
 
-## Getting Started
+Event site for the Salty Road Meet car meet (Prachatice, CZ): vehicle registration with photo upload and admin approval, public gallery of confirmed vehicles, registration status lookup, PIN-gated crew check-in at the door, and a password-protected admin panel.
 
-First, run the development server:
+Built with Next.js 16 (App Router), Prisma + PostgreSQL, next-intl (CS/EN), Tailwind CSS v4, Vercel Blob for photo storage, and Resend for transactional email.
+
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env   # fill in real values, see below
+npx prisma migrate dev
+ADMIN_PASSWORD=your-secret npm run seed:admin
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+See `.env.example` for the full list with descriptions. Required to run at all:
 
-## Learn More
+- `DATABASE_URL`, `DIRECT_DATABASE_URL` — PostgreSQL (Prisma Accelerate compatible)
+- `BLOB_READ_WRITE_TOKEN` — Vercel Blob storage for registration photos
+- `RESEND_API_KEY`, `EMAIL_FROM`, `ADMIN_EMAIL` — transactional email
+- `BANK_ACCOUNT_IBAN` — bank account encoded into the payment QR code sent on approval
+- `ENTRY_PIN`, `ENTRY_SESSION_SECRET` — crew PIN login for the `/entry` check-in page
+- `CRON_SECRET` — bearer token required by `/api/cron/cleanup`
 
-To learn more about Next.js, take a look at the following resources:
+Optional:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — shared rate limiting across serverless instances (Upstash Redis REST API). Without these, rate limits fall back to a per-instance in-memory counter — good enough to blunt casual abuse, not a hard guarantee under real load.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+```bash
+npm run dev              # start dev server (Turbopack)
+npm run build             # prisma generate + production build
+npm run start              # run production build
+npm run lint                # eslint
+ADMIN_PASSWORD=... npm run seed:admin   # create/update the admin user
+node scripts/clearRegistrations.mjs --confirm   # wipe all registrations (destructive)
+TEST_EMAIL=you@example.com node scripts/sendInfoEmail.mjs   # send the pre-event info email to one address; add --all to send to every accepted registration
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Routes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/` — landing page (hero, info, registration form, confirmed vehicles, sponsors)
+- `/check` — look up a registration's status by ID
+- `/privacy` — privacy policy
+- `/entry` — PIN-gated crew check-in board (not indexed)
+- `/admin` — password-gated registration management (not indexed)
+
+## Deployment
+
+Deployed on Vercel. `vercel.json` declares the daily cron job that calls `/api/cron/cleanup` to delete orphaned Blob photos (uploaded but never attached to a submitted registration). All env vars above must be set in the Vercel project settings.

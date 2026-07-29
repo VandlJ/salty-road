@@ -4,13 +4,18 @@ import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
   try {
-    if (!rateLimit(`entry-login:${getClientIp(req)}`, 10, 15 * 60 * 1000)) {
-      return NextResponse.json({ error: "Too many attempts, try again later" }, { status: 429 });
+    if (!process.env.ENTRY_SESSION_SECRET || !process.env.ENTRY_PIN) {
+      console.error("ENTRY_SESSION_SECRET or ENTRY_PIN not configured — crew login unavailable");
+      return NextResponse.json({ error: "server_error" }, { status: 500 });
+    }
+
+    if (!(await rateLimit(`entry-login:${getClientIp(req)}`, 10, 15 * 60 * 1000))) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
     }
 
     const { pin } = await req.json();
     if (!verifyPin(String(pin || ""))) {
-      return NextResponse.json({ error: "Invalid PIN" }, { status: 401 });
+      return NextResponse.json({ error: "invalid_pin" }, { status: 401 });
     }
 
     const res = NextResponse.json({ success: true });

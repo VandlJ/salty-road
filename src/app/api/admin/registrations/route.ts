@@ -18,7 +18,7 @@ export async function GET() {
     return NextResponse.json(regs);
   } catch (err) {
     console.error("GET /api/admin/registrations error:", err);
-    return NextResponse.json({ error: "Failed to fetch registrations" }, { status: 500 });
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
 

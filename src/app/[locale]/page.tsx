@@ -12,7 +12,8 @@ export default function Page() {
       <div className="relative h-screen w-full">
         <Hero />
       </div>
-      <div className="bg-gradient-to-b from-black via-zinc-800 to-black">
+      <div className="h-1 w-full bg-gradient-to-r from-red-700 via-red-600 to-red-700" />
+      <div className="bg-black">
         <InfoSection />
         <RegistrationSection />
         <VehiclesSection />

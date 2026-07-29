@@ -14,7 +14,7 @@ const ALLOWED_TYPES = new Set([
 
 export async function POST(req: Request) {
   try {
-    if (!rateLimit(`upload:${getClientIp(req)}`, 30, 60 * 60 * 1000)) {
+    if (!(await rateLimit(`upload:${getClientIp(req)}`, 30, 60 * 60 * 1000))) {
       return NextResponse.json({ error: "Too many uploads, try again later" }, { status: 429 });
     }
 
@@ -57,7 +57,6 @@ export async function POST(req: Request) {
 
     if (isHeic) {
       try {
-        console.log(`Converting HEIC file: ${fileName}`);
         buffer = (await sharp(buffer)
           .rotate()
           .toFormat("jpeg", { quality: 90 })
@@ -77,7 +76,6 @@ export async function POST(req: Request) {
           })) as unknown as Buffer;
           fileName = fileName.replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
           contentType = "image/jpeg";
-          console.log(`Fallback conversion successful for ${fileName}`);
         } catch (fallbackErr) {
            console.error(`Fallback HEIC conversion failed for ${fileName}:`, fallbackErr);
            // Proceeding with original, though it might not view in browser

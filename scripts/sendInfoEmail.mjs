@@ -4,8 +4,14 @@ import { Resend } from "resend";
 const prisma = new PrismaClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const TEST_EMAIL = "jan.vandlicek@gmail.com";
 const SEND_ALL = process.argv.includes("--all");
+const TEST_EMAIL = process.env.TEST_EMAIL;
+
+if (!SEND_ALL && !TEST_EMAIL) {
+  console.error("Set TEST_EMAIL env var for a test run, or pass --all to email every accepted registration.");
+  console.error("Usage: TEST_EMAIL=you@example.com node scripts/sendInfoEmail.mjs");
+  process.exit(1);
+}
 
 const subject = "Shrnutí informací - Salty Road Meet vol.1";
 

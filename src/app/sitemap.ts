@@ -3,7 +3,8 @@ import { MetadataRoute } from 'next';
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.saltyroad.cz';
   const locales = ['en', 'cs'];
-  const routes = ['', '/check', '/shop', '/privacy'];
+  // /shop is excluded until it has real product content (kept noindex meanwhile).
+  const routes = ['', '/check', '/privacy'];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 

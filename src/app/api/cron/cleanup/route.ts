@@ -6,9 +6,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request) {
   try {
-    // secure this endpoint (e.g. via CRON_SECRET)
+    if (!process.env.CRON_SECRET) {
+      console.error("CRON_SECRET not configured — refusing to run cleanup");
+      return new NextResponse('Server misconfigured', { status: 500 });
+    }
     const authHeader = req.headers.get('authorization');
-    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 

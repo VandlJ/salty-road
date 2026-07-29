@@ -1,6 +1,14 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Instantiated lazily: the Resend constructor throws if the key is missing,
+// which would otherwise crash module evaluation (and the build) in any
+// environment where RESEND_API_KEY isn't set yet.
+let resend: Resend | null = null;
+function getResendClient(): Resend | null {
+  if (!process.env.RESEND_API_KEY) return null;
+  if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
+}
 
 interface Attachment {
   filename: string;
@@ -17,13 +25,14 @@ export async function sendEmail(
 ) {
   const from = process.env.EMAIL_FROM || 'Salty Road <onboarding@resend.dev>';
 
-  if (!process.env.RESEND_API_KEY) {
+  const client = getResendClient();
+  if (!client) {
     console.warn("RESEND_API_KEY not configured. Skipping email.");
     return;
   }
 
   try {
-    const data = await resend.emails.send({
+    await client.emails.send({
       from,
       to,
       subject,
@@ -31,7 +40,6 @@ export async function sendEmail(
       html,
       attachments,
     });
-    console.log("Email sent:", data);
   } catch (error) {
     console.error("Resend error:", error);
   }

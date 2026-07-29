@@ -1,6 +1,7 @@
 "use client";
 
 import RegisterForm from "@/components/registerForm";
+import SectionHeading from "@/components/section-heading";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
 
@@ -22,12 +23,9 @@ export default function RegistrationSection() {
   return (
     <section id="register" className={`bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 overflow-hidden ${registrationOpen ? "min-h-screen" : ""}`}>
       <div className="flex flex-col items-center">
-        <div className="relative mb-16 inline-block pb-6 px-4 sm:px-12">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-center uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
-            {t.rich("title", { line: (chunks) => <span className="block">{chunks}</span> })}
-          </h1>
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-        </div>
+        <SectionHeading as="h1" size="lg" className="mb-16">
+          {t.rich("title", { line: (chunks) => <span className="block">{chunks}</span> })}
+        </SectionHeading>
 
         {registrationOpen && (
           <p className="text-base sm:text-base text-gray-200 mb-12 sm:mb-16 text-center leading-relaxed px-2 max-w-3xl font-light">

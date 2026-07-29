@@ -7,19 +7,19 @@ import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
   try {
-    if (!rateLimit(`admin-login:${getClientIp(req)}`, 10, 15 * 60 * 1000)) {
-      return NextResponse.json({ error: "Too many attempts, try again later" }, { status: 429 });
+    if (!(await rateLimit(`admin-login:${getClientIp(req)}`, 10, 15 * 60 * 1000))) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
     }
 
     const { username, password } = await req.json();
     if (!username || !password)
-      return NextResponse.json({ error: "Missing credentials" }, { status: 400 });
+      return NextResponse.json({ error: "missing_credentials" }, { status: 400 });
 
     const admin = await prisma.admin.findUnique({ where: { username } });
-    if (!admin) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    if (!admin) return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
 
     const ok = await bcrypt.compare(password, admin.password);
-    if (!ok) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    if (!ok) return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
 
     const token = createAdminToken();
     await prisma.admin.update({ where: { id: admin.id }, data: { sessionToken: token } });
@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     return res;
   } catch (err) {
     console.error("admin login error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }
 
@@ -45,6 +45,6 @@ export async function DELETE() {
     return res;
   } catch (err) {
     console.error("admin logout error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

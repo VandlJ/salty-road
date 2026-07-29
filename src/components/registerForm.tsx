@@ -2,9 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
+import { useModalA11y } from "@/lib/useModalA11y";
 
 type PhotoItem = {
   id: string;
@@ -29,6 +30,12 @@ export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const photosRef = useRef<HTMLInputElement | null>(null);
+
+  const closeError = useCallback(() => setError(null), []);
+  const closeSuccess = useCallback(() => setSuccess(null), []);
+  const errorModalRef = useModalA11y<HTMLDivElement>(!!error, closeError);
+  const successModalRef = useModalA11y<HTMLDivElement>(!!success, closeSuccess);
+  const submittingModalRef = useModalA11y<HTMLDivElement>(isSubmitting);
 
   const handlePhotosChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -176,7 +183,14 @@ export default function RegisterForm() {
 
       const json = await res.json();
       if (!res.ok) {
-        setError(json?.error || t("errorSubmission"));
+        const errorMessages: Record<string, string> = {
+          registration_closed: t("errorClosed"),
+          missing_fields: t("errorRequired"),
+          invalid_email: t("errorInvalidEmail"),
+          field_too_long: t("errorFieldTooLong"),
+          rate_limited: t("errorRateLimited"),
+        };
+        setError(errorMessages[json?.error] || t("errorSubmission"));
         setIsSubmitting(false);
         return;
       }
@@ -216,6 +230,7 @@ export default function RegisterForm() {
             id="firstName"
             name="firstName"
             type="text"
+            maxLength={100}
             placeholder={t("firstNamePlaceholder")}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
@@ -232,6 +247,7 @@ export default function RegisterForm() {
             id="lastName"
             name="lastName"
             type="text"
+            maxLength={100}
             placeholder={t("lastNamePlaceholder")}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
@@ -267,6 +283,7 @@ export default function RegisterForm() {
             id="instagram"
             name="instagram"
             type="text"
+            maxLength={100}
             placeholder="@yourhandle"
             value={instagram}
             onChange={(e) => setInstagram(e.target.value)}
@@ -285,6 +302,7 @@ export default function RegisterForm() {
             id="brand"
             name="brand"
             type="text"
+            maxLength={100}
             placeholder="Škoda"
             value={brand}
             onChange={(e) => setBrand(e.target.value)}
@@ -301,6 +319,7 @@ export default function RegisterForm() {
             id="model"
             name="model"
             type="text"
+            maxLength={100}
             placeholder="Octavia"
             value={model}
             onChange={(e) => setModel(e.target.value)}
@@ -317,6 +336,7 @@ export default function RegisterForm() {
             id="year"
             name="year"
             type="text"
+            maxLength={10}
             placeholder="2020"
             value={year}
             onChange={(e) => setYear(e.target.value)}
@@ -337,6 +357,7 @@ export default function RegisterForm() {
         <textarea
           id="desc"
           name="desc"
+          maxLength={2000}
           placeholder={t("descriptionPlaceholder")}
           value={desc}
           onChange={(e) => setDesc(e.target.value)}
@@ -545,7 +566,13 @@ export default function RegisterForm() {
       {/* Error Modal */}
       {error && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl rounded-sm">
+          <div
+            ref={errorModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="register-error-title"
+            tabIndex={-1}
+            className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl rounded-sm outline-none">
             <button
               onClick={() => setError(null)}
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
@@ -560,7 +587,7 @@ export default function RegisterForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h3>
+              <h3 id="register-error-title" className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h3>
               <p className="text-gray-300 mb-6 font-medium">
                 {error}
               </p>
@@ -578,7 +605,13 @@ export default function RegisterForm() {
       {/* Success Modal */}
       {success && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl rounded-sm">
+          <div
+            ref={successModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="register-success-title"
+            tabIndex={-1}
+            className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl rounded-sm outline-none">
             <button
               onClick={() => setSuccess(null)}
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
@@ -593,7 +626,7 @@ export default function RegisterForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">{t("successTitle")}</h3>
+              <h3 id="register-success-title" className="text-xl font-bold text-white mb-2">{t("successTitle")}</h3>
               <p className="text-gray-300 mb-6 font-medium">
                 {success}
               </p>
@@ -611,7 +644,14 @@ export default function RegisterForm() {
       {/* Submitting Modal */}
       {isSubmitting && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center rounded-sm">
+          <div
+            ref={submittingModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("submitting")}
+            aria-live="polite"
+            tabIndex={-1}
+            className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center rounded-sm outline-none">
             <div className="mx-auto flex items-center justify-center h-12 w-12 mb-6">
               <svg
                 className="animate-spin h-10 w-10 text-white"

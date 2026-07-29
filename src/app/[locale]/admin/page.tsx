@@ -3,6 +3,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { useModalA11y } from "@/lib/useModalA11y";
+import PhotoGallery from "@/components/photo-gallery";
 
 type Registration = {
   id: string;
@@ -29,15 +31,15 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [removeId, setRemoveId] = useState<string | null>(null);
+  const closeRemoveModal = useCallback(() => setRemoveId(null), []);
+  const removeModalRef = useModalA11y<HTMLDivElement>(!!removeId, closeRemoveModal);
   const [registrationOpen, setRegistrationOpenState] = useState(false);
   const [togglingRegistration, setTogglingRegistration] = useState(false);
   const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null);
   const [tempDescription, setTempDescription] = useState("");
 
   // gallery state
-  const [galleryOpen, setGalleryOpen] = useState(false);
-  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
-  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [gallery, setGallery] = useState<{ photos: string[]; index: number; label: string } | null>(null);
 
   // Helper functions for image optimization
   const getThumbnailUrl = (originalUrl: string) => {
@@ -68,7 +70,7 @@ export default function AdminPage() {
             setRegistrationOpenState(!!settingsData.registrationOpen);
           }
         } else {
-          setError(data.error || "Invalid data received");
+          setError(t("errorLoad"));
           setRegs([]);
         }
       }
@@ -103,49 +105,16 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+    // Initial auth check + data fetch on mount — the setState calls happen
+    // asynchronously after the fetch resolves, not synchronously in the
+    // effect body, so this isn't the render-cascade pattern the rule targets.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuthAndLoad();
   }, [checkAuthAndLoad]);
 
-  // keyboard controls for gallery
-  useEffect(() => {
-    if (!galleryOpen) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setGalleryOpen(false);
-      if (e.key === "ArrowRight")
-        setGalleryIndex((i) => (i + 1) % galleryPhotos.length);
-      if (e.key === "ArrowLeft")
-        setGalleryIndex(
-          (i) => (i - 1 + galleryPhotos.length) % galleryPhotos.length
-        );
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [galleryOpen, galleryPhotos.length]);
-
-  function openGallery(photos: string[], index = 0) {
+  function openGallery(photos: string[], index: number, label: string) {
     if (!photos || photos.length === 0) return;
-    setGalleryPhotos(photos);
-    setGalleryIndex(index);
-    setGalleryOpen(true);
-
-    const preloadIndexes = [index - 1, index, index + 1].filter(
-      (i) => i >= 0 && i < photos.length
-    );
-    preloadIndexes.forEach((i) => {
-      const img = new window.Image();
-      img.src = getFullUrl(photos[i]);
-    });
-  }
-  function closeGallery() {
-    setGalleryOpen(false);
-  }
-  function nextImage() {
-    setGalleryIndex((i) => (i + 1) % galleryPhotos.length);
-  }
-  function prevImage() {
-    setGalleryIndex(
-      (i) => (i - 1 + galleryPhotos.length) % galleryPhotos.length
-    );
+    setGallery({ photos, index, label });
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -159,7 +128,7 @@ export default function AdminPage() {
       });
       if (!res.ok) {
         const j = await res.json();
-        setError(j?.error || t("loginError"));
+        setError(j?.error === "rate_limited" ? t("rateLimited") : t("loginError"));
         return;
       }
       setUser("");
@@ -577,7 +546,7 @@ export default function AdminPage() {
                       {/* Photo Actions Overlay */}
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 sm:gap-3">
                           <button 
-                            onClick={() => openGallery(r.photos || [], i)}
+                            onClick={() => openGallery(r.photos || [], i, `${r.brand} ${r.model}`)}
                             className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer border border-white/20 backdrop-blur-sm"
                             title="View"
                           >
@@ -834,8 +803,15 @@ export default function AdminPage() {
       {/* Remove Confirmation Modal */}
       {removeId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)]">
-            <h3 className="text-xl font-bold text-white mb-4 text-center">
+          <div
+            ref={removeModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remove-modal-title"
+            tabIndex={-1}
+            className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)] outline-none"
+          >
+            <h3 id="remove-modal-title" className="text-xl font-bold text-white mb-4 text-center">
               {t("remove")}
             </h3>
             <p className="text-gray-300 mb-8 text-center font-medium">
@@ -859,98 +835,14 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Gallery modal */}
-      {galleryOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md"
-          role="dialog"
-          aria-modal="true"
-          onClick={closeGallery}
-        >
-          <button
-            onClick={closeGallery}
-            className="absolute top-4 sm:top-6 right-4 sm:right-6 z-50 text-white bg-black/50 hover:bg-white hover:text-black rounded-full p-2 border-2 border-white transition-all duration-200"
-            aria-label="Close"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-
-          <div
-            className="relative w-full h-full p-4 flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative w-full h-full max-w-7xl max-h-[90vh]">
-              <Image
-                src={getFullUrl(galleryPhotos[galleryIndex])}
-                alt={`gallery-${galleryIndex}`}
-                fill
-                className="object-contain"
-                sizes="100vw"
-                quality={90}
-                priority
-              />
-            </div>
-
-            {galleryPhotos.length > 1 && (
-              <>
-                <button
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:scale-110 transition-transform p-2"
-                  aria-label="Previous"
-                >
-                  <svg
-                    className="w-10 h-10 drop-shadow-lg"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 19l-7-7 7-7"
-                    />
-                  </svg>
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:scale-110 transition-transform p-2"
-                  aria-label="Next"
-                >
-                  <svg
-                    className="w-10 h-10 drop-shadow-lg"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
-
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white font-mono bg-black/50 px-4 py-1 rounded-full border border-white/20 backdrop-blur-sm">
-                  {galleryIndex + 1} / {galleryPhotos.length}
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+      {gallery && (
+        <PhotoGallery
+          photos={gallery.photos}
+          initialIndex={gallery.index}
+          label={gallery.label}
+          getFullUrl={getFullUrl}
+          onClose={() => setGallery(null)}
+        />
       )}
     </section>
   );

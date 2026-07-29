@@ -122,13 +122,17 @@ export default function Navbar({ fixed = false }) {
         <div className="hidden lg:flex items-center gap-2 min-w-[60px] justify-end">
           <button 
             onClick={() => switchLocale('cs')}
+            aria-label="Přepnout na češtinu"
+            aria-current={locale === 'cs' ? 'true' : undefined}
             className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'cs' ? 'text-white' : 'text-gray-400'}`}
           >
             cs
           </button>
-          <span className="text-white">/</span>
+          <span className="text-white" aria-hidden="true">/</span>
           <button 
             onClick={() => switchLocale('en')}
+            aria-label="Switch to English"
+            aria-current={locale === 'en' ? 'true' : undefined}
             className={`bg-transparent border-none font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 ${locale === 'en' ? 'text-white' : 'text-gray-400'}`}
           >
             en
@@ -228,13 +232,17 @@ export default function Navbar({ fixed = false }) {
             <div className="flex items-center justify-center gap-4 pt-8 pb-12">
               <button 
                 onClick={() => switchLocale('cs')}
+                aria-label="Přepnout na češtinu"
+                aria-current={locale === 'cs' ? 'true' : undefined}
                 className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'cs' ? 'text-white' : 'text-gray-400'}`}
               >
                 cs
               </button>
-              <span className="text-white text-lg">/</span>
+              <span className="text-white text-lg" aria-hidden="true">/</span>
               <button 
                 onClick={() => switchLocale('en')}
+                aria-label="Switch to English"
+                aria-current={locale === 'en' ? 'true' : undefined}
                 className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'en' ? 'text-white' : 'text-gray-400'}`}
               >
                 en

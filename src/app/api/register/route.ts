@@ -9,13 +9,13 @@ const MAX_PHOTOS = 5;
 const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
 
 export async function POST(req: Request) {
-  if (!rateLimit(`register:${getClientIp(req)}`, 5, 60 * 60 * 1000)) {
-    return NextResponse.json({ error: "Too many requests, try again later" }, { status: 429 });
+  if (!(await rateLimit(`register:${getClientIp(req)}`, 5, 60 * 60 * 1000))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   if (!(await getRegistrationOpen())) {
     return NextResponse.json(
-      { error: "Registration is closed" },
+      { error: "registration_closed" },
       { status: 403 }
     );
   }
@@ -38,19 +38,19 @@ export async function POST(req: Request) {
     // Server-side validation
     if (!firstName || !lastName || !email || !brand || !model || !year || !description) {
       return NextResponse.json(
-        { error: "Missing or invalid required fields" },
+        { error: "missing_fields" },
         { status: 400 }
       );
     }
 
     if (typeof email !== "string" || !EMAIL_RE.test(email)) {
-      return NextResponse.json({ error: "Invalid email" }, { status: 400 });
+      return NextResponse.json({ error: "invalid_email" }, { status: 400 });
     }
 
     for (const [field, maxLen] of Object.entries(MAX_LEN)) {
       const value = body[field];
       if (value != null && typeof value === "string" && value.length > maxLen) {
-        return NextResponse.json({ error: `Field ${field} too long` }, { status: 400 });
+        return NextResponse.json({ error: "field_too_long" }, { status: 400 });
       }
     }
 
@@ -154,6 +154,6 @@ Zkontrolujte registraci v administraci: ${siteUrl}/admin
     return NextResponse.json({ id: record.id }, { status: 201 });
   } catch (err) {
     console.error("POST /api/register error:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
 }

@@ -1,35 +1,33 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
+import SectionHeading from "@/components/section-heading";
 
 export default function InfoSection() {
   const t = useTranslations("InfoPage");
-  
+
   return (
     <section id="info" className="bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24 text-center overflow-hidden">
-      <div className="relative mb-16 inline-block pb-6 px-4 sm:px-12">
-        <h1 className="text-4xl sm:text-5xl font-extrabold uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent break-words">
-          {t("title")}
-        </h1>
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-      </div>
-      
+      <SectionHeading as="h1" size="lg" className="mb-16">
+        {t("title")}
+      </SectionHeading>
+
       <div className="space-y-16 md:space-y-24">
         <div className="space-y-6">
-          <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("parkingTitle")}</h2>
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </div>
+          <SectionHeading>{t("parkingTitle")}</SectionHeading>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto space-y-6 font-light">
-            <ul className="list-disc list-outside pl-5 space-y-4 text-left block w-full max-w-full">
+            <ul className="space-y-4 text-left block w-full max-w-full">
               {[1, 2, 3, 4, 5].map((item) => (
-                <li key={item} className="pl-2">
-                  {t.rich(`parkingList.item${item}`, {
-                    mapLink: (chunks) => (
-                      <a href="https://mapy.cz/s/cozufafuru" target="_blank" rel="noopener noreferrer" className="text-white font-medium underline hover:text-gray-300 transition-colors">
-                        {chunks}
-                      </a>
-                    ),
-                  })}
+                <li key={item} className="flex gap-3 pl-0">
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-red-600" />
+                  <span>
+                    {t.rich(`parkingList.item${item}`, {
+                      mapLink: (chunks) => (
+                        <a href="https://mapy.cz/s/cozufafuru" target="_blank" rel="noopener noreferrer" className="text-white font-medium underline hover:text-gray-300 transition-colors">
+                          {chunks}
+                        </a>
+                      ),
+                    })}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -40,17 +38,15 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-8 w-full flex flex-col items-center">
-          <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("mapTitle")}</h2>
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </div>
+          <SectionHeading>{t("mapTitle")}</SectionHeading>
           <div className="w-full h-64 sm:h-96 md:h-[500px] max-w-4xl overflow-hidden border border-gray-700 shadow-2xl relative group rounded-sm">
-            <Image 
+            <Image
               src="/map_namesti.webp"
               alt="Map"
               fill
               className="object-cover"
-              priority
+              sizes="(max-width: 768px) 100vw, 900px"
+              loading="lazy"
             />
           </div>
         </div>
@@ -58,11 +54,8 @@ export default function InfoSection() {
 
 
         <div className="space-y-6">
-          <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("programTitle")}</h2>
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </div>
-          
+          <SectionHeading>{t("programTitle")}</SectionHeading>
+
           <div className="max-w-3xl mx-auto">
             {/* Main Program */}
             <div className="space-y-2 mb-8">
@@ -105,7 +98,7 @@ export default function InfoSection() {
                    return (
                      <div key={item} className="text-center md:text-left text-gray-300 text-base font-light">
                        <div className="inline-flex items-start text-left break-words max-w-full md:max-w-none text-pretty">
-                         <span className="w-1.5 h-1.5 bg-white/60 rounded-full mt-2.5 mr-3 shrink-0"></span>
+                         <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 mr-3 shrink-0"></span>
                          <span>
                            {t.rich(`programList.item${item}`, {
                              link: (chunks) => (
@@ -136,10 +129,7 @@ export default function InfoSection() {
         </div>
 
         <div className="space-y-6">
-          <div className="relative inline-block px-2 sm:px-8 pb-4">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">{t("rulesTitle")}</h2>
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </div>
+          <SectionHeading>{t("rulesTitle")}</SectionHeading>
           <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto text-center space-y-6 font-light">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
               <p key={item}>{t(`rulesList.item${item}`)}</p>
@@ -148,14 +138,9 @@ export default function InfoSection() {
         </div>
 
         {/* Exhibitor Info Section */}
-        <div className="w-full bg-[#111]/90 border border-gray-800 p-6 md:p-12 mt-16 rounded-sm backdrop-blur-md shadow-2xl text-center relative overflow-hidden">
-          <div className="relative inline-block px-2 sm:px-8 pb-4 mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white uppercase tracking-widest break-words hyphens-none">
-              {t("importantInfoTitle")}
-            </h2>
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
-          </div>
-          
+        <div className="w-full bg-[#111] border border-gray-800 p-6 md:p-12 mt-16 rounded-sm shadow-2xl text-center relative overflow-hidden">
+          <SectionHeading className="mb-10">{t("importantInfoTitle")}</SectionHeading>
+
           <div className="space-y-12 text-gray-200">
             <div className="space-y-4">
               <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("arrival.title")}</h3>
@@ -195,15 +180,15 @@ export default function InfoSection() {
                 <p className="mb-4 font-bold text-white uppercase tracking-wide text-center">{t("conditions.feeIncludes")}</p>
                 <ul className="list-none space-y-3 mb-4 text-gray-300">
                   <li className="flex items-start justify-start md:justify-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-white rounded-full mt-2.5 shrink-0" /> 
+                    <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 shrink-0" /> 
                     <span>{t("conditions.feeList1")}</span>
                   </li>
                   <li className="flex items-start justify-start md:justify-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-white rounded-full mt-2.5 shrink-0" /> 
+                    <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 shrink-0" /> 
                     <span>{t("conditions.feeList2")}</span>
                   </li>
                   <li className="flex items-start justify-start md:justify-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-white rounded-full mt-2.5 shrink-0" /> 
+                    <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 shrink-0" /> 
                     <span>{t("conditions.feeList3")}</span>
                   </li>
                 </ul>

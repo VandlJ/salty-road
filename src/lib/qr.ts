@@ -6,18 +6,27 @@ interface RegistrationInfo {
   lastName: string;
 }
 
+// SPD (Short Payment Descriptor) uses `*` as a field separator and `+`/newline
+// have special meaning too. Registration fields (brand/model/lastName) are
+// user-supplied, so a value like `Novák*AM:1.00` would inject a bogus second
+// AM (amount) field into the string. Strip everything the spec treats as
+// syntax before it goes anywhere near the payment string.
+function sanitizeSpdField(value: string): string {
+  return value.replace(/[*+\r\n]/g, "").trim();
+}
+
 export function generateSPD(reg: RegistrationInfo): string {
-  const account = "CZ1327000000001439145008";
+  const account = process.env.BANK_ACCOUNT_IBAN;
+  if (!account) throw new Error("BANK_ACCOUNT_IBAN not configured");
   const amount = "299.00";
   const currency = "CZK";
-  
-  // Clean up strings to ensure they don't break the format
-  const brand = reg.brand.trim();
-  const model = reg.model.trim();
-  const lastName = reg.lastName.trim();
-  
-  const message = `SaltyRoad ${brand} ${model} ${lastName}`;
-  
+
+  const brand = sanitizeSpdField(reg.brand);
+  const model = sanitizeSpdField(reg.model);
+  const lastName = sanitizeSpdField(reg.lastName);
+
+  const message = sanitizeSpdField(`SaltyRoad ${brand} ${model} ${lastName}`).slice(0, 60);
+
   // SPD format
   return `SPD*1.0*ACC:${account}*AM:${amount}*CC:${currency}*MSG:${message}`;
 }

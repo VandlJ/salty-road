@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
+import SectionHeading from "@/components/section-heading";
 
 export default function CheckPage() {
   const t = useTranslations("CheckPage");
@@ -69,12 +70,9 @@ export default function CheckPage() {
   return (
     <section className="flex-1 bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
       <div className="w-full flex flex-col items-center">
-        <div className="relative mb-8 sm:mb-12 inline-block pb-6 px-4 sm:px-12">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent text-center leading-tight">
-            {t("title")}
-          </h1>
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-        </div>
+        <SectionHeading as="h1" size="lg" className="mb-8 sm:mb-12">
+          {t("title")}
+        </SectionHeading>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
           <input
             value={idInput}

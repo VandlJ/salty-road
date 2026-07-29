@@ -2,13 +2,12 @@
 
 import React from "react";
 import { useTranslations } from "next-intl";
+import SectionHeading from "@/components/section-heading";
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="space-y-4">
-      <h2 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-widest">
-        {title}
-      </h2>
+      <SectionHeading>{title}</SectionHeading>
       <div className="text-gray-300 text-base leading-relaxed font-light space-y-3">
         {children}
       </div>
@@ -21,10 +20,10 @@ export default function PrivacyPage() {
 
   return (
     <section className="bg-transparent text-white px-4 py-16 max-w-3xl mx-auto w-full">
-      <h1 className="text-3xl sm:text-4xl font-extrabold uppercase tracking-widest mb-2">
+      <SectionHeading as="h1" size="lg" className="mb-2">
         {t("title")}
-      </h1>
-      <p className="text-gray-500 text-sm mb-12">{t("updated")}</p>
+      </SectionHeading>
+      <p className="text-gray-500 text-sm mb-12 mt-4">{t("updated")}</p>
 
       <p className="text-gray-300 leading-relaxed mb-12 font-light">{t("intro")}</p>
 

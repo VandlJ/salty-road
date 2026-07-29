@@ -5,7 +5,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/admin/'],
+      disallow: [
+        '/api/',
+        '/cs/admin',
+        '/en/admin',
+        '/cs/entry',
+        '/en/entry',
+      ],
     },
     sitemap: 'https://www.saltyroad.cz/sitemap.xml',
   };

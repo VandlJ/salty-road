@@ -19,6 +19,8 @@ model Admin {
   password     String
   sessionToken String?
   createdAt    DateTime @default(now())
+
+  @@index([sessionToken])
 }
 
 model Registration {
@@ -39,4 +41,6 @@ model Registration {
   infoEmailSentAt DateTime?
   arrived     Boolean  @default(false)
   arrivedAt   DateTime?
+
+  @@index([status, order])
 }

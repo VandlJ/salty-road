@@ -2,6 +2,7 @@
 
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useModalA11y } from "@/lib/useModalA11y";
 
 type Entry = {
   id: string;
@@ -28,6 +29,8 @@ export default function EntryPage() {
   const [search, setSearch] = useState("");
   const deferredSearch = useDeferredValue(search);
   const [undoTarget, setUndoTarget] = useState<string | null>(null);
+  const closeUndoModal = useCallback(() => setUndoTarget(null), []);
+  const undoModalRef = useModalA11y<HTMLDivElement>(!!undoTarget, closeUndoModal);
 
   const load = useCallback(async () => {
     try {
@@ -55,6 +58,9 @@ export default function EntryPage() {
   }, [t]);
 
   useEffect(() => {
+    // Initial data fetch on mount — setState happens after the async
+    // fetch resolves, not synchronously in the effect body.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
@@ -75,7 +81,9 @@ export default function EntryPage() {
       });
       if (!res.ok) {
         const j = await res.json().catch(() => null);
-        setPinError(j?.error === "Invalid PIN" ? t("pinError") : t("actionFailed"));
+        if (j?.error === "invalid_pin") setPinError(t("pinError"));
+        else if (j?.error === "rate_limited") setPinError(t("errorRateLimited"));
+        else setPinError(t("actionFailed"));
         return;
       }
       setPin("");
@@ -279,8 +287,15 @@ export default function EntryPage() {
 
       {undoTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-          <div className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)]">
-            <h3 className="text-xl font-bold text-white mb-4 text-center">
+          <div
+            ref={undoModalRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="undo-modal-title"
+            tabIndex={-1}
+            className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)] outline-none"
+          >
+            <h3 id="undo-modal-title" className="text-xl font-bold text-white mb-4 text-center">
               {t("confirmUndoTitle")}
             </h3>
             <p className="text-gray-300 mb-8 text-center font-medium">

@@ -3,6 +3,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import SectionHeading from "@/components/section-heading";
+import PhotoGallery from "@/components/photo-gallery";
 
 type Registration = {
   id: string;
@@ -27,14 +29,12 @@ export default function VehiclesSection() {
   const [hasMore, setHasMore] = useState(true);
 
   // gallery state
-  const [galleryOpen, setGalleryOpen] = useState(false);
-  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
-  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [gallery, setGallery] = useState<{ photos: string[]; index: number; label: string } | null>(null);
 
   const pageRef = useRef(page);
-  const galleryOpenRef = useRef(galleryOpen);
+  const galleryOpenRef = useRef(false);
   useEffect(() => { pageRef.current = page; }, [page]);
-  useEffect(() => { galleryOpenRef.current = galleryOpen; }, [galleryOpen]);
+  useEffect(() => { galleryOpenRef.current = gallery !== null; }, [gallery]);
 
   // Helper functions for image optimization
   const getFullUrl = (originalUrl: string) => {
@@ -78,7 +78,7 @@ export default function VehiclesSection() {
   // visible, so it never truncates pages the user already loaded and
   // never touches `loading` (no flicker on the load-more button).
   async function refreshQuiet() {
-    if (galleryOpenRef.current) return;
+    if (galleryOpenRef.current || document.hidden) return;
     try {
       const currentLimit = pageRef.current * 20;
       const res = await fetch(`/api/vehicles?page=1&limit=${currentLimit}`);
@@ -93,53 +93,25 @@ export default function VehiclesSection() {
   }
 
   useEffect(() => {
+    // Initial data fetch on mount — setState happens after the async
+    // fetch resolves, not synchronously in the effect body.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     const id = setInterval(refreshQuiet, 60000);
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    if (!galleryOpen) return;
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setGalleryOpen(false);
-      if (e.key === "ArrowRight") setGalleryIndex((i) => (i + 1) % galleryPhotos.length);
-      if (e.key === "ArrowLeft") setGalleryIndex((i) => (i - 1 + galleryPhotos.length) % galleryPhotos.length);
-    }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [galleryOpen, galleryPhotos.length]);
-
-  function openGallery(photos: string[], index = 0) {
-    if (!photos || photos.length === 0) return;
-    setGalleryPhotos(photos);
-    setGalleryIndex(index);
-    setGalleryOpen(true);
-    
-    const preloadIndexes = [index - 1, index, index + 1].filter(i => i >= 0 && i < photos.length);
-    preloadIndexes.forEach(i => {
-      const img = new window.Image();
-      img.src = getFullUrl(photos[i]);
-    });
-  }
-  function closeGallery() {
-    setGalleryOpen(false);
-  }
-  function nextImage() {
-    setGalleryIndex((i) => (i + 1) % galleryPhotos.length);
-  }
-  function prevImage() {
-    setGalleryIndex((i) => (i - 1 + galleryPhotos.length) % galleryPhotos.length);
+  function openGallery(r: Registration, index = 0) {
+    if (!r.photos || r.photos.length === 0) return;
+    setGallery({ photos: r.photos, index, label: `${r.brand} ${r.model}` });
   }
 
   return (
     <section id="vehicles" className="bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="flex flex-col items-center mb-16 gap-4">
-        <div className="relative inline-block pb-6 px-4 sm:px-12">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-center uppercase tracking-widest drop-shadow-sm bg-gradient-to-tr from-gray-100 to-gray-400 bg-clip-text text-transparent">
-            {t("title")}
-          </h1>
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
-        </div>
+        <SectionHeading as="h1" size="lg">
+          {t("title")}
+        </SectionHeading>
         {/* <button
           onClick={() => load(1, false)}
           className="px-4 py-2 sm:px-6 sm:py-2 bg-white text-black font-semibold rounded-sm border-2 border-white hover:bg-gray-200 hover:shadow-lg hover:cursor-pointer transition-all duration-200 text-sm sm:text-base uppercase tracking-wider"
@@ -160,7 +132,7 @@ export default function VehiclesSection() {
           <div 
             key={r.id} 
             className="group relative aspect-[4/3] bg-black border border-gray-600 overflow-hidden hover:border-white transition-all duration-300 cursor-pointer shadow-xl rounded-sm"
-            onClick={() => openGallery(r.photos || [], 0)}
+            onClick={() => openGallery(r, 0)}
           >
             {/* Main Photo as background */}
             {r.photos && r.photos.length > 0 ? (
@@ -233,65 +205,14 @@ export default function VehiclesSection() {
         </div>
       )}
 
-      {/* Gallery modal */}
-      {galleryOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          onClick={closeGallery}
-        >
-          <button
-            onClick={closeGallery}
-            className="absolute top-4 sm:top-6 right-4 sm:right-6 z-50 text-white bg-black/70 hover:bg-black/90 hover:cursor-pointer rounded-full p-2 sm:p-3 border border-[#C0C0C0]/50 hover:border-[#C0C0C0] transition-all duration-200 shadow-lg"
-            aria-label="Close"
-          >
-            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-
-          <div className="relative max-w-6xl w-full mx-2 sm:mx-4" onClick={(e) => e.stopPropagation()}>
-            <div className="relative w-full h-[80vh] sm:h-[85vh] bg-black rounded-sm">
-              <Image
-                src={getFullUrl(galleryPhotos[galleryIndex])}
-                alt={`gallery-${galleryIndex}`}
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1400px"
-                quality={90}
-                priority
-              />
-
-              {galleryPhotos.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white bg-black/60 hover:bg-black/80 hover:cursor-pointer rounded-full p-2 sm:p-3 border-2 border-[#C0C0C0] transition-colors duration-200 z-10"
-                    aria-label="Previous"
-                  >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white bg-black/60 hover:bg-black/80 hover:cursor-pointer rounded-full p-2 sm:p-3 border-2 border-[#C0C0C0] transition-colors duration-200 z-10"
-                    aria-label="Next"
-                  >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-
-                  <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 text-white text-xs sm:text-sm bg-black/60 px-3 py-1 sm:px-4 sm:py-2 rounded-sm border border-[#C0C0C0] z-10">
-                    {galleryIndex + 1} / {galleryPhotos.length}
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+      {gallery && (
+        <PhotoGallery
+          photos={gallery.photos}
+          initialIndex={gallery.index}
+          label={gallery.label}
+          getFullUrl={getFullUrl}
+          onClose={() => setGallery(null)}
+        />
       )}
     </section>
   );
