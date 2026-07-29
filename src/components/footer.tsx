@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import React from "react";
 
 export default function Footer() {
@@ -12,8 +13,11 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-0">
         
         {/* Left: Copyright */}
-        <div className="text-sm sm:text-base text-gray-400 font-light tracking-wide text-center md:text-left">
-          &copy; {currentYear} {t("rights")}
+        <div className="text-sm sm:text-base text-gray-400 font-light tracking-wide text-center md:text-left flex flex-col md:flex-row items-center gap-1 md:gap-3">
+          <span>&copy; {currentYear} {t("rights")}</span>
+          <Link href="/privacy" className="underline hover:text-white transition-colors">
+            {t("privacy")}
+          </Link>
         </div>
 
         {/* Center/Right: Contact & Socials */}

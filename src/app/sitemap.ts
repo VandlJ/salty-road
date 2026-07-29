@@ -3,7 +3,7 @@ import { MetadataRoute } from 'next';
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.saltyroad.cz';
   const locales = ['en', 'cs'];
-  const routes = ['', '/check', '/shop'];
+  const routes = ['', '/check', '/shop', '/privacy'];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 

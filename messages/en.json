@@ -170,7 +170,8 @@
       "errorSubmission": "Submission failed",
       "errorMaxPhotosAlert": "You can select a maximum of 5 photos.",
       "errorHeicUnsupported": "This HEIC photo could not be processed. Please use JPEG/PNG.",
-      "photosHint": "Change the order or remove"
+      "photosHint": "Change the order or remove",
+      "privacyNote": "By submitting you agree to the processing of personal data as described in our <link>privacy policy</link>."
   },
   "AdminPage": {
     "loginTitle": "Admin Login",
@@ -229,6 +230,49 @@
     "cancel": "Cancel"
   },
   "Footer": {
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "privacy": "Privacy Policy"
+  },
+  "PrivacyPage": {
+    "title": "Privacy Policy",
+    "updated": "Last updated: July 29, 2026",
+    "intro": "This policy describes what personal data we process in connection with the Salty Road Meet event, why, and what rights you have. Processing is carried out in accordance with Regulation (EU) 2016/679 (GDPR) and Czech Act No. 110/2019 Coll., on personal data processing.",
+    "controllerTitle": "1. Data Controller",
+    "controllerText": "The data controller is Zephyron Tech s.r.o., Company ID (IČO) 23793538, Čermákova 2587/60, Jižní Předměstí, 301 00 Plzeň, Czech Republic. You can contact us regarding data protection at info@saltyroad.cz.",
+    "dataTitle": "2. What data we process",
+    "dataList": {
+      "item1": "Registration form: first name, last name, email, Instagram (optional), vehicle brand, model and year, vehicle description, vehicle photos.",
+      "item2": "Registration and payment status: internal approval status, registration fee payment status, event arrival confirmation.",
+      "item3": "Technical data: when visiting the site we process anonymized, aggregated traffic data (Vercel Web Analytics) — this service does not use cookies or store data that could identify an individual."
+    },
+    "purposeTitle": "3. Purpose and legal basis of processing",
+    "purposeList": {
+      "item1": "Organizing your vehicle's registration for the event and communicating about its status — performance of a contract / pre-contractual steps (Art. 6(1)(b) GDPR).",
+      "item2": "Publishing approved vehicles on the website (name, photo, description) — performance of a contract based on the consent given at registration.",
+      "item3": "Website operation and security, registration administration and event entry management — legitimate interest of the controller (Art. 6(1)(f) GDPR).",
+      "item4": "Aggregated website traffic (Vercel Analytics) — legitimate interest of the controller, without processing personal identifiers."
+    },
+    "cookiesTitle": "4. Cookies",
+    "cookiesText": "The website only uses technical cookies necessary for the admin and crew (organizing team) login to the non-public part of the site (PIN entry). These cookies do not track visitors and do not require consent under Czech Electronic Communications Act § 89. Website analytics (Vercel Web Analytics) does not use cookies.",
+    "recipientsTitle": "5. Recipients and processors",
+    "recipientsList": {
+      "item1": "Vercel Inc. — website hosting, photo storage and analytics (processor).",
+      "item2": "Resend — sending registration status emails (processor).",
+      "item3": "Database provider (PostgreSQL) — storing registration data (processor).",
+      "item4": "We do not share your data with third parties for marketing purposes."
+    },
+    "retentionTitle": "6. Retention period",
+    "retentionText": "We retain registration data for the duration of the event preparation and the event itself, and for a reasonable period afterwards (in particular for handling complaints and accounting obligations), but no longer than 12 months after the event, unless required otherwise by law.",
+    "rightsTitle": "7. Your rights",
+    "rightsList": {
+      "item1": "Right to access your personal data and receive a copy.",
+      "item2": "Right to rectification of inaccurate data.",
+      "item3": "Right to erasure (\"right to be forgotten\").",
+      "item4": "Right to restrict processing and right to object.",
+      "item5": "Right to data portability.",
+      "item6": "Right to lodge a complaint with the Czech Office for Personal Data Protection (uoou.cz)."
+    },
+    "contactTitle": "8. Contact",
+    "contactText": "You can exercise your rights by emailing info@saltyroad.cz."
   }
 }

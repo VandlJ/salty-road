@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/routing";
 import React, { useState, useRef } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
@@ -494,18 +495,29 @@ export default function RegisterForm() {
 
       {/* Row 6: Agreement + submit */}
       <div className="w-full flex flex-col items-center md:flex-row md:justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <input
-            id="agree"
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            required
-            className="accent-white w-5 h-5 cursor-pointer"
-          />
-          <label htmlFor="agree" className="text-white font-bold tracking-wide cursor-pointer">
-            {t("agreement")}
-          </label>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <input
+              id="agree"
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              required
+              className="accent-white w-5 h-5 cursor-pointer"
+            />
+            <label htmlFor="agree" className="text-white font-bold tracking-wide cursor-pointer">
+              {t("agreement")}
+            </label>
+          </div>
+          <p className="text-xs text-gray-400 font-light">
+            {t.rich("privacyNote", {
+              link: (chunks) => (
+                <Link href="/privacy" className="underline hover:text-white transition-colors">
+                  {chunks}
+                </Link>
+              ),
+            })}
+          </p>
         </div>
 
         <div className="flex-shrink-0">
