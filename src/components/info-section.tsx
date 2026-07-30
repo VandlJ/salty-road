@@ -47,6 +47,7 @@ export default function InfoSection() {
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 900px"
               loading="lazy"
+              quality={65}
             />
           </div>
         </div>
