@@ -46,7 +46,7 @@ export async function POST(req: Request) {
       }
     }
 
-    if (paymentMethod !== "bank_transfer" && paymentMethod !== "cod") {
+    if (paymentMethod !== "bank_transfer") {
       return NextResponse.json({ error: "invalid_payment_method" }, { status: 400 });
     }
 

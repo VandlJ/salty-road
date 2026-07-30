@@ -7,8 +7,6 @@ import SectionHeading from "@/components/section-heading";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore, cartTotal } from "@/lib/cartStore";
 
-type PaymentMethod = "bank_transfer" | "cod";
-
 const ERROR_KEY_MAP: Record<string, string> = {
   missing_fields: "checkoutErrorMissingFields",
   invalid_email: "checkoutErrorInvalidEmail",
@@ -37,7 +35,6 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("bank_transfer");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +54,7 @@ export default function CheckoutPage() {
           customerEmail: email.trim(),
           customerPhone: phone.trim(),
           address: address.trim(),
-          paymentMethod,
+          paymentMethod: "bank_transfer",
           items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
         }),
       });
@@ -181,32 +178,6 @@ export default function CheckoutPage() {
               rows={3}
               className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white resize-none transition-all duration-200"
             />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-white font-bold tracking-wide">{t("checkoutPaymentMethod")}</span>
-            <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  checked={paymentMethod === "bank_transfer"}
-                  onChange={() => setPaymentMethod("bank_transfer")}
-                  className="accent-white w-4 h-4"
-                />
-                <span className="text-gray-200">{t("checkoutBankTransfer")}</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="paymentMethod"
-                  checked={paymentMethod === "cod"}
-                  onChange={() => setPaymentMethod("cod")}
-                  className="accent-white w-4 h-4"
-                />
-                <span className="text-gray-200">{t("checkoutCod")}</span>
-              </label>
-            </div>
           </div>
 
           {error && (
