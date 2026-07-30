@@ -49,9 +49,9 @@ export default function SponsorsSection() {
       <div className="space-y-8">
         <SectionHeading>{t("sponsorsTitle")}</SectionHeading>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-10 items-center justify-items-center max-w-5xl mx-auto px-6 sm:px-14 py-10 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-16 items-center justify-items-center max-w-5xl mx-auto px-6 sm:px-14 py-12 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
           {sponsors.map((s) => (
-            <div key={s.alt} className="relative w-full h-12 sm:h-16">
+            <div key={s.alt} className="relative w-full h-14 sm:h-20">
               <Image
                 src={s.src}
                 alt={s.alt}
