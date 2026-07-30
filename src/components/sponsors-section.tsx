@@ -20,7 +20,7 @@ const sponsors: Sponsor[] = [
   { src: "/sponsors/sts_prachatice.webp", alt: "STS Prachatice" },
   { src: "/sponsors/zephyron.webp", alt: "Zephyron", scaleClass: "scale-180" },
   { src: "/sponsors/breathe.webp", alt: "Breathe", scaleClass: "scale-250" },
-  { src: "/sponsors/kuta.webp", alt: "Kuta Servis", scaleClass: "scale-180" },
+  { src: "/sponsors/kuta.webp", alt: "Kuta Servis", scaleClass: "scale-150" },
   { src: "/sponsors/dovoz.webp", alt: "Dovoz aut", scaleClass: "scale-190" },
   { src: "/sponsors/dilna.webp", alt: "Dilna Detailing", scaleClass: "scale-225" },
   { src: "/sponsors/babeta.webp", alt: "Babeta Elektro", scaleClass: "scale-140" },
@@ -45,11 +45,11 @@ export default function SponsorsSection() {
   const t = useTranslations("InfoPage");
 
   return (
-    <section id="sponsors" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 text-center overflow-hidden">
+    <section id="sponsors" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 max-w-5xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="space-y-8">
         <SectionHeading>{t("sponsorsTitle")}</SectionHeading>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-10 items-center justify-items-center max-w-4xl mx-auto px-6 sm:px-10 py-10 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-10 items-center justify-items-center max-w-5xl mx-auto px-6 sm:px-14 py-10 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
           {sponsors.map((s) => (
             <div key={s.alt} className="relative w-full h-12 sm:h-16">
               <Image

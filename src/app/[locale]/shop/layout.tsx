@@ -31,10 +31,22 @@ export async function generateMetadata({
       languages: buildAlternates("/shop"),
     },
     robots: enabled ? undefined : { index: false, follow: false },
+    // A child segment that defines its own `openGraph` object does NOT
+    // deep-merge unspecified sub-fields (like `images`) from the parent —
+    // it's a shallow replace at the metadata-field level. Root layout's
+    // OG_image.jpg fallback silently disappears here unless repeated
+    // explicitly, breaking link previews when /shop is shared.
     openGraph: {
       title,
       description,
       type: "website",
+      images: [{ url: "/OG_image.jpg", width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/OG_image.jpg"],
     },
   };
 }

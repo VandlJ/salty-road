@@ -58,11 +58,20 @@ export async function generateMetadata({
       languages: buildAlternates(`/shop/${slug}`),
     },
     robots,
+    // Same shallow-merge gotcha as /shop/layout.tsx — fall back to the site
+    // OG image explicitly when this product has no photo, instead of
+    // silently losing the image on share.
     openGraph: {
       title,
       description: product.description,
       type: "website",
-      ...(image ? { images: [{ url: image }] } : {}),
+      images: image ? [{ url: image }] : [{ url: "/OG_image.jpg", width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: product.description,
+      images: [image ?? "/OG_image.jpg"],
     },
   };
 }
