@@ -59,7 +59,7 @@ export default function InfoSection() {
 
           <div className="max-w-3xl mx-auto">
             {/* Main Program — left-rail timeline */}
-            <div className="relative pl-6 sm:pl-8 mb-8 border-l border-gray-800 space-y-6 text-left max-w-2xl mx-auto">
+            <div className="relative pl-6 pr-6 sm:pl-8 sm:pr-0 mb-8 border-l border-gray-800 space-y-6 text-left max-w-2xl mx-auto">
               {[1, 2, 3, 4, 5, 6, 7].map((item) => {
                  const text = t(`programList.item${item}`);
                  const parts = text.split(" - ");
