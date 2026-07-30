@@ -21,7 +21,7 @@ export default function Hero() {
     <section className="absolute inset-0 z-0 overflow-hidden">
       {/* Background Image */}
       <Image
-        src="/hero.jpg"
+        src="/hero.webp"
         alt="Hero Background"
         fill
         sizes="100vw"
@@ -37,7 +37,7 @@ export default function Hero() {
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-4 md:-translate-y-12">
         <div className="relative mb-0 max-w-5xl w-full">
           <Image
-            src="/SaltyRoad/SRM_text.png"
+            src="/SaltyRoad/SRM_text.webp"
             alt="Salty Road Meet Vol. 1"
             width={1200}
             height={470}

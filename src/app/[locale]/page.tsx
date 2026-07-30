@@ -1,10 +1,15 @@
 import { getTranslations } from "next-intl/server";
+import dynamic from "next/dynamic";
 import Hero from "@/components/hero";
 import InfoSection from "@/components/info-section";
 import RegistrationSection from "@/components/registration-section";
-import VehiclesSection from "@/components/vehicles-section";
-import SponsorsSection from "@/components/sponsors-section";
 import { SITE_URL, canonicalUrl, jsonLdScript } from "@/lib/seo";
+
+// Below-the-fold sections — still fully server-rendered (dynamic() defaults
+// to ssr: true), this just code-splits their JS into separate chunks so the
+// initial bundle needed for the hero/LCP doesn't have to include them.
+const VehiclesSection = dynamic(() => import("@/components/vehicles-section"));
+const SponsorsSection = dynamic(() => import("@/components/sponsors-section"));
 
 export default async function Page({
   params,

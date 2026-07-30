@@ -44,6 +44,12 @@
     "tailwindcss": "^4.1.12",
     "typescript": "^5.9.3"
   },
+  "browserslist": [
+    "> 0.3%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ],
   "allowScripts": {
     "@parcel/watcher@2.5.4": true,
     "@prisma/client@6.15.0": true,

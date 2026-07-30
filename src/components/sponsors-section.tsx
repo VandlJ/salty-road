@@ -85,7 +85,7 @@ export default function SponsorsSection() {
                 <Image src="/sponsors/logo-tempo.webp" alt="Tempo Detailing" fill sizes="(max-width: 640px) 33vw, 260px" className="object-contain" />
               </div>
               <div className="relative w-full h-12 sm:h-16 sm:col-span-3">
-                <Image src="/sponsors/denik.png" alt="Deník" fill sizes="(max-width: 640px) 33vw, 260px" className="object-contain" />
+                <Image src="/sponsors/denik.webp" alt="Deník" fill sizes="(max-width: 640px) 33vw, 260px" className="object-contain" />
               </div>
             </div>
         </div>

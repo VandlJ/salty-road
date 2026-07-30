@@ -1,0 +1,15 @@
+# Salty Road Meet
+
+> Salty Road Meet je autovýstava a sraz vozů v historickém centru Prachatic. Salty Road Meet Volume 1 se koná 25. 7. 2026 na Velkém a Kostelním náměstí.
+
+## Stránky
+
+- [Domů (cs)](https://www.saltyroad.cz/cs): Hlavní stránka — informace o akci, registrace vozidel, potvrzené vozy, sponzoři
+- [Home (en)](https://www.saltyroad.cz/en): English version of the main page
+- [Stav registrace](https://www.saltyroad.cz/cs/check): Kontrola stavu podané registrace podle ID
+- [Zásady ochrany osobních údajů](https://www.saltyroad.cz/cs/privacy): GDPR a zpracování osobních údajů
+
+## Poznámky
+
+- Web je dvojjazyčný (čeština výchozí, angličtina na `/en`).
+- E-shop (`/shop`) je dočasně mimo provoz do spuštění organizátorem.

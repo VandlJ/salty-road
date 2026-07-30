@@ -18,7 +18,7 @@ export default function Footer() {
           {/* Email */}
           <a
             href="mailto:info@saltyroad.cz"
-            className="flex items-center gap-1.5 sm:gap-2 group text-gray-500 hover:text-gray-300 transition-colors duration-300"
+            className="flex items-center gap-1.5 sm:gap-2 group text-gray-400 hover:text-gray-300 transition-colors duration-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -37,7 +37,7 @@ export default function Footer() {
             href="https://www.instagram.com/salty_road_meet/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 sm:gap-2 group text-gray-500 hover:text-gray-300 transition-colors duration-300"
+            className="flex items-center gap-1.5 sm:gap-2 group text-gray-400 hover:text-gray-300 transition-colors duration-300"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +61,7 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="text-[11px] sm:text-xs text-gray-600 font-light tracking-wide text-center md:text-left flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 order-2 md:order-1">
+        <div className="text-[11px] sm:text-xs text-gray-400 font-light tracking-wide text-center md:text-left flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 order-2 md:order-1">
           <span>&copy; {currentYear} {t("rights")}</span>
           <Link href="/privacy" className="underline hover:text-gray-400 transition-colors">
             {t("privacy")}
