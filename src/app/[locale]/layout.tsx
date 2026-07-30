@@ -97,7 +97,7 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
+    <html lang={locale} data-scroll-behavior="smooth">
       <body
         className={`${roboto.variable} ${amika.variable} ${montserrat.variable} antialiased min-h-dvh font-roboto flex flex-col`}
       >

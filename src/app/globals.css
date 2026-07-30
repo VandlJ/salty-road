@@ -64,6 +64,19 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* Native number-input spinners are replaced with custom +/- controls
+     per component, so the browser's own arrows are turned off everywhere. */
+  input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
 
 @layer components {

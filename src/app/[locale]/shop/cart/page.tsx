@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SectionHeading from "@/components/section-heading";
+import QuantityStepper from "@/components/quantity-stepper";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore, cartTotal } from "@/lib/cartStore";
 
@@ -22,10 +23,33 @@ export default function CartPage() {
 
   const cartItems = mounted ? items : [];
 
+  // Cart contents persist in localStorage across sessions, so stock may
+  // have moved since items were added — re-check live availability so we
+  // can warn/cap instead of letting checkout fail as a surprise.
+  const [stockBySku, setStockBySku] = useState<Record<string, number>>({});
+  const skusKey = cartItems.map((i) => i.sku).join(",");
+
+  useEffect(() => {
+    if (!skusKey) return;
+    const skus = skusKey.split(",");
+    fetch("/api/merch/stock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ skus }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data?.stock && setStockBySku(data.stock))
+      .catch((err) => console.error(err));
+  }, [skusKey]);
+
+  const hasStockIssue = cartItems.some(
+    (item) => stockBySku[item.sku] !== undefined && item.qty > stockBySku[item.sku]
+  );
+
   return (
-    <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12">
+    <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12">
       <div className="max-w-3xl mx-auto">
-        <SectionHeading as="h1" size="lg" className="mb-12">
+        <SectionHeading as="h1" size="lg" className="mb-8 md:mb-12">
           {t("cart")}
         </SectionHeading>
 
@@ -42,40 +66,60 @@ export default function CartPage() {
         ) : (
           <>
             <div className="flex flex-col gap-4">
-              {cartItems.map((item) => (
-                <div
-                  key={item.sku}
-                  className="flex items-center gap-4 bg-[#111] border border-gray-700 rounded-sm p-4"
-                >
-                  <div className="relative w-16 h-16 shrink-0 bg-black rounded-sm overflow-hidden border border-gray-700">
-                    {item.image ? (
-                      <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
-                    ) : null}
-                  </div>
+              {cartItems.map((item) => {
+                const available = stockBySku[item.sku];
+                const exceedsStock = available !== undefined && item.qty > available;
 
-                  <div className="flex-1 min-w-0">
-                    <div className="font-bold text-white truncate">{item.name}</div>
-                    <div className="text-sm text-gray-400">{item.variantLabel}</div>
-                    <div className="text-sm text-gray-300">{formatPrice(item.unitPrice)}</div>
-                  </div>
-
-                  <input
-                    type="number"
-                    min={1}
-                    value={item.qty}
-                    onChange={(e) => updateQty(item.sku, Math.max(1, Number(e.target.value)))}
-                    className="w-16 px-2 py-1 bg-white/5 text-white border-2 border-gray-500 rounded-sm text-center focus:outline-none focus:border-white"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => removeItem(item.sku)}
-                    className="text-red-500 hover:text-red-400 text-sm font-bold uppercase tracking-wide cursor-pointer"
+                return (
+                  <div
+                    key={item.sku}
+                    className={`flex flex-wrap items-center gap-3 sm:gap-4 bg-[#111] border rounded-sm p-3 sm:p-4 ${
+                      exceedsStock ? "border-red-600" : "border-gray-700"
+                    }`}
                   >
-                    {t("cartRemove")}
-                  </button>
-                </div>
-              ))}
+                    <Link
+                      href={`/shop/${item.productSlug}`}
+                      className="flex items-center gap-3 sm:gap-4 flex-1 min-w-[140px] no-underline group"
+                    >
+                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 bg-black rounded-sm overflow-hidden border border-gray-700">
+                        {item.image ? (
+                          <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
+                        ) : null}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="font-bold text-white truncate group-hover:underline">{item.name}</div>
+                        <div className="text-sm text-gray-400">{item.variantLabel}</div>
+                        <div className="text-sm text-gray-300">{formatPrice(item.unitPrice)}</div>
+                        {exceedsStock && (
+                          <div className="text-sm text-red-500 font-bold mt-1">
+                            {available > 0
+                              ? t("stockLimited", { count: available })
+                              : t("stockUnavailable")}
+                          </div>
+                        )}
+                      </div>
+                    </Link>
+
+                    <div className="flex items-center gap-3 ml-auto sm:ml-0">
+                      <QuantityStepper
+                        value={item.qty}
+                        onChange={(next) => updateQty(item.sku, next)}
+                        min={1}
+                        max={available}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.sku)}
+                        className="text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold uppercase tracking-wide cursor-pointer whitespace-nowrap"
+                      >
+                        {t("cartRemove")}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="mt-8 flex items-center justify-between border-t border-gray-700 pt-6">
@@ -90,13 +134,28 @@ export default function CartPage() {
               >
                 {t("cartContinueShopping")}
               </Link>
-              <Link
-                href="/shop/checkout"
-                className="px-6 py-3 text-center bg-white text-black rounded-sm border-2 border-white hover:bg-gray-200 transition-all duration-200 font-bold uppercase tracking-wide"
-              >
-                {t("cartCheckout")}
-              </Link>
+              {hasStockIssue ? (
+                <span
+                  aria-disabled="true"
+                  className="px-6 py-3 text-center bg-white/30 text-black/50 rounded-sm border-2 border-white/30 font-bold uppercase tracking-wide cursor-not-allowed"
+                >
+                  {t("cartCheckout")}
+                </span>
+              ) : (
+                <Link
+                  href="/shop/checkout"
+                  className="px-6 py-3 text-center bg-white text-black rounded-sm border-2 border-white hover:bg-gray-200 transition-all duration-200 font-bold uppercase tracking-wide"
+                >
+                  {t("cartCheckout")}
+                </Link>
+              )}
             </div>
+
+            {hasStockIssue && (
+              <p className="mt-3 text-sm text-red-500 text-center sm:text-right">
+                {t("stockIssueBlockingCheckout")}
+              </p>
+            )}
           </>
         )}
       </div>

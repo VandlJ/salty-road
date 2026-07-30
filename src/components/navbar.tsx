@@ -4,7 +4,11 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
-// import CartLink from "@/components/cart-link"; // re-enable once /shop has real products
+import CartLink from "@/components/cart-link";
+
+// Shop nav entries are hidden in production until the shop is ready to
+// launch, but visible in dev so it can still be worked on / QA'd.
+const SHOP_VISIBLE = process.env.NODE_ENV === "development";
 
 export default function Navbar({ fixed = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -131,13 +135,15 @@ export default function Navbar({ fixed = false }) {
           >
             {t("vehicles")}
           </Link>
-          {/* Hidden until the shop has real products — see navbar "shop"/CartLink toggles below. */}
-          {/* <Link
-            href="/shop"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
-          >
-            {t("shop")}
-          </Link> */}
+          {/* Hidden in production until the shop launches — SHOP_VISIBLE keeps it up in dev. */}
+          {SHOP_VISIBLE && (
+            <Link
+              href="/shop"
+              className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
+            >
+              {t("shop")}
+            </Link>
+          )}
           <Link
             href="/check"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
@@ -148,7 +154,7 @@ export default function Navbar({ fixed = false }) {
 
         {/* Desktop Cart + Language Switch */}
         <div className="hidden lg:flex items-center gap-4 min-w-[60px] justify-end">
-          {/* <CartLink /> */}
+          {SHOP_VISIBLE && <CartLink />}
           <div className="flex items-center gap-2">
             <button
               onClick={() => switchLocale('cs')}
@@ -170,31 +176,31 @@ export default function Navbar({ fixed = false }) {
           </div>
         </div>
 
-        {/* Mobile Cart */}
-        {/* <CartLink className="lg:hidden mr-2" /> */}
-
-        {/* Mobile Burger Menu Button */}
-        <button
-          onClick={toggleMenu}
-          className="lg:hidden flex flex-col items-center justify-center w-8 h-8 space-y-1 focus:outline-none"
-          aria-label="Toggle menu"
-        >
-          <span
-            className={`block w-6 h-0.5 bg-white transition-all duration-300 ease-in-out ${
-              isMenuOpen ? "rotate-45 translate-y-1.5" : ""
-            }`}
-          ></span>
-          <span
-            className={`block w-6 h-0.5 bg-white transition-all duration-300 ease-in-out ${
-              isMenuOpen ? "opacity-0" : ""
-            }`}
-          ></span>
-          <span
-            className={`block w-6 h-0.5 bg-white transition-all duration-300 ease-in-out ${
-              isMenuOpen ? "-rotate-45 -translate-y-1.5" : ""
-            }`}
-          ></span>
-        </button>
+        {/* Mobile Cart + Burger Menu Button */}
+        <div className="lg:hidden flex items-center gap-4">
+          {SHOP_VISIBLE && <CartLink onClick={closeMenu} />}
+          <button
+            onClick={toggleMenu}
+            className="flex flex-col items-center justify-center w-8 h-8 space-y-1 focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            <span
+              className={`block w-6 h-0.5 bg-white transition-all duration-300 ease-in-out ${
+                isMenuOpen ? "rotate-45 translate-y-1.5" : ""
+              }`}
+            ></span>
+            <span
+              className={`block w-6 h-0.5 bg-white transition-all duration-300 ease-in-out ${
+                isMenuOpen ? "opacity-0" : ""
+              }`}
+            ></span>
+            <span
+              className={`block w-6 h-0.5 bg-white transition-all duration-300 ease-in-out ${
+                isMenuOpen ? "-rotate-45 -translate-y-1.5" : ""
+              }`}
+            ></span>
+          </button>
+        </div>
       </div>
     </nav>
 
@@ -250,13 +256,15 @@ export default function Navbar({ fixed = false }) {
             >
               {t("vehicles")}
             </Link>
-            {/* <Link
-              href="/shop"
-              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={closeMenu}
-            >
-              {t("shop")}
-            </Link> */}
+            {SHOP_VISIBLE && (
+              <Link
+                href="/shop"
+                className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
+                onClick={closeMenu}
+              >
+                {t("shop")}
+              </Link>
+            )}
             <Link
               href="/check"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"

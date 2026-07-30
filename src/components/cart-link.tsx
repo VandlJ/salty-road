@@ -4,7 +4,13 @@ import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/routing";
 import { useCartStore, cartCount } from "@/lib/cartStore";
 
-export default function CartLink({ className = "" }: { className?: string }) {
+export default function CartLink({
+  className = "",
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) {
   const items = useCartStore((state) => state.items);
   // Avoid a hydration mismatch: the server always renders 0 (no access to
   // localStorage), so only show the real count once mounted on the client.
@@ -20,6 +26,7 @@ export default function CartLink({ className = "" }: { className?: string }) {
     <Link
       href="/shop/cart"
       aria-label="Cart"
+      onClick={onClick}
       className={`relative flex items-center text-white hover:text-gray-300 transition-colors duration-200 ${className}`}
     >
       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

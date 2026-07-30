@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import prisma from "@/lib/prisma";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const t = await getTranslations({ locale, namespace: "ShopPage" });
+  const shopTitle = t("title");
 
   const product = await prisma.merchProduct.findUnique({
     where: { slug },
@@ -14,11 +17,11 @@ export async function generateMetadata({
   });
 
   if (!product || !product.active) {
-    return { title: "Salty Road Shop" };
+    return { title: shopTitle };
   }
 
   return {
-    title: product.name,
+    title: `${product.name} | ${shopTitle}`,
     description: product.description,
   };
 }

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SectionHeading from "@/components/section-heading";
+import QuantityStepper from "@/components/quantity-stepper";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore } from "@/lib/cartStore";
 import type { MerchProduct, MerchVariant } from "@/types/merch";
@@ -65,7 +66,7 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12 flex items-center justify-center">
+      <section className="flex-1 bg-black text-white px-4 py-24 flex items-center justify-center">
         <div className="text-white font-bold animate-pulse">{t("loading")}</div>
       </section>
     );
@@ -73,7 +74,7 @@ export default function ProductDetailPage() {
 
   if (notFound || !product) {
     return (
-      <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12 flex flex-col items-center justify-center gap-6">
+      <section className="flex-1 bg-black text-white px-4 py-24 flex flex-col items-center justify-center gap-6">
         <p className="text-gray-400 font-bold">{t("notFound")}</p>
         <Link href="/shop" className="underline text-white hover:text-gray-300">
           {t("backToShop")}
@@ -83,17 +84,36 @@ export default function ProductDetailPage() {
   }
 
   return (
-    <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12">
+    <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12">
       <div className="max-w-5xl mx-auto">
         <Link
           href="/shop"
-          className="inline-block mb-8 text-sm text-gray-400 hover:text-white transition-colors"
+          className="group inline-flex items-center gap-2 mb-8 text-sm font-medium uppercase tracking-wide text-gray-400 hover:text-white transition-colors"
         >
-          &larr; {t("backToShop")}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="transition-transform duration-200 group-hover:-translate-x-0.5"
+          >
+            <path d="M19 12H5" />
+            <path d="M12 19l-7-7 7-7" />
+          </svg>
+          {t("backToShop")}
         </Link>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          <div className="relative aspect-square bg-[#111] border border-gray-700 rounded-sm overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+          <SectionHeading as="h1" align="left" className="md:col-start-2 md:row-start-1">
+            {product.name}
+          </SectionHeading>
+
+          <div className="relative aspect-square bg-[#111] border border-gray-700 rounded-sm overflow-hidden md:col-start-1 md:row-start-1 md:row-span-2">
             {selectedVariant?.image ? (
               <Image
                 src={selectedVariant.image}
@@ -110,14 +130,18 @@ export default function ProductDetailPage() {
             )}
           </div>
 
-          <div className="flex flex-col gap-6">
-            <SectionHeading as="h1">{product.name}</SectionHeading>
+          <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2">
             <p className="text-gray-300 font-light leading-relaxed">{product.description}</p>
 
             {selectedVariant && (
-              <span className="text-2xl font-bold text-white">
-                {formatPrice(selectedVariant.price)}
-              </span>
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-bold uppercase tracking-wide text-gray-400">
+                  {t("price")}
+                </span>
+                <span className="text-2xl font-bold text-white">
+                  {formatPrice(selectedVariant.price)}
+                </span>
+              </div>
             )}
 
             <div className="flex flex-col gap-2">
@@ -148,18 +172,16 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col gap-2">
               <label htmlFor="qty" className="text-sm font-bold uppercase tracking-wide text-gray-400">
                 {t("quantity")}
               </label>
-              <input
+              <QuantityStepper
                 id="qty"
-                type="number"
+                value={qty}
+                onChange={setQty}
                 min={1}
                 max={selectedVariant?.quantity ?? 1}
-                value={qty}
-                onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
-                className="w-20 px-3 py-2 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white"
               />
             </div>
 
@@ -167,8 +189,27 @@ export default function ProductDetailPage() {
               type="button"
               onClick={handleAddToCart}
               disabled={!selectedVariant || selectedVariant.quantity <= 0}
-              className="px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`flex items-center justify-center gap-2 px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase shadow-xl border-2 transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${
+                added
+                  ? "bg-green-600 border-green-600 text-white"
+                  : "bg-white border-white text-black hover:bg-gray-200"
+              }`}
             >
+              {added && (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              )}
               {added ? t("addedToCart") : t("addToCart")}
             </button>
           </div>
