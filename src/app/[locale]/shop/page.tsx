@@ -71,6 +71,7 @@ export default function ShopPage() {
                     alt={product.name}
                     fill
                     priority={index === 0}
+                    fetchPriority={index === 0 ? "high" : undefined}
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 768px) 50vw, 25vw"
                   />

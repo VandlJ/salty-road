@@ -27,6 +27,10 @@ export default function Hero() {
         sizes="100vw"
         className="object-cover"
         priority
+        // Next 16 split `priority` and `fetchPriority` into separate props —
+        // `priority` alone no longer implies fetchpriority="high" on the
+        // preload link, has to be set explicitly.
+        fetchPriority="high"
         // The dark overlay + blur right on top of this image (below) hides
         // compression artifacts, so a lower quality is a free byte saving.
         quality={60}
@@ -48,6 +52,7 @@ export default function Hero() {
             sizes="(max-width: 1024px) 100vw, 1024px"
             className="w-full h-auto drop-shadow-2xl"
             priority
+            fetchPriority="high"
             quality={65}
           />
         </div>

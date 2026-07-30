@@ -48,7 +48,8 @@
     "> 0.3%",
     "last 2 versions",
     "not dead",
-    "not ie 11"
+    "not ie 11",
+    "not op_mini all"
   ],
   "allowScripts": {
     "@parcel/watcher@2.5.4": true,
