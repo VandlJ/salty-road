@@ -8,7 +8,7 @@ export default function SponsorsSection() {
   const t = useTranslations("InfoPage");
 
   return (
-    <section id="sponsors" className="bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 text-center overflow-hidden">
+    <section id="sponsors" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 text-center overflow-hidden">
         <div className="space-y-12">
             <SectionHeading>{t("sponsorsTitle")}</SectionHeading>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 items-center justify-items-center max-w-4xl mx-auto px-8 py-10 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">

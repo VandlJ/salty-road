@@ -27,7 +27,7 @@ export default function SectionHeading({
       >
         {children}
       </Tag>
-      <span className="hidden sm:block absolute bottom-0 left-0 h-[3px] w-12 bg-red-600" />
+      <span className="hidden sm:block absolute bottom-0 left-0 h-[3px] w-12 bg-brand" />
     </div>
   );
 }

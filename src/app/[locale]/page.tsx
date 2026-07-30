@@ -59,7 +59,7 @@ export default async function Page({
       <div className="relative h-screen w-full">
         <Hero />
       </div>
-      <div className="h-1 w-full bg-gradient-to-r from-red-700 via-red-600 to-red-700" />
+      <div className="h-1 w-full bg-gradient-to-r from-brand-dark via-brand to-brand-dark" />
       <div className="bg-black">
         <InfoSection />
         <RegistrationSection />

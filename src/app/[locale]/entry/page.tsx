@@ -198,14 +198,14 @@ export default function EntryPage() {
 
   if (!authorized) {
     return (
-      <section className="flex-1 w-full bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
+      <section className="flex-1 w-full bg-transparent text-white px-4 pt-6 md:pt-10 pb-12 max-w-xl mx-auto">
         <div className="w-full">
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 sm:mb-8 text-white text-center drop-shadow-md">
             {t("pinTitle")}
           </h1>
           <form
             onSubmit={handlePinSubmit}
-            className="flex flex-col gap-4 sm:gap-6 bg-[#111]/80 p-8 border border-gray-600 shadow-2xl backdrop-blur-md"
+            className="flex flex-col gap-4 sm:gap-6 bg-[#111]/80 p-8 border border-gray-600 shadow-2xl backdrop-blur-md rounded-sm"
           >
             <div className="flex flex-col gap-2">
               <label className="text-white font-bold tracking-wide">
@@ -219,14 +219,14 @@ export default function EntryPage() {
                 inputMode="numeric"
                 autoFocus
                 required
-                className="p-3 sm:p-4 bg-white/5 border-2 border-gray-500 text-white placeholder-gray-400 focus:border-white focus:outline-none transition-colors text-lg tracking-widest text-center"
+                className="p-3 sm:p-4 bg-white/5 border-2 border-gray-500 text-white placeholder-gray-400 focus:border-white focus:outline-none transition-colors text-lg tracking-widest text-center rounded-sm"
               />
             </div>
-            <button className="px-6 py-3 bg-white text-black font-bold text-lg tracking-widest uppercase hover:bg-gray-200 hover:shadow-xl transition-all duration-200 mt-2 cursor-pointer">
+            <button className="px-6 py-3 bg-white text-black font-bold text-lg tracking-widest uppercase hover:bg-gray-200 hover:shadow-xl transition-all duration-200 mt-2 cursor-pointer rounded-sm">
               {t("unlock")}
             </button>
             {pinError && (
-              <div className="text-red-400 p-3 border border-red-500/50 bg-red-900/20 text-center text-sm font-bold">
+              <div className="text-red-400 p-3 border border-red-500/50 bg-red-900/20 text-center text-sm font-bold rounded-sm">
                 {pinError}
               </div>
             )}
@@ -237,7 +237,7 @@ export default function EntryPage() {
   }
 
   return (
-    <section className="flex-1 bg-transparent text-white p-4 max-w-5xl mx-auto w-full">
+    <section className="flex-1 bg-transparent text-white px-4 pt-6 md:pt-10 pb-12 max-w-5xl mx-auto w-full">
       <h1 className="text-2xl font-extrabold text-white mb-4 uppercase tracking-widest">
         {t("title")}
       </h1>

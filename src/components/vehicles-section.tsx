@@ -107,7 +107,7 @@ export default function VehiclesSection() {
   }
 
   return (
-    <section id="vehicles" className="bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center overflow-hidden">
+    <section id="vehicles" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="flex flex-col items-center mb-16 gap-4">
         <SectionHeading as="h1" size="lg">
           {t("title")}

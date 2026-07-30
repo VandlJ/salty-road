@@ -18,7 +18,7 @@ export default function InfoSection() {
             <ul className="space-y-4 text-left block w-full max-w-full">
               {[1, 2, 3, 4, 5].map((item) => (
                 <li key={item} className="flex gap-3 pl-0">
-                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-red-600" />
+                  <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-brand" />
                   <span>
                     {t.rich(`parkingList.item${item}`, {
                       mapLink: (chunks) => (
@@ -99,7 +99,7 @@ export default function InfoSection() {
                    return (
                      <div key={item} className="text-center md:text-left text-gray-300 text-base font-light">
                        <div className="inline-flex items-start text-left break-words max-w-full md:max-w-none text-pretty">
-                         <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 mr-3 shrink-0"></span>
+                         <span className="w-1.5 h-1.5 bg-brand mt-2.5 mr-3 shrink-0"></span>
                          <span>
                            {t.rich(`programList.item${item}`, {
                              link: (chunks) => (
@@ -181,15 +181,15 @@ export default function InfoSection() {
                 <p className="mb-4 font-bold text-white uppercase tracking-wide text-center">{t("conditions.feeIncludes")}</p>
                 <ul className="list-none space-y-3 mb-4 text-gray-300">
                   <li className="flex items-start justify-start md:justify-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 shrink-0" /> 
+                    <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" /> 
                     <span>{t("conditions.feeList1")}</span>
                   </li>
                   <li className="flex items-start justify-start md:justify-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 shrink-0" /> 
+                    <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" /> 
                     <span>{t("conditions.feeList2")}</span>
                   </li>
                   <li className="flex items-start justify-start md:justify-center gap-3">
-                    <span className="w-1.5 h-1.5 bg-red-600 mt-2.5 shrink-0" /> 
+                    <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" /> 
                     <span>{t("conditions.feeList3")}</span>
                   </li>
                 </ul>
