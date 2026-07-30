@@ -20,8 +20,8 @@ const sponsors: Sponsor[] = [
   { src: "/sponsors/sts_prachatice.webp", alt: "STS Prachatice" },
   { src: "/sponsors/zephyron.webp", alt: "Zephyron", scaleClass: "scale-180" },
   { src: "/sponsors/breathe.webp", alt: "Breathe", scaleClass: "scale-250" },
-  { src: "/sponsors/kuta.webp", alt: "Kuta Servis", scaleClass: "scale-150" },
-  { src: "/sponsors/dovoz.webp", alt: "Dovoz aut", scaleClass: "scale-190" },
+  { src: "/sponsors/kuta.webp", alt: "Kuta Servis", scaleClass: "scale-115" },
+  { src: "/sponsors/dovoz.webp", alt: "Dovoz aut", scaleClass: "scale-150" },
   { src: "/sponsors/dilna.webp", alt: "Dilna Detailing", scaleClass: "scale-225" },
   { src: "/sponsors/babeta.webp", alt: "Babeta Elektro", scaleClass: "scale-140" },
   { src: "/sponsors/bestlak.webp", alt: "Bestlak", scaleClass: "scale-180" },
@@ -49,7 +49,7 @@ export default function SponsorsSection() {
       <div className="space-y-8">
         <SectionHeading>{t("sponsorsTitle")}</SectionHeading>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-10 gap-y-16 items-center justify-items-center max-w-5xl mx-auto px-6 sm:px-14 py-12 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-16 gap-y-16 items-center justify-items-center max-w-5xl mx-auto px-6 sm:px-14 py-12 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
           {sponsors.map((s) => (
             <div key={s.alt} className="relative w-full h-14 sm:h-20">
               <Image
