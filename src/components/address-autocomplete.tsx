@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type Suggestion = { label: string; street: string; city: string };
+type Suggestion = { label: string; street: string; city: string; zip: string };
 
 export default function AddressAutocomplete({
   id,
@@ -64,6 +64,14 @@ export default function AddressAutocomplete({
     <div ref={wrapperRef} className="relative">
       <input
         id={id}
+        // Safari (and to a lesser extent Chrome) largely ignore
+        // autocomplete="off" on address-shaped fields and show their own
+        // native Contacts-based suggestion panel on top, which is the
+        // "Adresa"-with-no-real-text overlay covering this dropdown — not a
+        // bug in this component. Renaming away from "street"/"address" and
+        // stacking the usual defeat-autofill attributes is the standard
+        // (still imperfect, but much better) workaround.
+        name="q"
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -72,11 +80,18 @@ export default function AddressAutocomplete({
         required={required}
         maxLength={maxLength}
         autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+        data-lpignore="true"
+        data-1p-ignore=""
+        data-bwignore="true"
+        data-form-type="other"
         className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
       />
 
       {open && (
-        <ul className="absolute z-20 mt-2 w-full bg-[#111] border border-gray-600 rounded-sm shadow-2xl overflow-hidden">
+        <ul className="absolute z-30 mt-2 w-full max-h-64 overflow-y-auto bg-[#111] border border-gray-600 rounded-sm shadow-2xl">
           {suggestions.map((s, i) => (
             <li key={`${s.label}-${i}`}>
               <button

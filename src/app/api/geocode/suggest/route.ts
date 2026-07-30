@@ -6,6 +6,7 @@ type Suggestion = {
   label: string;
   street: string;
   city: string;
+  zip: string;
 };
 
 // Server-side proxy for Mapy.cz Suggest API (https://developer.mapy.cz/)
@@ -33,13 +34,25 @@ export async function GET(req: NextRequest) {
     if (!res.ok) return NextResponse.json({ items: [] });
 
     const json = await res.json();
+    // Mapy.cz's own `label` field is a generic category name ("Adresa"),
+    // NOT the address text — the actual street+number is in `name`, and
+    // `zip`/`regionalStructure` carry the rest. Confirmed by hitting the
+    // live API directly (see conversation) after the wrong assumption here
+    // made every suggestion literally display as "Adresa".
     const items: Suggestion[] = (json?.items ?? [])
-      .map((item: { name?: string; label?: string; regionalStructure?: { name: string; type: string }[] }) => {
+      .map((item: {
+        name?: string;
+        zip?: string;
+        regionalStructure?: { name: string; type: string }[];
+      }) => {
         const municipality = item.regionalStructure?.find((r) => r.type === "regional.municipality")?.name;
+        const street = item.name ?? "";
+        const city = municipality ?? "";
         return {
-          label: item.label ?? item.name ?? "",
-          street: item.name ?? "",
-          city: municipality ?? "",
+          label: [street, city].filter(Boolean).join(", "),
+          street,
+          city,
+          zip: item.zip ?? "",
         };
       })
       .filter((s: Suggestion) => s.label);

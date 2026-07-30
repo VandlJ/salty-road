@@ -220,6 +220,7 @@ export default function CheckoutPage() {
                   onSelect={(s) => {
                     setStreet(s.street);
                     if (s.city) setCity(s.city);
+                    if (s.zip) setZip(s.zip);
                   }}
                   required
                   maxLength={150}
