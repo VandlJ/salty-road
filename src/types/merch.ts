@@ -26,6 +26,7 @@ export type OrderItem = {
 
 export type Order = {
   id: string;
+  orderNumber: number;
   createdAt: string;
   customerName: string;
   customerEmail: string;
@@ -34,7 +35,7 @@ export type Order = {
   items: OrderItem[];
   totalAmount: number; // halire
   paymentMethod: "bank_transfer" | "cod";
-  status: "pending" | "paid" | "shipped";
+  status: "pending" | "paid" | "shipped" | "cancelled";
 };
 
 // Admin views include inactive products/variants and the active flag itself.

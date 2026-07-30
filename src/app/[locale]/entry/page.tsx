@@ -190,7 +190,7 @@ export default function EntryPage() {
 
   if (checkingAuth) {
     return (
-      <section className="min-h-screen bg-transparent text-white p-4 flex items-center justify-center">
+      <section className="flex-1 w-full bg-transparent text-white p-4 flex items-center justify-center">
         <div className="text-white font-bold animate-pulse">{t("loading")}</div>
       </section>
     );
@@ -198,7 +198,7 @@ export default function EntryPage() {
 
   if (!authorized) {
     return (
-      <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
+      <section className="flex-1 w-full bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
         <div className="w-full">
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-6 sm:mb-8 text-white text-center drop-shadow-md">
             {t("pinTitle")}
@@ -237,7 +237,7 @@ export default function EntryPage() {
   }
 
   return (
-    <section className="min-h-screen bg-transparent text-white p-4 max-w-5xl mx-auto w-full">
+    <section className="flex-1 bg-transparent text-white p-4 max-w-5xl mx-auto w-full">
       <h1 className="text-2xl font-extrabold text-white mb-4 uppercase tracking-widest">
         {t("title")}
       </h1>

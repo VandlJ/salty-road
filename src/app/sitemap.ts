@@ -1,10 +1,13 @@
 import { MetadataRoute } from 'next';
+import { getShopEnabled } from '@/lib/shop';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.saltyroad.cz';
   const locales = ['en', 'cs'];
-  // /shop is excluded until it has real product content (kept noindex meanwhile).
-  const routes = ['', '/check', '/privacy'];
+  // /shop is behind an admin-controlled kill switch — only list it once
+  // it's actually turned on (matches the noindex on the shop layout).
+  const shopEnabled = await getShopEnabled();
+  const routes = ['', '/check', '/privacy', ...(shopEnabled ? ['/shop'] : [])];
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 

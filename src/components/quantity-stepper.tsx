@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import React from "react";
 
 export default function QuantityStepper({
@@ -15,6 +16,7 @@ export default function QuantityStepper({
   min?: number;
   max?: number;
 }) {
+  const t = useTranslations("QuantityStepper");
   const clamp = (n: number) => Math.min(max ?? Infinity, Math.max(min, n));
 
   return (
@@ -23,7 +25,7 @@ export default function QuantityStepper({
         type="button"
         onClick={() => onChange(clamp(value - 1))}
         disabled={value <= min}
-        aria-label="Snížit počet"
+        aria-label={t("decrease")}
         className="flex items-center justify-center w-9 h-9 text-white text-lg font-medium hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
       >
         −
@@ -41,7 +43,7 @@ export default function QuantityStepper({
         type="button"
         onClick={() => onChange(clamp(value + 1))}
         disabled={max !== undefined && value >= max}
-        aria-label="Zvýšit počet"
+        aria-label={t("increase")}
         className="flex items-center justify-center w-9 h-9 text-white text-lg font-medium hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
       >
         +

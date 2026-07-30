@@ -8,6 +8,7 @@ import { formatPrice } from "@/lib/formatPrice";
 
 interface LastOrder {
   orderId: string;
+  vs: string;
   totalAmount: number;
   paymentMethod: "bank_transfer" | "cod";
   qrCodeBase64?: string;
@@ -37,7 +38,7 @@ export default function ThankYouPage() {
 
   if (!order) {
     return (
-      <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12 flex flex-col items-center justify-center gap-6">
+      <section className="flex-1 w-full bg-black text-white px-4 pt-6 md:pt-10 pb-12 flex flex-col items-center justify-center gap-6">
         <p className="text-gray-400 font-bold">{t("thankYouNoOrder")}</p>
         <Link
           href="/shop"
@@ -50,7 +51,7 @@ export default function ThankYouPage() {
   }
 
   return (
-    <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12">
+    <section className="flex-1 w-full bg-black text-white px-4 pt-6 md:pt-10 pb-12">
       <div className="max-w-md mx-auto text-center">
         <SectionHeading as="h1" size="lg" className="mb-8">
           {t("thankYouTitle")}
@@ -60,6 +61,10 @@ export default function ThankYouPage() {
           <div className="flex justify-between text-sm text-gray-400">
             <span>{t("thankYouOrderId")}</span>
             <span className="text-white font-mono">{order.orderId}</span>
+          </div>
+          <div className="flex justify-between text-sm text-gray-400">
+            <span>{t("thankYouVs")}</span>
+            <span className="text-white font-mono font-bold">{order.vs}</span>
           </div>
           <div className="flex justify-between text-sm text-gray-400">
             <span>{t("thankYouTotal")}</span>
@@ -76,7 +81,7 @@ export default function ThankYouPage() {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={`data:image/png;base64,${order.qrCodeBase64}`}
-              alt="QR platba"
+              alt={t("thankYouQrAlt")}
               className="w-48 h-48 mx-auto mt-2 border border-gray-700 rounded-sm bg-white p-2"
             />
           )}

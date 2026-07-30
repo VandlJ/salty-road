@@ -4,6 +4,12 @@ import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
 
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 export default function CheckPage() {
   const t = useTranslations("CheckPage");
   const [idInput, setIdInput] = useState("");
@@ -55,7 +61,7 @@ export default function CheckPage() {
       const res = await fetch(`/api/check?id=${encodeURIComponent(q)}`);
       const json = await res.json();
       if (!res.ok) {
-        setError(json?.error || t("errorLookup"));
+        setError(res.status === 404 ? t("errorNotFound") : t("errorLookup"));
       } else {
         setResult(json);
       }
@@ -68,7 +74,7 @@ export default function CheckPage() {
   }
 
   return (
-    <section className="flex-1 bg-transparent text-white p-4 sm:p-8 max-w-xl mx-auto flex items-center justify-center">
+    <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 md:pt-10 pb-4 sm:pb-8 max-w-xl mx-auto">
       <div className="w-full flex flex-col items-center">
         <SectionHeading as="h1" size="lg" className="mb-8 sm:mb-12">
           {t("title")}
@@ -117,7 +123,7 @@ export default function CheckPage() {
               </div>
             </div>
             <div className="text-xs sm:text-sm text-gray-400 font-medium">
-              {t("resultCreated")} {result.createdAt ? new Date(result.createdAt).toLocaleString() : "—"}
+              {t("resultCreated")} {result.createdAt ? formatDate(result.createdAt) : "—"}
             </div>
           </div>
         )}

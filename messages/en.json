@@ -10,7 +10,8 @@
     "map": "Map",
     "sponsors": "Sponsors",
     "program": "Program",
-    "rules": "Visitor Rules"
+    "rules": "Visitor Rules",
+    "toggleMenu": "Toggle menu"
   },
   "ShopPage": {
     "title": "Salty Road Shop",
@@ -57,8 +58,10 @@
     "checkoutErrorInsufficientStock": "Sorry, one of the items just sold out. Please check your cart.",
     "thankYouTitle": "Thank you for your order!",
     "thankYouOrderId": "Order number",
+    "thankYouVs": "Variable symbol",
     "thankYouTotal": "Total due",
     "thankYouBankTransfer": "Scan the QR code in your banking app to pay. We've also emailed you the payment details.",
+    "thankYouQrAlt": "Payment QR code",
     "thankYouCod": "You'll pay cash on delivery. A confirmation has been emailed to you.",
     "thankYouNoOrder": "We don't have a recent order to show.",
     "thankYouBackToShop": "Back to shop"
@@ -86,6 +89,7 @@
       "errorEmpty": "Enter Registration ID",
       "errorNetwork": "Network error",
       "errorLookup": "Lookup failed",
+      "errorNotFound": "No registration found with this ID.",
       "resultName": "Name:",
       "resultVehicle": "Vehicle:",
       "resultCreated": "Created:",
@@ -174,15 +178,30 @@
           "amount": "299 CZK / 12 €"
       }
   },
+  "QuantityStepper": {
+    "decrease": "Decrease quantity",
+    "increase": "Increase quantity"
+  },
+  "PhotoGallery": {
+    "close": "Close",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "photoAlt": "{label} — photo {index} of {total}"
+  },
   "VehiclesPage": {
       "title": "Confirmed Vehicles",
       "refresh": "Refresh",
       "refreshing": "Refreshing…",
       "loadMore": "Load More",
       "loading": "Loading…",
-      "noPhotos": "No photos uploaded"
+      "noPhotos": "No photos uploaded",
+      "errorLoad": "Failed to load vehicles.",
+      "errorNetwork": "Network error."
   },
   "RegisterForm": {
+      "removePhoto": "Remove photo",
+      "movePhotoLeft": "Move left",
+      "movePhotoRight": "Move right",
       "firstName": "Name",
       "firstNamePlaceholder": "Joe",
       "lastName": "Surname",
@@ -226,7 +245,12 @@
     "username": "Username",
     "password": "Password",
     "login": "Login",
-    "loginError": "Login error",
+    "loggingIn": "Logging in…",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "loginError": "Incorrect username or password.",
+    "loginErrorMissing": "Enter both username and password.",
+    "loginErrorServer": "Server error, please try again.",
     "rateLimited": "Too many attempts, please try again later.",
     "registrations": "Registrations",
     "loading": "Loading…",
@@ -254,11 +278,48 @@
     "registrationForm": "Registration Form",
     "logout": "Log out",
     "merchLink": "Merch",
-    "ordersLink": "Orders"
+    "ordersLink": "Orders",
+    "backToAdmin": "Back to admin",
+    "filterAll": "All",
+    "noResultsFilter": "No registrations match the selected filter.",
+    "searchPlaceholder": "Search name or car…"
+  },
+  "AdminHubPage": {
+    "title": "Admin",
+    "subtitle": "Pick a section to manage.",
+    "registrationsTile": "Registrations",
+    "registrationsTileDesc": "Review and approve submitted vehicles.",
+    "merchTile": "Merch",
+    "merchTileDesc": "Manage shop products and stock.",
+    "ordersTile": "Orders",
+    "ordersTileDesc": "Review incoming orders and their status.",
+    "entryTile": "Entry",
+    "entryTileDesc": "Check in exhibitors at the event entrance.",
+    "emailsTile": "Emails",
+    "emailsTileDesc": "Preview and test-send email templates.",
+    "logout": "Log out"
+  },
+  "AdminEmailsPage": {
+    "title": "Emails",
+    "backToAdmin": "Back to admin",
+    "loading": "Loading…",
+    "errorLoad": "Could not load emails.",
+    "subject": "Subject",
+    "plainText": "Plain text",
+    "qrPreview": "Payment QR preview",
+    "testSendLabel": "Test-send to email",
+    "testSendPlaceholder": "you@email.com",
+    "testSendButton": "Send test",
+    "sending": "Sending…",
+    "testSendSuccess": "Test email sent.",
+    "testSendError": "Failed to send."
   },
   "AdminMerchPage": {
     "title": "Merch Management",
+    "shopEnabled": "Shop enabled on the site",
     "backToAdmin": "Back to admin",
+    "filterAll": "All",
+    "noResultsFilter": "No products match the selected filter.",
     "loading": "Loading…",
     "errorLoad": "Could not load products.",
     "newProductTitle": "New product",
@@ -310,10 +371,18 @@
   "AdminOrdersPage": {
     "title": "Orders",
     "backToAdmin": "Back to admin",
+    "filterAll": "All",
+    "noResultsFilter": "No orders match the selected filter.",
     "loading": "Loading…",
     "errorLoad": "Could not load orders.",
     "noOrders": "No orders yet.",
     "orderId": "Order",
+    "remove": "Remove",
+    "confirmRemove": "Are you sure you want to remove this order? If it wasn't already cancelled, its stock will be released back.",
+    "cancel": "Cancel",
+    "errorRemove": "Failed to remove order.",
+    "vs": "Variable symbol",
+    "searchVsPlaceholder": "Search by variable symbol…",
     "created": "Created",
     "customer": "Customer",
     "phone": "Phone",
@@ -326,7 +395,9 @@
     "status": "Status",
     "statusPending": "New",
     "statusPaid": "Paid",
-    "statusShipped": "Shipped"
+    "statusShipped": "Shipped",
+    "statusCancelled": "Cancelled",
+    "errorInsufficientStock": "Can't revert this order — stock no longer has enough units."
   },
   "EntryPage": {
     "title": "Entry",

@@ -72,6 +72,7 @@ model MerchVariant {
 
 model Order {
   id            String   @id @default(cuid())
+  orderNumber   Int      @unique @default(autoincrement()) // used as the bank variable symbol (VS)
   createdAt     DateTime @default(now())
   customerName  String
   customerEmail String
@@ -80,7 +81,7 @@ model Order {
   items         Json // snapshot: [{ sku, name, label, price, qty }]
   totalAmount   Int // halire
   paymentMethod String // "bank_transfer" | "cod"
-  status        String   @default("pending") // "pending" | "paid" | "shipped"
+  status        String   @default("pending") // "pending" | "paid" | "shipped" | "cancelled"
 
   @@index([status])
 }

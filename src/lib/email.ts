@@ -1,4 +1,7 @@
 import { Resend } from 'resend';
+import { registrationRejectedEmail } from '@/emails/registration-rejected.mjs';
+import { registrationAcceptedEmail } from '@/emails/registration-accepted.mjs';
+import { merchOrderConfirmationEmail } from '@/emails/merch-order-confirmation.mjs';
 
 // Instantiated lazily: the Resend constructor throws if the key is missing,
 // which would otherwise crash module evaluation (and the build) in any
@@ -17,9 +20,9 @@ interface Attachment {
 }
 
 export async function sendEmail(
-  to: string, 
-  subject: string, 
-  text: string, 
+  to: string,
+  subject: string,
+  text: string,
   html?: string,
   attachments?: Attachment[]
 ) {
@@ -46,55 +49,12 @@ export async function sendEmail(
 }
 
 export async function sendRejectionEmail(to: string) {
-  const subject = "Salty Road Meet vol. I - Vyjádření k registraci";
-  const text = `Ahoj,
-
-díky za přihlášení vozu na Salty Road Meet vol. I.
-Po pečlivém výběru jsme se rozhodli tvůj vůz do oficiálního výběru nezařadit.
-
-Výběr nebyl jednoduchý a kapacita akce je omezená – rozhodně to ale neznamená, že by s autem bylo něco špatně.
-
-I tak můžeš s vozem dorazit a zaparkovat na přilehlých parkovištích a užít si akci jako návštěvník.
-
-Díky za pochopení a třeba se potkáme u dalšího ročníku 🔥
-Tým Salty Road Meet`;
-
-  // Simple HTML version
-  const html = text.replace(/\n/g, '<br/>');
-
+  const { subject, text, html } = registrationRejectedEmail();
   await sendEmail(to, subject, text, html);
 }
 
 export async function sendAcceptanceEmail(to: string, qrCodeBase64: string) {
-  const subject = "Salty Road Meet vol. I - Potvrzení registrace";
-  const text = `Ahoj,
-
-gratulujeme! 🎉 Tvůj vůz byl vybrán na hlavní výstavní plochu akce Salty Road Meet vol. I.
-
-Pro potvrzení účasti je potřeba uhradit rezervační poplatek ve výši 299 Kč.
-
-Níže najdeš QR kód s platebními údaji – po jeho uhrazení bude tvoje místo na hlavní ploše závazně rezervováno.
-
-Poplatek je potřeba uhradit do 14 dnů od přijetí tohoto e-mailu, jinak bude místo uvolněno dalšímu zájemci.
-
-Zhruba měsíc před akcí ti pošleme veškeré potřebné informace ohledně programu, parkování a organizace.
-
-Těšíme se na tebe i tvůj vůz 🔥
-Tým Salty Road Meet`;
-
-  const html = `
-    <p>Ahoj,</p>
-    <p>gratulujeme! 🎉 Tvůj vůz byl vybrán na hlavní výstavní plochu akce Salty Road Meet vol. I.</p>
-    <p>Pro potvrzení účasti je potřeba uhradit rezervační poplatek ve výši 299 Kč.</p>
-    <p>Níže najdeš QR kód s platebními údaji – po jeho uhrazení bude tvoje místo na hlavní ploše závazně rezervováno.</p>
-    <div style="margin: 20px 0;">
-      <img src="cid:qr-code" alt="QR Platba" style="width: 200px; height: 200px;" />
-    </div>
-    <p>Poplatek je potřeba uhradit do 14 dnů od přijetí tohoto e-mailu, jinak bude místo uvolněno dalšímu zájemci.</p>
-    <p>Zhruba měsíc před akcí ti pošleme veškeré potřebné informace ohledně programu, parkování a organizace.</p>
-    <p>Těšíme se na tebe i tvůj vůz 🔥<br/>Tým Salty Road Meet</p>
-  `;
-
+  const { subject, text, html } = registrationAcceptedEmail();
   await sendEmail(to, subject, text, html, [
     {
       filename: 'qr-platba.png',
@@ -113,13 +73,10 @@ interface MerchOrderItem {
 
 interface MerchOrderDetails {
   orderId: string;
+  vs: string;
   items: MerchOrderItem[];
   totalAmount: number; // halire
   paymentMethod: string; // "bank_transfer" | "cod"
-}
-
-function formatHalire(halire: number): string {
-  return `${(halire / 100).toLocaleString('cs-CZ')} Kč`;
 }
 
 export async function sendMerchOrderConfirmationEmail(
@@ -127,48 +84,10 @@ export async function sendMerchOrderConfirmationEmail(
   order: MerchOrderDetails,
   qrCodeBase64?: string
 ) {
-  const subject = `Potvrzení objednávky #${order.orderId} - Salty Road Shop`;
-
-  const itemLines = order.items
-    .map((i) => `- ${i.name} (${i.label}) x${i.qty} - ${formatHalire(i.price * i.qty)}`)
-    .join('\n');
-
-  const paymentText =
-    order.paymentMethod === 'bank_transfer'
-      ? 'Platba: bankovním převodem — QR kód s platebními údaji najdeš níže.'
-      : 'Platba: dobírkou při doručení.';
-
-  const text = `Ahoj,
-
-děkujeme za objednávku v Salty Road Shopu!
-
-Objednávka: #${order.orderId}
-${itemLines}
-
-Celkem: ${formatHalire(order.totalAmount)}
-
-${paymentText}
-
-Tým Salty Road Meet`;
-
-  const itemsHtml = order.items
-    .map((i) => `<li>${i.name} (${i.label}) x${i.qty} — ${formatHalire(i.price * i.qty)}</li>`)
-    .join('');
-
-  const html = `
-    <p>Ahoj,</p>
-    <p>děkujeme za objednávku v Salty Road Shopu!</p>
-    <p><strong>Objednávka: #${order.orderId}</strong></p>
-    <ul>${itemsHtml}</ul>
-    <p><strong>Celkem: ${formatHalire(order.totalAmount)}</strong></p>
-    <p>${paymentText}</p>
-    ${
-      qrCodeBase64
-        ? '<div style="margin: 20px 0;"><img src="cid:qr-code" alt="QR Platba" style="width: 200px; height: 200px;" /></div>'
-        : ''
-    }
-    <p>Tým Salty Road Meet</p>
-  `;
+  const { subject, text, html } = merchOrderConfirmationEmail({
+    ...order,
+    hasQr: !!qrCodeBase64,
+  });
 
   await sendEmail(
     to,

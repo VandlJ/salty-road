@@ -440,7 +440,7 @@ export default function RegisterForm() {
                   ) : item.url ? (
                     <Image
                       src={item.url}
-                      alt={`Preview ${index}`}
+                      alt={`Preview ${index + 1}`}
                       fill
                       className="object-cover"
                     />
@@ -454,7 +454,7 @@ export default function RegisterForm() {
                           type="button"
                           onClick={() => removePhoto(index)}
                           className="text-red-500 hover:text-red-400 p-1"
-                          title="Remove"
+                          aria-label={t("removePhoto")}
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -468,7 +468,7 @@ export default function RegisterForm() {
                           onClick={() => movePhoto(index, 'left')}
                           disabled={index === 0}
                           className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
-                          title="Move Left"
+                          aria-label={t("movePhotoLeft")}
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -482,7 +482,7 @@ export default function RegisterForm() {
                           onClick={() => movePhoto(index, 'right')}
                           disabled={index === photos.length - 1}
                           className="text-white hover:text-gray-300 disabled:opacity-30 disabled:cursor-not-allowed p-1"
-                          title="Move Right"
+                          aria-label={t("movePhotoRight")}
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -575,6 +575,7 @@ export default function RegisterForm() {
             className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl rounded-sm outline-none">
             <button
               onClick={() => setError(null)}
+              aria-label={t("close")}
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -614,6 +615,7 @@ export default function RegisterForm() {
             className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl rounded-sm outline-none">
             <button
               onClick={() => setSuccess(null)}
+              aria-label={t("close")}
               className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

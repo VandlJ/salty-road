@@ -10,7 +10,8 @@
     "map": "Mapa",
     "sponsors": "Sponzoři",
     "program": "Program",
-    "rules": "Návštěvní řád"
+    "rules": "Návštěvní řád",
+    "toggleMenu": "Otevřít/zavřít menu"
   },
   "ShopPage": {
     "title": "Salty Road E‑shop",
@@ -57,8 +58,10 @@
     "checkoutErrorInsufficientStock": "Bohužel, jedna z položek se mezitím vyprodala. Zkontrolujte prosím košík.",
     "thankYouTitle": "Děkujeme za objednávku!",
     "thankYouOrderId": "Číslo objednávky",
+    "thankYouVs": "Variabilní symbol",
     "thankYouTotal": "Celkem k úhradě",
     "thankYouBankTransfer": "Naskenujte QR kód ve vaší bankovní aplikaci a uhraďte objednávku. Platební údaje jsme poslali i na e-mail.",
+    "thankYouQrAlt": "QR platba",
     "thankYouCod": "Objednávku uhradíte dobírkou při doručení. Potvrzení jsme poslali na e-mail.",
     "thankYouNoOrder": "Nemáme žádnou nedávnou objednávku k zobrazení.",
     "thankYouBackToShop": "Zpět do e-shopu"
@@ -86,6 +89,7 @@
       "errorEmpty": "Zadejte ID registrace",
       "errorNetwork": "Chyba sítě",
       "errorLookup": "Vyhledávání se nezdařilo",
+      "errorNotFound": "Registrace s tímto ID nebyla nalezena.",
       "resultName": "Jméno:",
       "resultVehicle": "Vozidlo:",
       "resultCreated": "Vytvořeno:",
@@ -174,15 +178,30 @@
           "amount": "299 Kč / 12 €"
       }
   },
+  "QuantityStepper": {
+    "decrease": "Snížit počet",
+    "increase": "Zvýšit počet"
+  },
+  "PhotoGallery": {
+    "close": "Zavřít",
+    "previous": "Předchozí fotka",
+    "next": "Další fotka",
+    "photoAlt": "{label} — fotka {index} z {total}"
+  },
   "VehiclesPage": {
       "title": "Potvrzené vozy",
       "refresh": "Obnovit",
       "refreshing": "Obnovuji…",
       "loadMore": "Načíst další",
       "loading": "Načítám…",
-      "noPhotos": "Nebyly nahrány žádné fotky"
+      "noPhotos": "Nebyly nahrány žádné fotky",
+      "errorLoad": "Nepodařilo se načíst vozy.",
+      "errorNetwork": "Chyba sítě."
   },
   "RegisterForm": {
+      "removePhoto": "Odebrat fotku",
+      "movePhotoLeft": "Posunout doleva",
+      "movePhotoRight": "Posunout doprava",
       "firstName": "Jméno",
       "firstNamePlaceholder": "Jan",
       "lastName": "Příjmení",
@@ -226,7 +245,12 @@
     "username": "Uživatelské jméno",
     "password": "Heslo",
     "login": "Přihlásit se",
-    "loginError": "Chyba přihlášení",
+    "loggingIn": "Přihlašuji…",
+    "showPassword": "Zobrazit heslo",
+    "hidePassword": "Skrýt heslo",
+    "loginError": "Nesprávné uživatelské jméno nebo heslo.",
+    "loginErrorMissing": "Vyplňte uživatelské jméno i heslo.",
+    "loginErrorServer": "Chyba serveru, zkuste to prosím znovu.",
     "rateLimited": "Příliš mnoho pokusů, zkuste to prosím později.",
     "registrations": "Registrace",
     "loading": "Načítám…",
@@ -254,11 +278,48 @@
     "registrationForm": "Registrační formulář",
     "logout": "Odhlásit",
     "merchLink": "Merch",
-    "ordersLink": "Objednávky"
+    "ordersLink": "Objednávky",
+    "backToAdmin": "Zpět do administrace",
+    "filterAll": "Vše",
+    "noResultsFilter": "Žádné registrace neodpovídají zvolenému filtru.",
+    "searchPlaceholder": "Hledat jméno nebo auto…"
+  },
+  "AdminHubPage": {
+    "title": "Administrace",
+    "subtitle": "Vyberte sekci, kterou chcete spravovat.",
+    "registrationsTile": "Registrace",
+    "registrationsTileDesc": "Přehled a schvalování přihlášených vozů.",
+    "merchTile": "Merch",
+    "merchTileDesc": "Správa produktů a skladu e-shopu.",
+    "ordersTile": "Objednávky",
+    "ordersTileDesc": "Přehled a stav přijatých objednávek.",
+    "entryTile": "Vjezd",
+    "entryTileDesc": "Odbavování vystavovatelů u vjezdu na akci.",
+    "emailsTile": "E-maily",
+    "emailsTileDesc": "Náhled a testovací odeslání e-mailových šablon.",
+    "logout": "Odhlásit"
+  },
+  "AdminEmailsPage": {
+    "title": "E-maily",
+    "backToAdmin": "Zpět do administrace",
+    "loading": "Načítám…",
+    "errorLoad": "Nepodařilo se načíst e-maily.",
+    "subject": "Předmět",
+    "plainText": "Prostý text",
+    "qrPreview": "Náhled QR platby",
+    "testSendLabel": "Testovací odeslání na e-mail",
+    "testSendPlaceholder": "vas@email.cz",
+    "testSendButton": "Odeslat test",
+    "sending": "Odesílám…",
+    "testSendSuccess": "Testovací e-mail byl odeslán.",
+    "testSendError": "Odeslání se nezdařilo."
   },
   "AdminMerchPage": {
     "title": "Správa merche",
+    "shopEnabled": "E-shop zapnutý na webu",
     "backToAdmin": "Zpět do administrace",
+    "filterAll": "Vše",
+    "noResultsFilter": "Žádné produkty neodpovídají zvolenému filtru.",
     "loading": "Načítám…",
     "errorLoad": "Nelze načíst produkty.",
     "newProductTitle": "Nový produkt",
@@ -310,10 +371,18 @@
   "AdminOrdersPage": {
     "title": "Objednávky",
     "backToAdmin": "Zpět do administrace",
+    "filterAll": "Vše",
+    "noResultsFilter": "Žádné objednávky neodpovídají zvolenému filtru.",
     "loading": "Načítám…",
     "errorLoad": "Nelze načíst objednávky.",
     "noOrders": "Zatím žádné objednávky.",
     "orderId": "Objednávka",
+    "remove": "Odstranit",
+    "confirmRemove": "Opravdu chcete odstranit tuto objednávku? Pokud nebyla zrušená, vrátí se zboží zpět na sklad.",
+    "cancel": "Zrušit",
+    "errorRemove": "Odstranění selhalo.",
+    "vs": "Variabilní symbol",
+    "searchVsPlaceholder": "Hledat podle variabilního symbolu…",
     "created": "Vytvořeno",
     "customer": "Zákazník",
     "phone": "Telefon",
@@ -326,7 +395,9 @@
     "status": "Stav",
     "statusPending": "Nová",
     "statusPaid": "Zaplaceno",
-    "statusShipped": "Odesláno"
+    "statusShipped": "Odesláno",
+    "statusCancelled": "Zrušeno",
+    "errorInsufficientStock": "Nelze vrátit objednávku zpět — sklad už nemá dostatek kusů."
   },
   "EntryPage": {
     "title": "Vjezd",

@@ -53,7 +53,7 @@ export default function ShopPage() {
           <div className="text-center text-gray-500 font-bold">{t("noProducts")}</div>
         )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {products.map((product, index) => {
             const minPrice = Math.min(...product.variants.map((v) => v.price));
             const thumbnail = product.variants.find((v) => v.image)?.image;

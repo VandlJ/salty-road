@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import React, { useCallback, useEffect, useState } from "react";
 import { useModalA11y } from "@/lib/useModalA11y";
 
@@ -23,6 +24,7 @@ export default function PhotoGallery({
   label,
   getFullUrl = defaultGetFullUrl,
 }: PhotoGalleryProps) {
+  const t = useTranslations("PhotoGallery");
   const [index, setIndex] = useState(initialIndex);
 
   const next = useCallback(() => setIndex((i) => (i + 1) % photos.length), [photos.length]);
@@ -64,7 +66,7 @@ export default function PhotoGallery({
       <button
         onClick={onClose}
         className="absolute top-4 sm:top-6 right-4 sm:right-6 z-50 text-white bg-black/60 hover:bg-white hover:text-black rounded-full p-2 sm:p-3 border-2 border-white/50 hover:border-white transition-all duration-200 cursor-pointer"
-        aria-label="Close"
+        aria-label={t("close")}
       >
         <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -83,7 +85,7 @@ export default function PhotoGallery({
         <div className="relative w-full h-full max-w-6xl max-h-[85vh]">
           <Image
             src={getFullUrl(photos[index])}
-            alt={`${label} — photo ${index + 1} of ${photos.length}`}
+            alt={t("photoAlt", { label, index: index + 1, total: photos.length })}
             fill
             className="object-contain"
             sizes="100vw"
@@ -97,7 +99,7 @@ export default function PhotoGallery({
             <button
               onClick={prev}
               className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 text-white bg-black/60 hover:bg-black/80 rounded-full p-2 sm:p-3 border-2 border-white/50 hover:border-white transition-colors duration-200 z-10 cursor-pointer"
-              aria-label="Previous photo"
+              aria-label={t("previous")}
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -106,7 +108,7 @@ export default function PhotoGallery({
             <button
               onClick={next}
               className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white bg-black/60 hover:bg-black/80 rounded-full p-2 sm:p-3 border-2 border-white/50 hover:border-white transition-colors duration-200 z-10 cursor-pointer"
-              aria-label="Next photo"
+              aria-label={t("next")}
             >
               <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

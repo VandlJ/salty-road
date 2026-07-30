@@ -79,7 +79,7 @@ export default function CheckoutPage() {
 
   if (mounted && cartItems.length === 0) {
     return (
-      <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12 flex flex-col items-center justify-center gap-6">
+      <section className="flex-1 w-full bg-black text-white px-4 pt-6 md:pt-10 pb-12 flex flex-col items-center justify-center gap-6">
         <p className="text-gray-400 font-bold">{t("checkoutEmpty")}</p>
         <Link
           href="/shop"
@@ -92,7 +92,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <section className="min-h-screen bg-black text-white px-4 pt-24 pb-12">
+    <section className="flex-1 w-full bg-black text-white px-4 pt-6 md:pt-10 pb-12">
       <div className="max-w-2xl mx-auto">
         <SectionHeading as="h1" size="lg" className="mb-12">
           {t("checkoutTitle")}

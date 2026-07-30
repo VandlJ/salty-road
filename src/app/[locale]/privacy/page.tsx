@@ -19,7 +19,7 @@ export default function PrivacyPage() {
   const t = useTranslations("PrivacyPage");
 
   return (
-    <section className="bg-transparent text-white px-4 py-16 max-w-3xl mx-auto w-full">
+    <section className="flex-1 bg-transparent text-white px-4 pt-6 md:pt-10 pb-12 max-w-3xl mx-auto w-full">
       <SectionHeading as="h1" size="lg" className="mb-2">
         {t("title")}
       </SectionHeading>

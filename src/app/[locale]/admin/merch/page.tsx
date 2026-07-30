@@ -5,9 +5,13 @@ import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import AdminLoginForm from "@/components/admin-login-form";
+import AdminFilterChip from "@/components/admin-filter-chip";
+import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import { useModalA11y } from "@/lib/useModalA11y";
 import type { MerchProductAdmin, MerchVariantAdmin } from "@/types/merch";
+
+type ActiveFilter = "all" | "active" | "inactive";
 
 const ERROR_KEY_MAP: Record<string, string> = {
   missing_fields: "errorMissingFields",
@@ -25,6 +29,10 @@ export default function AdminMerchPage() {
   const [products, setProducts] = useState<MerchProductAdmin[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
+  const [shopEnabled, setShopEnabledState] = useState(false);
+  const [togglingShop, setTogglingShop] = useState(false);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -43,26 +51,92 @@ export default function AdminMerchPage() {
 
   useEffect(() => {
     if (loggedIn) {
-      // Auth just became true — fetch the product list. setState happens
-      // after the async fetch resolves, not synchronously in the effect.
+      // Auth just became true — fetch the product list + shop toggle state.
+      // setState happens after the async fetches resolve, not synchronously
+      // in the effect body.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       loadProducts();
+      fetch("/api/admin/settings", { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => data && setShopEnabledState(!!data.shopEnabled))
+        .catch((err) => console.error(err));
     }
   }, [loggedIn, loadProducts]);
+
+  async function toggleShopEnabled() {
+    const next = !shopEnabled;
+    setTogglingShop(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shopEnabled: next }),
+      });
+      if (res.ok) {
+        setShopEnabledState(next);
+        // Nudge the navbar (same tab) to refetch immediately instead of
+        // waiting for its next poll interval.
+        window.dispatchEvent(new Event("shop-status-changed"));
+      } else {
+        setError(t("errorGeneric"));
+      }
+    } catch (err) {
+      console.error(err);
+      setError(t("errorGeneric"));
+    } finally {
+      setTogglingShop(false);
+    }
+  }
 
   if (checking) return null;
   if (!loggedIn) return <AdminLoginForm onSuccess={recheck} />;
 
+  const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+  const categoryLabel = (c: string) =>
+    (CATEGORY_LABEL_KEY as Record<string, string>)[c] ? t(CATEGORY_LABEL_KEY[c as keyof typeof CATEGORY_LABEL_KEY]) : c;
+
+  const filteredProducts = products.filter((p) => {
+    if (categoryFilter !== "all" && p.category !== categoryFilter) return false;
+    if (activeFilter === "active" && !p.active) return false;
+    if (activeFilter === "inactive" && p.active) return false;
+    return true;
+  });
+
   return (
-    <section className="min-h-screen bg-transparent text-white p-4 sm:p-8 max-w-7xl mx-auto">
+    <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between gap-4 mb-6 px-4 py-4 sm:px-6 bg-[#111]/90 border border-gray-700 rounded-sm">
+        <span className="font-bold uppercase tracking-widest text-sm sm:text-base">
+          {t("shopEnabled")}
+        </span>
+        <button
+          onClick={toggleShopEnabled}
+          disabled={togglingShop}
+          role="switch"
+          aria-checked={shopEnabled}
+          className={`relative inline-flex h-7 w-14 flex-shrink-0 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+            shopEnabled ? "bg-green-600" : "bg-gray-600"
+          }`}
+        >
+          <span
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
+              shopEnabled ? "translate-x-8" : "translate-x-1"
+            }`}
+          />
+        </button>
+      </div>
+
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white drop-shadow-md">
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
           {t("title")}
         </h1>
         <Link
           href="/admin"
-          className="text-sm text-gray-400 hover:text-white transition-colors underline"
+          className="flex items-center gap-2 px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
         >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <path d="M9 22V12h6v10" />
+          </svg>
           {t("backToAdmin")}
         </Link>
       </div>
@@ -78,11 +152,47 @@ export default function AdminMerchPage() {
 
       <NewProductForm t={t} onCreated={loadProducts} />
 
-      <div className="grid gap-6 mt-10">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} t={t} onChange={loadProducts} />
-        ))}
-      </div>
+      {products.length > 0 && (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 mt-10">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mr-1">
+              {t("category")}
+            </span>
+            <AdminFilterChip label={t("filterAll")} active={categoryFilter === "all"} onClick={() => setCategoryFilter("all")} count={products.length} />
+            {categories.map((c) => (
+              <AdminFilterChip
+                key={c}
+                label={categoryLabel(c)}
+                active={categoryFilter === c}
+                onClick={() => setCategoryFilter(c)}
+                count={products.filter((p) => p.category === c).length}
+              />
+            ))}
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mr-1">
+              {t("active")}
+            </span>
+            <AdminFilterChip label={t("filterAll")} active={activeFilter === "all"} onClick={() => setActiveFilter("all")} count={products.length} />
+            <AdminFilterChip label={t("active")} active={activeFilter === "active"} onClick={() => setActiveFilter("active")} count={products.filter((p) => p.active).length} />
+            <AdminFilterChip label={t("inactive")} active={activeFilter === "inactive"} onClick={() => setActiveFilter("inactive")} count={products.filter((p) => !p.active).length} />
+          </div>
+        </div>
+      )}
+
+      {!loading && !error && products.length > 0 && filteredProducts.length === 0 && (
+        <div className="text-center text-gray-500 font-bold mt-10">{t("noResultsFilter")}</div>
+      )}
+
+      {loading && products.length === 0 ? (
+        <MerchSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          {filteredProducts.map((product) => (
+            <ProductCard key={product.id} product={product} t={t} onChange={loadProducts} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
@@ -798,5 +908,28 @@ function AddVariantForm({
         </button>
       </div>
     </form>
+  );
+}
+
+function MerchSkeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="bg-[#111]/90 border border-gray-700 rounded-sm overflow-hidden">
+          <div className="flex items-center justify-between gap-4 px-4 py-4 bg-white/5 border-b border-gray-700">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-6 w-11 rounded-full" />
+          </div>
+          <div className="p-4 flex flex-col gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Skeleton className="h-9 w-full" />
+              <Skeleton className="h-9 w-full" />
+            </div>
+            <Skeleton className="h-14 w-full" />
+            <Skeleton className="h-16 w-full mt-2" />
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }

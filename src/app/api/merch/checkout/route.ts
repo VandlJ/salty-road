@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
 import { sendMerchOrderConfirmationEmail, sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { getOrderVs } from "@/lib/orderVs";
+import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[0-9+() .-]{6,20}$/;
@@ -126,12 +128,14 @@ export async function POST(req: Request) {
     });
 
     // Send confirmation email + optional payment QR (best-effort, doesn't block the response).
+    const vs = getOrderVs(order.createdAt, order.orderNumber);
     let qrCodeBase64: string | undefined;
     try {
       if (paymentMethod === "bank_transfer") {
         const spd = generateSPD({
           amount: order.totalAmount / 100,
-          message: `Salty Road Shop ${order.id}`,
+          message: `Salty Road Shop ${vs}`,
+          vs,
         });
         qrCodeBase64 = await generateQRCodeBase64(spd);
       }
@@ -139,7 +143,13 @@ export async function POST(req: Request) {
       const orderItems = order.items as { name: string; label: string; price: number; qty: number }[];
       await sendMerchOrderConfirmationEmail(
         customerEmail,
-        { orderId: order.id, items: orderItems, totalAmount: order.totalAmount, paymentMethod },
+        {
+          orderId: order.id,
+          vs,
+          items: orderItems,
+          totalAmount: order.totalAmount,
+          paymentMethod,
+        },
         qrCodeBase64
       );
 
@@ -149,14 +159,17 @@ export async function POST(req: Request) {
       // just silently disappear.
       const orderEmail = process.env.ORDER_EMAIL || process.env.ADMIN_EMAIL;
       if (orderEmail) {
-        const itemLines = orderItems
-          .map((i) => `- ${i.name} (${i.label}) x${i.qty}`)
-          .join("\n");
-        await sendEmail(
-          orderEmail,
-          `Nová objednávka merch #${order.id}`,
-          `Nová objednávka v Salty Road Shopu!\n\nZákazník: ${customerName}\nEmail: ${customerEmail}\nTelefon: ${customerPhone}\nAdresa: ${address}\nPlatba: ${paymentMethod}\n\n${itemLines}\n\nCelkem: ${(order.totalAmount / 100).toLocaleString("cs-CZ")} Kč`
-        );
+        const adminNotification = merchOrderAdminNotificationEmail({
+          orderId: order.id,
+          customerName,
+          customerEmail,
+          customerPhone,
+          address,
+          paymentMethod,
+          items: orderItems,
+          totalAmount: order.totalAmount,
+        });
+        await sendEmail(orderEmail, adminNotification.subject, adminNotification.text);
       }
     } catch (err) {
       console.error("Error sending merch order emails:", err);
@@ -165,6 +178,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         orderId: order.id,
+        vs,
         totalAmount: order.totalAmount,
         paymentMethod: order.paymentMethod,
         qrCodeBase64,

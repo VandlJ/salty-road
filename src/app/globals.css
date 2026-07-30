@@ -29,6 +29,14 @@
     max-width: 100vw;
   }
 
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
   h1 {
     font-size: 30px;
   }

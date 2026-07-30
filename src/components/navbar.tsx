@@ -6,16 +6,35 @@ import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import CartLink from "@/components/cart-link";
 
-// Shop nav entries are hidden in production until the shop is ready to
-// launch, but visible in dev so it can still be worked on / QA'd.
-const SHOP_VISIBLE = process.env.NODE_ENV === "development";
-
 export default function Navbar({ fixed = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const t = useTranslations("Navbar");
   const locale = useLocale();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Admin-controlled kill switch (Merch admin page), off by default until
+  // the shop is ready to launch. Polled + refetched on tab focus so a
+  // toggle in another tab (or the admin panel itself) shows up without a
+  // manual page reload.
+  const [shopVisible, setShopVisible] = useState(false);
+  useEffect(() => {
+    const fetchShopStatus = () => {
+      fetch("/api/shop-status", { cache: "no-store" })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => data && setShopVisible(!!data.enabled))
+        .catch(() => {});
+    };
+    fetchShopStatus();
+    const interval = setInterval(fetchShopStatus, 15000);
+    window.addEventListener("focus", fetchShopStatus);
+    window.addEventListener("shop-status-changed", fetchShopStatus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", fetchShopStatus);
+      window.removeEventListener("shop-status-changed", fetchShopStatus);
+    };
+  }, []);
 
   const toggleMenu = () => setIsMenuOpen((open) => !open);
   const closeMenu = () => setIsMenuOpen(false);
@@ -57,9 +76,19 @@ export default function Navbar({ fixed = false }) {
       const element = document.getElementById(targetId);
       if (element) {
         element.scrollIntoView({ behavior: 'smooth' });
-        window.history.pushState(null, '', `/#${targetId}`);
+        // Preserve the locale prefix (e.g. /cs, /en) — a hardcoded `/#id`
+        // here used to strip it, desyncing the browser URL from Next's
+        // router state and silently breaking later same-page hash links.
+        window.history.pushState(null, '', `${window.location.pathname}#${targetId}`);
       }
     }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Clear any leftover #section hash from a previous in-page nav click,
+    // so it doesn't desync the browser URL from the actual scroll position.
+    window.history.pushState(null, '', window.location.pathname);
   };
 
   return (
@@ -81,7 +110,7 @@ export default function Navbar({ fixed = false }) {
             closeMenu();
             if (pathname === '/') {
               e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              scrollToTop();
             }
           }}
         >
@@ -108,7 +137,7 @@ export default function Navbar({ fixed = false }) {
             onClick={(e) => {
               if (pathname === '/') {
                 e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                scrollToTop();
               }
             }}
           >
@@ -135,8 +164,7 @@ export default function Navbar({ fixed = false }) {
           >
             {t("vehicles")}
           </Link>
-          {/* Hidden in production until the shop launches — SHOP_VISIBLE keeps it up in dev. */}
-          {SHOP_VISIBLE && (
+          {shopVisible && (
             <Link
               href="/shop"
               className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
@@ -154,7 +182,7 @@ export default function Navbar({ fixed = false }) {
 
         {/* Desktop Cart + Language Switch */}
         <div className="hidden lg:flex items-center gap-4 min-w-[60px] justify-end">
-          {SHOP_VISIBLE && <CartLink />}
+          {shopVisible && <CartLink />}
           <div className="flex items-center gap-2">
             <button
               onClick={() => switchLocale('cs')}
@@ -178,11 +206,11 @@ export default function Navbar({ fixed = false }) {
 
         {/* Mobile Cart + Burger Menu Button */}
         <div className="lg:hidden flex items-center gap-4">
-          {SHOP_VISIBLE && <CartLink onClick={closeMenu} />}
+          {shopVisible && <CartLink onClick={closeMenu} />}
           <button
             onClick={toggleMenu}
             className="flex flex-col items-center justify-center w-8 h-8 space-y-1 focus:outline-none"
-            aria-label="Toggle menu"
+            aria-label={t("toggleMenu")}
           >
             <span
               className={`block w-6 h-0.5 bg-white transition-all duration-300 ease-in-out ${
@@ -229,7 +257,7 @@ export default function Navbar({ fixed = false }) {
                 closeMenu();
                 if (pathname === '/') {
                   e.preventDefault();
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  scrollToTop();
                 }
               }}
             >
@@ -256,7 +284,7 @@ export default function Navbar({ fixed = false }) {
             >
               {t("vehicles")}
             </Link>
-            {SHOP_VISIBLE && (
+            {shopVisible && (
               <Link
                 href="/shop"
                 className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
