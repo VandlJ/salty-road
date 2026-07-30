@@ -7,6 +7,7 @@ import Footer from "@/components/footer";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { Analytics } from "@vercel/analytics/next";
+import { buildAlternates, jsonLdScript, ORGANIZATION_JSON_LD, SITE_URL } from "@/lib/seo";
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -55,6 +56,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       default: title,
     },
     description,
+    alternates: {
+      canonical: `${SITE_URL}/${locale}`,
+      languages: buildAlternates(''),
+    },
     openGraph: {
       title,
       description,
@@ -101,6 +106,13 @@ export default async function RootLayout({
       <body
         className={`${roboto.variable} ${amika.variable} ${montserrat.variable} antialiased min-h-dvh font-roboto flex flex-col`}
       >
+        {/* Fully hardcoded data, but jsonLdScript's "</" escaping is applied
+            uniformly across every JSON-LD block on the site regardless of
+            source. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(ORGANIZATION_JSON_LD) }}
+        />
         <NextIntlClientProvider messages={messages}>
           <div className="w-full">
             <ClientNavbarWrapper />

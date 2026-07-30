@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buildAlternates, canonicalUrl } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -12,6 +13,10 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("intro"),
+    alternates: {
+      canonical: canonicalUrl(locale, "/privacy"),
+      languages: buildAlternates("/privacy"),
+    },
   };
 }
 

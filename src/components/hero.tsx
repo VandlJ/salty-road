@@ -27,6 +27,9 @@ export default function Hero() {
         sizes="100vw"
         className="object-cover"
         priority
+        // The dark overlay + blur right on top of this image (below) hides
+        // compression artifacts, so a lower quality is a free byte saving.
+        quality={60}
       />
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -37,7 +40,12 @@ export default function Hero() {
             src="/SaltyRoad/SRM_text.png"
             alt="Salty Road Meet Vol. 1"
             width={1200}
-            height={600}
+            height={470}
+            // Rendered inside a max-w-5xl (1024px) container — without an
+            // explicit sizes hint, the browser has no way to know that and
+            // defensively picks the largest available srcset candidate
+            // (3840px) even on a 380px-wide mobile render.
+            sizes="(max-width: 1024px) 100vw, 1024px"
             className="w-full h-auto drop-shadow-2xl"
             priority
           />

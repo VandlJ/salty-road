@@ -1,14 +1,56 @@
-"use client";
-
+import { getTranslations } from "next-intl/server";
 import Hero from "@/components/hero";
 import InfoSection from "@/components/info-section";
 import RegistrationSection from "@/components/registration-section";
 import VehiclesSection from "@/components/vehicles-section";
 import SponsorsSection from "@/components/sponsors-section";
+import { SITE_URL, canonicalUrl, jsonLdScript } from "@/lib/seo";
 
-export default function Page() {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Hero" });
+  const tReg = await getTranslations({ locale, namespace: "RegisterPage" });
+
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: `${t("title1")} ${t("title2")}`,
+    description: tReg("subtitle"),
+    // The site shows "25. 07. 2026" (Hero.dateValue) — same date in ISO form.
+    startDate: "2026-07-25",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    eventStatus: "https://schema.org/EventScheduled",
+    location: {
+      "@type": "Place",
+      name: "Velké náměstí",
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Prachatice",
+        addressCountry: "CZ",
+      },
+    },
+    image: [`${SITE_URL}/OG_image.jpg`],
+    organizer: {
+      "@type": "Organization",
+      name: "Salty Road Meet",
+      url: SITE_URL,
+    },
+    url: canonicalUrl(locale, ""),
+  };
+
   return (
     <div className="w-full">
+      {/* Translated strings come from messages/*.json, not user input, but
+          jsonLdScript's "</" escaping is applied to every JSON-LD block on
+          the site regardless of source. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(eventJsonLd) }}
+      />
       <div className="relative h-screen w-full">
         <Hero />
       </div>
