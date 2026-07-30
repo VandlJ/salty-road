@@ -40,10 +40,16 @@
     "checkoutTitle": "Checkout",
     "checkoutEmpty": "Your cart is empty, nothing to order.",
     "checkoutName": "Full name",
+    "checkoutFirstName": "First name",
+    "checkoutLastName": "Last name",
     "checkoutEmail": "Email",
     "checkoutPhone": "Phone",
+    "checkoutPhoneNumber": "Phone number",
     "checkoutAddress": "Shipping address",
     "checkoutAddressPlaceholder": "Street, number, city, ZIP",
+    "checkoutStreet": "Street and house number",
+    "checkoutCity": "City",
+    "checkoutZip": "ZIP code",
     "checkoutPaymentMethod": "Payment method",
     "checkoutBankTransfer": "Bank transfer (QR payment)",
     "checkoutCod": "Cash on delivery",
@@ -196,7 +202,8 @@
       "loading": "Loading…",
       "noPhotos": "No photos uploaded",
       "errorLoad": "Failed to load vehicles.",
-      "errorNetwork": "Network error."
+      "errorNetwork": "Network error.",
+      "noVehiclesYet": "No confirmed vehicles yet. Registrations will appear here once approved."
   },
   "RegisterForm": {
       "removePhoto": "Remove photo",

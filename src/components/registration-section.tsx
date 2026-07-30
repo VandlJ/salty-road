@@ -21,7 +21,7 @@ export default function RegistrationSection() {
   }
 
   return (
-    <section id="register" className={`bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 overflow-hidden ${registrationOpen ? "min-h-screen" : ""}`}>
+    <section id="register" className={`bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 overflow-hidden ${registrationOpen ? "min-h-dvh" : ""}`}>
       <div className="flex flex-col items-center">
         <SectionHeading as="h1" size="lg" className="mb-16">
           {t.rich("title", { line: (chunks) => <span className="block">{chunks}</span> })}

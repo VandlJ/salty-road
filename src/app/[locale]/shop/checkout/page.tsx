@@ -4,8 +4,19 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
 import React, { useEffect, useState } from "react";
 import SectionHeading from "@/components/section-heading";
+import PhoneCodeSelect from "@/components/phone-code-select";
+import AddressAutocomplete from "@/components/address-autocomplete";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore, cartTotal } from "@/lib/cartStore";
+
+// Groups digits in 3s ("123 456 789") — the CZ/SK/PL convention and a
+// reasonable universal display format for the others too, since this is
+// purely cosmetic (the raw digits + country code are what's validated and
+// stored, see PHONE_RE in the checkout API route).
+function formatPhoneDigits(raw: string) {
+  const digits = raw.replace(/\D/g, "").slice(0, 12);
+  return digits.replace(/(\d{3})(?=\d)/g, "$1 ");
+}
 
 const ERROR_KEY_MAP: Record<string, string> = {
   missing_fields: "checkoutErrorMissingFields",
@@ -31,10 +42,14 @@ export default function CheckoutPage() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), []);
 
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [phoneCode, setPhoneCode] = useState("+420");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [street, setStreet] = useState("");
+  const [city, setCity] = useState("");
+  const [zip, setZip] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,15 +60,19 @@ export default function CheckoutPage() {
     setError(null);
     setSubmitting(true);
 
+    // Server/DB/email templates all still expect a single free-text
+    // customerName/address/phone string (see src/app/api/merch/checkout/
+    // route.ts) — the form is split into more eshop-like fields purely for
+    // UX, then joined back into that existing contract on submit.
     try {
       const res = await fetch("/api/merch/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customerName: name.trim(),
+          customerName: `${firstName.trim()} ${lastName.trim()}`.trim(),
           customerEmail: email.trim(),
-          customerPhone: phone.trim(),
-          address: address.trim(),
+          customerPhone: `${phoneCode} ${phoneNumber.trim()}`.trim(),
+          address: `${street.trim()}, ${zip.trim()} ${city.trim()}`.trim(),
           paymentMethod: "bank_transfer",
           items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
         }),
@@ -119,19 +138,36 @@ export default function CheckoutPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <label htmlFor="name" className="text-white font-bold tracking-wide">
-              {t("checkoutName")}
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              maxLength={100}
-              className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="firstName" className="text-white font-bold tracking-wide">
+                {t("checkoutFirstName")}
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+                maxLength={49}
+                className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label htmlFor="lastName" className="text-white font-bold tracking-wide">
+                {t("checkoutLastName")}
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+                maxLength={49}
+                className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -153,31 +189,77 @@ export default function CheckoutPage() {
             <label htmlFor="phone" className="text-white font-bold tracking-wide">
               {t("checkoutPhone")}
             </label>
-            <input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              maxLength={20}
-              className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
-            />
+            <div className="flex gap-2">
+              <PhoneCodeSelect value={phoneCode} onChange={setPhoneCode} label={t("checkoutPhone")} />
+              <input
+                id="phone"
+                type="tel"
+                inputMode="numeric"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(formatPhoneDigits(e.target.value))}
+                placeholder={t("checkoutPhoneNumber")}
+                required
+                className="flex-1 min-w-0 px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200 tabular-nums"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <label htmlFor="address" className="text-white font-bold tracking-wide">
+            <span className="text-white font-bold tracking-wide">
               {t("checkoutAddress")}
-            </label>
-            <textarea
-              id="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder={t("checkoutAddressPlaceholder")}
-              required
-              maxLength={300}
-              rows={3}
-              className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white resize-none transition-all duration-200"
-            />
+            </span>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-1">
+                <label htmlFor="street" className="text-xs text-gray-400 uppercase tracking-wide">
+                  {t("checkoutStreet")}
+                </label>
+                <AddressAutocomplete
+                  id="street"
+                  value={street}
+                  onChange={setStreet}
+                  onSelect={(s) => {
+                    setStreet(s.street);
+                    if (s.city) setCity(s.city);
+                  }}
+                  required
+                  maxLength={150}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="city" className="text-xs text-gray-400 uppercase tracking-wide">
+                    {t("checkoutCity")}
+                  </label>
+                  <input
+                    id="city"
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    required
+                    maxLength={100}
+                    className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <label htmlFor="zip" className="text-xs text-gray-400 uppercase tracking-wide">
+                    {t("checkoutZip")}
+                  </label>
+                  <input
+                    id="zip"
+                    type="text"
+                    inputMode="numeric"
+                    value={zip}
+                    onChange={(e) => setZip(e.target.value)}
+                    placeholder="123 45"
+                    required
+                    maxLength={10}
+                    className="w-full sm:w-32 px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
           {error && (

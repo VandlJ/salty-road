@@ -42,7 +42,12 @@ export async function generateMetadata({
     return { title: shopTitle, robots: { index: false, follow: false } };
   }
 
-  const title = `${product.name} | ${shopTitle}`;
+  // Plain product name — /shop/layout.tsx now owns a title.template for
+  // this whole subtree, so it appends "| Salty Road Meet Volume 1"
+  // automatically (used to be hand-concatenated here, which also silently
+  // dropped that site-name suffix — same bug class as the /shop/layout.tsx
+  // fix above).
+  const title = product.name;
   const image = product.variants.find((v) => v.image)?.image;
 
   return {

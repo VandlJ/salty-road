@@ -10,14 +10,21 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "ShopPage" });
+  const tHero = await getTranslations({ locale, namespace: "Hero" });
   // The shop is behind an admin-controlled kill switch (off by default) —
   // keep it out of search results until it's actually turned on.
   const enabled = await getShopEnabled();
   const title = t("title");
   const description = t("subtitle");
+  const siteTitle = `${tHero("title1")} ${tHero("title2")}`;
 
   return {
-    title,
+    // Root layout's title.template only reaches direct children — this
+    // layout setting a plain title string breaks template inheritance for
+    // everything nested under /shop (cart, checkout, thank-you, [slug]).
+    // Re-declaring the template here fixes it for all of them at once, same
+    // fix as admin/layout.tsx.
+    title: { template: `%s | ${siteTitle}`, default: title },
     description,
     alternates: {
       canonical: canonicalUrl(locale, "/shop"),

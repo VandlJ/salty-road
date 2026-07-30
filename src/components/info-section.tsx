@@ -6,7 +6,7 @@ export default function InfoSection() {
   const t = useTranslations("InfoPage");
 
   return (
-    <section id="info" className="bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto min-h-screen scroll-mt-24 text-center overflow-hidden">
+    <section id="info" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto min-h-dvh scroll-mt-24 text-center overflow-hidden">
       <SectionHeading as="h1" size="lg" className="mb-16">
         {t("title")}
       </SectionHeading>
@@ -14,12 +14,12 @@ export default function InfoSection() {
       <div className="space-y-16 md:space-y-24">
         <div className="space-y-6">
           <SectionHeading>{t("parkingTitle")}</SectionHeading>
-          <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto space-y-6 font-light">
-            <ul className="space-y-4 text-left block w-full max-w-full">
+          <div className="max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
               {[1, 2, 3, 4, 5].map((item) => (
-                <li key={item} className="flex gap-3 pl-0">
+                <div key={item} className="flex gap-3 p-4 rounded-sm border border-gray-800 bg-white/[0.03]">
                   <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-brand" />
-                  <span>
+                  <span className="text-gray-200 text-base leading-relaxed font-light">
                     {t.rich(`parkingList.item${item}`, {
                       mapLink: (chunks) => (
                         <a href="https://mapy.cz/s/cozufafuru" target="_blank" rel="noopener noreferrer" className="text-white font-medium underline hover:text-gray-300 transition-colors">
@@ -28,10 +28,10 @@ export default function InfoSection() {
                       ),
                     })}
                   </span>
-                </li>
+                </div>
               ))}
-            </ul>
-            <p className="mt-6 text-center border-t border-gray-800 pt-6">
+            </div>
+            <p className="mt-6 text-center text-gray-200 text-base leading-relaxed font-light border-t border-gray-800 pt-6">
               {t(`parkingList.item6`)}
             </p>
           </div>
@@ -58,26 +58,27 @@ export default function InfoSection() {
           <SectionHeading>{t("programTitle")}</SectionHeading>
 
           <div className="max-w-3xl mx-auto">
-            {/* Main Program */}
-            <div className="space-y-2 mb-8">
+            {/* Main Program — left-rail timeline */}
+            <div className="relative pl-6 sm:pl-8 mb-8 border-l border-gray-800 space-y-6 text-left max-w-2xl mx-auto">
               {[1, 2, 3, 4, 5, 6, 7].map((item) => {
                  const text = t(`programList.item${item}`);
                  const parts = text.split(" - ");
                  const time = parts[0];
                  const rawEvent = parts.slice(1).join(" - ");
                  const event = rawEvent.charAt(0).toUpperCase() + rawEvent.slice(1);
-                 
+
                  return (
-                   <div key={item} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 text-center sm:text-left justify-center sm:justify-start p-2 rounded">
-                     <span className="text-white font-extrabold text-base sm:w-40 sm:text-right shrink-0 tracking-wider">{time}</span>
-                     <span className="text-gray-200 text-base font-light">{event}</span>
+                   <div key={item} className="relative">
+                     <span className="absolute -left-6 sm:-left-8 -translate-x-1/2 top-1.5 h-2.5 w-2.5 rounded-full bg-brand ring-4 ring-[#0a0a0a]" />
+                     <span className="block text-white font-extrabold text-sm uppercase tracking-widest">{time}</span>
+                     <span className="block text-gray-200 text-base font-light mt-0.5">{event}</span>
                    </div>
                  );
               })}
             </div>
 
             {/* Side Program */}
-            <div className="pt-6 border-t border-gray-800">
+            <div className="pt-8 border-t border-gray-800">
                <div className="mb-6">
                  <p className="text-white text-base font-bold uppercase tracking-widest">
                    {t.rich("programList.item8", { strong: (chunks) => chunks })}
@@ -131,9 +132,14 @@ export default function InfoSection() {
 
         <div className="space-y-6">
           <SectionHeading>{t("rulesTitle")}</SectionHeading>
-          <div className="text-gray-200 text-base leading-relaxed max-w-3xl mx-auto text-center space-y-6 font-light">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto text-left">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-              <p key={item}>{t(`rulesList.item${item}`)}</p>
+              <div key={item} className="flex gap-4 p-4 rounded-sm border border-gray-800 bg-white/[0.03]">
+                <span className="shrink-0 text-brand font-extrabold text-lg leading-none tabular-nums">
+                  {String(item).padStart(2, "0")}
+                </span>
+                <p className="text-gray-200 text-sm leading-relaxed font-light">{t(`rulesList.item${item}`)}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -147,8 +153,14 @@ export default function InfoSection() {
               <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("arrival.title")}</h3>
               <p className="mb-2 text-gray-200 font-light text-base">{t("arrival.text")}</p>
               <ul className="list-none space-y-2 text-gray-300">
-                <li>{t.rich("arrival.time1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
-                <li>{t.rich("arrival.time2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
+                <li className="flex items-start justify-center gap-3">
+                  <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" />
+                  <span>{t.rich("arrival.time1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</span>
+                </li>
+                <li className="flex items-start justify-center gap-3">
+                  <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" />
+                  <span>{t.rich("arrival.time2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</span>
+                </li>
               </ul>
               <p className="mt-4 text-sm text-red-400 font-medium tracking-wide uppercase border border-red-900/50 bg-red-900/10 inline-block px-4 py-1 rounded-sm">
                 {t("arrival.warning")}
@@ -158,8 +170,14 @@ export default function InfoSection() {
             <div className="space-y-4">
               <h3 className="text-white font-bold mb-2 uppercase text-base tracking-wider">{t("departure.title")}</h3>
               <ul className="list-none space-y-2 text-gray-300">
-                <li>{t.rich("departure.time1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
-                <li>{t.rich("departure.time2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
+                <li className="flex items-start justify-center gap-3">
+                  <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" />
+                  <span>{t.rich("departure.time1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</span>
+                </li>
+                <li className="flex items-start justify-center gap-3">
+                  <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" />
+                  <span>{t.rich("departure.time2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</span>
+                </li>
               </ul>
             </div>
 
@@ -205,8 +223,14 @@ export default function InfoSection() {
                 {t("fee.p1")}
               </p>
               <ul className="list-none space-y-2 mb-6 text-gray-300">
-                <li>{t.rich("fee.refund1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
-                <li>{t.rich("fee.refund2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</li>
+                <li className="flex items-start justify-center gap-3">
+                  <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" />
+                  <span>{t.rich("fee.refund1", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</span>
+                </li>
+                <li className="flex items-start justify-center gap-3">
+                  <span className="w-1.5 h-1.5 bg-brand mt-2.5 shrink-0" />
+                  <span>{t.rich("fee.refund2", { strong: (chunks) => <strong className="text-white">{chunks}</strong> })}</span>
+                </li>
               </ul>
               <div className="text-sm sm:text-base text-white border border-white/30 inline-block px-10 py-3 sm:px-20 sm:py-4 font-medium bg-gradient-to-r from-white/10 to-transparent uppercase tracking-widest shadow-lg min-w-[260px] sm:min-w-[380px] rounded-sm">
                 <div className="flex flex-col items-center gap-1">

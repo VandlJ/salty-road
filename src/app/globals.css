@@ -123,6 +123,37 @@
       animation-range: entry 0% entry 40%;
     }
   }
+
+  /* Route/content-swap transitions — plain CSS keyframes triggered by a
+     React `key` change (remount), not a JS animation library. Matches the
+     .reveal-on-scroll decision above: motion this restrained doesn't
+     justify Motion/GSAP bundle weight. */
+  .page-enter {
+    animation: page-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .fade-swap {
+    animation: fade-swap-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Exit animation for list rows (cart item removal) — CSS can only
+     animate *out* if the element stays mounted while it plays, so the
+     component using this must delay the actual state removal (setTimeout)
+     to match this duration; see cart/page.tsx. */
+  .item-exit {
+    animation: item-exit-out 0.25s cubic-bezier(0.4, 0, 1, 1) both;
+    pointer-events: none;
+  }
+
+  /* Gives the browser's native View Transitions API a stable handle to
+     track this element's before/after bounding box, so removing a cart row
+     makes the totals/checkout block glide up instead of snapping — see the
+     startViewTransition call in cart/page.tsx. Unsupported browsers just
+     ignore this property and get the old instant-snap behavior, no
+     fallback code needed. */
+  .vt-cart-summary {
+    view-transition-name: cart-summary;
+  }
 }
 
 @keyframes reveal-fade-up {
@@ -133,5 +164,36 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-swap-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes item-exit-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateX(12px);
   }
 }

@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
 import PhotoGallery from "@/components/photo-gallery";
+import Skeleton from "@/components/skeleton";
 
 type Registration = {
   id: string;
@@ -23,7 +24,9 @@ type Registration = {
 export default function VehiclesSection() {
   const t = useTranslations("VehiclesPage");
   const [regs, setRegs] = useState<Registration[]>([]);
-  const [loading, setLoading] = useState(false);
+  // Starts true so the initial fetch shows a skeleton grid instead of an
+  // empty section (there was no loading UI at all before this pass).
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -120,6 +123,38 @@ export default function VehiclesSection() {
         </div>
       )}
 
+      {loading && regs.length === 0 && !error && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-hidden="true">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-[4/3] w-full" />
+          ))}
+        </div>
+      )}
+
+      {!loading && !error && regs.length === 0 && (
+        <div className="flex flex-col items-center justify-center gap-3 py-20 border border-dashed border-gray-800 rounded-sm">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-gray-600"
+          >
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+            <circle cx="7" cy="17" r="2" />
+            <path d="M9 17h6" />
+            <circle cx="17" cy="17" r="2" />
+          </svg>
+          <p className="text-gray-400 font-light text-base max-w-sm text-center">
+            {t("noVehiclesYet")}
+          </p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {regs.map((r) => (
           <div 
@@ -174,7 +209,7 @@ export default function VehiclesSection() {
       </div>
 
       {/* Load More Button */}
-      {hasMore && (
+      {hasMore && regs.length > 0 && (
         <div className="text-center mt-8 sm:mt-12">
           <button
             onClick={loadMore}

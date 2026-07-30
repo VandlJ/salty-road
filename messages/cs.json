@@ -40,10 +40,16 @@
     "checkoutTitle": "Dokončení objednávky",
     "checkoutEmpty": "Košík je prázdný, není co objednat.",
     "checkoutName": "Jméno a příjmení",
+    "checkoutFirstName": "Jméno",
+    "checkoutLastName": "Příjmení",
     "checkoutEmail": "E-mail",
     "checkoutPhone": "Telefon",
+    "checkoutPhoneNumber": "Telefonní číslo",
     "checkoutAddress": "Dodací adresa",
     "checkoutAddressPlaceholder": "Ulice, číslo, město, PSČ",
+    "checkoutStreet": "Ulice a číslo popisné",
+    "checkoutCity": "Město",
+    "checkoutZip": "PSČ",
     "checkoutPaymentMethod": "Způsob platby",
     "checkoutBankTransfer": "Bankovní převod (QR platba)",
     "checkoutCod": "Dobírka",
@@ -196,7 +202,8 @@
       "loading": "Načítám…",
       "noPhotos": "Nebyly nahrány žádné fotky",
       "errorLoad": "Nepodařilo se načíst vozy.",
-      "errorNetwork": "Chyba sítě."
+      "errorNetwork": "Chyba sítě.",
+      "noVehiclesYet": "Zatím žádné potvrzené vozy. Přihlášky se tu objeví, jakmile budou schváleny."
   },
   "RegisterForm": {
       "removePhoto": "Odebrat fotku",

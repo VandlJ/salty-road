@@ -7,6 +7,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SectionHeading from "@/components/section-heading";
 import QuantityStepper from "@/components/quantity-stepper";
+import Skeleton from "@/components/skeleton";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore } from "@/lib/cartStore";
 import type { MerchProduct, MerchVariant } from "@/types/merch";
@@ -66,8 +67,45 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <section className="flex-1 bg-black text-white px-4 py-24 flex items-center justify-center">
-        <div className="text-white font-bold animate-pulse">{t("loading")}</div>
+      <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12" aria-hidden="true">
+        <div className="max-w-5xl mx-auto">
+          <Skeleton className="h-4 w-24 mb-8" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+            <Skeleton className="h-9 w-2/3 md:col-start-2 md:row-start-1" />
+
+            <Skeleton className="aspect-square md:col-start-1 md:row-start-1 md:row-span-2" />
+
+            <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2">
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
+                <Skeleton className="h-4 w-3/4" />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-8 w-24" />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-3 w-28" />
+                <div className="flex flex-wrap gap-2">
+                  <Skeleton className="h-10 w-20" />
+                  <Skeleton className="h-10 w-20" />
+                  <Skeleton className="h-10 w-20" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-10 w-32" />
+              </div>
+
+              <Skeleton className="h-12 w-full sm:w-48" />
+            </div>
+          </div>
+        </div>
       </section>
     );
   }
@@ -113,18 +151,20 @@ export default function ProductDetailPage() {
             {product.name}
           </SectionHeading>
 
-          <div className="relative aspect-square bg-[#111] border border-gray-700 rounded-sm overflow-hidden md:col-start-1 md:row-start-1 md:row-span-2">
+          <div className="relative aspect-square bg-white border border-gray-700 rounded-sm overflow-hidden md:col-start-1 md:row-start-1 md:row-span-2">
             {selectedVariant?.image ? (
-              <Image
-                src={selectedVariant.image}
-                alt={`${product.name} — ${selectedVariant.label}`}
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-                priority
-              />
+              <div key={selectedVariant.sku} className="fade-swap relative w-full h-full">
+                <Image
+                  src={selectedVariant.image}
+                  alt={`${product.name} — ${selectedVariant.label}`}
+                  fill
+                  className="object-contain p-8 sm:p-12"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                />
+              </div>
             ) : (
-              <div className="flex items-center justify-center h-full text-gray-600 italic">
+              <div className="flex items-center justify-center h-full text-gray-400 italic">
                 {product.name}
               </div>
             )}

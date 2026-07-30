@@ -82,7 +82,7 @@ export default function PhotoGallery({
         className="relative w-full h-full p-4 flex items-center justify-center outline-none"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="relative w-full h-full max-w-6xl max-h-[85vh]">
+        <div key={index} className="fade-swap relative w-full h-full max-w-6xl max-h-[85vh]">
           <Image
             src={getFullUrl(photos[index])}
             alt={t("photoAlt", { label, index: index + 1, total: photos.length })}

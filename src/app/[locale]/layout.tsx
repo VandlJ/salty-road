@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import "../globals.css";
 import ClientNavbarWrapper from "@/components/clientNavbarWrapper";
 import Footer from "@/components/footer";
+import PageTransition from "@/components/page-transition";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { Analytics } from "@vercel/analytics/next";
@@ -117,7 +118,9 @@ export default async function RootLayout({
           <div className="w-full">
             <ClientNavbarWrapper />
           </div>
-          <main className="flex-1 flex flex-col overflow-x-hidden">{children}</main>
+          <main className="flex-1 flex flex-col overflow-x-hidden">
+            <PageTransition>{children}</PageTransition>
+          </main>
           <Footer />
         </NextIntlClientProvider>
         <Analytics />

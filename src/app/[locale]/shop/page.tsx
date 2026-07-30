@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SectionHeading from "@/components/section-heading";
+import Skeleton from "@/components/skeleton";
 import { formatPrice } from "@/lib/formatPrice";
 import type { MerchProduct } from "@/types/merch";
 
@@ -41,19 +42,51 @@ export default function ShopPage() {
           <p className="text-gray-300 font-light max-w-xl">{t("subtitle")}</p>
         </div>
 
-        {loading && (
-          <div className="text-center text-white font-bold animate-pulse">{t("loading")}</div>
-        )}
         {error && (
           <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded-sm font-bold text-center">
             {error}
           </div>
         )}
-        {!loading && !error && products.length === 0 && (
-          <div className="text-center text-gray-500 font-bold">{t("noProducts")}</div>
+
+        {loading && !error && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6" aria-hidden="true">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="flex flex-col rounded-sm border border-gray-800 overflow-hidden">
+                <Skeleton className="aspect-square w-full rounded-none" />
+                <div className="p-3 sm:p-4 flex flex-col gap-2">
+                  <Skeleton className="h-4 w-2/3" />
+                  <Skeleton className="h-3 w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
         )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        {!loading && !error && products.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-3 py-20 border border-dashed border-gray-800 rounded-sm">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-gray-600"
+            >
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+              <path d="M3.3 7 12 12l8.7-5" />
+              <path d="M12 22V12" />
+            </svg>
+            <p className="text-gray-400 font-light text-base max-w-sm text-center">
+              {t("noProducts")}
+            </p>
+          </div>
+        )}
+
+        {!loading && !error && products.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {products.map((product, index) => {
             const minPrice = Math.min(...product.variants.map((v) => v.price));
             const thumbnail = product.variants.find((v) => v.image)?.image;
@@ -63,35 +96,39 @@ export default function ShopPage() {
               <Link
                 key={product.id}
                 href={`/shop/${product.slug}`}
-                className="group relative aspect-square bg-[#111] border border-gray-600 overflow-hidden hover:border-white transition-all duration-300 shadow-xl rounded-sm block"
+                className="group flex flex-col rounded-sm border border-gray-800 bg-white/[0.02] overflow-hidden hover:border-gray-500 hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-2xl"
               >
-                {thumbnail ? (
-                  <Image
-                    src={thumbnail}
-                    alt={product.name}
-                    fill
-                    priority={index === 0}
-                    fetchPriority={index === 0 ? "high" : undefined}
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                    sizes="(max-width: 768px) 50vw, 25vw"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-gray-600 italic text-sm">
-                    {product.name}
-                  </div>
-                )}
+                {/* Product plate: white, object-contain — shows the whole
+                    product uncropped instead of stretching/cropping photos
+                    that already ship with a light studio background into a
+                    full-bleed square (jarring against the dark theme). */}
+                <div className="relative aspect-square bg-white overflow-hidden">
+                  {thumbnail ? (
+                    <Image
+                      src={thumbnail}
+                      alt={product.name}
+                      fill
+                      priority={index < 4}
+                      fetchPriority={index < 4 ? "high" : undefined}
+                      className="object-contain p-6 sm:p-8 transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400 italic text-sm">
+                      {product.name}
+                    </div>
+                  )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90" />
+                  {!inStock && (
+                    <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white font-bold rounded-sm">
+                      {t("outOfStock")}
+                    </span>
+                  )}
+                </div>
 
-                {!inStock && (
-                  <span className="absolute top-3 right-3 bg-black/70 backdrop-blur-md px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white font-bold rounded-sm">
-                    {t("outOfStock")}
-                  </span>
-                )}
-
-                <div className="absolute inset-0 p-2.5 sm:p-4 flex flex-col justify-end">
-                  <h2 className="text-sm sm:text-lg font-bold text-white drop-shadow-2xl leading-tight">{product.name}</h2>
-                  <span className="text-xs sm:text-sm text-gray-300 font-medium">
+                <div className="p-3 sm:p-4 flex flex-col gap-0.5">
+                  <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">{product.name}</h2>
+                  <span className="text-xs sm:text-sm text-gray-400 font-medium">
                     {t("priceFrom", { price: formatPrice(minPrice) })}
                   </span>
                 </div>
@@ -99,6 +136,7 @@ export default function ShopPage() {
             );
           })}
         </div>
+        )}
       </div>
     </section>
   );
