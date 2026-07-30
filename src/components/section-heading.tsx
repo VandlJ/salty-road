@@ -17,11 +17,11 @@ export default function SectionHeading({
   const sizeClasses = size === "lg" ? "text-4xl sm:text-5xl" : "text-2xl sm:text-3xl";
 
   return (
-    <div className={`relative inline-block pb-5 ${className}`}>
-      <Tag className={`${sizeClasses} font-extrabold text-white uppercase tracking-widest break-words hyphens-none`}>
+    <div className={`relative inline-block pb-0 sm:pb-5 ${className}`}>
+      <Tag className={`${sizeClasses} font-extrabold text-white uppercase tracking-widest break-words hyphens-none text-center`}>
         {children}
       </Tag>
-      <span className="absolute bottom-0 left-0 h-[3px] w-12 bg-red-600" />
+      <span className="hidden sm:block absolute bottom-0 left-0 h-[3px] w-12 bg-red-600" />
     </div>
   );
 }

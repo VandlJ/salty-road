@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,8 +13,33 @@ export default function Navbar({ fixed = false }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+  const toggleMenu = () => setIsMenuOpen((open) => !open);
   const closeMenu = () => setIsMenuOpen(false);
+
+  useEffect(() => {
+    // `body { overflow: hidden }` alone doesn't reliably block touch-driven
+    // scroll on mobile Safari (rubber-band can still drag the page), so the
+    // lock is applied to both html and body plus overscroll-behavior.
+    const html = document.documentElement;
+    const body = document.body;
+    if (isMenuOpen) {
+      html.style.overflow = "hidden";
+      html.style.overscrollBehavior = "none";
+      body.style.overflow = "hidden";
+      body.style.overscrollBehavior = "none";
+    } else {
+      html.style.overflow = "";
+      html.style.overscrollBehavior = "";
+      body.style.overflow = "";
+      body.style.overscrollBehavior = "";
+    }
+    return () => {
+      html.style.overflow = "";
+      html.style.overscrollBehavior = "";
+      body.style.overflow = "";
+      body.style.overscrollBehavior = "";
+    };
+  }, [isMenuOpen]);
 
   const switchLocale = (nextLocale: string) => {
     router.replace(pathname, { locale: nextLocale, scroll: false });
@@ -34,6 +59,7 @@ export default function Navbar({ fixed = false }) {
   };
 
   return (
+    <>
     <nav
       className={`${
         fixed ? "fixed top-0 left-0 w-full z-30" : "relative w-full z-30"
@@ -170,21 +196,24 @@ export default function Navbar({ fixed = false }) {
           ></span>
         </button>
       </div>
+    </nav>
 
-      {/* Mobile Menu Overlay */}
+    {/* Mobile Menu Overlay — rendered outside <nav> so its fixed positioning
+        resolves against the real viewport, not nav's backdrop-blur
+        containing block (which used to collapse its own box to 0 height
+        and leak the panel's height into the page's scroll height). */}
+    <div
+      className={`lg:hidden fixed inset-x-0 top-[73px] bottom-0 overflow-hidden bg-black transition-opacity duration-300 ease-in-out z-40 ${
+        isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+      }`}
+      onClick={closeMenu}
+    >
       <div
-        className={`lg:hidden fixed left-0 right-0 bottom-0 bg-black transition-all duration-300 ease-in-out z-40 ${
-          isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        className={`bg-black px-6 pt-2 h-full flex flex-col transition-transform duration-300 ease-in-out ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
-        style={{ top: "calc(100% + 0px)" }}
-        onClick={closeMenu}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div
-          className={`bg-black min-h-screen px-6 pt-2 transition-all duration-300 ease-in-out ${
-            isMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
-          onClick={(e) => e.stopPropagation()}
-        >
           {/* Mobile Navigation Links */}
           <div className="flex flex-col space-y-4 text-center mt-8">
             <Link
@@ -235,30 +264,30 @@ export default function Navbar({ fixed = false }) {
             >
               {t("check")}
             </Link>
+          </div>
 
-            {/* Mobile Language Switch */}
-            <div className="flex items-center justify-center gap-4 pt-8 pb-12">
-              <button 
-                onClick={() => switchLocale('cs')}
-                aria-label="Přepnout na češtinu"
-                aria-current={locale === 'cs' ? 'true' : undefined}
-                className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'cs' ? 'text-white' : 'text-gray-400'}`}
-              >
-                cs
-              </button>
-              <span className="text-white text-lg" aria-hidden="true">/</span>
-              <button 
-                onClick={() => switchLocale('en')}
-                aria-label="Switch to English"
-                aria-current={locale === 'en' ? 'true' : undefined}
-                className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'en' ? 'text-white' : 'text-gray-400'}`}
-              >
-                en
-              </button>
-            </div>
+          {/* Mobile Language Switch — pinned to the bottom of the panel */}
+          <div className="mt-auto flex items-center justify-center gap-4 pb-12">
+            <button
+              onClick={() => switchLocale('cs')}
+              aria-label="Přepnout na češtinu"
+              aria-current={locale === 'cs' ? 'true' : undefined}
+              className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'cs' ? 'text-white' : 'text-gray-400'}`}
+            >
+              cs
+            </button>
+            <span className="text-white text-lg" aria-hidden="true">/</span>
+            <button
+              onClick={() => switchLocale('en')}
+              aria-label="Switch to English"
+              aria-current={locale === 'en' ? 'true' : undefined}
+              className={`bg-transparent border-none text-lg font-semibold cursor-pointer hover:text-gray-300 transition-colors duration-200 px-4 py-2 ${locale === 'en' ? 'text-white' : 'text-gray-400'}`}
+            >
+              en
+            </button>
           </div>
         </div>
       </div>
-    </nav>
+    </>
   );
 }

@@ -16,6 +16,10 @@
 
   /* Small site defaults; prefer using Tailwind utility classes in components, but
      keep a minimal system font stack here for pages that rely on global styles. */
+  html {
+    background: var(--background);
+  }
+
   body {
     background: var(--background);
     color: var(--foreground);
