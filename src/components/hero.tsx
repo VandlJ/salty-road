@@ -48,6 +48,7 @@ export default function Hero() {
             sizes="(max-width: 1024px) 100vw, 1024px"
             className="w-full h-auto drop-shadow-2xl"
             priority
+            quality={65}
           />
         </div>
         <div className="relative w-full flex flex-col sm:flex-row items-center justify-center mb-2 md:mb-4 mt-4 md:mt-8 z-20">
