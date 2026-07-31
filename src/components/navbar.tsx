@@ -28,6 +28,39 @@ export default function Navbar({ fixed = false }) {
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
 
+  // While a nav-click-triggered smooth scroll is in flight, the scroll-spy
+  // IntersectionObserver below fires for every section it passes through
+  // (not just the destination), yanking the indicator back and forth before
+  // settling. Suppress the observer until the scroll actually stops.
+  const suppressSpyRef = useRef(false);
+  const suppressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const beginProgrammaticScroll = useCallback(() => {
+    suppressSpyRef.current = true;
+    if (suppressTimeoutRef.current) clearTimeout(suppressTimeoutRef.current);
+  }, []);
+
+  useEffect(() => {
+    // `scrollend` covers modern browsers; the debounced scroll fallback
+    // below covers Safari versions that don't support it yet — both just
+    // clear the same flag, so having both is harmless.
+    const clearSuppress = () => {
+      suppressSpyRef.current = false;
+    };
+    const onScroll = () => {
+      if (!suppressSpyRef.current) return;
+      if (suppressTimeoutRef.current) clearTimeout(suppressTimeoutRef.current);
+      suppressTimeoutRef.current = setTimeout(clearSuppress, 150);
+    };
+    window.addEventListener("scrollend", clearSuppress);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scrollend", clearSuppress);
+      window.removeEventListener("scroll", onScroll);
+      if (suppressTimeoutRef.current) clearTimeout(suppressTimeoutRef.current);
+    };
+  }, []);
+
   const measureIndicator = useCallback(() => {
     const row = navRowRef.current;
     const link = linkRefs.current[activeId];
@@ -70,6 +103,7 @@ export default function Navbar({ fixed = false }) {
     // "home" instead of leaving the indicator stuck on the last section.
     const observer = new IntersectionObserver(
       (entries) => {
+        if (suppressSpyRef.current) return;
         for (const entry of entries) {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
@@ -145,6 +179,7 @@ export default function Navbar({ fixed = false }) {
       const targetId = href.replace('/#', '');
       const element = document.getElementById(targetId);
       if (element) {
+        beginProgrammaticScroll();
         element.scrollIntoView({ behavior: 'smooth' });
         // Preserve the locale prefix (e.g. /cs, /en) — a hardcoded `/#id`
         // here used to strip it, desyncing the browser URL from Next's
@@ -158,6 +193,7 @@ export default function Navbar({ fixed = false }) {
   };
 
   const scrollToTop = () => {
+    beginProgrammaticScroll();
     setActiveId('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Clear any leftover #section hash from a previous in-page nav click,
