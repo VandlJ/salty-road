@@ -4,6 +4,7 @@ import RegisterForm from "@/components/registerForm";
 import SectionHeading from "@/components/section-heading";
 import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
+import { motion } from "motion/react";
 
 export default function RegistrationSection() {
   const t = useTranslations("RegisterPage");
@@ -21,8 +22,13 @@ export default function RegistrationSection() {
   }
 
   return (
-    <section id="register" className={`bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 overflow-hidden ${registrationOpen ? "min-h-dvh" : ""}`}>
-      <div className="flex flex-col items-center">
+    <section id="register" className={`reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 max-w-4xl mx-auto scroll-mt-24 overflow-hidden ${registrationOpen ? "min-h-dvh" : ""}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="flex flex-col items-center"
+      >
         <SectionHeading as="h1" size="lg" className="mb-16">
           {t.rich("title", { line: (chunks) => <span className="block">{chunks}</span> })}
         </SectionHeading>
@@ -45,7 +51,7 @@ export default function RegistrationSection() {
             <p className="text-gray-200 font-light">{t("closedMessage")}</p>
           </div>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }

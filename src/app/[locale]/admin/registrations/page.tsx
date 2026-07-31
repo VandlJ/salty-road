@@ -9,7 +9,10 @@ import AdminFilterChip from "@/components/admin-filter-chip";
 import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import { useModalA11y } from "@/lib/useModalA11y";
+import { AnimatedModal } from "@/components/animated-modal";
 import PhotoGallery from "@/components/photo-gallery";
+import { FadeSwap } from "@/components/fade-swap";
+import { AnimatePresence, motion } from "motion/react";
 
 type StatusFilter = "all" | "pending" | "accepted" | "declined";
 type PaymentFilter = "all" | "paid" | "pending";
@@ -301,7 +304,7 @@ export default function AdminRegistrationsPage() {
           }`}
         >
           <span
-            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
               registrationOpen ? "translate-x-8" : "translate-x-1"
             }`}
           />
@@ -356,6 +359,7 @@ export default function AdminRegistrationsPage() {
         </div>
       </div>
 
+      <FadeSwap activeKey={loading && regs.length === 0 ? "skeleton" : "content"}>
       {loading && regs.length === 0 ? (
         <RegistrationsSkeleton />
       ) : (
@@ -375,9 +379,15 @@ export default function AdminRegistrationsPage() {
       )}
 
       <div className="grid gap-8">
+        <AnimatePresence mode="popLayout" initial={false}>
         {filteredRegs.map((r, regIdx) => (
-          <div
+          <motion.div
             key={r.id}
+            layout
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="relative bg-[#111]/90 border border-gray-700 hover:border-gray-500 transition-all duration-300 shadow-xl overflow-hidden rounded-sm group"
           >
             {/* Header / Status Bar */}
@@ -789,46 +799,42 @@ export default function AdminRegistrationsPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
+        </AnimatePresence>
       </div>
         </>
       )}
+      </FadeSwap>
 
       {/* Remove Confirmation Modal */}
-      {removeId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-          <div
-            ref={removeModalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="remove-modal-title"
-            tabIndex={-1}
-            className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)] outline-none"
+      <AnimatedModal
+        open={!!removeId}
+        panelRef={removeModalRef}
+        labelledBy="remove-modal-title"
+        panelClassName="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+      >
+        <h3 id="remove-modal-title" className="text-xl font-bold text-white mb-4 text-center">
+          {t("remove")}
+        </h3>
+        <p className="text-gray-300 mb-8 text-center font-medium">
+          {t("confirmRemove")}
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setRemoveId(null)}
+            className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
           >
-            <h3 id="remove-modal-title" className="text-xl font-bold text-white mb-4 text-center">
-              {t("remove")}
-            </h3>
-            <p className="text-gray-300 mb-8 text-center font-medium">
-              {t("confirmRemove")}
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setRemoveId(null)}
-                className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
-              >
-                {t("cancel")}
-              </button>
-              <button
-                onClick={confirmRemove}
-                className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all"
-              >
-                {t("remove")}
-              </button>
-            </div>
-          </div>
+            {t("cancel")}
+          </button>
+          <button
+            onClick={confirmRemove}
+            className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all"
+          >
+            {t("remove")}
+          </button>
         </div>
-      )}
+      </AnimatedModal>
 
       {gallery && (
         <PhotoGallery

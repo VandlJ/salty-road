@@ -3,6 +3,8 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useModalA11y } from "@/lib/useModalA11y";
+import { AnimatedModal } from "@/components/animated-modal";
+import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 
 type Entry = {
   id: string;
@@ -147,7 +149,13 @@ export default function EntryPage() {
   function Card({ entry }: { entry: Entry }) {
     const paid = entry.paymentStatus === "paid";
     return (
-      <button
+      <motion.button
+        layoutId={entry.id}
+        layout
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 32 }}
         onClick={() => toggleArrived(entry.id, !entry.arrived)}
         className={`flex-1 min-w-[280px] max-w-[480px] text-left p-4 rounded-sm border transition-colors cursor-pointer ${
           entry.arrived
@@ -184,7 +192,7 @@ export default function EntryPage() {
             {entry.arrived ? t("markNotArrived") : t("markArrived")}
           </span>
         </div>
-      </button>
+      </motion.button>
     );
   }
 
@@ -266,10 +274,13 @@ export default function EntryPage() {
         <div className="text-center text-gray-500 font-bold mt-8">{t("noResults")}</div>
       )}
 
+      <LayoutGroup>
       <div className="flex flex-wrap gap-3 mb-8">
+        <AnimatePresence mode="popLayout" initial={false}>
         {notArrived.map((entry) => (
           <Card key={entry.id} entry={entry} />
         ))}
+        </AnimatePresence>
       </div>
 
       {arrived.length > 0 && (
@@ -278,46 +289,43 @@ export default function EntryPage() {
             {t("arrived")} ({arrived.length})
           </h2>
           <div className="flex flex-wrap gap-3">
+            <AnimatePresence mode="popLayout" initial={false}>
             {arrived.map((entry) => (
               <Card key={entry.id} entry={entry} />
             ))}
+            </AnimatePresence>
           </div>
         </>
       )}
+      </LayoutGroup>
 
-      {undoTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-          <div
-            ref={undoModalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="undo-modal-title"
-            tabIndex={-1}
-            className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)] outline-none"
+      <AnimatedModal
+        open={!!undoTarget}
+        panelRef={undoModalRef}
+        labelledBy="undo-modal-title"
+        panelClassName="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+      >
+        <h3 id="undo-modal-title" className="text-xl font-bold text-white mb-4 text-center">
+          {t("confirmUndoTitle")}
+        </h3>
+        <p className="text-gray-300 mb-8 text-center font-medium">
+          {t("confirmUndoText")}
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setUndoTarget(null)}
+            className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
           >
-            <h3 id="undo-modal-title" className="text-xl font-bold text-white mb-4 text-center">
-              {t("confirmUndoTitle")}
-            </h3>
-            <p className="text-gray-300 mb-8 text-center font-medium">
-              {t("confirmUndoText")}
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setUndoTarget(null)}
-                className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
-              >
-                {t("cancel")}
-              </button>
-              <button
-                onClick={confirmUndo}
-                className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all cursor-pointer"
-              >
-                {t("confirm")}
-              </button>
-            </div>
-          </div>
+            {t("cancel")}
+          </button>
+          <button
+            onClick={confirmUndo}
+            className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all cursor-pointer"
+          >
+            {t("confirm")}
+          </button>
         </div>
-      )}
+      </AnimatedModal>
     </section>
   );
 }

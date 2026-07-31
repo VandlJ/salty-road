@@ -1,6 +1,9 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import SectionHeading from "@/components/section-heading";
+import { motion } from "motion/react";
 
 export default function InfoSection() {
   const t = useTranslations("InfoPage");
@@ -59,7 +62,13 @@ export default function InfoSection() {
 
           <div className="max-w-3xl mx-auto">
             {/* Main Program — left-rail timeline */}
-            <div className="relative pl-6 pr-6 sm:pl-8 sm:pr-0 mb-8 border-l border-gray-800 space-y-6 text-left max-w-2xl mx-auto">
+            <motion.div
+              className="relative pl-6 pr-6 sm:pl-8 sm:pr-0 mb-8 border-l border-gray-800 space-y-6 text-left max-w-2xl mx-auto"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ staggerChildren: 0.1 }}
+            >
               {[1, 2, 3, 4, 5, 6, 7].map((item) => {
                  const text = t(`programList.item${item}`);
                  const parts = text.split(" - ");
@@ -68,14 +77,19 @@ export default function InfoSection() {
                  const event = rawEvent.charAt(0).toUpperCase() + rawEvent.slice(1);
 
                  return (
-                   <div key={item} className="relative">
+                   <motion.div
+                     key={item}
+                     variants={{ hidden: { opacity: 0, x: -10 }, visible: { opacity: 1, x: 0 } }}
+                     transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                     className="relative"
+                   >
                      <span className="absolute -left-6 sm:-left-8 -translate-x-1/2 top-1.5 h-2.5 w-2.5 rounded-full bg-brand ring-4 ring-[#0a0a0a]" />
                      <span className="block text-white font-extrabold text-sm uppercase tracking-widest">{time}</span>
                      <span className="block text-gray-200 text-base font-light mt-0.5">{event}</span>
-                   </div>
+                   </motion.div>
                  );
               })}
-            </div>
+            </motion.div>
 
             {/* Side Program */}
             <div className="pt-8 border-t border-gray-800">

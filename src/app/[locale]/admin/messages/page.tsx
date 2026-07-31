@@ -5,6 +5,8 @@ import { Link } from "@/i18n/routing";
 import React, { useCallback, useEffect, useState } from "react";
 import AdminLoginForm from "@/components/admin-login-form";
 import Skeleton from "@/components/skeleton";
+import { FadeSwap } from "@/components/fade-swap";
+import { AnimatePresence, motion } from "motion/react";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import type { ContactMessage } from "@/types/merch";
 
@@ -92,6 +94,7 @@ export default function AdminMessagesPage() {
         <div className="text-center text-gray-500 font-bold">{t("noMessages")}</div>
       )}
 
+      <FadeSwap activeKey={loading && messages.length === 0 ? "skeleton" : "content"}>
       {loading && messages.length === 0 ? (
         <div className="grid gap-3">
           {[0, 1, 2].map((i) => (
@@ -100,11 +103,17 @@ export default function AdminMessagesPage() {
         </div>
       ) : (
         <div className="grid gap-3">
+          <AnimatePresence mode="popLayout" initial={false}>
           {messages.map((message) => {
             const expanded = expandedId === message.id;
             return (
-              <div
+              <motion.div
                 key={message.id}
+                layout
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                 className={`bg-[#111]/90 border rounded-sm overflow-hidden ${
                   message.read ? "border-gray-700" : "border-white"
                 }`}
@@ -125,26 +134,38 @@ export default function AdminMessagesPage() {
                     {new Date(message.createdAt).toLocaleDateString("cs-CZ")}
                   </span>
                 </button>
+                <AnimatePresence initial={false}>
                 {expanded && (
-                  <div className="px-4 pb-4 flex flex-col gap-3">
-                    <p className="text-gray-200 text-sm whitespace-pre-wrap border-t border-gray-800 pt-3">
-                      {message.message}
-                    </p>
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => removeMessage(message.id)}
-                        className="px-3 py-1.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] border border-red-900/50 hover:border-red-500 rounded-sm transition-all cursor-pointer"
-                      >
-                        {t("remove")}
-                      </button>
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 flex flex-col gap-3">
+                      <p className="text-gray-200 text-sm whitespace-pre-wrap border-t border-gray-800 pt-3">
+                        {message.message}
+                      </p>
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => removeMessage(message.id)}
+                          className="px-3 py-1.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] border border-red-900/50 hover:border-red-500 rounded-sm transition-all cursor-pointer"
+                        >
+                          {t("remove")}
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
                 )}
-              </div>
+                </AnimatePresence>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
+      </FadeSwap>
     </section>
   );
 }

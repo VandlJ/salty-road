@@ -5,6 +5,8 @@ import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import AdminLoginForm from "@/components/admin-login-form";
+import { FadeSwap } from "@/components/fade-swap";
+import { AnimatePresence, motion } from "motion/react";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 
 type TemplateMeta = { id: string; label: string; hasQr: boolean };
@@ -112,6 +114,7 @@ export default function AdminEmailsPage() {
         </div>
       )}
 
+      <FadeSwap activeKey={loadingList ? "loading" : "content"}>
       {loadingList ? (
         <div className="text-white text-center font-bold animate-pulse">{t("loading")}</div>
       ) : (
@@ -135,11 +138,10 @@ export default function AdminEmailsPage() {
 
           {/* Preview panel */}
           <div className="flex-1 min-w-0">
-            {loadingPreview && (
+            <FadeSwap activeKey={loadingPreview ? "loading" : preview ? "preview" : "empty"}>
+            {loadingPreview ? (
               <div className="text-white text-center font-bold animate-pulse py-12">{t("loading")}</div>
-            )}
-
-            {!loadingPreview && preview && (
+            ) : preview ? (
               <div className="flex flex-col gap-4">
                 <div className="bg-[#111]/90 border border-gray-700 rounded-sm p-4">
                   <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold block mb-1">
@@ -168,19 +170,20 @@ export default function AdminEmailsPage() {
                   </button>
                 </div>
 
-                {view === "html" && preview.html && (
+                <FadeSwap activeKey={view === "html" && preview.html ? "html" : "text"}>
+                {view === "html" && preview.html ? (
                   <iframe
                     title="email-preview"
                     srcDoc={preview.html}
                     sandbox=""
                     className="w-full h-[500px] bg-white rounded-sm border border-gray-700"
                   />
-                )}
-                {view === "text" && (
+                ) : (
                   <pre className="whitespace-pre-wrap break-words bg-[#111]/90 border border-gray-700 rounded-sm p-4 text-sm text-gray-300 max-h-[500px] overflow-y-auto">
                     {preview.text}
                   </pre>
                 )}
+                </FadeSwap>
 
                 {preview.qrCodeBase64 && (
                   <div className="bg-[#111]/90 border border-gray-700 rounded-sm p-4 flex flex-col items-center gap-2">
@@ -219,17 +222,26 @@ export default function AdminEmailsPage() {
                     {sending ? t("sending") : t("testSendButton")}
                   </button>
                 </div>
-                {sendResult === "success" && (
-                  <div className="text-green-400 text-sm font-bold">{t("testSendSuccess")}</div>
+                <AnimatePresence>
+                {sendResult && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className={`text-sm font-bold overflow-hidden ${sendResult === "success" ? "text-green-400" : "text-red-400"}`}
+                  >
+                    {sendResult === "success" ? t("testSendSuccess") : t("testSendError")}
+                  </motion.div>
                 )}
-                {sendResult === "error" && (
-                  <div className="text-red-400 text-sm font-bold">{t("testSendError")}</div>
-                )}
+                </AnimatePresence>
               </div>
-            )}
+            ) : null}
+            </FadeSwap>
           </div>
         </div>
       )}
+      </FadeSwap>
     </section>
   );
 }

@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import SectionHeading from "@/components/section-heading";
 import Skeleton from "@/components/skeleton";
+import { FadeSwap } from "@/components/fade-swap";
 import { formatPrice } from "@/lib/formatPrice";
 import type { MerchProduct } from "@/types/merch";
 
@@ -48,7 +49,9 @@ export default function ShopPage() {
           </div>
         )}
 
-        {loading && !error && (
+        {!error && (
+        <FadeSwap activeKey={loading ? "loading" : products.length === 0 ? "empty" : "list"}>
+        {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6" aria-hidden="true">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="flex flex-col rounded-sm border border-gray-800 overflow-hidden">
@@ -60,9 +63,7 @@ export default function ShopPage() {
               </div>
             ))}
           </div>
-        )}
-
-        {!loading && !error && products.length === 0 && (
+        ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-20 border border-dashed border-gray-800 rounded-sm">
             <svg
               width="40"
@@ -83,9 +84,7 @@ export default function ShopPage() {
               {t("noProducts")}
             </p>
           </div>
-        )}
-
-        {!loading && !error && products.length > 0 && (
+        ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {products.map((product, index) => {
             const prices = product.variants.map((v) => v.price);
@@ -141,6 +140,8 @@ export default function ShopPage() {
             );
           })}
         </div>
+        )}
+        </FadeSwap>
         )}
       </div>
     </section>

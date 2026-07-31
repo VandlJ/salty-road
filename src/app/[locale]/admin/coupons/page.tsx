@@ -5,6 +5,8 @@ import { Link } from "@/i18n/routing";
 import React, { useCallback, useEffect, useState } from "react";
 import AdminLoginForm from "@/components/admin-login-form";
 import Skeleton from "@/components/skeleton";
+import { FadeSwap } from "@/components/fade-swap";
+import { AnimatePresence, motion } from "motion/react";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import { formatPrice } from "@/lib/formatPrice";
 import type { Coupon } from "@/types/merch";
@@ -97,6 +99,7 @@ export default function AdminCouponsPage() {
         <div className="text-center text-gray-500 font-bold mt-6">{t("noCoupons")}</div>
       )}
 
+      <FadeSwap activeKey={loading && coupons.length === 0 ? "skeleton" : "content"}>
       {loading && coupons.length === 0 ? (
         <div className="grid gap-3 mt-6">
           {[0, 1].map((i) => (
@@ -105,12 +108,18 @@ export default function AdminCouponsPage() {
         </div>
       ) : (
         <div className="grid gap-3 mt-6">
+          <AnimatePresence mode="popLayout" initial={false}>
           {coupons.map((coupon) => {
             const expired = coupon.expiresAt ? new Date(coupon.expiresAt) < new Date() : false;
             const exhausted = coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses;
             return (
-              <div
+              <motion.div
                 key={coupon.id}
+                layout
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                 className="flex flex-wrap items-center justify-between gap-3 bg-[#111]/90 border border-gray-700 rounded-sm p-4"
               >
                 <div>
@@ -144,7 +153,7 @@ export default function AdminCouponsPage() {
                     }`}
                   >
                     <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                         coupon.active ? "translate-x-6" : "translate-x-1"
                       }`}
                     />
@@ -156,11 +165,13 @@ export default function AdminCouponsPage() {
                     {t("delete")}
                   </button>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
+      </FadeSwap>
     </section>
   );
 }

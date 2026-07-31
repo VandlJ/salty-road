@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
 import PhotoGallery from "@/components/photo-gallery";
 import Skeleton from "@/components/skeleton";
+import { FadeSwap } from "@/components/fade-swap";
+import { motion } from "motion/react";
 
 type Registration = {
   id: string;
@@ -123,15 +125,15 @@ export default function VehiclesSection() {
         </div>
       )}
 
-      {loading && regs.length === 0 && !error && (
+      {!error && (
+      <FadeSwap activeKey={loading && regs.length === 0 ? "skeleton" : regs.length === 0 ? "empty" : "list"}>
+      {loading && regs.length === 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-hidden="true">
           {Array.from({ length: 6 }).map((_, i) => (
             <Skeleton key={i} className="aspect-[4/3] w-full" />
           ))}
         </div>
-      )}
-
-      {!loading && !error && regs.length === 0 && (
+      ) : regs.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-20 border border-dashed border-gray-800 rounded-sm">
           <svg
             width="40"
@@ -153,12 +155,14 @@ export default function VehiclesSection() {
             {t("noVehiclesYet")}
           </p>
         </div>
-      )}
-
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {regs.map((r) => (
-          <div 
-            key={r.id} 
+          <motion.div
+            key={r.id}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="group relative aspect-[4/3] bg-black border border-gray-600 overflow-hidden hover:border-white transition-all duration-300 cursor-pointer shadow-xl rounded-sm"
             onClick={() => openGallery(r, 0)}
           >
@@ -204,9 +208,12 @@ export default function VehiclesSection() {
                  </div>
               )}
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
+      )}
+      </FadeSwap>
+      )}
 
       {/* Load More Button */}
       {hasMore && regs.length > 0 && (

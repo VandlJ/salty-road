@@ -4,6 +4,12 @@ import { Link } from "@/i18n/routing";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import React from "react";
+import { motion } from "motion/react";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export default function Hero() {
   const t = useTranslations("Hero");
@@ -38,8 +44,13 @@ export default function Hero() {
       {/* Glassmorphism overlay */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       {/* Content */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-4 md:-translate-y-12">
-        <div className="relative mb-0 max-w-5xl w-full">
+      <motion.div
+        className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-4 md:-translate-y-12"
+        initial="hidden"
+        animate="visible"
+        transition={{ staggerChildren: 0.12, delayChildren: 0.1 }}
+      >
+        <motion.div variants={fadeUp} transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="relative mb-0 max-w-5xl w-full">
           <Image
             src="/SaltyRoad/SRM_text.webp"
             alt="Salty Road Meet Vol. 1"
@@ -55,8 +66,12 @@ export default function Hero() {
             fetchPriority="high"
             quality={65}
           />
-        </div>
-        <div className="relative w-full flex flex-col sm:flex-row items-center justify-center mb-2 md:mb-4 mt-4 md:mt-8 z-20">
+        </motion.div>
+        <motion.div
+          variants={fadeUp}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="relative w-full flex flex-col sm:flex-row items-center justify-center mb-2 md:mb-4 mt-4 md:mt-8 z-20"
+        >
           {/* Left column - Date */}
           <div className="flex-1 flex justify-center sm:justify-end sm:pr-12 md:pr-24 mb-3 sm:mb-0">
             <div className="flex flex-col items-center group">
@@ -86,15 +101,19 @@ export default function Hero() {
               </span>
             </div>
           </div>
-        </div>
-        <div className="flex items-center justify-center mt-2 sm:mt-4 z-30">
+        </motion.div>
+        <motion.div
+          variants={fadeUp}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="flex items-center justify-center mt-2 sm:mt-4 z-30"
+        >
           <Link href="/#register" onClick={handleRegisterClick}>
             <button className="px-8 md:px-12 py-3 md:py-4 text-base rounded-sm font-bold tracking-widest uppercase bg-white text-black shadow-2xl border-2 border-white hover:bg-gray-200 hover:text-black hover:scale-110 transition-all duration-300 cursor-pointer">
               {t("registerButton")}
             </button>
           </Link>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

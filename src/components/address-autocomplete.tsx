@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 type Suggestion = { label: string; street: string; city: string; zip: string };
 
@@ -90,8 +91,15 @@ export default function AddressAutocomplete({
         className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
       />
 
+      <AnimatePresence>
       {open && (
-        <ul className="absolute z-30 mt-2 w-full max-h-64 overflow-y-auto bg-[#111] border border-gray-600 rounded-sm shadow-2xl">
+        <motion.ul
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: 0.98 }}
+          transition={{ duration: 0.15 }}
+          className="absolute z-30 mt-2 w-full max-h-64 overflow-y-auto bg-[#111] border border-gray-600 rounded-sm shadow-2xl"
+        >
           {suggestions.map((s, i) => (
             <li key={`${s.label}-${i}`}>
               <button
@@ -120,8 +128,9 @@ export default function AddressAutocomplete({
               </button>
             </li>
           ))}
-        </ul>
+        </motion.ul>
       )}
+      </AnimatePresence>
     </div>
   );
 }

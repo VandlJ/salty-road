@@ -11,6 +11,9 @@ import PhotoGallery from "@/components/photo-gallery";
 import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import { useModalA11y } from "@/lib/useModalA11y";
+import { AnimatedModal } from "@/components/animated-modal";
+import { FadeSwap } from "@/components/fade-swap";
+import { AnimatePresence, motion } from "motion/react";
 import type { MerchProductAdmin, MerchVariantAdmin } from "@/types/merch";
 
 type ActiveFilter = "all" | "active" | "inactive";
@@ -154,7 +157,7 @@ export default function AdminMerchPage() {
           }`}
         >
           <span
-            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform ${
+            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
               shopEnabled ? "translate-x-8" : "translate-x-1"
             }`}
           />
@@ -220,28 +223,40 @@ export default function AdminMerchPage() {
         <div className="text-center text-gray-500 font-bold mt-10">{t("noResultsFilter")}</div>
       )}
 
+      <FadeSwap activeKey={loading && products.length === 0 ? "skeleton" : "content"}>
       {loading && products.length === 0 ? (
         <MerchSkeleton />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <AnimatePresence mode="popLayout" initial={false}>
           {filteredProducts.map((product) => {
             const sortedIds = [...products].sort((a, b) => a.order - b.order).map((p) => p.id);
             const posInFullList = sortedIds.indexOf(product.id);
             return (
-              <ProductCard
+              <motion.div
                 key={product.id}
-                product={product}
-                t={t}
-                onChange={loadProducts}
-                onMove={(dir) => moveProduct(product, dir)}
-                canMoveUp={posInFullList > 0}
-                canMoveDown={posInFullList < sortedIds.length - 1}
-                moving={movingProduct}
-              />
+                layout
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <ProductCard
+                  product={product}
+                  t={t}
+                  onChange={loadProducts}
+                  onMove={(dir) => moveProduct(product, dir)}
+                  canMoveUp={posInFullList > 0}
+                  canMoveDown={posInFullList < sortedIds.length - 1}
+                  moving={movingProduct}
+                />
+              </motion.div>
             );
           })}
+          </AnimatePresence>
         </div>
       )}
+      </FadeSwap>
     </section>
   );
 }
@@ -699,7 +714,7 @@ function ProductCard({
             }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform ${
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
                 product.active ? "translate-x-6" : "translate-x-1"
               }`}
             />
@@ -850,36 +865,30 @@ function ProductCard({
         </div>
       </div>
 
-      {confirmDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm p-4">
-          <div
-            ref={confirmModalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={`delete-product-${product.id}`}
-            tabIndex={-1}
-            className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full shadow-[0_0_20px_rgba(220,38,38,0.3)] outline-none"
+      <AnimatedModal
+        open={confirmDelete}
+        panelRef={confirmModalRef}
+        labelledBy={`delete-product-${product.id}`}
+        panelClassName="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+      >
+        <p id={`delete-product-${product.id}`} className="text-gray-300 mb-8 text-center font-medium">
+          {t("deleteProductConfirm")}
+        </p>
+        <div className="flex gap-4">
+          <button
+            onClick={closeConfirm}
+            className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
           >
-            <p id={`delete-product-${product.id}`} className="text-gray-300 mb-8 text-center font-medium">
-              {t("deleteProductConfirm")}
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={closeConfirm}
-                className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
-              >
-                {t("cancel")}
-              </button>
-              <button
-                onClick={deleteProduct}
-                className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 transition-all cursor-pointer"
-              >
-                {t("confirm")}
-              </button>
-            </div>
-          </div>
+            {t("cancel")}
+          </button>
+          <button
+            onClick={deleteProduct}
+            className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 transition-all cursor-pointer"
+          >
+            {t("confirm")}
+          </button>
         </div>
-      )}
+      </AnimatedModal>
     </div>
   );
 }
@@ -1015,7 +1024,7 @@ function VariantRow({
           }`}
         >
           <span
-            className={`inline-block h-3 w-3 transform rounded-full bg-white shadow-md transition-transform ${
+            className={`inline-block h-3 w-3 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
               variant.active ? "translate-x-5" : "translate-x-1"
             }`}
           />

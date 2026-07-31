@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import React, { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { motion } from "motion/react";
 import { useModalA11y } from "@/lib/useModalA11y";
 
 type PhotoGalleryProps = {
@@ -67,7 +68,10 @@ export default function PhotoGallery({
   // `fixed inset-0` sizing/scrolling in ways that are a pain to trace back.
   // Escaping to `document.body` sidesteps that class of bug entirely.
   return createPortal(
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
       onClick={onClose}
     >
@@ -81,12 +85,15 @@ export default function PhotoGallery({
         </svg>
       </button>
 
-      <div
+      <motion.div
         ref={modalRef}
         role="dialog"
         aria-modal="true"
         aria-label={label}
         tabIndex={-1}
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: "spring", stiffness: 420, damping: 34 }}
         className="relative w-full h-full p-4 flex items-center justify-center outline-none"
         onClick={(e) => e.stopPropagation()}
       >
@@ -132,8 +139,8 @@ export default function PhotoGallery({
             </div>
           </>
         )}
-      </div>
-    </div>,
+      </motion.div>
+    </motion.div>,
     document.body
   );
 }

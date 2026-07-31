@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
 import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import SectionHeading from "@/components/section-heading";
 import PhoneCodeSelect from "@/components/phone-code-select";
 import AddressAutocomplete from "@/components/address-autocomplete";
@@ -294,17 +295,33 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          <AnimatePresence>
           {error && (
-            <div className="text-white p-3 border-2 border-red-500 bg-red-600/50 rounded-sm font-bold text-sm">
-              {error}
-            </div>
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="text-white p-3 border-2 border-red-500 bg-red-600/50 rounded-sm font-bold text-sm">
+                {error}
+              </div>
+            </motion.div>
           )}
+          </AnimatePresence>
 
           <button
             type="submit"
             disabled={submitting}
-            className="px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
+            {submitting && (
+              <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth={4} />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+              </svg>
+            )}
             {submitting ? t("checkoutSubmitting") : t("checkoutSubmit")}
           </button>
         </form>

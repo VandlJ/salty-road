@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
+import { AnimatePresence, motion } from "motion/react";
 import SectionHeading from "@/components/section-heading";
 
 function formatDate(iso: string) {
@@ -94,14 +95,27 @@ export default function CheckPage() {
           </button>
         </form>
 
-        {error && (
-          <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded-sm text-center font-bold">
+        <AnimatePresence mode="wait">
+        {error ? (
+          <motion.div
+            key="error"
+            initial={{ opacity: 0, y: 10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "spring", stiffness: 420, damping: 34 }}
+            className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded-sm text-center font-bold"
+          >
             {error}
-          </div>
-        )}
-
-        {result && (
-          <div className="p-4 sm:p-6 border-2 border-white bg-black/80 backdrop-blur-md rounded-sm shadow-2xl">
+          </motion.div>
+        ) : result ? (
+          <motion.div
+            key="result"
+            initial={{ opacity: 0, y: 10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "spring", stiffness: 420, damping: 34 }}
+            className="p-4 sm:p-6 border-2 border-white bg-black/80 backdrop-blur-md rounded-sm shadow-2xl"
+          >
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-3">
               <div>
                 <span className="text-gray-300 text-xs sm:text-sm font-semibold uppercase tracking-wide">{t("resultName")} </span>
@@ -125,8 +139,9 @@ export default function CheckPage() {
             <div className="text-xs sm:text-sm text-gray-400 font-medium">
               {t("resultCreated")} {result.createdAt ? formatDate(result.createdAt) : "—"}
             </div>
-          </div>
-        )}
+          </motion.div>
+        ) : null}
+        </AnimatePresence>
       </div>
     </section>
   );

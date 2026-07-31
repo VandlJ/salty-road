@@ -6,6 +6,8 @@ import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import imageCompression from "browser-image-compression";
 import { useModalA11y } from "@/lib/useModalA11y";
+import { AnimatedModal } from "@/components/animated-modal";
+import { AnimatePresence, motion } from "motion/react";
 
 type PhotoItem = {
   id: string;
@@ -420,8 +422,16 @@ export default function RegisterForm() {
         {photos.length > 0 && (
           <div className="w-full">
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-6">
+              <AnimatePresence initial={false}>
               {photos.map((item, index) => (
-                <div key={item.id} className="relative group aspect-square border border-gray-600 bg-black/50 overflow-hidden rounded-sm">
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative group aspect-square border border-gray-600 bg-black/50 overflow-hidden rounded-sm">
                   {item.loading ? (
                     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80">
                       <svg className="animate-spin h-8 w-8 text-white mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -491,8 +501,9 @@ export default function RegisterForm() {
                       </div>
                     </div>
                   )}
-                </div>
+                </motion.div>
               ))}
+              </AnimatePresence>
             </div>
 
             {/* selected files summary */}
@@ -564,124 +575,112 @@ export default function RegisterForm() {
       </div>
 
       {/* Error Modal */}
-      {error && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div
-            ref={errorModalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="register-error-title"
-            tabIndex={-1}
-            className="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl rounded-sm outline-none">
-            <button
-              onClick={() => setError(null)}
-              aria-label={t("close")}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-900/30 mb-4 border border-red-500">
-                <svg className="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <h3 id="register-error-title" className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h3>
-              <p className="text-gray-300 mb-6 font-medium">
-                {error}
-              </p>
-              <button
-                onClick={() => setError(null)}
-                className="w-full px-4 py-2 bg-red-600 text-white font-bold uppercase tracking-widest hover:bg-red-700 transition-colors rounded-sm"
-              >
-                {t("close")}
-              </button>
-            </div>
+      <AnimatedModal
+        open={!!error}
+        panelRef={errorModalRef}
+        overlayClassName="bg-black/80 backdrop-blur-sm"
+        labelledBy="register-error-title"
+        panelClassName="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-2xl rounded-sm"
+      >
+        <button
+          onClick={() => setError(null)}
+          aria-label={t("close")}
+          className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-900/30 mb-4 border border-red-500">
+            <svg className="h-6 w-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
           </div>
+          <h3 id="register-error-title" className="text-xl font-bold text-white mb-2">{t("errorTitle")}</h3>
+          <p className="text-gray-300 mb-6 font-medium">
+            {error}
+          </p>
+          <button
+            onClick={() => setError(null)}
+            className="w-full px-4 py-2 bg-red-600 text-white font-bold uppercase tracking-widest hover:bg-red-700 transition-colors rounded-sm"
+          >
+            {t("close")}
+          </button>
         </div>
-      )}
+      </AnimatedModal>
 
       {/* Success Modal */}
-      {success && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div
-            ref={successModalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="register-success-title"
-            tabIndex={-1}
-            className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl rounded-sm outline-none">
-            <button
-              onClick={() => setSuccess(null)}
-              aria-label={t("close")}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div className="text-center">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-900/30 mb-4 border border-green-500">
-                <svg className="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h3 id="register-success-title" className="text-xl font-bold text-white mb-2">{t("successTitle")}</h3>
-              <p className="text-gray-300 mb-6 font-medium">
-                {success}
-              </p>
-              <button
-                onClick={() => setSuccess(null)}
-                className="w-full px-4 py-2 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors rounded-sm"
-              >
-                {t("close")}
-              </button>
-            </div>
+      <AnimatedModal
+        open={!!success}
+        panelRef={successModalRef}
+        overlayClassName="bg-black/80 backdrop-blur-sm"
+        labelledBy="register-success-title"
+        panelClassName="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl rounded-sm"
+      >
+        <button
+          onClick={() => setSuccess(null)}
+          aria-label={t("close")}
+          className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-900/30 mb-4 border border-green-500">
+            <svg className="h-6 w-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
           </div>
+          <h3 id="register-success-title" className="text-xl font-bold text-white mb-2">{t("successTitle")}</h3>
+          <p className="text-gray-300 mb-6 font-medium">
+            {success}
+          </p>
+          <button
+            onClick={() => setSuccess(null)}
+            className="w-full px-4 py-2 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors rounded-sm"
+          >
+            {t("close")}
+          </button>
         </div>
-      )}
+      </AnimatedModal>
 
       {/* Submitting Modal */}
-      {isSubmitting && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div
-            ref={submittingModalRef}
-            role="dialog"
-            aria-modal="true"
-            aria-label={t("submitting")}
-            aria-live="polite"
-            tabIndex={-1}
-            className="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center rounded-sm outline-none">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 mb-6">
-              <svg
-                className="animate-spin h-10 w-10 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth={4}
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-white uppercase tracking-widest animate-pulse">
-              {t("submitting")}
-            </h3>
-          </div>
+      <AnimatedModal
+        open={isSubmitting}
+        panelRef={submittingModalRef}
+        overlayClassName="bg-black/80 backdrop-blur-sm"
+        ariaLabel={t("submitting")}
+        ariaLive="polite"
+        panelClassName="bg-[#111] border-2 border-white p-8 max-w-md w-full relative shadow-2xl text-center rounded-sm"
+      >
+        <div className="mx-auto flex items-center justify-center h-12 w-12 mb-6">
+          <svg
+            className="animate-spin h-10 w-10 text-white"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth={4}
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
         </div>
-      )}
+        <h3 className="text-xl font-bold text-white uppercase tracking-widest animate-pulse">
+          {t("submitting")}
+        </h3>
+      </AnimatedModal>
     </form>
   );
 }

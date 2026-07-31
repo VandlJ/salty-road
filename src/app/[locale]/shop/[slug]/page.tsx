@@ -8,6 +8,7 @@ import React, { useEffect, useRef, useState } from "react";
 import SectionHeading from "@/components/section-heading";
 import QuantityStepper from "@/components/quantity-stepper";
 import Skeleton from "@/components/skeleton";
+import { AnimatePresence, motion } from "motion/react";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore } from "@/lib/cartStore";
 import type { MerchProduct, MerchVariant } from "@/types/merch";
@@ -171,7 +172,12 @@ export default function ProductDetailPage() {
   if (loading) {
     return (
       <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12" aria-hidden="true">
-        <div className="max-w-5xl mx-auto">
+        <motion.div
+          className="max-w-5xl mx-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        >
           <Skeleton className="h-4 w-24 mb-8" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
@@ -208,7 +214,7 @@ export default function ProductDetailPage() {
               <Skeleton className="h-12 w-full sm:w-48" />
             </div>
           </div>
-        </div>
+        </motion.div>
       </section>
     );
   }
@@ -226,7 +232,12 @@ export default function ProductDetailPage() {
 
   return (
     <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12">
-      <div className="max-w-5xl mx-auto">
+      <motion.div
+        className="max-w-5xl mx-auto"
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      >
         <Link
           href="/shop"
           className="group inline-flex items-center gap-2 mb-8 text-sm font-medium uppercase tracking-wide text-gray-400 hover:text-white transition-colors"
@@ -387,15 +398,30 @@ export default function ProductDetailPage() {
 
             {selectedVariant && selectedVariant.quantity <= 0 ? (
               <div className="flex flex-col gap-3">
+                <AnimatePresence mode="wait" initial={false}>
                 {notifySent ? (
-                  <div className="flex items-center gap-2 text-green-500 font-bold">
+                  <motion.div
+                    key="sent"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center gap-2 text-green-500 font-bold"
+                  >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 6L9 17l-5-5" />
                     </svg>
                     {t("notifySent")}
-                  </div>
+                  </motion.div>
                 ) : notifyOpen ? (
-                  <form onSubmit={handleNotifySubmit} className="flex flex-col gap-3 p-4 border-2 border-gray-600 rounded-sm bg-white/5">
+                  <motion.form
+                    key="form"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onSubmit={handleNotifySubmit}
+                    className="flex flex-col gap-3 p-4 border-2 border-gray-600 rounded-sm bg-white/5">
                     <div className="flex flex-col gap-1">
                       <label htmlFor="notify-name" className="text-xs text-gray-400 uppercase tracking-wide">
                         {t("checkoutName")}
@@ -434,16 +460,22 @@ export default function ProductDetailPage() {
                     >
                       {notifySubmitting ? t("notifySubmitting") : t("notifySubmit")}
                     </button>
-                  </form>
+                  </motion.form>
                 ) : (
-                  <button
+                  <motion.button
+                    key="trigger"
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
                     type="button"
                     onClick={() => setNotifyOpen(true)}
                     className="px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase border-2 border-white text-white hover:bg-white hover:text-black transition-all duration-200 cursor-pointer"
                   >
                     {t("notifyWhenInStock")}
-                  </button>
+                  </motion.button>
                 )}
+                </AnimatePresence>
               </div>
             ) : (
               <>
@@ -470,8 +502,10 @@ export default function ProductDetailPage() {
                       : "bg-white border-white text-black hover:bg-gray-200"
                   }`}
                 >
+                  <AnimatePresence mode="popLayout" initial={false}>
                   {added && (
-                    <svg
+                    <motion.svg
+                      key="check"
                       xmlns="http://www.w3.org/2000/svg"
                       width="18"
                       height="18"
@@ -481,17 +515,22 @@ export default function ProductDetailPage() {
                       strokeWidth="3"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      initial={{ opacity: 0, scale: 0.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.5 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 22 }}
                     >
                       <path d="M20 6L9 17l-5-5" />
-                    </svg>
+                    </motion.svg>
                   )}
+                  </AnimatePresence>
                   {added ? t("addedToCart") : t("addToCart")}
                 </button>
               </>
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

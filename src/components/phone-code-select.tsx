@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 export type PhoneCountry = { code: string; flag: string; name: string };
 
@@ -68,9 +69,14 @@ export default function PhoneCodeSelect({
         </svg>
       </button>
 
+      <AnimatePresence>
       {open && (
-        <ul
+        <motion.ul
           role="listbox"
+          initial={{ opacity: 0, y: -6, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -6, scale: 0.97 }}
+          transition={{ duration: 0.15 }}
           className="absolute z-20 mt-2 w-max min-w-full bg-[#111] border border-gray-600 rounded-sm shadow-2xl overflow-hidden"
         >
           {PHONE_COUNTRIES.map((c) => {
@@ -102,8 +108,9 @@ export default function PhoneCodeSelect({
               </li>
             );
           })}
-        </ul>
+        </motion.ul>
       )}
+      </AnimatePresence>
     </div>
   );
 }

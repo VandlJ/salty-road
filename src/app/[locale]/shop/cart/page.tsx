@@ -5,6 +5,7 @@ import { Link } from "@/i18n/routing";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
+import { AnimatePresence, motion } from "motion/react";
 import SectionHeading from "@/components/section-heading";
 import QuantityStepper from "@/components/quantity-stepper";
 import { formatPrice } from "@/lib/formatPrice";
@@ -240,31 +241,62 @@ export default function CartPage() {
                     disabled={!!couponPreview}
                     className="flex-1 px-4 py-2.5 bg-white/5 text-white placeholder-gray-500 border-2 border-gray-600 rounded-sm focus:outline-none focus:border-white transition-colors text-sm disabled:opacity-50 uppercase"
                   />
+                  <AnimatePresence mode="wait" initial={false}>
                   {couponPreview ? (
-                    <button
+                    <motion.button
+                      key="remove"
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
                       type="button"
                       onClick={removeCoupon}
                       className="px-4 py-2.5 border-2 border-gray-500 text-gray-300 rounded-sm hover:border-white hover:text-white transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer"
                     >
                       {t("couponRemove")}
-                    </button>
+                    </motion.button>
                   ) : (
-                    <button
+                    <motion.button
+                      key="apply"
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
                       type="button"
                       onClick={() => validateCoupon(couponInput)}
                       disabled={couponChecking || !couponInput.trim()}
                       className="px-4 py-2.5 border-2 border-white text-white rounded-sm hover:bg-white hover:text-black transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {couponChecking ? t("couponChecking") : t("couponApply")}
-                    </button>
+                    </motion.button>
                   )}
+                  </AnimatePresence>
                 </div>
-                {couponError && <p className="text-red-500 text-sm font-bold mt-2">{couponError}</p>}
-                {couponPreview && (
-                  <p className="text-green-500 text-sm font-bold mt-2">
+                <AnimatePresence mode="wait" initial={false}>
+                {couponError ? (
+                  <motion.p
+                    key="error"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="text-red-500 text-sm font-bold mt-2"
+                  >
+                    {couponError}
+                  </motion.p>
+                ) : couponPreview ? (
+                  <motion.p
+                    key="applied"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="text-green-500 text-sm font-bold mt-2"
+                  >
                     {t("couponApplied", { code: couponPreview.code })}
-                  </p>
-                )}
+                  </motion.p>
+                ) : null}
+                </AnimatePresence>
               </div>
 
               <div className="mt-6 flex flex-col gap-1">
@@ -304,11 +336,19 @@ export default function CartPage() {
                 )}
               </div>
 
+              <AnimatePresence>
               {hasStockIssue && (
-                <p className="mt-3 text-sm text-red-500 text-center sm:text-right">
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-3 text-sm text-red-500 text-center sm:text-right overflow-hidden"
+                >
                   {t("stockIssueBlockingCheckout")}
-                </p>
+                </motion.p>
               )}
+              </AnimatePresence>
             </div>
           </>
         )}
