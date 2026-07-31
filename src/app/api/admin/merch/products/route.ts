@@ -13,7 +13,7 @@ export async function GET() {
     const products = await prisma.merchProduct.findMany({
       orderBy: { createdAt: Prisma.SortOrder.desc },
       include: {
-        variants: { orderBy: { label: Prisma.SortOrder.asc } },
+        variants: { orderBy: { order: Prisma.SortOrder.asc } },
       },
     });
     return NextResponse.json(products);

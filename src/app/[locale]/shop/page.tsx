@@ -52,7 +52,7 @@ export default function ShopPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6" aria-hidden="true">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="flex flex-col rounded-sm border border-gray-800 overflow-hidden">
-                <Skeleton className="aspect-square w-full rounded-none" />
+                <Skeleton className="aspect-[4/5] w-full rounded-none" />
                 <div className="p-3 sm:p-4 flex flex-col gap-2">
                   <Skeleton className="h-4 w-2/3" />
                   <Skeleton className="h-3 w-1/3" />
@@ -89,7 +89,10 @@ export default function ShopPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {products.map((product, index) => {
             const minPrice = Math.min(...product.variants.map((v) => v.price));
-            const thumbnail = product.variants.find((v) => v.image)?.image;
+            const thumbnail =
+              product.photoMode === "per_variant"
+                ? product.variants.find((v) => v.images.length > 0)?.images[0]
+                : product.photos[0];
             const inStock = product.variants.some((v) => v.quantity > 0);
 
             return (
@@ -98,11 +101,11 @@ export default function ShopPage() {
                 href={`/shop/${product.slug}`}
                 className="group flex flex-col rounded-sm border border-gray-800 bg-white/[0.02] overflow-hidden hover:border-gray-500 hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-2xl"
               >
-                {/* Product plate: white, object-contain — shows the whole
-                    product uncropped instead of stretching/cropping photos
-                    that already ship with a light studio background into a
-                    full-bleed square (jarring against the dark theme). */}
-                <div className="relative aspect-square bg-white overflow-hidden">
+                {/* Full-bleed cover crop, no white plate — these are
+                    lifestyle photos of people wearing the product, not
+                    isolated flat-lay renders, so a portrait-ish crop shows
+                    more of the actual garment than a padded square would. */}
+                <div className="relative aspect-[4/5] bg-black overflow-hidden">
                   {thumbnail ? (
                     <Image
                       src={thumbnail}
@@ -110,7 +113,7 @@ export default function ShopPage() {
                       fill
                       priority={index < 4}
                       fetchPriority={index < 4 ? "high" : undefined}
-                      className="object-contain p-6 sm:p-8 transition-transform duration-500 group-hover:scale-105"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     />
                   ) : (

@@ -17,7 +17,7 @@ export async function GET(
           // See the products/route.ts comment: Prisma.SortOrder enum
           // required here, not the "asc" string literal, or the
           // Accelerate-extended client's include type inference breaks.
-          orderBy: { label: Prisma.SortOrder.asc },
+          orderBy: { order: Prisma.SortOrder.asc },
         },
       },
       cacheStrategy: { ttl: 30 },

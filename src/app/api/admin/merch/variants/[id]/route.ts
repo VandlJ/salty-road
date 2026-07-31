@@ -3,6 +3,11 @@ import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
 
 const MAX_LEN = { label: 100 };
+const MAX_PHOTOS = 20;
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((v) => typeof v === "string");
+}
 
 export async function PATCH(
   req: Request,
@@ -14,7 +19,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
-    const { label, price, quantity, image, active } = body;
+    const { label, price, quantity, images, active, order } = body;
 
     for (const [field, maxLen] of Object.entries(MAX_LEN)) {
       const value = body[field];
@@ -28,6 +33,12 @@ export async function PATCH(
     if (quantity !== undefined && (!Number.isInteger(quantity) || quantity < 0)) {
       return NextResponse.json({ error: "invalid_quantity" }, { status: 400 });
     }
+    if (images !== undefined && (!isStringArray(images) || images.length > MAX_PHOTOS)) {
+      return NextResponse.json({ error: "invalid_photos" }, { status: 400 });
+    }
+    if (order !== undefined && !Number.isInteger(order)) {
+      return NextResponse.json({ error: "invalid_order" }, { status: 400 });
+    }
 
     const variant = await prisma.merchVariant.update({
       where: { id },
@@ -35,8 +46,9 @@ export async function PATCH(
         ...(label !== undefined && { label }),
         ...(price !== undefined && { price }),
         ...(quantity !== undefined && { quantity }),
-        ...(image !== undefined && { image: image || null }),
+        ...(images !== undefined && { images }),
         ...(active !== undefined && { active: !!active }),
+        ...(order !== undefined && { order }),
       },
     });
 

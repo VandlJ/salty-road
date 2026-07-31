@@ -23,6 +23,8 @@ export default function ProductDetailPage() {
   const [selectedSku, setSelectedSku] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [slideDir, setSlideDir] = useState<"next" | "prev">("next");
 
   useEffect(() => {
     async function load() {
@@ -46,9 +48,31 @@ export default function ProductDetailPage() {
     load();
   }, [params.slug]);
 
+  // Reset to the first photo whenever the selected variant changes — an
+  // index from the previous variant's gallery can be out of range for the
+  // new one (per-variant photo mode).
+  useEffect(() => {
+    setPhotoIndex(0);
+  }, [selectedSku]);
+
   const selectedVariant: MerchVariant | undefined = product?.variants.find(
     (v) => v.sku === selectedSku
   );
+
+  // Shared mode: same photos regardless of which size/variant is picked.
+  // Per-variant mode: the selected variant's own photos (e.g. different
+  // colors need different photos). Size chart, if set, is always appended
+  // as the last slide.
+  const variantPhotos =
+    product?.photoMode === "per_variant" ? selectedVariant?.images ?? [] : product?.photos ?? [];
+  const photos = product?.sizeChartImage ? [...variantPhotos, product.sizeChartImage] : variantPhotos;
+  const isSizeChartSlide = product?.sizeChartImage != null && photoIndex === photos.length - 1;
+
+  function goToPhoto(index: number, dir?: "next" | "prev") {
+    const wrapped = ((index % photos.length) + photos.length) % photos.length;
+    setSlideDir(dir ?? (wrapped > photoIndex ? "next" : "prev"));
+    setPhotoIndex(wrapped);
+  }
 
   function handleAddToCart() {
     if (!product || !selectedVariant) return;
@@ -59,7 +83,7 @@ export default function ProductDetailPage() {
       variantLabel: selectedVariant.label,
       unitPrice: selectedVariant.price,
       qty,
-      image: selectedVariant.image,
+      image: variantPhotos[0] ?? null,
     });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -74,7 +98,7 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
             <Skeleton className="h-9 w-2/3 md:col-start-2 md:row-start-1" />
 
-            <Skeleton className="aspect-square md:col-start-1 md:row-start-1 md:row-span-2" />
+            <Skeleton className="aspect-[4/5] md:col-start-1 md:row-start-1 md:row-span-2" />
 
             <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2">
               <div className="flex flex-col gap-2">
@@ -151,21 +175,81 @@ export default function ProductDetailPage() {
             {product.name}
           </SectionHeading>
 
-          <div className="relative aspect-square bg-white border border-gray-700 rounded-sm overflow-hidden md:col-start-1 md:row-start-1 md:row-span-2">
-            {selectedVariant?.image ? (
-              <div key={selectedVariant.sku} className="fade-swap relative w-full h-full">
-                <Image
-                  src={selectedVariant.image}
-                  alt={`${product.name} — ${selectedVariant.label}`}
-                  fill
-                  className="object-contain p-8 sm:p-12"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-400 italic">
-                {product.name}
+          <div className="md:col-start-1 md:row-start-1 md:row-span-2 flex flex-col gap-3">
+            <div className="relative aspect-[4/5] bg-black border border-gray-700 rounded-sm overflow-hidden">
+              {photos.length > 0 ? (
+                <div
+                  key={photoIndex}
+                  className={`relative w-full h-full ${isSizeChartSlide ? "bg-white" : ""} ${slideDir === "next" ? "gallery-slide-next" : "gallery-slide-prev"}`}
+                >
+                  <Image
+                    src={photos[photoIndex]}
+                    alt={
+                      isSizeChartSlide
+                        ? t("sizeChartAlt", { name: product.name })
+                        : `${product.name} — ${selectedVariant?.label ?? ""}`
+                    }
+                    fill
+                    // Lifestyle photos fill the frame edge-to-edge; the size
+                    // chart (a flat table image, not a photo) needs the
+                    // whole thing visible instead of cropped, so it gets the
+                    // contain+white-plate treatment just for that one slide.
+                    className={isSizeChartSlide ? "object-contain p-8 sm:p-12" : "object-cover"}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    priority={photoIndex === 0}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-400 italic">
+                  {product.name}
+                </div>
+              )}
+
+              {photos.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => goToPhoto(photoIndex - 1, "prev")}
+                    aria-label={t("previousPhoto")}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/70 hover:bg-black text-white rounded-full transition-colors cursor-pointer"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => goToPhoto(photoIndex + 1, "next")}
+                    aria-label={t("nextPhoto")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center bg-black/70 hover:bg-black text-white rounded-full transition-colors cursor-pointer"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </button>
+                </>
+              )}
+            </div>
+
+            {photos.length > 1 && (
+              <div className="flex flex-wrap gap-2">
+                {photos.map((url, i) => {
+                  const isChart = product.sizeChartImage != null && i === photos.length - 1;
+                  return (
+                    <button
+                      key={url + i}
+                      type="button"
+                      onClick={() => goToPhoto(i)}
+                      aria-label={t("goToPhoto", { index: i + 1 })}
+                      aria-current={i === photoIndex}
+                      className={`relative w-14 h-14 shrink-0 rounded-sm overflow-hidden border-2 transition-colors cursor-pointer ${isChart ? "bg-white" : "bg-black"} ${
+                        i === photoIndex ? "border-white" : "border-gray-700 hover:border-gray-500"
+                      }`}
+                    >
+                      <Image src={url} alt="" fill className={isChart ? "object-contain p-1" : "object-cover"} sizes="56px" />
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

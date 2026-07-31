@@ -6,6 +6,7 @@ import Image from "next/image";
 import React, { useCallback, useEffect, useState } from "react";
 import AdminLoginForm from "@/components/admin-login-form";
 import AdminFilterChip from "@/components/admin-filter-chip";
+import AdminPhotoGalleryManager from "@/components/admin-photo-gallery-manager";
 import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import { useModalA11y } from "@/lib/useModalA11y";
@@ -288,7 +289,10 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
         return;
       }
 
-      let image: string | null = null;
+      // New products default to photoMode "shared" — a photo uploaded here
+      // goes straight to the product's shared gallery, not the variant.
+      // Per-variant photos (and switching to per-variant mode) are managed
+      // afterward from the product card once it's created.
       if (imageFile) {
         const formData = new FormData();
         formData.append("file", imageFile);
@@ -296,7 +300,11 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
         const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
         if (uploadRes.ok) {
           const blob = await uploadRes.json();
-          image = blob.url;
+          await fetch(`/api/admin/merch/products/${product.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ photos: [blob.url] }),
+          });
         }
       }
 
@@ -309,7 +317,6 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
           label: variantLabel,
           price: priceHalire,
           quantity: Number(variantQuantity),
-          image,
         }),
       });
       const variant = await variantRes.json();
@@ -517,6 +524,81 @@ function ProductCard({
     onChange();
   }
 
+  async function setPhotoMode(mode: "shared" | "per_variant") {
+    if (mode === product.photoMode) return;
+    await fetch(`/api/admin/merch/products/${product.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photoMode: mode }),
+    });
+    onChange();
+  }
+
+  async function setPhotos(photos: string[]) {
+    await fetch(`/api/admin/merch/products/${product.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ photos }),
+    });
+    onChange();
+  }
+
+  const [movingVariant, setMovingVariant] = useState(false);
+
+  async function moveVariant(index: number, dir: -1 | 1) {
+    const target = index + dir;
+    if (target < 0 || target >= product.variants.length || movingVariant) return;
+    const reordered = [...product.variants];
+    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+    setMovingVariant(true);
+    try {
+      // Variant order lives server-side as a plain `order` int per row (no
+      // bulk-reorder endpoint) — swapping two variants means re-stamping
+      // every row's order to match its new array position, same as the
+      // photo gallery reorder does with the photos array.
+      await Promise.all(
+        reordered.map((v, i) =>
+          fetch(`/api/admin/merch/variants/${v.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order: i }),
+          })
+        )
+      );
+      onChange();
+    } finally {
+      setMovingVariant(false);
+    }
+  }
+
+  async function uploadSizeChart(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("folder", "merch");
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    if (res.ok) {
+      const blob = await res.json();
+      await fetch(`/api/admin/merch/products/${product.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sizeChartImage: blob.url }),
+      });
+      onChange();
+    }
+    e.target.value = "";
+  }
+
+  async function removeSizeChart() {
+    await fetch(`/api/admin/merch/products/${product.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sizeChartImage: null }),
+    });
+    onChange();
+  }
+
   async function deleteProduct() {
     await fetch(`/api/admin/merch/products/${product.id}`, { method: "DELETE" });
     setConfirmDelete(false);
@@ -579,6 +661,78 @@ function ProductCard({
           </button>
         )}
 
+        <div className="mt-4 pt-4 border-t border-gray-800 flex flex-col gap-3">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
+              {t("photosTitle")}
+            </h3>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={() => setPhotoMode("shared")}
+                aria-pressed={product.photoMode === "shared"}
+                className={`flex-1 text-left px-4 py-2.5 rounded-sm border-2 transition-colors cursor-pointer ${
+                  product.photoMode === "shared"
+                    ? "border-white bg-white/10"
+                    : "border-gray-700 hover:border-gray-500"
+                }`}
+              >
+                <div className="text-white text-sm font-bold">{t("photoModeSharedLabel")}</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">{t("photoModeSharedHint")}</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhotoMode("per_variant")}
+                aria-pressed={product.photoMode === "per_variant"}
+                className={`flex-1 text-left px-4 py-2.5 rounded-sm border-2 transition-colors cursor-pointer ${
+                  product.photoMode === "per_variant"
+                    ? "border-white bg-white/10"
+                    : "border-gray-700 hover:border-gray-500"
+                }`}
+              >
+                <div className="text-white text-sm font-bold">{t("photoModePerVariantLabel")}</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">{t("photoModePerVariantHint")}</div>
+              </button>
+            </div>
+          </div>
+
+          {product.photoMode === "shared" && (
+            <AdminPhotoGalleryManager
+              photos={product.photos}
+              onChange={setPhotos}
+              uploadLabel={t("uploadPhotos")}
+              uploadingLabel={t("uploading")}
+            />
+          )}
+
+          <div className="pt-3 border-t border-gray-800/60">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">
+              {t("sizeChartTitle")}
+            </h3>
+            <p className="text-[11px] text-gray-500 mb-2">{t("sizeChartHint")}</p>
+            {product.sizeChartImage ? (
+              <div className="relative w-16 h-16 group">
+                <div className="relative w-full h-full bg-white rounded-sm overflow-hidden border border-gray-700">
+                  <Image src={product.sizeChartImage} alt="" fill className="object-contain p-1" sizes="64px" />
+                </div>
+                <button
+                  type="button"
+                  onClick={removeSizeChart}
+                  aria-label={t("delete")}
+                  className="absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center bg-red-600 hover:bg-red-500 text-white rounded-full text-xs font-bold cursor-pointer transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <label className="self-start text-xs text-white bg-[#111] border border-white/50 px-3 py-2 rounded-sm cursor-pointer hover:bg-white hover:text-black transition-colors inline-block">
+                {t("uploadImage")}
+                <input type="file" accept="image/*" onChange={uploadSizeChart} className="sr-only" />
+              </label>
+            )}
+          </div>
+        </div>
+
         <div className="mt-4 pt-4 border-t border-gray-800">
           <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">
             {t("variantsTitle")}
@@ -587,8 +741,18 @@ function ProductCard({
             <p className="text-gray-500 text-sm italic mb-3">{t("noVariants")}</p>
           )}
           <div className="flex flex-col gap-3">
-            {product.variants.map((variant) => (
-              <VariantRow key={variant.id} variant={variant} t={t} onChange={onChange} />
+            {product.variants.map((variant, i) => (
+              <VariantRow
+                key={variant.id}
+                variant={variant}
+                t={t}
+                onChange={onChange}
+                showPhotos={product.photoMode === "per_variant"}
+                onMove={(dir) => moveVariant(i, dir)}
+                canMoveUp={i > 0}
+                canMoveDown={i < product.variants.length - 1}
+                moving={movingVariant}
+              />
             ))}
           </div>
           <AddVariantForm productId={product.id} t={t} onCreated={onChange} />
@@ -633,15 +797,24 @@ function VariantRow({
   variant,
   t,
   onChange,
+  showPhotos,
+  onMove,
+  canMoveUp,
+  canMoveDown,
+  moving,
 }: {
   variant: MerchVariantAdmin;
   t: Translate;
   onChange: () => void;
+  showPhotos: boolean;
+  onMove: (dir: -1 | 1) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  moving: boolean;
 }) {
   const [label, setLabel] = useState(variant.label);
   const [price, setPrice] = useState((variant.price / 100).toString());
   const [quantity, setQuantity] = useState(variant.quantity.toString());
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const dirty =
@@ -688,40 +861,37 @@ function VariantRow({
     onChange();
   }
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    setError(null);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("folder", "merch");
-      const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-      if (!uploadRes.ok) throw new Error("Upload failed");
-      const blob = await uploadRes.json();
-      await fetch(`/api/admin/merch/variants/${variant.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: blob.url }),
-      });
-      onChange();
-    } catch (err) {
-      console.error(err);
-      setError(t("errorGeneric"));
-    } finally {
-      setUploading(false);
-      e.target.value = "";
-    }
+  async function setImages(images: string[]) {
+    await fetch(`/api/admin/merch/variants/${variant.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ images }),
+    });
+    onChange();
   }
 
   return (
     <div className="flex flex-col gap-2 bg-white/5 border border-gray-700 rounded-sm p-3">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative w-12 h-12 shrink-0 bg-black rounded-sm overflow-hidden border border-gray-700">
-          {variant.image && (
-            <Image src={variant.image} alt={variant.label} fill className="object-cover" sizes="48px" />
-          )}
+        <div className="flex gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => onMove(-1)}
+            disabled={moving || !canMoveUp}
+            aria-label="Posunout nahoru"
+            className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={() => onMove(1)}
+            disabled={moving || !canMoveDown}
+            aria-label="Posunout dolů"
+            className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            ›
+          </button>
         </div>
 
         <input
@@ -743,11 +913,6 @@ function VariantRow({
           onChange={(e) => setQuantity(e.target.value)}
           className="w-20 p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
         />
-
-        <label className="text-xs text-white bg-[#111] border border-white/50 px-3 py-2 rounded-sm cursor-pointer hover:bg-white hover:text-black transition-colors">
-          {uploading ? t("uploading") : t("uploadImage")}
-          <input type="file" accept="image/*" onChange={handleImageUpload} className="sr-only" disabled={uploading} />
-        </label>
 
         <button
           onClick={toggleActive}
@@ -781,6 +946,16 @@ function VariantRow({
           {t("delete")}
         </button>
       </div>
+
+      {showPhotos && (
+        <AdminPhotoGalleryManager
+          photos={variant.images}
+          onChange={setImages}
+          uploadLabel={t("uploadPhotos")}
+          uploadingLabel={t("uploading")}
+        />
+      )}
+
       <div className="text-[10px] text-gray-500 font-mono">{variant.sku}</div>
       {error && <div className="text-red-400 text-xs font-bold">{error}</div>}
     </div>

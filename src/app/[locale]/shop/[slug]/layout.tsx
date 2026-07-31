@@ -15,9 +15,11 @@ const getProduct = cache(async (slug: string) => {
       name: true,
       description: true,
       active: true,
+      photoMode: true,
+      photos: true,
       variants: {
         where: { active: true },
-        select: { sku: true, label: true, price: true, quantity: true, image: true },
+        select: { sku: true, label: true, price: true, quantity: true, images: true },
       },
     },
   });
@@ -48,7 +50,11 @@ export async function generateMetadata({
   // dropped that site-name suffix — same bug class as the /shop/layout.tsx
   // fix above).
   const title = product.name;
-  const image = product.variants.find((v) => v.image)?.image;
+  const allPhotos =
+    product.photoMode === "per_variant"
+      ? product.variants.flatMap((v) => v.images)
+      : product.photos;
+  const image = allPhotos[0];
 
   return {
     title,
@@ -91,7 +97,10 @@ export default async function ProductDetailLayout({
   }
 
   const url = canonicalUrl(locale, `/shop/${slug}`);
-  const images = product.variants.map((v) => v.image).filter((img): img is string => !!img);
+  const images =
+    product.photoMode === "per_variant"
+      ? product.variants.flatMap((v) => v.images)
+      : product.photos;
 
   const productJsonLd = {
     "@context": "https://schema.org",

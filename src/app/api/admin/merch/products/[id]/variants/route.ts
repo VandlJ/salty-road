@@ -4,6 +4,11 @@ import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
 
 const MAX_LEN = { sku: 80, label: 100 };
+const MAX_PHOTOS = 20;
+
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((v) => typeof v === "string");
+}
 
 export async function POST(
   req: Request,
@@ -15,7 +20,7 @@ export async function POST(
   try {
     const { id: productId } = await params;
     const body = await req.json();
-    const { sku, label, price, quantity, image } = body;
+    const { sku, label, price, quantity, images } = body;
 
     if (!sku || !label || price == null || quantity == null) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
@@ -34,9 +39,19 @@ export async function POST(
     if (!Number.isInteger(quantity) || quantity < 0) {
       return NextResponse.json({ error: "invalid_quantity" }, { status: 400 });
     }
+    if (images !== undefined && (!isStringArray(images) || images.length > MAX_PHOTOS)) {
+      return NextResponse.json({ error: "invalid_photos" }, { status: 400 });
+    }
+
+    // New variants go to the end of the display order (not alphabetical —
+    // that's the whole point of the `order` column, see admin UI reorder).
+    const { _max } = await prisma.merchVariant.aggregate({
+      where: { productId },
+      _max: { order: true },
+    });
 
     const variant = await prisma.merchVariant.create({
-      data: { productId, sku, label, price, quantity, image: image || null },
+      data: { productId, sku, label, price, quantity, images: images ?? [], order: (_max.order ?? -1) + 1 },
     });
 
     return NextResponse.json(variant, { status: 201 });

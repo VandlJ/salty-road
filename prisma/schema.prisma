@@ -46,14 +46,21 @@ model Registration {
 }
 
 model MerchProduct {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  category    String // "hoodie" | "tshirt" | "car-scent" | "cap"
-  name        String
-  description String
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  variants    MerchVariant[]
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  category       String // "hoodie" | "tshirt" | "car-scent" | "cap"
+  name           String
+  description    String
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  // "shared": `photos` below is used for every variant (e.g. same hoodie
+  // photographed once, sold in multiple sizes). "per_variant": each
+  // MerchVariant's own `images` is used instead (e.g. a cap sold in two
+  // different colors that need distinct photos).
+  photoMode      String   @default("shared")
+  photos         String[] @default([]) // Vercel Blob URLs, used when photoMode = "shared"
+  sizeChartImage String? // shown as the last slide of the product gallery
+  variants       MerchVariant[]
 }
 
 model MerchVariant {
@@ -64,8 +71,9 @@ model MerchVariant {
   label     String // free text, e.g. "M / Black" or "Design: Shark"
   price     Int // halire
   quantity  Int          @default(0)
-  image     String? // Vercel Blob URL
+  images    String[]     @default([]) // Vercel Blob URLs, used when product.photoMode = "per_variant"
   active    Boolean      @default(true)
+  order     Int          @default(0) // admin-controlled display order, not alphabetical
 
   @@index([productId])
 }

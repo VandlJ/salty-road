@@ -125,9 +125,9 @@ export default function CartPage() {
                       href={`/shop/${item.productSlug}`}
                       className="flex items-center gap-3 sm:gap-4 flex-1 min-w-[140px] no-underline group"
                     >
-                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 bg-white rounded-sm overflow-hidden border border-gray-700">
+                      <div className="relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 bg-black rounded-sm overflow-hidden border border-gray-700">
                         {item.image ? (
-                          <Image src={item.image} alt={item.name} fill className="object-contain p-1.5" sizes="64px" />
+                          <Image src={item.image} alt={item.name} fill className="object-cover" sizes="64px" />
                         ) : null}
                       </div>
 

@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import CartLink from "@/components/cart-link";
+
+const HOME_SECTION_IDS = ["info", "register", "vehicles"];
 
 export default function Navbar({ fixed = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,11 +15,79 @@ export default function Navbar({ fixed = false }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Admin-controlled kill switch (Merch admin page), off by default until
-  // the shop is ready to launch. Polled + refetched on tab focus so a
-  // toggle in another tab (or the admin panel itself) shows up without a
-  // manual page reload.
+  // Admin-controlled kill switch (Merch admin page) — declared here (ahead
+  // of its own effect further down) because the indicator-measuring effect
+  // below needs it in its dependency array.
   const [shopVisible, setShopVisible] = useState(false);
+
+  // Sliding active-link indicator (desktop nav only). "home"/"info"/
+  // "register"/"vehicles" are scroll-spied on the homepage; "shop"/"check"
+  // are matched by pathname on their own routes.
+  const [activeId, setActiveId] = useState("home");
+  const navRowRef = useRef<HTMLDivElement>(null);
+  const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
+
+  const measureIndicator = useCallback(() => {
+    const row = navRowRef.current;
+    const link = linkRefs.current[activeId];
+    if (!row || !link) {
+      setIndicator(null);
+      return;
+    }
+    const rowRect = row.getBoundingClientRect();
+    const linkRect = link.getBoundingClientRect();
+    setIndicator({ left: linkRect.left - rowRect.left, width: linkRect.width });
+  }, [activeId]);
+
+  useEffect(() => {
+    measureIndicator();
+    window.addEventListener("resize", measureIndicator);
+    return () => window.removeEventListener("resize", measureIndicator);
+    // shopVisible changes which links exist, shifting everything after
+    // it — re-measure so the indicator doesn't end up under the wrong link.
+  }, [measureIndicator, shopVisible]);
+
+  // Match "shop"/"check" (or any future non-homepage nav route) by pathname.
+  useEffect(() => {
+    if (pathname.startsWith("/shop")) setActiveId("shop");
+    else if (pathname.startsWith("/check")) setActiveId("check");
+    else if (pathname === "/") setActiveId((current) => (HOME_SECTION_IDS.includes(current) ? current : "home"));
+  }, [pathname]);
+
+  // Scroll-spy the homepage sections so the indicator follows scroll
+  // position, not just clicks.
+  useEffect(() => {
+    if (pathname !== "/") return;
+    const sections = HOME_SECTION_IDS.map((id) => document.getElementById(id)).filter(
+      (el): el is HTMLElement => el !== null
+    );
+    if (sections.length === 0) return;
+
+    // No raw `window.addEventListener("scroll")` — IntersectionObserver
+    // handles both directions: entering a section activates it, and
+    // exiting #info upward (scrolling back toward the hero) falls back to
+    // "home" instead of leaving the indicator stuck on the last section.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          } else if (entry.target.id === "info" && entry.boundingClientRect.top > 0) {
+            setActiveId("home");
+          }
+        }
+      },
+      { rootMargin: "-40% 0px -55% 0px", threshold: 0 }
+    );
+    sections.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [pathname]);
+
+  // Off by default until the shop is ready to launch. Polled + refetched on
+  // tab focus so a toggle in another tab (or the admin panel itself) shows
+  // up without a manual page reload.
   useEffect(() => {
     const fetchShopStatus = () => {
       fetch("/api/shop-status", { cache: "no-store" })
@@ -80,11 +150,15 @@ export default function Navbar({ fixed = false }) {
         // here used to strip it, desyncing the browser URL from Next's
         // router state and silently breaking later same-page hash links.
         window.history.pushState(null, '', `${window.location.pathname}#${targetId}`);
+        // Instant feedback — don't wait for the scroll-spy IntersectionObserver
+        // to catch up once the smooth scroll settles.
+        setActiveId(targetId);
       }
     }
   };
 
   const scrollToTop = () => {
+    setActiveId('home');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Clear any leftover #section hash from a previous in-page nav click,
     // so it doesn't desync the browser URL from the actual scroll position.
@@ -130,8 +204,9 @@ export default function Navbar({ fixed = false }) {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex flex-1 justify-center items-center gap-6 px-4">
+        <div ref={navRowRef} className="hidden lg:flex flex-1 justify-center items-center gap-6 px-4 relative pb-1">
           <Link
+            ref={(el) => { linkRefs.current.home = el; }}
             href="/"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
             onClick={(e) => {
@@ -144,6 +219,7 @@ export default function Navbar({ fixed = false }) {
             {t("home")}
           </Link>
           <Link
+            ref={(el) => { linkRefs.current.info = el; }}
             href="/#info"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
             onClick={(e) => handleScroll(e, '/#info')}
@@ -151,6 +227,7 @@ export default function Navbar({ fixed = false }) {
             {t("info")}
           </Link>
           <Link
+            ref={(el) => { linkRefs.current.register = el; }}
             href="/#register"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
             onClick={(e) => handleScroll(e, '/#register')}
@@ -158,6 +235,7 @@ export default function Navbar({ fixed = false }) {
             {t("register")}
           </Link>
           <Link
+            ref={(el) => { linkRefs.current.vehicles = el; }}
             href="/#vehicles"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
             onClick={(e) => handleScroll(e, '/#vehicles')}
@@ -166,18 +244,33 @@ export default function Navbar({ fixed = false }) {
           </Link>
           {shopVisible && (
             <Link
+              ref={(el) => { linkRefs.current.shop = el; }}
               href="/shop"
               className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
+              onClick={() => setActiveId('shop')}
             >
               {t("shop")}
             </Link>
           )}
           <Link
+            ref={(el) => { linkRefs.current.check = el; }}
             href="/check"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
+            onClick={() => setActiveId('check')}
           >
             {t("check")}
           </Link>
+
+          {/* Sliding active-link indicator — position/width are measured
+              from the active link's real DOM rect (see measureIndicator),
+              animated purely via CSS transition on left/width. */}
+          {indicator && (
+            <span
+              aria-hidden="true"
+              className="absolute bottom-0 h-[2px] bg-brand transition-all duration-300 ease-out"
+              style={{ left: indicator.left, width: indicator.width }}
+            />
+          )}
         </div>
 
         {/* Desktop Cart + Language Switch */}

@@ -14,7 +14,7 @@ export async function GET() {
           // here — with the Accelerate-extended client, a bare string
           // literal in a nested orderBy silently breaks type inference for
           // the whole include (variants ends up typed as never/missing).
-          orderBy: { label: Prisma.SortOrder.asc },
+          orderBy: { order: Prisma.SortOrder.asc },
         },
       },
       cacheStrategy: { ttl: 30 },

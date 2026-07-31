@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import React, { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useModalA11y } from "@/lib/useModalA11y";
 
 type PhotoGalleryProps = {
@@ -58,7 +59,14 @@ export default function PhotoGallery({
 
   if (photos.length === 0) return null;
 
-  return (
+  // Portaled straight to <body> — this is only ever mounted client-side (in
+  // response to a click, after hydration), so `document` is always
+  // available here. A modal nested deep in the tree otherwise inherits
+  // whatever `position: fixed` containing-block quirks its ancestors have
+  // (e.g. a lingering `transform` from a fill-mode animation), which breaks
+  // `fixed inset-0` sizing/scrolling in ways that are a pain to trace back.
+  // Escaping to `document.body` sidesteps that class of bug entirely.
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
       onClick={onClose}
@@ -120,6 +128,7 @@ export default function PhotoGallery({
           </>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
