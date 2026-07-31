@@ -12,10 +12,16 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
-    const { active, maxUses, expiresAt } = body;
+    const { active, maxUses, expiresAt, categories } = body;
 
     if (maxUses !== undefined && maxUses !== null && (!Number.isInteger(maxUses) || maxUses <= 0)) {
       return NextResponse.json({ error: "invalid_max_uses" }, { status: 400 });
+    }
+    if (
+      categories !== undefined &&
+      (!Array.isArray(categories) || !categories.every((c) => typeof c === "string"))
+    ) {
+      return NextResponse.json({ error: "invalid_categories" }, { status: 400 });
     }
 
     const coupon = await prisma.coupon.update({
@@ -24,6 +30,7 @@ export async function PATCH(
         ...(active !== undefined && { active: !!active }),
         ...(maxUses !== undefined && { maxUses }),
         ...(expiresAt !== undefined && { expiresAt: expiresAt ? new Date(expiresAt) : null }),
+        ...(categories !== undefined && { categories }),
       },
     });
 

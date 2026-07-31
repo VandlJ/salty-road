@@ -135,10 +135,25 @@ export async function POST(req: Request) {
         }
         const coupon = await tx.coupon.findUniqueOrThrow({ where: { code: normalized } });
         couponCode = coupon.code;
+
+        // Category-restricted coupons only discount the matching slice of
+        // the cart — empty `categories` means "applies to everything".
+        const eligibleSubtotal =
+          coupon.categories.length === 0
+            ? subtotal
+            : typedItems.reduce((sum, item) => {
+                const variant = variantBySku.get(item.sku)!;
+                return coupon.categories.includes(variant.product.category) ? sum + variant.price * item.qty : sum;
+              }, 0);
+
+        if (eligibleSubtotal === 0) {
+          throw new Error("INVALID_COUPON");
+        }
+
         discountAmount =
           coupon.type === "percent"
-            ? Math.round((subtotal * coupon.value) / 100)
-            : Math.min(coupon.value, subtotal);
+            ? Math.round((eligibleSubtotal * coupon.value) / 100)
+            : Math.min(coupon.value, eligibleSubtotal);
       }
 
       const totalAmount = subtotal - discountAmount;

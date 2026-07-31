@@ -78,6 +78,7 @@ export type Coupon = {
   usedCount: number;
   active: boolean;
   expiresAt: string | null;
+  categories: string[];
   createdAt: string;
 };
 

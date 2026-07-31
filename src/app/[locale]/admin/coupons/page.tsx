@@ -9,9 +9,11 @@ import { FadeSwap } from "@/components/fade-swap";
 import { AnimatePresence, motion } from "motion/react";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import { formatPrice } from "@/lib/formatPrice";
-import type { Coupon } from "@/types/merch";
+import DatePicker from "@/components/date-picker";
+import type { Coupon, MerchProductAdmin } from "@/types/merch";
 
 type Translate = ReturnType<typeof useTranslations<"AdminCouponsPage">>;
+type MerchTranslate = ReturnType<typeof useTranslations<"AdminMerchPage">>;
 
 const ERROR_KEY_MAP: Record<string, string> = {
   missing_fields: "errorMissingFields",
@@ -21,12 +23,25 @@ const ERROR_KEY_MAP: Record<string, string> = {
   code_taken: "errorCodeTaken",
 };
 
+const CATEGORY_LABEL_KEY: Record<string, string> = {
+  hoodie: "categoryHoodie",
+  tshirt: "categoryTshirt",
+  "car-scent": "categoryCarScent",
+  cap: "categoryCap",
+};
+
+function categoryLabel(tMerch: MerchTranslate, category: string) {
+  return CATEGORY_LABEL_KEY[category] ? tMerch(CATEGORY_LABEL_KEY[category] as "categoryHoodie") : category;
+}
+
 export default function AdminCouponsPage() {
   const t = useTranslations("AdminCouponsPage");
+  const tMerch = useTranslations("AdminMerchPage");
   const { loggedIn, checking, recheck } = useAdminAuth();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<string[]>([]);
 
   const loadCoupons = useCallback(async () => {
     setLoading(true);
@@ -47,6 +62,13 @@ export default function AdminCouponsPage() {
     if (loggedIn) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       loadCoupons();
+      fetch("/api/admin/merch/products")
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data: MerchProductAdmin[] | null) => {
+          if (!data) return;
+          setCategories(Array.from(new Set(data.map((p) => p.category).filter(Boolean))));
+        })
+        .catch((err) => console.error(err));
     }
   }, [loggedIn, loadCoupons]);
 
@@ -85,7 +107,7 @@ export default function AdminCouponsPage() {
         </Link>
       </div>
 
-      <NewCouponForm t={t} onCreated={loadCoupons} />
+      <NewCouponForm t={t} tMerch={tMerch} categoryOptions={categories} onCreated={loadCoupons} />
 
       {loading && (
         <div className="text-white mt-6 text-center font-bold animate-pulse">{t("loading")}</div>
@@ -141,6 +163,18 @@ export default function AdminCouponsPage() {
                       <> · {t("expiresAt")}: {new Date(coupon.expiresAt).toLocaleDateString("cs-CZ")}</>
                     )}
                   </div>
+                  {coupon.categories.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {coupon.categories.map((c) => (
+                        <span
+                          key={c}
+                          className="text-[10px] uppercase tracking-wide text-gray-300 border border-gray-600 bg-white/5 rounded-sm px-2 py-0.5"
+                        >
+                          {categoryLabel(tMerch, c)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
                   <button
@@ -176,14 +210,66 @@ export default function AdminCouponsPage() {
   );
 }
 
-function NewCouponForm({ t, onCreated }: { t: Translate; onCreated: () => void }) {
+function SegmentedSwitch<T extends string>({
+  name,
+  options,
+  value,
+  onChange,
+}: {
+  name: string;
+  options: { value: T; label: string }[];
+  value: T;
+  onChange: (next: T) => void;
+}) {
+  return (
+    <div className="inline-flex h-9 items-stretch bg-white/5 border-2 border-gray-500 rounded-sm p-0.5 shrink-0">
+      {options.map((opt) => (
+        <button
+          key={opt.value}
+          type="button"
+          onClick={() => onChange(opt.value)}
+          className={`relative flex items-center px-3 text-xs font-bold uppercase tracking-wide rounded-sm cursor-pointer transition-colors ${
+            value === opt.value ? "text-black" : "text-gray-400 hover:text-white"
+          }`}
+        >
+          {value === opt.value && (
+            <motion.span
+              layoutId={`segmented-bg-${name}`}
+              transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              className="absolute inset-0 bg-white rounded-sm"
+            />
+          )}
+          <span className="relative">{opt.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function NewCouponForm({
+  t,
+  tMerch,
+  categoryOptions,
+  onCreated,
+}: {
+  t: Translate;
+  tMerch: MerchTranslate;
+  categoryOptions: string[];
+  onCreated: () => void;
+}) {
   const [code, setCode] = useState("");
   const [type, setType] = useState<"percent" | "fixed">("percent");
   const [value, setValue] = useState("");
+  const [unlimited, setUnlimited] = useState(true);
   const [maxUses, setMaxUses] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [expiresAt, setExpiresAt] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function toggleCategory(c: string) {
+    setSelectedCategories((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -197,8 +283,9 @@ function NewCouponForm({ t, onCreated }: { t: Translate; onCreated: () => void }
           code,
           type,
           value: type === "percent" ? Number(value) : Math.round(Number(value) * 100),
-          maxUses: maxUses ? Number(maxUses) : null,
+          maxUses: unlimited ? null : Number(maxUses),
           expiresAt: expiresAt || null,
+          categories: selectedCategories,
         }),
       });
       const json = await res.json();
@@ -208,7 +295,9 @@ function NewCouponForm({ t, onCreated }: { t: Translate; onCreated: () => void }
       }
       setCode("");
       setValue("");
+      setUnlimited(true);
       setMaxUses("");
+      setSelectedCategories([]);
       setExpiresAt("");
       onCreated();
     } catch (err) {
@@ -226,7 +315,7 @@ function NewCouponForm({ t, onCreated }: { t: Translate; onCreated: () => void }
     >
       <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400">{t("newCouponTitle")}</h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-white text-sm font-bold">{t("code")}</label>
           <input
@@ -238,52 +327,94 @@ function NewCouponForm({ t, onCreated }: { t: Translate; onCreated: () => void }
             className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm uppercase"
           />
         </div>
+
         <div className="flex flex-col gap-1">
-          <label className="text-white text-sm font-bold">{t("type")}</label>
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as "percent" | "fixed")}
-            className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm cursor-pointer"
-          >
-            <option value="percent" className="bg-black">{t("typePercent")}</option>
-            <option value="fixed" className="bg-black">{t("typeFixed")}</option>
-          </select>
+          <label className="text-white text-sm font-bold">{t("value")}</label>
+          <div className="flex gap-2">
+            <input
+              type="number"
+              step={type === "percent" ? "1" : "0.01"}
+              min="0"
+              max={type === "percent" ? "100" : undefined}
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              required
+              className="flex-1 min-w-0 h-9 px-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+            />
+            <SegmentedSwitch
+              name="type"
+              value={type}
+              onChange={setType}
+              options={[
+                { value: "percent", label: "%" },
+                { value: "fixed", label: "Kč" },
+              ]}
+            />
+          </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-white text-sm font-bold">
-            {type === "percent" ? t("valuePercent") : t("valueFixed")}
-          </label>
-          <input
-            type="number"
-            step={type === "percent" ? "1" : "0.01"}
-            min="0"
-            max={type === "percent" ? "100" : undefined}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            required
-            className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-          />
-        </div>
+
         <div className="flex flex-col gap-1">
           <label className="text-white text-sm font-bold">{t("maxUses")}</label>
-          <input
-            type="number"
-            min="1"
-            value={maxUses}
-            onChange={(e) => setMaxUses(e.target.value)}
-            placeholder={t("unlimited")}
-            className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-          />
+          <div className="flex gap-2">
+            <SegmentedSwitch
+              name="maxUses"
+              value={unlimited ? "unlimited" : "limited"}
+              onChange={(next) => setUnlimited(next === "unlimited")}
+              options={[
+                { value: "unlimited", label: t("unlimited") },
+                { value: "limited", label: t("limited") },
+              ]}
+            />
+            {!unlimited && (
+              <input
+                type="number"
+                min="1"
+                value={maxUses}
+                onChange={(e) => setMaxUses(e.target.value)}
+                required
+                placeholder="10"
+                className="flex-1 min-w-0 h-9 px-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+              />
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 sm:w-64">
+      <div className="flex flex-col gap-2">
+        <label className="text-white text-sm font-bold">{t("categories")}</label>
+        <p className="text-gray-500 text-xs -mt-1">{t("categoriesHint")}</p>
+        <div className="flex flex-wrap gap-2">
+          {categoryOptions.map((c) => {
+            const selected = selectedCategories.includes(c);
+            return (
+              <button
+                key={c}
+                type="button"
+                onClick={() => toggleCategory(c)}
+                aria-pressed={selected}
+                className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wide rounded-sm border cursor-pointer transition-colors ${
+                  selected
+                    ? "bg-brand border-brand text-white"
+                    : "bg-transparent border-gray-600 text-gray-400 hover:border-gray-400 hover:text-white"
+                }`}
+              >
+                {categoryLabel(tMerch, c)}
+              </button>
+            );
+          })}
+          {categoryOptions.length === 0 && (
+            <span className="text-gray-600 text-xs italic">{t("noCategoriesYet")}</span>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1 sm:w-72">
         <label className="text-white text-sm font-bold">{t("expiresAt")}</label>
-        <input
-          type="date"
+        <DatePicker
           value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
-          className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+          onChange={setExpiresAt}
+          placeholder={t("noExpiry")}
+          clearLabel={t("clearDate")}
         />
       </div>
 

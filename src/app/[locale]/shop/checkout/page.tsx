@@ -29,6 +29,7 @@ const ERROR_KEY_MAP: Record<string, string> = {
   rate_limited: "checkoutErrorRateLimited",
   insufficient_stock: "checkoutErrorInsufficientStock",
   invalid_coupon: "couponInvalid",
+  coupon_not_applicable: "couponNotApplicable",
   server_error: "checkoutErrorGeneric",
 };
 
@@ -71,11 +72,15 @@ export default function CheckoutPage() {
     fetch("/api/merch/coupon/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: couponCode, subtotal }),
+      body: JSON.stringify({
+        code: couponCode,
+        items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
+      }),
     })
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => setDiscountAmount(json?.discountAmount ?? 0))
       .catch(() => setDiscountAmount(0));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [couponCode, subtotal]);
 
   const finalTotal = Math.max(0, subtotal - discountAmount);

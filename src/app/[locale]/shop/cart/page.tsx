@@ -96,10 +96,14 @@ export default function CartPage() {
       const res = await fetch("/api/merch/coupon/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: code.trim(), subtotal }),
+        body: JSON.stringify({
+          code: code.trim(),
+          items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
+        }),
       });
       if (!res.ok) {
-        setCouponError(t("couponInvalid"));
+        const json = await res.json().catch(() => null);
+        setCouponError(json?.error === "coupon_not_applicable" ? t("couponNotApplicable") : t("couponInvalid"));
         setCouponPreview(null);
         setCoupon(null);
         return;

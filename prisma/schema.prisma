@@ -127,13 +127,14 @@ model ContactMessage {
 }
 
 model Coupon {
-  id        String    @id @default(cuid())
-  code      String    @unique // stored uppercase
-  type      String // "percent" | "fixed"
-  value     Int // percent 1-100, or halire for "fixed"
-  maxUses   Int? // null = unlimited
-  usedCount Int       @default(0)
-  active    Boolean   @default(true)
-  expiresAt DateTime?
-  createdAt DateTime  @default(now())
+  id         String    @id @default(cuid())
+  code       String    @unique // stored uppercase
+  type       String // "percent" | "fixed"
+  value      Int // percent 1-100, or halire for "fixed"
+  maxUses    Int? // null = unlimited
+  usedCount  Int       @default(0)
+  active     Boolean   @default(true)
+  expiresAt  DateTime?
+  categories String[]  @default([]) // MerchProduct.category values this coupon applies to; empty = all categories
+  createdAt  DateTime  @default(now())
 }

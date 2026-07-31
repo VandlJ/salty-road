@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { code, type, value, maxUses, expiresAt } = body;
+    const { code, type, value, maxUses, expiresAt, categories } = body;
 
     if (!code || (type !== "percent" && type !== "fixed") || !Number.isInteger(value) || value <= 0) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
@@ -38,6 +38,12 @@ export async function POST(req: Request) {
     if (maxUses !== undefined && maxUses !== null && (!Number.isInteger(maxUses) || maxUses <= 0)) {
       return NextResponse.json({ error: "invalid_max_uses" }, { status: 400 });
     }
+    if (
+      categories !== undefined &&
+      (!Array.isArray(categories) || !categories.every((c) => typeof c === "string"))
+    ) {
+      return NextResponse.json({ error: "invalid_categories" }, { status: 400 });
+    }
 
     const coupon = await prisma.coupon.create({
       data: {
@@ -46,6 +52,7 @@ export async function POST(req: Request) {
         value,
         maxUses: maxUses ?? null,
         expiresAt: expiresAt ? new Date(expiresAt) : null,
+        categories: Array.isArray(categories) ? categories : [],
       },
     });
 
