@@ -10,7 +10,7 @@ import { useAdminAuth } from "@/lib/useAdminAuth";
 import { useModalA11y } from "@/lib/useModalA11y";
 import { formatPrice } from "@/lib/formatPrice";
 import { getOrderVs } from "@/lib/orderVs";
-import type { Order } from "@/types/merch";
+import type { Order, StockRequest } from "@/types/merch";
 
 const STATUSES: Order["status"][] = ["pending", "paid", "shipped", "cancelled"];
 
@@ -34,6 +34,9 @@ export default function AdminOrdersPage() {
   const closeRemoveModal = useCallback(() => setRemoveId(null), []);
   const removeModalRef = useModalA11y<HTMLDivElement>(!!removeId, closeRemoveModal);
 
+  const [stockRequests, setStockRequests] = useState<StockRequest[]>([]);
+  const [stockRequestsLoading, setStockRequestsLoading] = useState(false);
+
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
@@ -49,14 +52,42 @@ export default function AdminOrdersPage() {
     }
   }, [t]);
 
+  const loadStockRequests = useCallback(async () => {
+    setStockRequestsLoading(true);
+    try {
+      const res = await fetch("/api/admin/stock-requests");
+      if (res.ok) setStockRequests(await res.json());
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setStockRequestsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (loggedIn) {
-      // Auth just became true — fetch orders. setState happens after the
-      // async fetch resolves, not synchronously in the effect body.
+      // Auth just became true — fetch orders + stock requests. setState
+      // happens after the async fetches resolve, not synchronously in the
+      // effect body.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       loadOrders();
+      loadStockRequests();
     }
-  }, [loggedIn, loadOrders]);
+  }, [loggedIn, loadOrders, loadStockRequests]);
+
+  async function toggleStockRequestFulfilled(id: string, fulfilled: boolean) {
+    setStockRequests((prev) => prev.map((r) => (r.id === id ? { ...r, fulfilled } : r)));
+    await fetch(`/api/admin/stock-requests/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fulfilled }),
+    });
+  }
+
+  async function removeStockRequest(id: string) {
+    setStockRequests((prev) => prev.filter((r) => r.id !== id));
+    await fetch(`/api/admin/stock-requests/${id}`, { method: "DELETE" });
+  }
 
   async function updateStatus(id: string, status: Order["status"]) {
     setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
@@ -118,6 +149,54 @@ export default function AdminOrdersPage() {
           {t("backToAdmin")}
         </Link>
       </div>
+
+      {!stockRequestsLoading && stockRequests.length > 0 && (
+        <div className="mb-8 bg-[#111]/90 border border-gray-700 rounded-sm overflow-hidden">
+          <div className="px-4 py-3 bg-white/5 border-b border-gray-700">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white">
+              {t("stockRequestsTitle")}{" "}
+              <span className="text-gray-400">
+                ({stockRequests.filter((r) => !r.fulfilled).length})
+              </span>
+            </h2>
+          </div>
+          <div className="flex flex-col divide-y divide-gray-800">
+            {stockRequests.map((r) => (
+              <div
+                key={r.id}
+                className={`flex flex-wrap items-center justify-between gap-3 px-4 py-3 ${r.fulfilled ? "opacity-50" : ""}`}
+              >
+                <div className="min-w-0">
+                  <div className="text-white font-bold text-sm truncate">
+                    {r.productName} <span className="text-gray-400 font-normal">({r.variantLabel})</span>
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {r.customerEmail} · {new Date(r.createdAt).toLocaleDateString("cs-CZ")}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => toggleStockRequestFulfilled(r.id, !r.fulfilled)}
+                    className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-sm border transition-colors cursor-pointer ${
+                      r.fulfilled
+                        ? "border-gray-600 text-gray-400 hover:border-gray-400"
+                        : "border-green-600 text-green-400 hover:bg-green-900/30"
+                    }`}
+                  >
+                    {r.fulfilled ? t("stockRequestReopen") : t("stockRequestFulfill")}
+                  </button>
+                  <button
+                    onClick={() => removeStockRequest(r.id)}
+                    className="px-3 py-1.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] border border-red-900/50 hover:border-red-500 rounded-sm transition-all cursor-pointer"
+                  >
+                    {t("remove")}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {orders.length > 0 && (
         <input
@@ -236,7 +315,15 @@ export default function AdminOrdersPage() {
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between font-bold text-white pt-2 border-t border-gray-700">
+                {order.couponCode && order.discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-gray-400 pt-2 border-t border-gray-700">
+                    <span>
+                      {t("coupon")}: <span className="font-mono text-gray-300">{order.couponCode}</span>
+                    </span>
+                    <span>-{formatPrice(order.discountAmount)}</span>
+                  </div>
+                )}
+                <div className={`flex justify-between font-bold text-white pt-2 ${!(order.couponCode && order.discountAmount > 0) ? "border-t border-gray-700" : ""}`}>
                   <span>{t("total")}</span>
                   <span>{formatPrice(order.totalAmount)}</span>
                 </div>

@@ -88,7 +88,9 @@ export default function ShopPage() {
         {!loading && !error && products.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {products.map((product, index) => {
-            const minPrice = Math.min(...product.variants.map((v) => v.price));
+            const prices = product.variants.map((v) => v.price);
+            const minPrice = Math.min(...prices);
+            const hasVaryingPrice = new Set(prices).size > 1;
             const thumbnail =
               product.photoMode === "per_variant"
                 ? product.variants.find((v) => v.images.length > 0)?.images[0]
@@ -131,8 +133,8 @@ export default function ShopPage() {
 
                 <div className="p-3 sm:p-4 flex flex-col gap-0.5">
                   <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">{product.name}</h2>
-                  <span className="text-xs sm:text-sm text-gray-400 font-medium">
-                    {t("priceFrom", { price: formatPrice(minPrice) })}
+                  <span className="text-base sm:text-lg text-white font-bold">
+                    {hasVaryingPrice ? t("priceFrom", { price: formatPrice(minPrice) }) : formatPrice(minPrice)}
                   </span>
                 </div>
               </Link>

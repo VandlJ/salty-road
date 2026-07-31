@@ -5,6 +5,7 @@ import "../globals.css";
 import ClientNavbarWrapper from "@/components/clientNavbarWrapper";
 import Footer from "@/components/footer";
 import PageTransition from "@/components/page-transition";
+import ContactWidget from "@/components/contact-widget";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { Analytics } from "@vercel/analytics/next";
@@ -122,6 +123,7 @@ export default async function RootLayout({
             <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
+          <ContactWidget />
         </NextIntlClientProvider>
         <Analytics />
       </body>

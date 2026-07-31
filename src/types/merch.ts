@@ -20,6 +20,7 @@ export type MerchProduct = {
   // Used only when photoMode is "shared" — same photos for every variant.
   photos: string[];
   sizeChartImage: string | null;
+  order: number;
   variants: MerchVariant[];
 };
 
@@ -43,6 +44,41 @@ export type Order = {
   totalAmount: number; // halire
   paymentMethod: "bank_transfer" | "cod";
   status: "pending" | "paid" | "shipped" | "cancelled";
+  couponCode: string | null;
+  discountAmount: number; // halire
+};
+
+export type ContactMessage = {
+  id: string;
+  createdAt: string;
+  name: string;
+  email: string;
+  message: string;
+  read: boolean;
+};
+
+export type StockRequest = {
+  id: string;
+  createdAt: string;
+  productSlug: string;
+  productName: string;
+  variantLabel: string;
+  sku: string;
+  customerName: string;
+  customerEmail: string;
+  fulfilled: boolean;
+};
+
+export type Coupon = {
+  id: string;
+  code: string;
+  type: "percent" | "fixed";
+  value: number;
+  maxUses: number | null;
+  usedCount: number;
+  active: boolean;
+  expiresAt: string | null;
+  createdAt: string;
 };
 
 // Admin views include inactive products/variants and the active flag itself.

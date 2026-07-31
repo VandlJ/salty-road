@@ -12,6 +12,8 @@ interface LastOrder {
   totalAmount: number;
   paymentMethod: "bank_transfer" | "cod";
   qrCodeBase64?: string;
+  couponCode?: string | null;
+  discountAmount?: number;
 }
 
 export default function ThankYouPage() {
@@ -66,6 +68,12 @@ export default function ThankYouPage() {
             <span>{t("thankYouVs")}</span>
             <span className="text-white font-mono font-bold">{order.vs}</span>
           </div>
+          {order.couponCode && !!order.discountAmount && (
+            <div className="flex justify-between text-sm text-gray-400">
+              <span>{t("couponDiscount")} ({order.couponCode})</span>
+              <span>-{formatPrice(order.discountAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm text-gray-400">
             <span>{t("thankYouTotal")}</span>
             <span className="text-white font-bold">{formatPrice(order.totalAmount)}</span>

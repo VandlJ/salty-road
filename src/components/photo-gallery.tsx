@@ -98,7 +98,12 @@ export default function PhotoGallery({
             className="object-contain"
             sizes="100vw"
             quality={90}
-            priority
+            // Not `priority` — this modal only ever mounts long after
+            // initial page load (on click), well past the browser's
+            // "preload used within a few seconds of window.load" window,
+            // so `priority`'s preload link always fires as unused. Eager
+            // load gets the same immediate-fetch behavior without that.
+            loading="eager"
           />
         </div>
 

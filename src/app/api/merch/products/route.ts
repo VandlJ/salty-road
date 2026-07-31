@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const products = await prisma.merchProduct.findMany({
       where: { active: true },
-      orderBy: { createdAt: Prisma.SortOrder.asc },
+      orderBy: { order: Prisma.SortOrder.asc },
       include: {
         variants: {
           where: { active: true },

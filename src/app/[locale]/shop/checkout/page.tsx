@@ -27,6 +27,7 @@ const ERROR_KEY_MAP: Record<string, string> = {
   invalid_items: "checkoutErrorGeneric",
   rate_limited: "checkoutErrorRateLimited",
   insufficient_stock: "checkoutErrorInsufficientStock",
+  invalid_coupon: "couponInvalid",
   server_error: "checkoutErrorGeneric",
 };
 
@@ -35,6 +36,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const items = useCartStore((state) => state.items);
   const clear = useCartStore((state) => state.clear);
+  const couponCode = useCartStore((state) => state.couponCode);
 
   const [mounted, setMounted] = useState(false);
   // Standard client-mount-detection pattern to avoid an SSR/localStorage
@@ -54,6 +56,28 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
 
   const cartItems = mounted ? items : [];
+  const subtotal = cartTotal(cartItems);
+
+  // Re-derive the discount for display here too (cart already validated it,
+  // but checkout is a fresh page load) — purely cosmetic, the checkout POST
+  // always re-validates the coupon server-side regardless.
+  const [discountAmount, setDiscountAmount] = useState(0);
+  useEffect(() => {
+    if (!couponCode || subtotal === 0) {
+      setDiscountAmount(0);
+      return;
+    }
+    fetch("/api/merch/coupon/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: couponCode, subtotal }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => setDiscountAmount(json?.discountAmount ?? 0))
+      .catch(() => setDiscountAmount(0));
+  }, [couponCode, subtotal]);
+
+  const finalTotal = Math.max(0, subtotal - discountAmount);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -75,6 +99,7 @@ export default function CheckoutPage() {
           address: `${street.trim()}, ${zip.trim()} ${city.trim()}`.trim(),
           paymentMethod: "bank_transfer",
           items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
+          couponCode: couponCode || undefined,
         }),
       });
 
@@ -131,9 +156,15 @@ export default function CheckoutPage() {
               </div>
             ))}
           </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-sm text-gray-400 mt-2">
+              <span>{t("couponDiscount")}</span>
+              <span>-{formatPrice(discountAmount)}</span>
+            </div>
+          )}
           <div className="flex justify-between mt-4 pt-4 border-t border-gray-700 font-bold">
             <span>{t("cartTotal")}</span>
-            <span>{formatPrice(cartTotal(cartItems))}</span>
+            <span>{formatPrice(finalTotal)}</span>
           </div>
         </div>
 

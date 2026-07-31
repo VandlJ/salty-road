@@ -20,7 +20,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
-    const { category, name, description, active, photoMode, photos, sizeChartImage } = body;
+    const { category, name, description, active, photoMode, photos, sizeChartImage, order } = body;
 
     for (const [field, maxLen] of Object.entries(MAX_LEN)) {
       const value = body[field];
@@ -35,6 +35,9 @@ export async function PATCH(
     if (photos !== undefined && (!isStringArray(photos) || photos.length > MAX_PHOTOS)) {
       return NextResponse.json({ error: "invalid_photos" }, { status: 400 });
     }
+    if (order !== undefined && !Number.isInteger(order)) {
+      return NextResponse.json({ error: "invalid_order" }, { status: 400 });
+    }
 
     const product = await prisma.merchProduct.update({
       where: { id },
@@ -46,6 +49,7 @@ export async function PATCH(
         ...(photoMode !== undefined && { photoMode }),
         ...(photos !== undefined && { photos }),
         ...(sizeChartImage !== undefined && { sizeChartImage: sizeChartImage || null }),
+        ...(order !== undefined && { order }),
       },
       include: { variants: { orderBy: { order: Prisma.SortOrder.asc } } },
     });

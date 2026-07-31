@@ -77,6 +77,8 @@ interface MerchOrderDetails {
   items: MerchOrderItem[];
   totalAmount: number; // halire
   paymentMethod: string; // "bank_transfer" | "cod"
+  couponCode?: string | null;
+  discountAmount?: number; // halire
 }
 
 export async function sendMerchOrderConfirmationEmail(

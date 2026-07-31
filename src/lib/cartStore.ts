@@ -17,9 +17,14 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
+  // Only the code persists — the discount amount/type is always re-derived
+  // from a fresh /api/merch/coupon/validate call (or re-validated server-side
+  // at checkout), never trusted from storage.
+  couponCode: string | null;
   addItem: (item: CartItem) => void;
   removeItem: (sku: string) => void;
   updateQty: (sku: string, qty: number) => void;
+  setCoupon: (code: string | null) => void;
   clear: () => void;
 }
 
@@ -27,6 +32,7 @@ export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
+      couponCode: null,
       addItem: (item) =>
         set((state) => {
           const existing = state.items.find((i) => i.sku === item.sku);
@@ -45,7 +51,8 @@ export const useCartStore = create<CartState>()(
         set((state) => ({
           items: state.items.map((i) => (i.sku === sku ? { ...i, qty } : i)),
         })),
-      clear: () => set({ items: [] }),
+      setCoupon: (code) => set({ couponCode: code }),
+      clear: () => set({ items: [], couponCode: null }),
     }),
     { name: "salty-road-cart" }
   )

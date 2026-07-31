@@ -18,7 +18,7 @@ const sponsors: Sponsor[] = [
   { src: "/sponsors/prachatice.webp", alt: "Prachatice" },
   { src: "/sponsors/hrozen.webp", alt: "Music Club Hrozen", scaleClass: "scale-175" },
   { src: "/sponsors/sts_prachatice.webp", alt: "STS Prachatice" },
-  { src: "/sponsors/zephyron.webp", alt: "Zephyron", scaleClass: "scale-180" },
+  { src: "/sponsors/zephyron.webp", alt: "Zephyron", scaleClass: "scale-130" },
   { src: "/sponsors/breathe.webp", alt: "Breathe", scaleClass: "scale-250" },
   { src: "/sponsors/kuta.webp", alt: "Kuta Servis", scaleClass: "scale-115" },
   { src: "/sponsors/dovoz.webp", alt: "Dovoz aut", scaleClass: "scale-150" },

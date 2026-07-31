@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import AdminLoginForm from "@/components/admin-login-form";
 import AdminFilterChip from "@/components/admin-filter-chip";
 import AdminPhotoGalleryManager from "@/components/admin-photo-gallery-manager";
+import PhotoGallery from "@/components/photo-gallery";
 import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import { useModalA11y } from "@/lib/useModalA11y";
@@ -86,6 +87,40 @@ export default function AdminMerchPage() {
       setError(t("errorGeneric"));
     } finally {
       setTogglingShop(false);
+    }
+  }
+
+  const [movingProduct, setMovingProduct] = useState(false);
+
+  async function moveProduct(product: MerchProductAdmin, dir: -1 | 1) {
+    if (movingProduct) return;
+    // Pairwise swap against the true neighbor in the full (unfiltered)
+    // list — not a full renumber of the currently filtered view, which
+    // would risk colliding `order` values with hidden items when a
+    // category/active filter is active.
+    const sorted = [...products].sort((a, b) => a.order - b.order);
+    const index = sorted.findIndex((p) => p.id === product.id);
+    const targetIndex = index + dir;
+    if (index < 0 || targetIndex < 0 || targetIndex >= sorted.length) return;
+    const target = sorted[targetIndex];
+
+    setMovingProduct(true);
+    try {
+      await Promise.all([
+        fetch(`/api/admin/merch/products/${product.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order: target.order }),
+        }),
+        fetch(`/api/admin/merch/products/${target.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order: product.order }),
+        }),
+      ]);
+      await loadProducts();
+    } finally {
+      setMovingProduct(false);
     }
   }
 
@@ -189,9 +224,22 @@ export default function AdminMerchPage() {
         <MerchSkeleton />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-          {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} t={t} onChange={loadProducts} />
-          ))}
+          {filteredProducts.map((product) => {
+            const sortedIds = [...products].sort((a, b) => a.order - b.order).map((p) => p.id);
+            const posInFullList = sortedIds.indexOf(product.id);
+            return (
+              <ProductCard
+                key={product.id}
+                product={product}
+                t={t}
+                onChange={loadProducts}
+                onMove={(dir) => moveProduct(product, dir)}
+                canMoveUp={posInFullList > 0}
+                canMoveDown={posInFullList < sortedIds.length - 1}
+                moving={movingProduct}
+              />
+            );
+          })}
         </div>
       )}
     </section>
@@ -486,10 +534,18 @@ function ProductCard({
   product,
   t,
   onChange,
+  onMove,
+  canMoveUp,
+  canMoveDown,
+  moving,
 }: {
   product: MerchProductAdmin;
   t: Translate;
   onChange: () => void;
+  onMove: (dir: -1 | 1) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  moving: boolean;
 }) {
   const [name, setName] = useState(product.name);
   const [description, setDescription] = useState(product.description);
@@ -498,6 +554,7 @@ function ProductCard({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const closeConfirm = useCallback(() => setConfirmDelete(false), []);
   const confirmModalRef = useModalA11y<HTMLDivElement>(confirmDelete, closeConfirm);
+  const [previewSizeChart, setPreviewSizeChart] = useState(false);
 
   const dirty = name !== product.name || description !== product.description || category !== product.category;
 
@@ -608,7 +665,29 @@ function ProductCard({
   return (
     <div className="bg-[#111]/90 border border-gray-700 rounded-sm overflow-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-4 bg-white/5 border-b border-gray-700">
-        <span className="text-xs text-gray-500 font-mono">{product.slug}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-500 font-mono">{product.slug}</span>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => onMove(-1)}
+              disabled={moving || !canMoveUp}
+              aria-label={t("moveProductUp")}
+              className="w-7 h-7 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              ‹
+            </button>
+            <button
+              type="button"
+              onClick={() => onMove(1)}
+              disabled={moving || !canMoveDown}
+              aria-label={t("moveProductDown")}
+              className="w-7 h-7 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              ›
+            </button>
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           <button
             onClick={toggleActive}
@@ -712,9 +791,14 @@ function ProductCard({
             <p className="text-[11px] text-gray-500 mb-2">{t("sizeChartHint")}</p>
             {product.sizeChartImage ? (
               <div className="relative w-16 h-16 group">
-                <div className="relative w-full h-full bg-white rounded-sm overflow-hidden border border-gray-700">
+                <button
+                  type="button"
+                  onClick={() => setPreviewSizeChart(true)}
+                  aria-label="Zobrazit fotku"
+                  className="relative w-full h-full block bg-white rounded-sm overflow-hidden border border-gray-700 hover:border-white transition-colors cursor-pointer"
+                >
                   <Image src={product.sizeChartImage} alt="" fill className="object-contain p-1" sizes="64px" />
-                </div>
+                </button>
                 <button
                   type="button"
                   onClick={removeSizeChart}
@@ -723,6 +807,13 @@ function ProductCard({
                 >
                   ×
                 </button>
+                {previewSizeChart && (
+                  <PhotoGallery
+                    photos={[product.sizeChartImage]}
+                    label="Tabulka velikostí"
+                    onClose={() => setPreviewSizeChart(false)}
+                  />
+                )}
               </div>
             ) : (
               <label className="self-start text-xs text-white bg-[#111] border border-white/50 px-3 py-2 rounded-sm cursor-pointer hover:bg-white hover:text-black transition-colors inline-block">

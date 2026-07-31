@@ -11,7 +11,9 @@ export async function GET() {
 
   try {
     const products = await prisma.merchProduct.findMany({
-      orderBy: { createdAt: Prisma.SortOrder.desc },
+      // Same order the public shop grid uses, so the admin list matches
+      // what customers see (and reorder buttons feel intuitive).
+      orderBy: { order: Prisma.SortOrder.asc },
       include: {
         variants: { orderBy: { order: Prisma.SortOrder.asc } },
       },
@@ -46,8 +48,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid_slug" }, { status: 400 });
     }
 
+    // New products go to the end of the shop display order.
+    const { _max } = await prisma.merchProduct.aggregate({ _max: { order: true } });
+
     const product = await prisma.merchProduct.create({
-      data: { slug, category, name, description },
+      data: { slug, category, name, description, order: (_max.order ?? -1) + 1 },
       include: { variants: true },
     });
 

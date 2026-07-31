@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { customerName, customerEmail, customerPhone, address, paymentMethod, items } = body;
+    const { customerName, customerEmail, customerPhone, address, paymentMethod, items, couponCode: rawCouponCode } = body;
 
     if (!customerName || !customerEmail || !customerPhone || !address || !paymentMethod) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
@@ -112,7 +112,36 @@ export async function POST(req: Request) {
         };
       });
 
-      const totalAmount = orderItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+      const subtotal = orderItems.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+      // Coupon: atomic conditional increment via raw SQL, mirroring the
+      // stock decrement above. Prisma's typed `updateMany` where-clause
+      // can't compare one column against another ("usedCount < maxUses"),
+      // so the "consume a use only if one is still available" check has to
+      // be raw SQL to stay race-safe (two concurrent checkouts against the
+      // last remaining use can't both succeed).
+      let couponCode: string | null = null;
+      let discountAmount = 0;
+      if (rawCouponCode) {
+        const normalized = String(rawCouponCode).trim().toUpperCase();
+        const affected = await tx.$executeRaw`
+          UPDATE "Coupon" SET "usedCount" = "usedCount" + 1
+          WHERE code = ${normalized} AND active = true
+            AND ("expiresAt" IS NULL OR "expiresAt" > now())
+            AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
+        `;
+        if (affected === 0) {
+          throw new Error("INVALID_COUPON");
+        }
+        const coupon = await tx.coupon.findUniqueOrThrow({ where: { code: normalized } });
+        couponCode = coupon.code;
+        discountAmount =
+          coupon.type === "percent"
+            ? Math.round((subtotal * coupon.value) / 100)
+            : Math.min(coupon.value, subtotal);
+      }
+
+      const totalAmount = subtotal - discountAmount;
 
       return tx.order.create({
         data: {
@@ -123,6 +152,8 @@ export async function POST(req: Request) {
           items: orderItems,
           totalAmount,
           paymentMethod,
+          couponCode,
+          discountAmount,
         },
       });
     });
@@ -149,6 +180,8 @@ export async function POST(req: Request) {
           items: orderItems,
           totalAmount: order.totalAmount,
           paymentMethod,
+          couponCode: order.couponCode,
+          discountAmount: order.discountAmount,
         },
         qrCodeBase64
       );
@@ -181,6 +214,8 @@ export async function POST(req: Request) {
         vs,
         totalAmount: order.totalAmount,
         paymentMethod: order.paymentMethod,
+        couponCode: order.couponCode,
+        discountAmount: order.discountAmount,
         qrCodeBase64,
       },
       { status: 201 }
@@ -191,6 +226,9 @@ export async function POST(req: Request) {
         { error: "insufficient_stock", sku: insufficientStockSku },
         { status: 409 }
       );
+    }
+    if (err instanceof Error && err.message === "INVALID_COUPON") {
+      return NextResponse.json({ error: "invalid_coupon" }, { status: 400 });
     }
     console.error("POST /api/merch/checkout error:", err);
     return NextResponse.json({ error: "server_error" }, { status: 500 });

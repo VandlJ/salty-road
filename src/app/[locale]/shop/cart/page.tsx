@@ -15,6 +15,8 @@ export default function CartPage() {
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQty = useCartStore((state) => state.updateQty);
+  const storedCouponCode = useCartStore((state) => state.couponCode);
+  const setCoupon = useCartStore((state) => state.setCoupon);
 
   // Avoid a hydration mismatch: the server always renders an empty cart
   // (no access to localStorage), so only trust `items` once mounted.
@@ -74,6 +76,65 @@ export default function CartPage() {
   const hasStockIssue = cartItems.some(
     (item) => stockBySku[item.sku] !== undefined && item.qty > stockBySku[item.sku]
   );
+
+  // Coupon: input + server-validated preview. Only the code persists across
+  // navigation (cartStore) — the discount amount is always re-derived from a
+  // fresh validate call, never trusted from storage, and checkout
+  // re-validates again server-side regardless.
+  const [couponInput, setCouponInput] = useState("");
+  const [couponPreview, setCouponPreview] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponChecking, setCouponChecking] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const subtotal = cartTotal(cartItems);
+
+  async function validateCoupon(code: string) {
+    if (!code.trim() || subtotal === 0) return;
+    setCouponChecking(true);
+    setCouponError(null);
+    try {
+      const res = await fetch("/api/merch/coupon/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: code.trim(), subtotal }),
+      });
+      if (!res.ok) {
+        setCouponError(t("couponInvalid"));
+        setCouponPreview(null);
+        setCoupon(null);
+        return;
+      }
+      const json = await res.json();
+      setCouponPreview({ code: json.code, discountAmount: json.discountAmount });
+      setCoupon(json.code);
+    } catch (err) {
+      console.error(err);
+      setCouponError(t("couponInvalid"));
+    } finally {
+      setCouponChecking(false);
+    }
+  }
+
+  function removeCoupon() {
+    setCoupon(null);
+    setCouponPreview(null);
+    setCouponInput("");
+    setCouponError(null);
+  }
+
+  // Re-validate a coupon carried over from a previous visit (cart contents
+  // may have changed since, changing the discount amount or invalidating it
+  // entirely) — but only once mounted+hydrated, and only if nothing has
+  // been typed into the input yet this session.
+  useEffect(() => {
+    if (mounted && storedCouponCode && !couponPreview && !couponInput) {
+      setCouponInput(storedCouponCode);
+      validateCoupon(storedCouponCode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, storedCouponCode]);
+
+  const discountAmount = couponPreview?.discountAmount ?? 0;
+  const finalTotal = Math.max(0, subtotal - discountAmount);
 
   return (
     <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12">
@@ -167,9 +228,56 @@ export default function CartPage() {
             </div>
 
             <div className="vt-cart-summary">
-              <div className="mt-8 flex items-center justify-between border-t border-gray-700 pt-6">
-                <span className="text-lg font-bold uppercase tracking-wide">{t("cartTotal")}</span>
-                <span className="text-2xl font-bold">{formatPrice(cartTotal(cartItems))}</span>
+              <div className="mt-8 pt-6 border-t border-gray-700">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <input
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value);
+                      setCouponError(null);
+                    }}
+                    placeholder={t("couponPlaceholder")}
+                    disabled={!!couponPreview}
+                    className="flex-1 px-4 py-2.5 bg-white/5 text-white placeholder-gray-500 border-2 border-gray-600 rounded-sm focus:outline-none focus:border-white transition-colors text-sm disabled:opacity-50 uppercase"
+                  />
+                  {couponPreview ? (
+                    <button
+                      type="button"
+                      onClick={removeCoupon}
+                      className="px-4 py-2.5 border-2 border-gray-500 text-gray-300 rounded-sm hover:border-white hover:text-white transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer"
+                    >
+                      {t("couponRemove")}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => validateCoupon(couponInput)}
+                      disabled={couponChecking || !couponInput.trim()}
+                      className="px-4 py-2.5 border-2 border-white text-white rounded-sm hover:bg-white hover:text-black transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {couponChecking ? t("couponChecking") : t("couponApply")}
+                    </button>
+                  )}
+                </div>
+                {couponError && <p className="text-red-500 text-sm font-bold mt-2">{couponError}</p>}
+                {couponPreview && (
+                  <p className="text-green-500 text-sm font-bold mt-2">
+                    {t("couponApplied", { code: couponPreview.code })}
+                  </p>
+                )}
+              </div>
+
+              <div className="mt-6 flex flex-col gap-1">
+                {discountAmount > 0 && (
+                  <div className="flex items-center justify-between text-gray-400 text-sm">
+                    <span>{t("couponDiscount")}</span>
+                    <span>-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold uppercase tracking-wide">{t("cartTotal")}</span>
+                  <span className="text-2xl font-bold">{formatPrice(finalTotal)}</span>
+                </div>
               </div>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-between">

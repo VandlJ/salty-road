@@ -1,0 +1,51 @@
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { sendEmail } from "@/lib/email";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { contactMessageEmail } from "@/emails/contact-message.mjs";
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_LEN = { name: 100, email: 200, message: 2000 };
+
+export async function POST(req: Request) {
+  if (!(await rateLimit(`contact:${getClientIp(req)}`, 5, 60 * 60 * 1000))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
+  try {
+    const body = await req.json();
+    const { name, email, message } = body;
+
+    if (!name || !email || !message) {
+      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+    }
+    if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+      return NextResponse.json({ error: "invalid_email" }, { status: 400 });
+    }
+    for (const [field, maxLen] of Object.entries(MAX_LEN)) {
+      const value = body[field];
+      if (typeof value === "string" && value.length > maxLen) {
+        return NextResponse.json({ error: "field_too_long" }, { status: 400 });
+      }
+    }
+
+    const contactMessage = await prisma.contactMessage.create({
+      data: { name, email, message },
+    });
+
+    try {
+      const orderEmail = process.env.ORDER_EMAIL || process.env.ADMIN_EMAIL;
+      if (orderEmail) {
+        const notification = contactMessageEmail({ name, email, message });
+        await sendEmail(orderEmail, notification.subject, notification.text);
+      }
+    } catch (err) {
+      console.error("Error sending contact message notification email:", err);
+    }
+
+    return NextResponse.json({ id: contactMessage.id }, { status: 201 });
+  } catch (err) {
+    console.error("POST /api/contact error:", err);
+    return NextResponse.json({ error: "server_error" }, { status: 500 });
+  }
+}
