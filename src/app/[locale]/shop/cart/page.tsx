@@ -216,7 +216,7 @@ export default function CartPage() {
                         value={item.qty}
                         onChange={(next) => updateQty(item.sku, next)}
                         min={1}
-                        max={available}
+                        max={available ?? item.qty}
                       />
 
                       <button

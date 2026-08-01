@@ -21,7 +21,7 @@ interface CartState {
   // from a fresh /api/merch/coupon/validate call (or re-validated server-side
   // at checkout), never trusted from storage.
   couponCode: string | null;
-  addItem: (item: CartItem) => void;
+  addItem: (item: CartItem, maxQty?: number) => void;
   removeItem: (sku: string) => void;
   updateQty: (sku: string, qty: number) => void;
   setCoupon: (code: string | null) => void;
@@ -33,24 +33,30 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       couponCode: null,
-      addItem: (item) =>
+      addItem: (item, maxQty) =>
         set((state) => {
           const existing = state.items.find((i) => i.sku === item.sku);
           if (existing) {
+            // Cap at live stock so the user finds out here, not at checkout.
+            const nextQty = Math.min(existing.qty + item.qty, maxQty ?? Infinity);
             return {
               items: state.items.map((i) =>
-                i.sku === item.sku ? { ...i, qty: i.qty + item.qty } : i
+                i.sku === item.sku ? { ...i, qty: nextQty } : i
               ),
             };
           }
           return { items: [...state.items, item] };
         }),
       removeItem: (sku) =>
-        set((state) => ({ items: state.items.filter((i) => i.sku !== sku) })),
+        set((state) => {
+          const items = state.items.filter((i) => i.sku !== sku);
+          return items.length === 0 ? { items, couponCode: null } : { items };
+        }),
       updateQty: (sku, qty) =>
-        set((state) => ({
-          items: state.items.map((i) => (i.sku === sku ? { ...i, qty } : i)),
-        })),
+        set((state) => {
+          const items = state.items.map((i) => (i.sku === sku ? { ...i, qty } : i));
+          return items.length === 0 ? { items, couponCode: null } : { items };
+        }),
       setCoupon: (code) => set({ couponCode: code }),
       clear: () => set({ items: [], couponCode: null }),
     }),

@@ -20,7 +20,7 @@ Projekt je celkově solidně postavený — atomické operace se skladem a kupó
 
 ## CRITICAL — blokuje spuštění
 
-### [ ] C1. `/api/upload` nemá žádnou autentizaci — kdokoliv může nahrávat soubory na váš Blob storage
+### [x] C1. `/api/upload` nemá žádnou autentizaci — kdokoliv může nahrávat soubory na váš Blob storage
 
 **Soubor:** `src/app/api/upload/route.ts`
 
@@ -72,7 +72,7 @@ const blob = await put(remotePath, buffer, {
 
 ---
 
-### [ ] C2. Katalog produktů se renderuje výhradně na klientovi — špatné LCP a obsah není v HTML
+### [x] C2. Katalog produktů se renderuje výhradně na klientovi — špatné LCP a obsah není v HTML
 
 **Soubory:** `src/app/[locale]/shop/page.tsx`, `src/app/[locale]/shop/[slug]/page.tsx`
 
@@ -110,7 +110,7 @@ U detailu produktu navíc znovupoužít existující `cache()`-ovaný `getProduc
 
 ---
 
-### [ ] C3. Chybí bezpečnostní HTTP hlavičky
+### [x] C3. Chybí bezpečnostní HTTP hlavičky
 
 **Soubor:** `next.config.ts`
 
@@ -146,7 +146,7 @@ CSP zavést zvlášť a postupně (nejdřív `Content-Security-Policy-Report-Onl
 
 ---
 
-### [ ] C4. Objednávka nemá idempotenci — retry sítě vytvoří duplicitní objednávku a dvakrát odečte sklad
+### [x] C4. Objednávka nemá idempotenci — retry sítě vytvoří duplicitní objednávku a dvakrát odečte sklad
 
 **Soubory:** `src/app/api/merch/checkout/route.ts`, `src/app/[locale]/shop/checkout/page.tsx`
 
@@ -173,7 +173,7 @@ Na klientovi klíč generovat v `useState(() => crypto.randomUUID())` a resetova
 
 ---
 
-### [ ] C5. Rate limit 5 objednávek/hodinu na IP zablokuje reálné zákazníky
+### [x] C5. Rate limit 5 objednávek/hodinu na IP zablokuje reálné zákazníky
 
 **Soubor:** `src/app/api/merch/checkout/route.ts:23`
 
@@ -195,7 +195,7 @@ rateLimit(`merch-checkout:${getClientIp(req)}`, 20, 60 * 60 * 1000)
 
 ---
 
-### [ ] C6. Odesílání e-mailů blokuje odpověď checkoutu (a komentář tvrdí opak)
+### [x] C6. Odesílání e-mailů blokuje odpověď checkoutu (a komentář tvrdí opak)
 
 **Soubor:** `src/app/api/merch/checkout/route.ts:194-246`
 
@@ -224,7 +224,7 @@ Pozor: QR kód se posílá i v odpovědi klientovi, takže `generateQRCodeBase64
 
 ## WARNING — mělo by se opravit před spuštěním
 
-### [ ] W1. Žádná stránka není staticky generovaná — vše je SSR na každý request
+### [x] W1. Žádná stránka není staticky generovaná — vše je SSR na každý request
 
 **Ověřeno build outputem:** všechny routy jsou označené `ƒ (Dynamic) server-rendered on demand`, staticky jsou jen `/robots.txt`, `/sitemap.xml`, `/icon.svg`.
 
@@ -248,7 +248,7 @@ export const revalidate = false;
 
 ---
 
-### [ ] W2. `/shop/terms` nemá vlastní metadata — chybí title i canonical
+### [x] W2. `/shop/terms` nemá vlastní metadata — chybí title i canonical
 
 **Soubor:** `src/app/[locale]/shop/terms/page.tsx`
 
@@ -258,7 +258,7 @@ Stránka je `"use client"` a nemá `layout.tsx`, takže dědí generický title 
 
 ---
 
-### [ ] W3. OG obrázek produktu je portrétová produktová fotka — na Facebooku/WhatsAppu se ošklivě ořízne
+### [x] W3. OG obrázek produktu je portrétová produktová fotka — na Facebooku/WhatsAppu se ošklivě ořízne
 
 **Soubor:** `src/app/[locale]/shop/[slug]/layout.tsx:71-82`
 
@@ -270,7 +270,7 @@ Navíc chybí `width`/`height`, takže scraper musí obrázek stáhnout a změř
 
 ---
 
-### [ ] W4. Neexistuje dynamické generování OG obrázků (`next/og`) s cenou
+### [x] W4. Neexistuje dynamické generování OG obrázků (`next/og`) s cenou
 
 Zadání explicitně požadovalo, aby při sdílení odkazu na mikinu byl vidět **náhled i cena**. Aktuálně se sdílí jen holá fotka bez ceny a bez brandingu.
 
@@ -278,7 +278,7 @@ Zadání explicitně požadovalo, aby při sdílení odkazu na mikinu byl vidět
 
 ---
 
-### [ ] W5. Checkout API nevaliduje typy vstupů — neřetězcové hodnoty projdou do Prisma a shodí 500
+### [x] W5. Checkout API nevaliduje typy vstupů — neřetězcové hodnoty projdou do Prisma a shodí 500
 
 **Soubor:** `src/app/api/merch/checkout/route.ts:44-64`
 
@@ -301,7 +301,7 @@ if (deliveryMethod === "shipping" && typeof address !== "string") {
 
 ---
 
-### [ ] W6. `/api/geocode/suggest` je nechráněný proxy na váš placený Mapy.cz klíč
+### [x] W6. `/api/geocode/suggest` je nechráněný proxy na váš placený Mapy.cz klíč
 
 **Soubor:** `src/app/api/geocode/suggest/route.ts`
 
@@ -321,7 +321,7 @@ if (!(await rateLimit(`geocode:${getClientIp(req)}`, 60, 60 * 60 * 1000))) {
 
 ---
 
-### [ ] W7. Admin login umožňuje enumeraci uživatelských jmen přes časový kanál
+### [x] W7. Admin login umožňuje enumeraci uživatelských jmen přes časový kanál
 
 **Soubor:** `src/app/api/admin/login/route.ts:19-22`
 
@@ -342,7 +342,7 @@ if (!admin || !ok) {
 
 ---
 
-### [ ] W8. Cron cleanup nikdy nemaže osiřelé soubory z `merch/`
+### [x] W8. Cron cleanup nikdy nemaže osiřelé soubory z `merch/`
 
 **Soubor:** `src/app/api/cron/cleanup/route.ts:31`
 
@@ -356,7 +356,7 @@ Fotky produktů smazaných v adminu zůstávají v Blobu navždy. Zároveň `lis
 
 ---
 
-### [ ] W9. Chybí `notFound()` validace locale segmentu
+### [x] W9. Chybí `notFound()` validace locale segmentu
 
 **Soubor:** `src/app/[locale]/layout.tsx`
 
@@ -375,7 +375,7 @@ if (!hasLocale(routing.locales, locale)) notFound();
 
 ---
 
-### [ ] W10. Košík nekontroluje sklad při přidání položky
+### [x] W10. Košík nekontroluje sklad při přidání položky
 
 **Soubor:** `src/lib/cartStore.ts:36-47`
 
@@ -398,7 +398,7 @@ addItem: (item, maxQty) =>
 
 ---
 
-### [ ] W11. Kupón zůstane v košíku i po jeho vyprázdnění
+### [x] W11. Kupón zůstane v košíku i po jeho vyprázdnění
 
 **Soubor:** `src/lib/cartStore.ts:48-49`
 
@@ -408,7 +408,7 @@ addItem: (item, maxQty) =>
 
 ---
 
-### [ ] W12. Chybí `QuantityStepper` limit, když sklad ještě není načtený
+### [x] W12. Chybí `QuantityStepper` limit, když sklad ještě není načtený
 
 **Soubor:** `src/app/[locale]/shop/cart/page.tsx:219`
 
@@ -418,7 +418,7 @@ addItem: (item, maxQty) =>
 
 ---
 
-### [ ] W13. Nepřesné komentáře — tvrdí neexistující fakta o architektuře
+### [x] W13. Nepřesné komentáře — tvrdí neexistující fakta o architektuře
 
 **Soubory:** `src/app/global-not-found.tsx:1-3`, `src/app/api/merch/checkout/route.ts:194`
 
@@ -429,7 +429,7 @@ addItem: (item, maxQty) =>
 
 ---
 
-### [ ] W14. Bez `UPSTASH_REDIS_REST_URL` rate limiting v produkci prakticky nefunguje
+### [x] W14. Bez `UPSTASH_REDIS_REST_URL` rate limiting v produkci prakticky nefunguje
 
 **Soubor:** `src/lib/rateLimit.ts:32-35`
 
@@ -441,7 +441,7 @@ Fallback v paměti je vázaný na jednu warm serverless instanci. Na Vercelu se 
 
 ## NICE TO HAVE — optimalizace
 
-### [ ] N1. Dynamický OG obrázek s cenou a brandingem přes `next/og`
+### [x] N1. Dynamický OG obrázek s cenou a brandingem přes `next/og`
 
 Řeší W3 i W4 najednou — vygeneruje se korektní 1200×630 náhled s fotkou, názvem a cenou.
 
@@ -527,7 +527,7 @@ Po převedení `/shop` na Server Component (C2) dává smysl přidat `loading.ts
 
 ---
 
-### [ ] N8. Duplicitní dotaz na DB při zobrazení detailu produktu
+### [x] N8. Duplicitní dotaz na DB při zobrazení detailu produktu
 
 Po C2 zmizí sám; do té doby stojí za zmínku, že `layout.tsx` (metadata) a klientský `fetch` načtou tentýž produkt dvakrát na každé zobrazení.
 

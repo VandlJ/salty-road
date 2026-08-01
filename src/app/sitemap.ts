@@ -22,6 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '',
     '/check',
     '/privacy',
+    '/shop/terms',
     ...(shopEnabled ? ['/shop', ...productSlugs.map((slug) => `/shop/${slug}`)] : []),
   ];
 
@@ -30,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   routes.forEach((route) => {
     // Priority logic: cs home highest, en home slightly lower, everything
     // else lower still (products lowest of the indexable routes).
-    const isProduct = route.startsWith('/shop/');
+    const isProduct = route.startsWith('/shop/') && route !== '/shop/terms';
     const isHome = route === '';
 
     LOCALES.forEach((locale) => {

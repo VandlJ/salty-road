@@ -7,10 +7,16 @@ import Footer from "@/components/footer";
 import PageTransition from "@/components/page-transition";
 import ContactWidget from "@/components/contact-widget";
 import MotionConfigProvider from "@/components/motion-config-provider";
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations } from 'next-intl/server';
+import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
+import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
 import { buildAlternates, jsonLdScript, ORGANIZATION_JSON_LD, SITE_URL } from "@/lib/seo";
+import { routing } from "@/i18n/routing";
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
 
 const roboto = Roboto({
   weight: ['400', '500', '700'],
@@ -102,6 +108,13 @@ export default async function RootLayout({
   params: Promise<{locale: string}>;
 }>) {
   const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) notFound();
+  // Enables static rendering — getMessages()/getTranslations() below use
+  // the ambient request locale, which next-intl otherwise reads via a
+  // dynamic API (headers()) and that opts the whole route out of static
+  // generation. Must be called before any of those, in every static
+  // page/layout that wants prerendering.
+  setRequestLocale(locale);
   const messages = await getMessages();
 
   return (

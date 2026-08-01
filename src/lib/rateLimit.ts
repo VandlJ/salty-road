@@ -28,6 +28,7 @@ function memoryRateLimit(key: string, limit: number, windowMs: number): boolean 
 }
 
 const REDIS_URL = process.env.REDIS_URL;
+let warnedMissingRedis = false;
 
 declare global {
   // allow global var across module reloads / warm serverless invocations
@@ -59,6 +60,12 @@ function getRedisClient(): Redis | null {
 // abuse, not a hard guarantee. Set REDIS_URL (self-hosted Redis) for a real
 // shared limit across all instances.
 export async function rateLimit(key: string, limit: number, windowMs: number): Promise<boolean> {
+  if (!REDIS_URL && process.env.NODE_ENV === "production" && !warnedMissingRedis) {
+    warnedMissingRedis = true;
+    console.warn(
+      "REDIS_URL not set in production — rate limits are per-instance in-memory only, not shared across serverless instances."
+    );
+  }
   const redis = getRedisClient();
   if (redis) {
     try {

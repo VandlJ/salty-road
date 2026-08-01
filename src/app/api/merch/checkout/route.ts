@@ -53,6 +53,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
     }
 
+    // Type-check before anything else — a non-string here otherwise skips
+    // the MAX_LEN guard entirely and surfaces as an opaque 500 from Prisma.
+    if (typeof customerName !== "string") {
+      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+    }
+    if (deliveryMethod === "shipping" && typeof address !== "string") {
+      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+    }
+
     if (typeof customerEmail !== "string" || !EMAIL_RE.test(customerEmail)) {
       return NextResponse.json({ error: "invalid_email" }, { status: 400 });
     }

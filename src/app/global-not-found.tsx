@@ -1,9 +1,11 @@
-// Next's dedicated file for a fully unmatched route (no middleware here to
-// rewrite/redirect a bare or unknown path into a locale segment, and there's
-// no root layout.tsx — only src/app/[locale]/layout.tsx — so this is the
-// only 404 boundary most broken links ever actually hit). It renders its
-// own complete <html>/<body> instead of relying on a root layout, which is
-// exactly what this file is for — using plain src/app/not-found.tsx here
+// Next's dedicated file for a fully unmatched route. The next-intl
+// middleware (src/proxy.ts) only rewrites paths that already look like real
+// routes into a locale segment — a genuinely unknown path (or one outside
+// the middleware's matcher, e.g. containing a dot) never gets that rewrite,
+// and there's no root layout.tsx — only src/app/[locale]/layout.tsx — so
+// this is the only 404 boundary those paths ever actually hit. It renders
+// its own complete <html>/<body> instead of relying on a root layout, which
+// is exactly what this file is for — using plain src/app/not-found.tsx here
 // caused a hydration mismatch (it doesn't get to share a layout the way a
 // normal route does). Framework-minimal (no Tailwind/next-intl/next/font
 // available here), but still pulls in the real logo asset and brand red so

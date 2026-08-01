@@ -123,15 +123,18 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
 
   function handleAddToCart() {
     if (!selectedVariant) return;
-    addItem({
-      sku: selectedVariant.sku,
-      productSlug: product.slug,
-      name: product.name,
-      variantLabel: variantLabel(selectedVariant),
-      unitPrice: selectedVariant.price,
-      qty,
-      image: variantPhotos[0] ?? null,
-    });
+    addItem(
+      {
+        sku: selectedVariant.sku,
+        productSlug: product.slug,
+        name: product.name,
+        variantLabel: variantLabel(selectedVariant),
+        unitPrice: selectedVariant.price,
+        qty,
+        image: variantPhotos[0] ?? null,
+      },
+      selectedVariant.quantity
+    );
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }

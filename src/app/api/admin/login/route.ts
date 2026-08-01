@@ -16,10 +16,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "missing_credentials" }, { status: 400 });
 
     const admin = await prisma.admin.findUnique({ where: { username } });
-    if (!admin) return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
-
-    const ok = await bcrypt.compare(password, admin.password);
-    if (!ok) return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
+    // Always spend the same ~100ms in bcrypt, so a missing user and a wrong
+    // password are indistinguishable from response timing.
+    const hash = admin?.password ?? "$2a$10$invalidinvalidinvalidinvalidinvalidinvalidinvalidinvalidin";
+    const ok = await bcrypt.compare(password, hash);
+    if (!admin || !ok) return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
 
     const token = createAdminToken();
     await prisma.admin.update({ where: { id: admin.id }, data: { sessionToken: token } });

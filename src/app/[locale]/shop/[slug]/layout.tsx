@@ -30,11 +30,6 @@ export async function generateMetadata({
   // dropped that site-name suffix — same bug class as the /shop/layout.tsx
   // fix above).
   const title = product.name;
-  const allPhotos =
-    product.photoMode === "per_variant"
-      ? product.variants.flatMap((v) => v.images)
-      : product.photos;
-  const image = allPhotos[0];
 
   return {
     title,
@@ -44,20 +39,18 @@ export async function generateMetadata({
       languages: buildAlternates(`/shop/${slug}`),
     },
     robots,
-    // Same shallow-merge gotcha as /shop/layout.tsx — fall back to the site
-    // OG image explicitly when this product has no photo, instead of
-    // silently losing the image on share.
+    // opengraph-image.tsx (next/og) generates the actual image for this
+    // route — no `images` array needed here, Next wires it up by file
+    // convention and it deep-merges title/description from this object.
     openGraph: {
       title,
       description: product.description,
       type: "website",
-      images: image ? [{ url: image }] : [{ url: "/OG_image.jpg", width: 1200, height: 630, alt: title }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: product.description,
-      images: [image ?? "/OG_image.jpg"],
     },
   };
 }

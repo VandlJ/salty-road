@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,12 @@ type Suggestion = {
 // and the checkout address fields silently fall back to plain manual entry,
 // so a missing key never blocks checkout.
 export async function GET(req: NextRequest) {
+  // Proxies a metered third-party API key — without a limit anyone can
+  // exhaust the Mapy.cz quota and break checkout address autocomplete.
+  if (!(await rateLimit(`geocode:${getClientIp(req)}`, 60, 60 * 60 * 1000))) {
+    return NextResponse.json({ items: [] });
+  }
+
   const query = req.nextUrl.searchParams.get("q")?.trim();
   const apiKey = process.env.MAPY_CZ_API_KEY;
 
