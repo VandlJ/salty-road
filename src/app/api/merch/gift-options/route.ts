@@ -9,6 +9,9 @@ import { compareVariantsForDisplay, variantLabel } from "@/lib/variantLabel";
 // number shown to the customer, just enough to pick one.
 export async function GET() {
   try {
+    // `active` is the master kill switch (still required here) — `sellable`
+    // is deliberately NOT checked, since a gift-only product has
+    // sellable=false but must still show up as a gift option.
     const products = await prisma.merchProduct.findMany({
       where: { active: true, giftEligible: true },
       orderBy: { order: Prisma.SortOrder.asc },

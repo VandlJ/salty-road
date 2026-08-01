@@ -27,6 +27,8 @@ export type MerchProduct = {
   // flow never surfaces inactive products at all, so this is always `true`
   // there. Optional so existing call sites that don't care don't need it.
   active?: boolean;
+  // Same admin-preview-only meaning as `active` above.
+  sellable?: boolean;
   photoMode: PhotoMode;
   // Used only when photoMode is "shared" — same photos for every variant.
   photos: string[];
@@ -103,6 +105,7 @@ export type MerchVariantAdmin = MerchVariant & { active: boolean };
 
 export type MerchProductAdmin = Omit<MerchProduct, "variants"> & {
   active: boolean;
+  sellable: boolean;
   giftEligible: boolean;
   variants: MerchVariantAdmin[];
 };

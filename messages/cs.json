@@ -48,6 +48,7 @@
     "couponChecking": "Ověřuji…",
     "couponRemove": "Odebrat",
     "couponApplied": "Kupón {code} použit.",
+    "giftProgress": "Ještě {amount} do dárku zdarma!",
     "giftSectionTitle": "Dárek zdarma",
     "giftSectionSubtitle": "K vaší objednávce přidáme zdarma jednu samolepku dle výběru.",
     "couponInvalid": "Neplatný nebo vyčerpaný kupón.",
@@ -373,7 +374,9 @@
   "AdminMerchPage": {
     "title": "Správa merche",
     "shopEnabled": "E-Shop",
-    "giftEligible": "Nabízet jako dárek",
+    "saleModeProduct": "Produkt",
+    "saleModeGift": "Jen dárek",
+    "saleModeBoth": "Obojí",
     "giftThreshold": "Limit pro dárek zdarma",
     "backToAdmin": "Zpět do administrace",
     "preview": "Náhled",

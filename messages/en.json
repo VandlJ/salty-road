@@ -48,6 +48,7 @@
     "couponChecking": "Checking…",
     "couponRemove": "Remove",
     "couponApplied": "Coupon {code} applied.",
+    "giftProgress": "{amount} more to unlock a free gift!",
     "giftSectionTitle": "Free gift",
     "giftSectionSubtitle": "We'll add one free sticker of your choice to your order.",
     "couponInvalid": "Invalid or exhausted coupon.",
@@ -373,7 +374,9 @@
   "AdminMerchPage": {
     "title": "Merch Management",
     "shopEnabled": "E-Shop",
-    "giftEligible": "Offer as gift",
+    "saleModeProduct": "Product",
+    "saleModeGift": "Gift only",
+    "saleModeBoth": "Both",
     "giftThreshold": "Free gift threshold",
     "backToAdmin": "Back to admin",
     "preview": "Preview",

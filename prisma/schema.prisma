@@ -61,10 +61,12 @@ model MerchProduct {
   photos         String[] @default([]) // Vercel Blob URLs, used when photoMode = "shared"
   sizeChartImage String? // shown as the last slide of the product gallery
   order          Int      @default(0) // admin-controlled shop display order
-  // Independent of `active`/shop visibility — a product can be sold
-  // normally AND offered as a free gift at checkout above the sticker gift
-  // threshold (see Setting "sticker_gift_threshold_halire") at the same
-  // time. Setting this has no effect on where the product otherwise shows.
+  // `active` is the master kill switch — false hides the product
+  // everywhere (shop AND gift options), same meaning it always had.
+  // `sellable`/`giftEligible` are independent on top of that, and the admin
+  // UI presents them as one 3-way choice per product: classic product
+  // (sellable, not gift), gift-only (not sellable, gift), or both.
+  sellable       Boolean  @default(true)
   giftEligible   Boolean  @default(false)
   variants       MerchVariant[]
 }

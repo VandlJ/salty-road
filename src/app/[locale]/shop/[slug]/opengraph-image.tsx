@@ -9,7 +9,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
   const product = await getShopProduct(slug);
 
-  if (!product || !product.active || product.variants.length === 0) {
+  if (!product || !product.active || !product.sellable || product.variants.length === 0) {
     return new ImageResponse(
       (
         <div

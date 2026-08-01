@@ -20,7 +20,7 @@ export async function generateMetadata({
 
   const product = await getProduct(slug);
 
-  if (!product || !product.active) {
+  if (!product || !product.active || !product.sellable) {
     return { title: shopTitle, robots: { index: false, follow: false } };
   }
 
@@ -65,7 +65,7 @@ export default async function ProductDetailLayout({
   const { locale, slug } = await params;
   const product = await getProduct(slug);
 
-  if (!product || !product.active || product.variants.length === 0) {
+  if (!product || !product.active || !product.sellable || product.variants.length === 0) {
     return children;
   }
 

@@ -694,11 +694,22 @@ function ProductCard({
     onChange();
   }
 
-  async function toggleGiftEligible() {
+  type SaleMode = "product" | "gift" | "both";
+  const saleMode: SaleMode = product.giftEligible
+    ? product.sellable
+      ? "both"
+      : "gift"
+    : "product";
+
+  async function setSaleMode(mode: SaleMode) {
+    if (mode === saleMode) return;
     await fetch(`/api/admin/merch/products/${product.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ giftEligible: !product.giftEligible }),
+      body: JSON.stringify({
+        sellable: mode !== "gift",
+        giftEligible: mode !== "product",
+      }),
     });
     onChange();
   }
@@ -831,26 +842,21 @@ function ProductCard({
             </svg>
             {t("preview")}
           </Link>
-          <label className="flex items-center gap-1.5 cursor-pointer select-none">
-            <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
-              {t("giftEligible")}
-            </span>
-            <button
-              onClick={toggleGiftEligible}
-              role="switch"
-              aria-checked={product.giftEligible}
-              aria-label={t("giftEligible")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                product.giftEligible ? "bg-brand" : "bg-gray-600"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                  product.giftEligible ? "translate-x-6" : "translate-x-1"
+          <div className="flex items-center rounded-sm border border-gray-600 overflow-hidden text-[10px] uppercase tracking-widest font-bold">
+            {(["product", "gift", "both"] as SaleMode[]).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setSaleMode(mode)}
+                aria-pressed={saleMode === mode}
+                className={`px-2.5 py-1.5 cursor-pointer transition-colors ${
+                  saleMode === mode ? "bg-brand text-white" : "bg-transparent text-gray-400 hover:text-white"
                 }`}
-              />
-            </button>
-          </label>
+              >
+                {t(mode === "product" ? "saleModeProduct" : mode === "gift" ? "saleModeGift" : "saleModeBoth")}
+              </button>
+            ))}
+          </div>
           <button
             onClick={toggleActive}
             role="switch"

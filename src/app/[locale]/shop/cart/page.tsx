@@ -158,13 +158,19 @@ export default function CartPage() {
 
   type GiftOption = { sku: string; productId: string; name: string; description: string; image: string | null };
   const [giftOptions, setGiftOptions] = useState<GiftOption[]>([]);
+  // Fetched as soon as the feature is configured (not just once eligible) —
+  // needed to know whether to show the "X Kč to go" progress bar at all
+  // (no point teasing a gift that has no stock left).
   useEffect(() => {
-    if (!giftEligible) return;
+    if (giftThreshold <= 0) return;
     fetch("/api/merch/gift-options")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => Array.isArray(data) && setGiftOptions(data))
       .catch((err) => console.error(err));
-  }, [giftEligible]);
+  }, [giftThreshold]);
+
+  const giftRemaining = Math.max(0, giftThreshold - finalTotal);
+  const giftProgressPct = giftThreshold > 0 ? Math.min(100, (finalTotal / giftThreshold) * 100) : 0;
 
   // Drop the selection the moment it's no longer valid — below threshold,
   // or the previously-picked sku sold out / stopped being offered. Checkout
@@ -270,6 +276,22 @@ export default function CartPage() {
                 );
               })}
             </div>
+
+            {giftThreshold > 0 && giftOptions.length > 0 && !giftEligible && (
+              <div className="mt-6 p-4 border border-gray-700 rounded-sm bg-white/[0.02]">
+                <p className="text-sm text-gray-300 mb-2">
+                  {t("giftProgress", { amount: formatPrice(giftRemaining) })}
+                </p>
+                <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-brand"
+                    initial={false}
+                    animate={{ width: `${giftProgressPct}%` }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="vt-cart-summary">
               <div className="mt-8 pt-6 border-t border-gray-700">

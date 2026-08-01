@@ -189,7 +189,7 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       >
-        {product.active === false && (
+        {(product.active === false || product.sellable === false) && (
           <div className="mb-6 px-4 py-3 border-2 border-brand bg-brand/10 rounded-sm text-center text-sm font-bold uppercase tracking-wide text-white">
             {t("previewOnlyBanner")}
           </div>
@@ -217,11 +217,7 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
         </Link>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
-          <SectionHeading as="h1" align="left" className="md:col-start-2 md:row-start-1">
-            {product.name}
-          </SectionHeading>
-
-          <div className="md:col-start-1 md:row-start-1 md:row-span-2 flex flex-col gap-3">
+          <div className="md:col-start-1 flex flex-col gap-3">
             <div
               className="relative aspect-[4/5] bg-black border border-gray-700 rounded-sm overflow-hidden"
               style={{ touchAction: "pan-y" }}
@@ -307,7 +303,11 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
             )}
           </div>
 
-          <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2">
+          <div className="flex flex-col gap-6 md:col-start-2">
+            <SectionHeading as="h1" align="left">
+              {product.name}
+            </SectionHeading>
+
             <p className="text-gray-300 font-light leading-relaxed whitespace-pre-wrap">{product.description}</p>
 
             {selectedVariant && (

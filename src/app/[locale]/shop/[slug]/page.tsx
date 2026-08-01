@@ -15,9 +15,9 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   // Not live to the public — only an authenticated admin previewing an
-  // unreleased/paused product gets to see it anyway (see the
+  // unreleased/paused/gift-only product gets to see it anyway (see the
   // "previewOnlyBanner" in ProductDetailClient).
-  const isLive = product.active && product.variants.length > 0;
+  const isLive = product.active && product.sellable && product.variants.length > 0;
   if (!isLive) {
     const admin = await getAdminFromReq();
     if (!admin) notFound();
@@ -30,6 +30,7 @@ export default async function ProductDetailPage({
     name: product.name,
     description: product.description,
     active: product.active,
+    sellable: product.sellable,
     photoMode: product.photoMode as PhotoMode,
     photos: product.photos,
     sizeChartImage: product.sizeChartImage,

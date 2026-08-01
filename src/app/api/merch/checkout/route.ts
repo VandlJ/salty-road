@@ -214,7 +214,14 @@ export async function POST(req: Request) {
             where: { sku: rawGiftSku },
             include: { product: true },
           });
-          if (giftVariant && giftVariant.active && giftVariant.product.active && giftVariant.product.giftEligible) {
+          // `active` is the master kill switch (still required) — `sellable`
+          // is deliberately not checked, a gift-only product must still work.
+          if (
+            giftVariant &&
+            giftVariant.active &&
+            giftVariant.product.active &&
+            giftVariant.product.giftEligible
+          ) {
             const result = await tx.merchVariant.updateMany({
               where: { sku: giftVariant.sku, quantity: { gte: 1 } },
               data: { quantity: { decrement: 1 } },
