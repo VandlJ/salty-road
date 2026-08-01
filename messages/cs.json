@@ -373,7 +373,7 @@
   "AdminMerchPage": {
     "title": "Správa merche",
     "shopEnabled": "E-Shop",
-    "giftOnly": "Jen dárek",
+    "giftEligible": "Nabízet jako dárek",
     "giftThreshold": "Limit pro dárek zdarma",
     "backToAdmin": "Zpět do administrace",
     "preview": "Náhled",

@@ -16,9 +16,8 @@ export default async function ProductDetailPage({
 
   // Not live to the public — only an authenticated admin previewing an
   // unreleased/paused product gets to see it anyway (see the
-  // "previewOnlyBanner" in ProductDetailClient). A gift-only product isn't
-  // separately purchasable yet, so it's treated the same as inactive here.
-  const isLive = product.active && !product.giftOnly && product.variants.length > 0;
+  // "previewOnlyBanner" in ProductDetailClient).
+  const isLive = product.active && product.variants.length > 0;
   if (!isLive) {
     const admin = await getAdminFromReq();
     if (!admin) notFound();
@@ -31,7 +30,6 @@ export default async function ProductDetailPage({
     name: product.name,
     description: product.description,
     active: product.active,
-    giftOnly: product.giftOnly,
     photoMode: product.photoMode as PhotoMode,
     photos: product.photos,
     sizeChartImage: product.sizeChartImage,

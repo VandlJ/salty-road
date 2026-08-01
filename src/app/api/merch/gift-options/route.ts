@@ -10,7 +10,7 @@ import { compareVariantsForDisplay, variantLabel } from "@/lib/variantLabel";
 export async function GET() {
   try {
     const products = await prisma.merchProduct.findMany({
-      where: { active: true, giftOnly: true },
+      where: { active: true, giftEligible: true },
       orderBy: { order: Prisma.SortOrder.asc },
       include: {
         variants: {

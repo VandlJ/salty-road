@@ -27,7 +27,7 @@ export async function GET(
 
     if (product) product.variants.sort(compareVariantsForDisplay);
 
-    const isLive = !!product && product.active && !product.giftOnly && product.variants.length > 0;
+    const isLive = !!product && product.active && product.variants.length > 0;
 
     if (!isLive) {
       // Not live to the public — only an authenticated admin previewing an

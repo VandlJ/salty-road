@@ -189,7 +189,7 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       >
-        {(product.active === false || product.giftOnly) && (
+        {product.active === false && (
           <div className="mb-6 px-4 py-3 border-2 border-brand bg-brand/10 rounded-sm text-center text-sm font-bold uppercase tracking-wide text-white">
             {t("previewOnlyBanner")}
           </div>

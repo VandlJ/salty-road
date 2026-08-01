@@ -373,7 +373,7 @@
   "AdminMerchPage": {
     "title": "Merch Management",
     "shopEnabled": "E-Shop",
-    "giftOnly": "Gift only",
+    "giftEligible": "Offer as gift",
     "giftThreshold": "Free gift threshold",
     "backToAdmin": "Back to admin",
     "preview": "Preview",

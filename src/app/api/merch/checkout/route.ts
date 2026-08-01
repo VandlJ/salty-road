@@ -214,7 +214,7 @@ export async function POST(req: Request) {
             where: { sku: rawGiftSku },
             include: { product: true },
           });
-          if (giftVariant && giftVariant.active && giftVariant.product.active && giftVariant.product.giftOnly) {
+          if (giftVariant && giftVariant.active && giftVariant.product.active && giftVariant.product.giftEligible) {
             const result = await tx.merchVariant.updateMany({
               where: { sku: giftVariant.sku, quantity: { gte: 1 } },
               data: { quantity: { decrement: 1 } },

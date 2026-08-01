@@ -694,11 +694,11 @@ function ProductCard({
     onChange();
   }
 
-  async function toggleGiftOnly() {
+  async function toggleGiftEligible() {
     await fetch(`/api/admin/merch/products/${product.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ giftOnly: !product.giftOnly }),
+      body: JSON.stringify({ giftEligible: !product.giftEligible }),
     });
     onChange();
   }
@@ -833,20 +833,20 @@ function ProductCard({
           </Link>
           <label className="flex items-center gap-1.5 cursor-pointer select-none">
             <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
-              {t("giftOnly")}
+              {t("giftEligible")}
             </span>
             <button
-              onClick={toggleGiftOnly}
+              onClick={toggleGiftEligible}
               role="switch"
-              aria-checked={product.giftOnly}
-              aria-label={t("giftOnly")}
+              aria-checked={product.giftEligible}
+              aria-label={t("giftEligible")}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                product.giftOnly ? "bg-brand" : "bg-gray-600"
+                product.giftEligible ? "bg-brand" : "bg-gray-600"
               }`}
             >
               <span
                 className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                  product.giftOnly ? "translate-x-6" : "translate-x-1"
+                  product.giftEligible ? "translate-x-6" : "translate-x-1"
                 }`}
               />
             </button>
