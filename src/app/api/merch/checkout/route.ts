@@ -5,7 +5,7 @@ import { sendMerchOrderConfirmationEmail, sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { getOrderVs } from "@/lib/orderVs";
 import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
-import { SHIPPING_FEE } from "@/lib/shipping";
+import { getShippingFee } from "@/lib/shipping";
 import { variantLabel } from "@/lib/variantLabel";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -116,6 +116,8 @@ export async function POST(req: Request) {
       }
     }
 
+    const baseShippingFee = await getShippingFee();
+
     const order = await prisma.$transaction(async (tx) => {
       // A network retry or double-submit sends the same client-generated
       // key twice — return the already-created order instead of decrementing
@@ -160,6 +162,7 @@ export async function POST(req: Request) {
       // last remaining use can't both succeed).
       let couponCode: string | null = null;
       let discountAmount = 0;
+      let couponFreeShipping = false;
       if (rawCouponCode) {
         const normalized = String(rawCouponCode).trim().toUpperCase();
         const affected = await tx.$executeRaw`
@@ -174,24 +177,28 @@ export async function POST(req: Request) {
         const coupon = await tx.coupon.findUniqueOrThrow({ where: { code: normalized } });
         couponCode = coupon.code;
 
-        // Category-restricted coupons only discount the matching slice of
-        // the cart — empty `categories` means "applies to everything".
-        const eligibleSubtotal =
-          coupon.categories.length === 0
-            ? subtotal
-            : typedItems.reduce((sum, item) => {
-                const variant = variantBySku.get(item.sku)!;
-                return coupon.categories.includes(variant.product.category) ? sum + variant.price * item.qty : sum;
-              }, 0);
+        if (coupon.type === "free_shipping") {
+          couponFreeShipping = true;
+        } else {
+          // Category-restricted coupons only discount the matching slice of
+          // the cart — empty `categories` means "applies to everything".
+          const eligibleSubtotal =
+            coupon.categories.length === 0
+              ? subtotal
+              : typedItems.reduce((sum, item) => {
+                  const variant = variantBySku.get(item.sku)!;
+                  return coupon.categories.includes(variant.product.category) ? sum + variant.price * item.qty : sum;
+                }, 0);
 
-        if (eligibleSubtotal === 0) {
-          throw new Error("INVALID_COUPON");
+          if (eligibleSubtotal === 0) {
+            throw new Error("INVALID_COUPON");
+          }
+
+          discountAmount =
+            coupon.type === "percent"
+              ? Math.round((eligibleSubtotal * coupon.value) / 100)
+              : Math.min(coupon.value, eligibleSubtotal);
         }
-
-        discountAmount =
-          coupon.type === "percent"
-            ? Math.round((eligibleSubtotal * coupon.value) / 100)
-            : Math.min(coupon.value, eligibleSubtotal);
       }
 
       // Free gift: never trust eligibility or stock from the client — a
@@ -239,7 +246,7 @@ export async function POST(req: Request) {
         }
       }
 
-      const shippingFee = deliveryMethod === "pickup" ? 0 : SHIPPING_FEE;
+      const shippingFee = deliveryMethod === "pickup" ? 0 : couponFreeShipping ? 0 : baseShippingFee;
       const totalAmount = subtotal - discountAmount + shippingFee;
 
       return tx.order.create({
@@ -256,6 +263,7 @@ export async function POST(req: Request) {
           shippingFee,
           couponCode,
           discountAmount,
+          couponFreeShipping,
           giftProductId,
           giftVariantSku,
           giftLabel,

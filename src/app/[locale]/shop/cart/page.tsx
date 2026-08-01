@@ -85,7 +85,7 @@ export default function CartPage() {
   // fresh validate call, never trusted from storage, and checkout
   // re-validates again server-side regardless.
   const [couponInput, setCouponInput] = useState("");
-  const [couponPreview, setCouponPreview] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [couponPreview, setCouponPreview] = useState<{ code: string; discountAmount: number; freeShipping: boolean } | null>(null);
   const [couponChecking, setCouponChecking] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
   const subtotal = cartTotal(cartItems);
@@ -111,7 +111,7 @@ export default function CartPage() {
         return;
       }
       const json = await res.json();
-      setCouponPreview({ code: json.code, discountAmount: json.discountAmount });
+      setCouponPreview({ code: json.code, discountAmount: json.discountAmount, freeShipping: !!json.freeShipping });
       setCoupon(json.code);
     } catch (err) {
       console.error(err);
@@ -358,7 +358,9 @@ export default function CartPage() {
                     transition={{ duration: 0.15 }}
                     className="text-green-500 text-sm font-bold mt-2"
                   >
-                    {t("couponApplied", { code: couponPreview.code })}
+                    {couponPreview.freeShipping
+                      ? t("couponAppliedFreeShipping", { code: couponPreview.code })
+                      : t("couponApplied", { code: couponPreview.code })}
                   </motion.p>
                 ) : null}
                 </AnimatePresence>

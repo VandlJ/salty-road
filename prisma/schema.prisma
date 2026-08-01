@@ -106,6 +106,7 @@ model Order {
   status         String    @default("pending") // "pending" | "paid" | "shipped" | "cancelled"
   couponCode     String? // snapshot of the code used, if any
   discountAmount Int       @default(0) // halire, snapshot at order time
+  couponFreeShipping Boolean @default(false) // true when couponCode was a "free_shipping" type coupon (discountAmount stays 0 in that case, this is what tells the admin view the coupon actually did something)
   idempotencyKey String?   @unique // client-generated, dedupes retried checkout submits
   giftProductId  String? // free gift chosen at checkout, if any (see MerchProduct.giftEligible)
   giftVariantSku String?
@@ -146,8 +147,8 @@ model ContactMessage {
 model Coupon {
   id         String    @id @default(cuid())
   code       String    @unique // stored uppercase
-  type       String // "percent" | "fixed"
-  value      Int // percent 1-100, or halire for "fixed"
+  type       String // "percent" | "fixed" | "free_shipping"
+  value      Int // percent 1-100, or halire for "fixed"; unused (0) for "free_shipping"
   maxUses    Int? // null = unlimited
   usedCount  Int       @default(0)
   active     Boolean   @default(true)

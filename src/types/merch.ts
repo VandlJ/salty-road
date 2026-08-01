@@ -61,6 +61,7 @@ export type Order = {
   status: "pending" | "paid" | "shipped" | "cancelled";
   couponCode: string | null;
   discountAmount: number; // halire
+  couponFreeShipping: boolean;
   giftProductId: string | null;
   giftVariantSku: string | null;
   giftLabel: string | null;
@@ -90,7 +91,7 @@ export type StockRequest = {
 export type Coupon = {
   id: string;
   code: string;
-  type: "percent" | "fixed";
+  type: "percent" | "fixed" | "free_shipping";
   value: number;
   maxUses: number | null;
   usedCount: number;

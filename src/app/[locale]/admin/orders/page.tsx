@@ -334,6 +334,14 @@ export default function AdminOrdersPage() {
                     <span>-{formatPrice(order.discountAmount)}</span>
                   </div>
                 )}
+                {order.couponCode && order.couponFreeShipping && (
+                  <div className="flex justify-between text-sm text-gray-400 pt-2 border-t border-gray-700">
+                    <span>
+                      {t("coupon")}: <span className="font-mono text-gray-300">{order.couponCode}</span>
+                    </span>
+                    <span>{t("shippingFeeFree")}</span>
+                  </div>
+                )}
                 {order.giftLabel && (
                   <div className="flex justify-between text-sm text-gray-400 pt-2 border-t border-gray-700">
                     <span>{t("gift")}</span>
@@ -348,7 +356,10 @@ export default function AdminOrdersPage() {
                 )}
                 <div
                   className={`flex justify-between font-bold text-white pt-2 ${
-                    !(order.couponCode && order.discountAmount > 0) && !order.giftLabel && !(order.shippingFee > 0)
+                    !(order.couponCode && order.discountAmount > 0) &&
+                    !(order.couponCode && order.couponFreeShipping) &&
+                    !order.giftLabel &&
+                    !(order.shippingFee > 0)
                       ? "border-t border-gray-700"
                       : ""
                   }`}

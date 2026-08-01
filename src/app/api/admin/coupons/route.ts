@@ -24,9 +24,17 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { code, type, value, maxUses, expiresAt, categories } = body;
+    const { code, type, maxUses, expiresAt, categories } = body;
+    // Value is meaningless for a shipping-only coupon — force it to 0
+    // server-side regardless of what the client sends.
+    const value = type === "free_shipping" ? 0 : body.value;
 
-    if (!code || (type !== "percent" && type !== "fixed") || !Number.isInteger(value) || value <= 0) {
+    if (
+      !code ||
+      (type !== "percent" && type !== "fixed" && type !== "free_shipping") ||
+      !Number.isInteger(value) ||
+      (type !== "free_shipping" && value <= 0)
+    ) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
     }
     if (typeof code !== "string" || code.length > MAX_CODE_LEN) {

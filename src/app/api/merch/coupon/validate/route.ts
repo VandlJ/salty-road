@@ -54,6 +54,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid_coupon" }, { status: 404 });
     }
 
+    // Free-shipping coupons discount shipping, not items — no category/
+    // subtotal eligibility check applies, it's valid for any cart.
+    if (coupon.type === "free_shipping") {
+      return NextResponse.json({
+        code: coupon.code,
+        type: coupon.type,
+        value: 0,
+        discountAmount: 0,
+        freeShipping: true,
+      });
+    }
+
     const variants = await prisma.merchVariant.findMany({
       where: { sku: { in: typedItems.map((i) => i.sku) } },
       include: { product: true },
@@ -82,6 +94,7 @@ export async function POST(req: Request) {
       type: coupon.type,
       value: coupon.value,
       discountAmount,
+      freeShipping: false,
     });
   } catch (err) {
     console.error("POST /api/merch/coupon/validate error:", err);

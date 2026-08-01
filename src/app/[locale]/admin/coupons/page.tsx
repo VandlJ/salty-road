@@ -147,7 +147,11 @@ export default function AdminCouponsPage() {
                   <div className="flex items-center gap-2">
                     <span className="font-mono font-bold text-white text-lg">{coupon.code}</span>
                     <span className="text-sm text-gray-400">
-                      {coupon.type === "percent" ? `-${coupon.value}%` : `-${formatPrice(coupon.value)}`}
+                      {coupon.type === "percent"
+                        ? `-${coupon.value}%`
+                        : coupon.type === "fixed"
+                          ? `-${formatPrice(coupon.value)}`
+                          : t("typeFreeShipping")}
                     </span>
                     {(expired || exhausted) && (
                       <span className="text-[10px] uppercase tracking-widest text-red-400 font-bold border border-red-900/50 bg-red-900/10 rounded-sm px-2 py-0.5">
@@ -257,7 +261,7 @@ function NewCouponForm({
   onCreated: () => void;
 }) {
   const [code, setCode] = useState("");
-  const [type, setType] = useState<"percent" | "fixed">("percent");
+  const [type, setType] = useState<"percent" | "fixed" | "free_shipping">("percent");
   const [value, setValue] = useState("");
   const [unlimited, setUnlimited] = useState(true);
   const [maxUses, setMaxUses] = useState("");
@@ -281,7 +285,8 @@ function NewCouponForm({
         body: JSON.stringify({
           code,
           type,
-          value: type === "percent" ? Number(value) : Math.round(Number(value) * 100),
+          value:
+            type === "free_shipping" ? 0 : type === "percent" ? Number(value) : Math.round(Number(value) * 100),
           maxUses: unlimited ? null : Number(maxUses),
           expiresAt: expiresAt || null,
           categories: selectedCategories,
@@ -330,16 +335,18 @@ function NewCouponForm({
         <div className="flex flex-col gap-1">
           <label className="text-white text-sm font-bold">{t("value")}</label>
           <div className="flex gap-2">
-            <input
-              type="number"
-              step={type === "percent" ? "1" : "0.01"}
-              min="0"
-              max={type === "percent" ? "100" : undefined}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              required
-              className="flex-1 min-w-0 h-9 px-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-            />
+            {type !== "free_shipping" && (
+              <input
+                type="number"
+                step={type === "percent" ? "1" : "0.01"}
+                min="0"
+                max={type === "percent" ? "100" : undefined}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                required
+                className="flex-1 min-w-0 h-9 px-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+              />
+            )}
             <SegmentedSwitch
               name="type"
               value={type}
@@ -347,6 +354,7 @@ function NewCouponForm({
               options={[
                 { value: "percent", label: "%" },
                 { value: "fixed", label: "Kč" },
+                { value: "free_shipping", label: t("typeFreeShipping") },
               ]}
             />
           </div>
