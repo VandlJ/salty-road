@@ -61,6 +61,11 @@ model MerchProduct {
   photos         String[] @default([]) // Vercel Blob URLs, used when photoMode = "shared"
   sizeChartImage String? // shown as the last slide of the product gallery
   order          Int      @default(0) // admin-controlled shop display order
+  // Not (yet) sold on its own — hidden from /shop, its own product page, and
+  // the sitemap; only offered as a free gift at checkout above the sticker
+  // gift threshold (see Setting "sticker_gift_threshold_halire"). Flip this
+  // off later to sell it as a normal product with zero data migration.
+  giftOnly       Boolean  @default(false)
   variants       MerchVariant[]
 }
 
@@ -100,6 +105,9 @@ model Order {
   couponCode     String? // snapshot of the code used, if any
   discountAmount Int       @default(0) // halire, snapshot at order time
   idempotencyKey String?   @unique // client-generated, dedupes retried checkout submits
+  giftProductId  String? // free gift chosen at checkout, if any (see MerchProduct.giftOnly)
+  giftVariantSku String?
+  giftLabel      String? // snapshot of the gift product's name, for display without a join
 
   @@index([status])
 }

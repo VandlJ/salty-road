@@ -48,6 +48,8 @@
     "couponChecking": "Checking…",
     "couponRemove": "Remove",
     "couponApplied": "Coupon {code} applied.",
+    "giftSectionTitle": "Free gift",
+    "giftSectionSubtitle": "We'll add one free sticker of your choice to your order.",
     "couponInvalid": "Invalid or exhausted coupon.",
     "couponNotApplicable": "This coupon doesn't apply to the items in your cart.",
     "couponDiscount": "Discount",
@@ -371,6 +373,8 @@
   "AdminMerchPage": {
     "title": "Merch Management",
     "shopEnabled": "E-Shop",
+    "giftOnly": "Gift only",
+    "giftThreshold": "Free gift threshold",
     "backToAdmin": "Back to admin",
     "preview": "Preview",
     "filterAll": "All",
@@ -474,6 +478,7 @@
     "statusCancelled": "Cancelled",
     "errorInsufficientStock": "Can't revert this order — stock no longer has enough units.",
     "coupon": "Coupon",
+    "gift": "Gift",
     "discount": "Discount"
   },
   "AdminMessagesPage": {

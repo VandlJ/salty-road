@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const products = shopEnabled
     ? await prisma.merchProduct.findMany({
-        where: { active: true },
+        where: { active: true, giftOnly: false },
         select: { slug: true, createdAt: true },
       })
     : [];

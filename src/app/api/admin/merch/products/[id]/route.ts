@@ -20,7 +20,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
-    const { category, name, description, active, photoMode, photos, sizeChartImage, order } = body;
+    const { category, name, description, active, photoMode, photos, sizeChartImage, order, giftOnly } = body;
 
     for (const [field, maxLen] of Object.entries(MAX_LEN)) {
       const value = body[field];
@@ -50,6 +50,7 @@ export async function PATCH(
         ...(photos !== undefined && { photos }),
         ...(sizeChartImage !== undefined && { sizeChartImage: sizeChartImage || null }),
         ...(order !== undefined && { order }),
+        ...(giftOnly !== undefined && { giftOnly: !!giftOnly }),
       },
       include: { variants: { orderBy: { order: Prisma.SortOrder.asc } } },
     });

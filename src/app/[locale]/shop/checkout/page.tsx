@@ -40,6 +40,7 @@ export default function CheckoutPage() {
   const items = useCartStore((state) => state.items);
   const clear = useCartStore((state) => state.clear);
   const couponCode = useCartStore((state) => state.couponCode);
+  const giftSku = useCartStore((state) => state.giftSku);
 
   const [mounted, setMounted] = useState(false);
   // Standard client-mount-detection pattern to avoid an SSR/localStorage
@@ -118,6 +119,7 @@ export default function CheckoutPage() {
           deliveryMethod,
           items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
           couponCode: couponCode || undefined,
+          giftSku: giftSku || undefined,
           idempotencyKey,
         }),
       });

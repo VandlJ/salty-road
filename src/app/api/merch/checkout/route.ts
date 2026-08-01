@@ -38,6 +38,7 @@ export async function POST(req: Request) {
       deliveryMethod: rawDeliveryMethod,
       items,
       couponCode: rawCouponCode,
+      giftSku: rawGiftSku,
       idempotencyKey: rawIdempotencyKey,
     } = body;
     const idempotencyKey =
@@ -193,6 +194,44 @@ export async function POST(req: Request) {
             : Math.min(coupon.value, eligibleSubtotal);
       }
 
+      // Free gift: never trust eligibility or stock from the client — a
+      // bonus item must not be able to block a paying order, so any failure
+      // here (below threshold, invalid/inactive sku, sold out) just drops
+      // the gift silently instead of throwing.
+      let giftProductId: string | null = null;
+      let giftVariantSku: string | null = null;
+      let giftLabel: string | null = null;
+      if (rawGiftSku && typeof rawGiftSku === "string") {
+        const thresholdSetting = await tx.setting.findUnique({
+          where: { key: "sticker_gift_threshold_halire" },
+        });
+        const threshold = Number(thresholdSetting?.value);
+        const validThreshold = Number.isFinite(threshold) && threshold > 0 ? threshold : 0;
+        const eligible = validThreshold > 0 && subtotal - discountAmount >= validThreshold;
+
+        if (eligible) {
+          const giftVariant = await tx.merchVariant.findUnique({
+            where: { sku: rawGiftSku },
+            include: { product: true },
+          });
+          if (giftVariant && giftVariant.active && giftVariant.product.active && giftVariant.product.giftOnly) {
+            const result = await tx.merchVariant.updateMany({
+              where: { sku: giftVariant.sku, quantity: { gte: 1 } },
+              data: { quantity: { decrement: 1 } },
+            });
+            if (result.count > 0) {
+              giftProductId = giftVariant.product.id;
+              giftVariantSku = giftVariant.sku;
+              giftLabel = giftVariant.product.name;
+            } else {
+              console.warn("Gift sku out of stock at checkout, dropping silently:", giftVariant.sku);
+            }
+          } else {
+            console.warn("Invalid gift sku at checkout, dropping silently:", rawGiftSku);
+          }
+        }
+      }
+
       const shippingFee = deliveryMethod === "pickup" ? 0 : SHIPPING_FEE;
       const totalAmount = subtotal - discountAmount + shippingFee;
 
@@ -210,6 +249,9 @@ export async function POST(req: Request) {
           shippingFee,
           couponCode,
           discountAmount,
+          giftProductId,
+          giftVariantSku,
+          giftLabel,
         },
       });
     });
@@ -244,6 +286,7 @@ export async function POST(req: Request) {
             address: order.address,
             couponCode: order.couponCode,
             discountAmount: order.discountAmount,
+            giftLabel: order.giftLabel,
           },
           qrCodeBase64
         );
@@ -282,6 +325,7 @@ export async function POST(req: Request) {
         shippingFee: order.shippingFee,
         couponCode: order.couponCode,
         discountAmount: order.discountAmount,
+        giftLabel: order.giftLabel,
         qrCodeBase64,
       },
       { status: 201 }

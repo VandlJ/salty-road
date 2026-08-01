@@ -18,6 +18,8 @@ export default function CartPage() {
   const updateQty = useCartStore((state) => state.updateQty);
   const storedCouponCode = useCartStore((state) => state.couponCode);
   const setCoupon = useCartStore((state) => state.setCoupon);
+  const giftSku = useCartStore((state) => state.giftSku);
+  const setGift = useCartStore((state) => state.setGift);
 
   // Avoid a hydration mismatch: the server always renders an empty cart
   // (no access to localStorage), so only trust `items` once mounted.
@@ -140,6 +142,43 @@ export default function CartPage() {
 
   const discountAmount = couponPreview?.discountAmount ?? 0;
   const finalTotal = Math.max(0, subtotal - discountAmount);
+
+  // Free gift: threshold comes from admin settings (0 = feature off).
+  // Options only fetched once the cart is actually eligible, so a cart that
+  // never crosses the threshold never pays for the extra request.
+  const [giftThreshold, setGiftThreshold] = useState(0);
+  useEffect(() => {
+    fetch("/api/shop-status")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => data && setGiftThreshold(data.stickerGiftThresholdHalire ?? 0))
+      .catch((err) => console.error(err));
+  }, []);
+
+  const giftEligible = giftThreshold > 0 && finalTotal >= giftThreshold;
+
+  type GiftOption = { sku: string; productId: string; name: string; description: string; image: string | null };
+  const [giftOptions, setGiftOptions] = useState<GiftOption[]>([]);
+  useEffect(() => {
+    if (!giftEligible) return;
+    fetch("/api/merch/gift-options")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => Array.isArray(data) && setGiftOptions(data))
+      .catch((err) => console.error(err));
+  }, [giftEligible]);
+
+  // Drop the selection the moment it's no longer valid — below threshold,
+  // or the previously-picked sku sold out / stopped being offered. Checkout
+  // re-validates server-side regardless, this is just so the UI doesn't
+  // silently submit a stale choice.
+  useEffect(() => {
+    if (!giftEligible && giftSku) {
+      setGift(null);
+      return;
+    }
+    if (giftEligible && giftSku && giftOptions.length > 0 && !giftOptions.some((o) => o.sku === giftSku)) {
+      setGift(null);
+    }
+  }, [giftEligible, giftSku, giftOptions, setGift]);
 
   return (
     <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12">
@@ -302,6 +341,45 @@ export default function CartPage() {
                 ) : null}
                 </AnimatePresence>
               </div>
+
+              <AnimatePresence>
+              {giftEligible && giftOptions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-6 pt-6 border-t border-gray-700 overflow-hidden"
+                >
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-white mb-1">
+                    {t("giftSectionTitle")}
+                  </h2>
+                  <p className="text-gray-400 text-sm mb-4">{t("giftSectionSubtitle")}</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {giftOptions.map((opt) => {
+                      const selected = giftSku === opt.sku;
+                      return (
+                        <button
+                          key={opt.sku}
+                          type="button"
+                          onClick={() => setGift(selected ? null : opt.sku)}
+                          className={`flex flex-col items-center gap-2 p-3 rounded-sm border-2 transition-colors cursor-pointer text-center ${
+                            selected ? "border-white bg-white/10" : "border-gray-700 hover:border-gray-500"
+                          }`}
+                        >
+                          <div className="relative w-16 h-16 shrink-0 bg-black rounded-sm overflow-hidden border border-gray-700">
+                            {opt.image ? (
+                              <Image src={opt.image} alt={opt.name} fill className="object-cover" sizes="64px" />
+                            ) : null}
+                          </div>
+                          <span className="text-xs font-bold text-white leading-tight">{opt.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+              </AnimatePresence>
 
               <div className="mt-6 flex flex-col gap-1">
                 {discountAmount > 0 && (

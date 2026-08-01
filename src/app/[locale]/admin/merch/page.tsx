@@ -39,6 +39,9 @@ export default function AdminMerchPage() {
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
   const [shopEnabled, setShopEnabledState] = useState(false);
   const [togglingShop, setTogglingShop] = useState(false);
+  const [giftThresholdCzk, setGiftThresholdCzk] = useState("");
+  const [savedGiftThresholdCzk, setSavedGiftThresholdCzk] = useState("");
+  const [savingGiftThreshold, setSavingGiftThreshold] = useState(false);
 
   const loadProducts = useCallback(async () => {
     setLoading(true);
@@ -64,10 +67,41 @@ export default function AdminMerchPage() {
       loadProducts();
       fetch("/api/admin/settings", { cache: "no-store" })
         .then((res) => (res.ok ? res.json() : null))
-        .then((data) => data && setShopEnabledState(!!data.shopEnabled))
+        .then((data) => {
+          if (!data) return;
+          setShopEnabledState(!!data.shopEnabled);
+          const czk = data.stickerGiftThresholdHalire
+            ? String(data.stickerGiftThresholdHalire / 100)
+            : "";
+          setGiftThresholdCzk(czk);
+          setSavedGiftThresholdCzk(czk);
+        })
         .catch((err) => console.error(err));
     }
   }, [loggedIn, loadProducts]);
+
+  async function saveGiftThreshold() {
+    const czk = Number(giftThresholdCzk);
+    if (!Number.isFinite(czk) || czk < 0) return;
+    setSavingGiftThreshold(true);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stickerGiftThresholdHalire: Math.round(czk * 100) }),
+      });
+      if (res.ok) {
+        setSavedGiftThresholdCzk(giftThresholdCzk);
+      } else {
+        setError(t("errorGeneric"));
+      }
+    } catch (err) {
+      console.error(err);
+      setError(t("errorGeneric"));
+    } finally {
+      setSavingGiftThreshold(false);
+    }
+  }
 
   async function toggleShopEnabled() {
     const next = !shopEnabled;
@@ -163,6 +197,33 @@ export default function AdminMerchPage() {
             }`}
           />
         </button>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 px-4 py-4 sm:px-6 bg-[#111]/90 border border-gray-700 rounded-sm">
+        <span className="font-bold uppercase tracking-widest text-sm sm:text-base">
+          {t("giftThreshold")}
+        </span>
+        <div className="flex items-center gap-2">
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={giftThresholdCzk}
+            onChange={(e) => setGiftThresholdCzk(e.target.value)}
+            placeholder="1500"
+            className="w-28 p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+          />
+          <span className="text-gray-400 text-sm">Kč</span>
+          {giftThresholdCzk !== savedGiftThresholdCzk && (
+            <button
+              onClick={saveGiftThreshold}
+              disabled={savingGiftThreshold}
+              className="px-4 py-2 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50 rounded-sm"
+            >
+              {t("save")}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
@@ -633,6 +694,15 @@ function ProductCard({
     onChange();
   }
 
+  async function toggleGiftOnly() {
+    await fetch(`/api/admin/merch/products/${product.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ giftOnly: !product.giftOnly }),
+    });
+    onChange();
+  }
+
   async function setPhotoMode(mode: "shared" | "per_variant") {
     if (mode === product.photoMode) return;
     await fetch(`/api/admin/merch/products/${product.id}`, {
@@ -761,6 +831,26 @@ function ProductCard({
             </svg>
             {t("preview")}
           </Link>
+          <label className="flex items-center gap-1.5 cursor-pointer select-none">
+            <span className="text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+              {t("giftOnly")}
+            </span>
+            <button
+              onClick={toggleGiftOnly}
+              role="switch"
+              aria-checked={product.giftOnly}
+              aria-label={t("giftOnly")}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                product.giftOnly ? "bg-brand" : "bg-gray-600"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                  product.giftOnly ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </label>
           <button
             onClick={toggleActive}
             role="switch"

@@ -82,6 +82,7 @@ interface MerchOrderDetails {
   address?: string | null;
   couponCode?: string | null;
   discountAmount?: number; // halire
+  giftLabel?: string | null;
 }
 
 export async function sendMerchOrderConfirmationEmail(

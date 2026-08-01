@@ -48,6 +48,8 @@
     "couponChecking": "Ověřuji…",
     "couponRemove": "Odebrat",
     "couponApplied": "Kupón {code} použit.",
+    "giftSectionTitle": "Dárek zdarma",
+    "giftSectionSubtitle": "K vaší objednávce přidáme zdarma jednu samolepku dle výběru.",
     "couponInvalid": "Neplatný nebo vyčerpaný kupón.",
     "couponNotApplicable": "Tento kupón neplatí pro zboží ve vašem košíku.",
     "couponDiscount": "Sleva",
@@ -371,6 +373,8 @@
   "AdminMerchPage": {
     "title": "Správa merche",
     "shopEnabled": "E-Shop",
+    "giftOnly": "Jen dárek",
+    "giftThreshold": "Limit pro dárek zdarma",
     "backToAdmin": "Zpět do administrace",
     "preview": "Náhled",
     "filterAll": "Vše",
@@ -474,6 +478,7 @@
     "statusCancelled": "Zrušeno",
     "errorInsufficientStock": "Nelze vrátit objednávku zpět — sklad už nemá dostatek kusů.",
     "coupon": "Kupón",
+    "gift": "Dárek",
     "discount": "Sleva"
   },
   "AdminMessagesPage": {
