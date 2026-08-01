@@ -805,31 +805,67 @@ function ProductCard({
 
   return (
     <div className="bg-[#111]/90 border border-gray-700 rounded-sm overflow-hidden">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-4 py-4 bg-white/5 border-b border-gray-700">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-500 font-mono">{product.slug}</span>
-          <div className="flex gap-1">
-            <button
-              type="button"
-              onClick={() => onMove(-1)}
-              disabled={moving || !canMoveUp}
-              aria-label={t("moveProductUp")}
-              className="w-7 h-7 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              ‹
-            </button>
-            <button
-              type="button"
-              onClick={() => onMove(1)}
-              disabled={moving || !canMoveDown}
-              aria-label={t("moveProductDown")}
-              className="w-7 h-7 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              ›
-            </button>
+      <div className="flex flex-col gap-3 px-4 py-4 bg-white/5 border-b border-gray-700">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-gray-500 font-mono">{product.slug}</span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => onMove(-1)}
+                disabled={moving || !canMoveUp}
+                aria-label={t("moveProductUp")}
+                className="w-6 h-6 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={() => onMove(1)}
+                disabled={moving || !canMoveDown}
+                aria-label={t("moveProductDown")}
+                className="w-6 h-6 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                ›
+              </button>
+            </div>
+
+            <div className="h-4 w-px bg-gray-700" />
+
+            <label className="flex items-center gap-2 cursor-pointer select-none">
+              <button
+                onClick={toggleActive}
+                role="switch"
+                aria-checked={product.active}
+                aria-label={product.active ? t("active") : t("inactive")}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer ${
+                  product.active ? "bg-green-600" : "bg-gray-600"
+                }`}
+              >
+                <span
+                  className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                    product.active ? "translate-x-4" : "translate-x-1"
+                  }`}
+                />
+              </button>
+              <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400">
+                {product.active ? t("active") : t("inactive")}
+              </span>
+            </label>
           </div>
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="flex items-center gap-1 text-gray-500 hover:text-red-400 text-xs font-bold uppercase tracking-wide cursor-pointer transition-colors"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
+            </svg>
+            {t("delete")}
+          </button>
         </div>
-        <div className="flex items-center gap-3">
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link
             href={`/shop/${product.slug}`}
             target="_blank"
@@ -842,42 +878,29 @@ function ProductCard({
             </svg>
             {t("preview")}
           </Link>
-          <div className="flex items-center rounded-sm border border-gray-600 overflow-hidden text-[10px] uppercase tracking-widest font-bold">
+
+          <div className="h-4 w-px bg-gray-700" />
+
+          <div className="relative flex items-center rounded-sm border border-gray-600 overflow-hidden text-[10px] uppercase tracking-widest font-bold">
+            <motion.div
+              className="absolute inset-y-0 left-0 w-1/3 bg-brand"
+              animate={{ x: `${["product", "gift", "both"].indexOf(saleMode) * 100}%` }}
+              transition={{ type: "spring", stiffness: 500, damping: 34 }}
+            />
             {(["product", "gift", "both"] as SaleMode[]).map((mode) => (
               <button
                 key={mode}
                 type="button"
                 onClick={() => setSaleMode(mode)}
                 aria-pressed={saleMode === mode}
-                className={`px-2.5 py-1.5 cursor-pointer transition-colors ${
-                  saleMode === mode ? "bg-brand text-white" : "bg-transparent text-gray-400 hover:text-white"
+                className={`relative z-10 min-w-[64px] px-3 py-1.5 cursor-pointer transition-colors ${
+                  saleMode === mode ? "text-white" : "text-gray-400 hover:text-white"
                 }`}
               >
                 {t(mode === "product" ? "saleModeProduct" : mode === "gift" ? "saleModeGift" : "saleModeBoth")}
               </button>
             ))}
           </div>
-          <button
-            onClick={toggleActive}
-            role="switch"
-            aria-checked={product.active}
-            aria-label={product.active ? t("active") : t("inactive")}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-              product.active ? "bg-green-600" : "bg-gray-600"
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                product.active ? "translate-x-6" : "translate-x-1"
-              }`}
-            />
-          </button>
-          <button
-            onClick={() => setConfirmDelete(true)}
-            className="text-red-500 hover:text-red-400 text-xs font-bold uppercase tracking-wide cursor-pointer"
-          >
-            {t("delete")}
-          </button>
         </div>
       </div>
 

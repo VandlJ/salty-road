@@ -375,7 +375,7 @@
     "title": "Merch Management",
     "shopEnabled": "E-Shop",
     "saleModeProduct": "Product",
-    "saleModeGift": "Gift only",
+    "saleModeGift": "Gift",
     "saleModeBoth": "Both",
     "giftThreshold": "Free gift threshold",
     "backToAdmin": "Back to admin",
