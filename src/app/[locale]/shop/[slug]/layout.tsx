@@ -75,11 +75,20 @@ export default async function ProductDetailLayout({
       ? product.variants.flatMap((v) => v.images)
       : product.photos;
 
+  // Google Merchant / Rich Results recommend an explicit expiry on the
+  // quoted price rather than none at all — there's no real per-product
+  // expiry concept here, so a rolling 90-day window is used (re-rendered
+  // fresh on every request, so this never actually goes stale).
+  const priceValidUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+    .toISOString()
+    .slice(0, 10);
+
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     description: product.description,
+    brand: { "@type": "Brand", name: "Salty Road Meet" },
     ...(images.length > 0 ? { image: images } : {}),
     offers: product.variants.map((v) => ({
       "@type": "Offer",
@@ -87,6 +96,8 @@ export default async function ProductDetailLayout({
       name: variantLabel(v),
       price: (v.price / 100).toFixed(2),
       priceCurrency: "CZK",
+      priceValidUntil,
+      itemCondition: "https://schema.org/NewCondition",
       availability:
         v.quantity > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       url,

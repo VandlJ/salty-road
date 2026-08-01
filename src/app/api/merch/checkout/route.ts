@@ -9,8 +9,8 @@ import { SHIPPING_FEE } from "@/lib/shipping";
 import { variantLabel } from "@/lib/variantLabel";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[0-9+() .-]{6,20}$/;
-const MAX_LEN = { customerName: 100, customerEmail: 200, customerPhone: 20, address: 300 };
+const PHONE_RE = /^[0-9+() .-]{6,24}$/;
+const MAX_LEN = { customerName: 100, customerEmail: 200, customerPhone: 24, address: 300 };
 const MAX_ITEM_LINES = 20;
 const MAX_QTY_PER_LINE = 20;
 

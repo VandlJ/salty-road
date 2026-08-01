@@ -556,6 +556,12 @@
     "description": "Tahle stránka neexistuje nebo byla přesunuta.",
     "backHome": "Domů"
   },
+  "ErrorPage": {
+    "title": "Něco se pokazilo",
+    "description": "Nastala neočekávaná chyba. Zkuste to prosím znovu.",
+    "retry": "Zkusit znovu",
+    "backHome": "Domů"
+  },
   "PrivacyPage": {
     "title": "Zásady ochrany osobních údajů",
     "updated": "Poslední aktualizace: 29. 7. 2026",

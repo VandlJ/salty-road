@@ -483,7 +483,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
 
 ---
 
-### [ ] N2. JSON-LD Product postrádá `brand`, `itemCondition` a `priceValidUntil`
+### [x] N2. JSON-LD Product postrádá `brand`, `itemCondition` a `priceValidUntil`
 
 **Soubor:** `src/app/[locale]/shop/[slug]/layout.tsx:106-122`
 
@@ -491,7 +491,7 @@ Google Merchant / Rich Results tato pole doporučuje; bez nich se produkt nemus�
 
 ---
 
-### [ ] N3. `sitemap.ts` hlásí `lastModified: new Date()` u všeho
+### [x] N3. `sitemap.ts` hlásí `lastModified: new Date()` u všeho
 
 **Soubor:** `src/app/sitemap.ts:54`
 
@@ -499,7 +499,7 @@ Každý crawl vidí "změněno právě teď" u všech URL, čímž signál ztrá
 
 ---
 
-### [ ] N4. `priority` na produktové fotce se mění za běhu
+### [x] N4. `priority` na produktové fotce se mění za běhu
 
 **Soubor:** `src/app/[locale]/shop/[slug]/page.tsx:328`
 
@@ -507,19 +507,19 @@ Každý crawl vidí "změněno právě teď" u všech URL, čímž signál ztrá
 
 ---
 
-### [ ] N5. Chybí `error.tsx` boundary
+### [x] N5. Chybí `error.tsx` boundary
 
 Aplikace nemá žádnou `error.tsx`. Neošetřená výjimka v Server Component skončí generickou Next.js chybovou stránkou bez brandingu. Doplnit `src/app/[locale]/error.tsx` ve stejném stylu jako nová 404.
 
 ---
 
-### [ ] N6. Chybí `loading.tsx` pro streamovaný obsah
+### [x] N6. Chybí `loading.tsx` pro streamovaný obsah
 
 Po převedení `/shop` na Server Component (C2) dává smysl přidat `loading.tsx` se stávajícím skeletonem, aby uživatel viděl okamžitou odezvu.
 
 ---
 
-### [ ] N7. `formatPhoneDigits` může vyrobit telefon přesně na hraně limitu
+### [x] N7. `formatPhoneDigits` může vyrobit telefon přesně na hraně limitu
 
 **Soubor:** `src/app/[locale]/shop/checkout/page.tsx:18-21`
 
@@ -533,7 +533,7 @@ Po C2 zmizí sám; do té doby stojí za zmínku, že `layout.tsx` (metadata) a 
 
 ---
 
-### [ ] N9. `/api/check` nemá rate limit
+### [x] N9. `/api/check` nemá rate limit
 
 **Soubor:** `src/app/api/check/route.ts`
 
@@ -549,7 +549,7 @@ Rozdělení existuje jen proto, že `not-found.tsx` nemůže být `"use client"`
 
 ---
 
-### [ ] N11. Skript `scripts/seedAdmin.mjs` není zdokumentovaný v README
+### [x] N11. Skript `scripts/seedAdmin.mjs` není zdokumentovaný v README
 
 Pro nasazení na čistou databázi je nutné vytvořit admin účet. Doplnit do README krok `npm run seed:admin` včetně požadavků na sílu hesla.
 

@@ -556,6 +556,12 @@
     "description": "This page doesn't exist or has been moved.",
     "backHome": "Back home"
   },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "retry": "Try again",
+    "backHome": "Back home"
+  },
   "PrivacyPage": {
     "title": "Privacy Policy",
     "updated": "Last updated: July 29, 2026",

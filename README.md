@@ -29,7 +29,7 @@ See `.env.example` for the full list with descriptions. Required to run at all:
 
 Optional:
 
-- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` — shared rate limiting across serverless instances (Upstash Redis REST API). Without these, rate limits fall back to a per-instance in-memory counter — good enough to blunt casual abuse, not a hard guarantee under real load.
+- `REDIS_URL` — shared rate limiting across serverless instances, backed by a self-hosted Redis. Without it, rate limits fall back to a per-instance in-memory counter — good enough to blunt casual abuse, not a hard guarantee under real load.
 
 ## Scripts
 
@@ -50,6 +50,8 @@ TEST_EMAIL=you@example.com node scripts/sendInfoEmail.mjs   # send the pre-event
 - `/privacy` — privacy policy
 - `/entry` — PIN-gated crew check-in board (not indexed)
 - `/admin` — password-gated registration management (not indexed)
+- `/shop` — merch e-shop (behind an admin-controlled kill switch)
+- `/shop/terms` — obchodní a reklamační podmínky (legal, Czech only)
 
 ## Deployment
 

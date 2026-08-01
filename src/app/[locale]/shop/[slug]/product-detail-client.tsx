@@ -42,6 +42,15 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
   const [dragX, setDragX] = useState(0);
   const [dragging, setDragging] = useState(false);
 
+  // `priority` is a static, first-paint-only decision for next/image — it
+  // must not keep toggling as photoIndex changes on swipe (that just
+  // generates pointless <link rel=preload> churn for images that are
+  // already on screen). True only for this component's very first render.
+  const isInitialRenderRef = useRef(true);
+  useEffect(() => {
+    isInitialRenderRef.current = false;
+  }, []);
+
   // Reset to the first photo whenever the selected variant changes — an
   // index from the previous variant's gallery can be out of range for the
   // new one (per-variant photo mode).
@@ -240,7 +249,7 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
                     // contain+white-plate treatment just for that one slide.
                     className={isSizeChartSlide ? "object-contain p-8 sm:p-12" : "object-cover"}
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    priority={photoIndex === 0}
+                    priority={photoIndex === 0 && isInitialRenderRef.current}
                   />
                 </div>
               ) : (

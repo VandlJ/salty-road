@@ -3,20 +3,27 @@ import { getShopEnabled } from '@/lib/shop';
 import prisma from '@/lib/prisma';
 import { SITE_URL, LOCALES } from '@/lib/seo';
 
+// Fixed per-deployment rather than per-request — a static page's content
+// only actually changes on a new deploy, so "now" on every crawl would just
+// be noise (the thing lastModified is supposed to signal).
+const BUILD_DATE = new Date();
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // /shop is behind an admin-controlled kill switch — only list it (and its
   // products) once it's actually turned on (matches the noindex on the shop
   // layouts).
   const shopEnabled = await getShopEnabled();
 
-  const productSlugs = shopEnabled
-    ? (
-        await prisma.merchProduct.findMany({
-          where: { active: true },
-          select: { slug: true },
-        })
-      ).map((p) => p.slug)
+  const products = shopEnabled
+    ? await prisma.merchProduct.findMany({
+        where: { active: true },
+        select: { slug: true, createdAt: true },
+      })
     : [];
+  const productSlugs = products.map((p) => p.slug);
+  // No updatedAt column on MerchProduct — createdAt is still a real,
+  // meaningful signal (better than reporting "now" on every single crawl).
+  const productModifiedAt = new Map(products.map((p) => [p.slug, p.createdAt]));
 
   const routes = [
     '',
@@ -50,9 +57,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       });
       languages['x-default'] = `${SITE_URL}/cs${route}`;
 
+      const productSlug = isProduct ? route.slice('/shop/'.length) : null;
+      const lastModified = productSlug
+        ? (productModifiedAt.get(productSlug) ?? BUILD_DATE)
+        : BUILD_DATE;
+
       sitemapEntries.push({
         url: `${SITE_URL}/${locale}${route}`,
-        lastModified: new Date(),
+        lastModified,
         changeFrequency: isProduct ? 'daily' : 'weekly',
         priority,
         alternates: { languages },

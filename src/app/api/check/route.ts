@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function GET(req: Request) {
   try {
+    if (!(await rateLimit(`check:${getClientIp(req)}`, 60, 60 * 60 * 1000))) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
+
     const url = new URL(req.url);
     const id = (url.searchParams.get("id") || "").trim();
     if (!id) {
