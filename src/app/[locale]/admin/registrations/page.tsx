@@ -383,7 +383,6 @@ export default function AdminRegistrationsPage() {
         {filteredRegs.map((r, regIdx) => (
           <motion.div
             key={r.id}
-            layout
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}

@@ -3,7 +3,13 @@ export type PhotoMode = "shared" | "per_variant";
 export type MerchVariant = {
   id: string;
   sku: string;
-  label: string;
+  // Structured size/color instead of a free-text label — sizes sort via a
+  // fixed ladder (see SIZE_ORDER in @/lib/variantLabel), colors via `order`
+  // below (admin-controlled, shared across every variant of that color).
+  // Either can be null for a product with no size or no color dimension.
+  color: string | null;
+  size: string | null;
+  order: number;
   price: number; // halire
   quantity: number;
   // Used only when the parent product's photoMode is "per_variant".
@@ -16,6 +22,11 @@ export type MerchProduct = {
   category: string;
   name: string;
   description: string;
+  // Only meaningful when this product was fetched via the admin-preview
+  // bypass (see /api/merch/products/[slug]) — the public listing/detail
+  // flow never surfaces inactive products at all, so this is always `true`
+  // there. Optional so existing call sites that don't care don't need it.
+  active?: boolean;
   photoMode: PhotoMode;
   // Used only when photoMode is "shared" — same photos for every variant.
   photos: string[];
@@ -39,10 +50,12 @@ export type Order = {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  address: string;
+  address: string | null;
   items: OrderItem[];
   totalAmount: number; // halire
   paymentMethod: "bank_transfer" | "cod";
+  deliveryMethod: "shipping" | "pickup";
+  shippingFee: number; // halire
   status: "pending" | "paid" | "shipped" | "cancelled";
   couponCode: string | null;
   discountAmount: number; // halire

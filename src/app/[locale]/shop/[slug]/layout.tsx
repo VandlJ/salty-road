@@ -4,6 +4,7 @@ import { cache } from "react";
 import prisma from "@/lib/prisma";
 import { getShopEnabled } from "@/lib/shop";
 import { buildAlternates, canonicalUrl, jsonLdScript } from "@/lib/seo";
+import { variantLabel } from "@/lib/variantLabel";
 
 // generateMetadata and the layout body both need the product — React's
 // cache() dedupes the two Prisma calls into one per request instead of
@@ -19,7 +20,7 @@ const getProduct = cache(async (slug: string) => {
       photos: true,
       variants: {
         where: { active: true },
-        select: { sku: true, label: true, price: true, quantity: true, images: true },
+        select: { sku: true, color: true, size: true, price: true, quantity: true, images: true },
       },
     },
   });
@@ -111,7 +112,7 @@ export default async function ProductDetailLayout({
     offers: product.variants.map((v) => ({
       "@type": "Offer",
       sku: v.sku,
-      name: v.label,
+      name: variantLabel(v),
       price: (v.price / 100).toFixed(2),
       priceCurrency: "CZK",
       availability:

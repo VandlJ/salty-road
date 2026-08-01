@@ -7,6 +7,8 @@ function formatHalire(halire) {
  * @param {{
  *   orderId: string, vs: string, items: object[], totalAmount: number,
  *   paymentMethod: string, hasQr: boolean,
+ *   deliveryMethod?: "shipping" | "pickup", shippingFee?: number,
+ *   address?: string | null,
  *   couponCode?: string | null, discountAmount?: number,
  * }} order
  */
@@ -17,6 +19,9 @@ export function merchOrderConfirmationEmail({
   totalAmount,
   paymentMethod,
   hasQr,
+  deliveryMethod = "shipping",
+  shippingFee = 0,
+  address = null,
   couponCode = null,
   discountAmount = 0,
 }) {
@@ -30,6 +35,11 @@ export function merchOrderConfirmationEmail({
     paymentMethod === "bank_transfer"
       ? "Platba: bankovním převodem — QR kód s platebními údaji najdeš níže."
       : "Platba: dobírkou při doručení.";
+
+  const deliveryText =
+    deliveryMethod === "pickup"
+      ? "Doručení: osobní odběr (po telefonické domluvě)."
+      : `Doručení: poštou na adresu ${address ?? ""} (poštovné ${formatHalire(shippingFee)}).`;
 
   const discountLine =
     couponCode && discountAmount > 0
@@ -46,6 +56,7 @@ ${itemLines}
 
 ${discountLine}Celkem: ${formatHalire(totalAmount)}
 
+${deliveryText}
 ${paymentText}
 
 Tým Salty Road Meet`;
@@ -67,6 +78,7 @@ Tým Salty Road Meet`;
     <ul>${itemsHtml}</ul>
     ${discountHtml}
     <p><strong>Celkem: ${formatHalire(totalAmount)}</strong></p>
+    <p>${deliveryText}</p>
     <p>${paymentText}</p>
     ${
       hasQr

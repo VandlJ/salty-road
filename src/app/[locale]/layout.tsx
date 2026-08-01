@@ -121,9 +121,7 @@ export default async function RootLayout({
             <div className="w-full">
               <ClientNavbarWrapper />
             </div>
-            <main className="flex-1 flex flex-col overflow-x-hidden">
-              <PageTransition>{children}</PageTransition>
-            </main>
+            <PageTransition>{children}</PageTransition>
             <Footer />
             <ContactWidget />
           </MotionConfigProvider>

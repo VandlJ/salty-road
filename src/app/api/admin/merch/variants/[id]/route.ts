@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
 
-const MAX_LEN = { label: 100 };
+const MAX_LEN = { color: 60, size: 20 };
 const MAX_PHOTOS = 20;
 
 function isStringArray(value: unknown): value is string[] {
@@ -19,7 +19,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await req.json();
-    const { label, price, quantity, images, active, order } = body;
+    const { color, size, price, quantity, images, active, order } = body;
 
     for (const [field, maxLen] of Object.entries(MAX_LEN)) {
       const value = body[field];
@@ -43,7 +43,8 @@ export async function PATCH(
     const variant = await prisma.merchVariant.update({
       where: { id },
       data: {
-        ...(label !== undefined && { label }),
+        ...(color !== undefined && { color: color ? String(color).trim() : null }),
+        ...(size !== undefined && { size: size ? String(size).trim() : null }),
         ...(price !== undefined && { price }),
         ...(quantity !== undefined && { quantity }),
         ...(images !== undefined && { images }),

@@ -89,6 +89,9 @@ export async function buildEmailPreview(id: string): Promise<EmailPreview> {
         items: SAMPLE_ITEMS,
         totalAmount: SAMPLE_TOTAL,
         paymentMethod: "bank_transfer",
+        deliveryMethod: "shipping",
+        shippingFee: 9900,
+        address: "Ukázková 1, 301 00 Plzeň",
         hasQr: true,
       });
       const qrCodeBase64 = await sampleQr(SAMPLE_TOTAL / 100, "2607300099");

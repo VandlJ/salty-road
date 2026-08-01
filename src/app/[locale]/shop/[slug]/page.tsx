@@ -11,6 +11,7 @@ import Skeleton from "@/components/skeleton";
 import { AnimatePresence, motion } from "motion/react";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore } from "@/lib/cartStore";
+import { variantLabel } from "@/lib/variantLabel";
 import type { MerchProduct, MerchVariant } from "@/types/merch";
 
 export default function ProductDetailPage() {
@@ -81,6 +82,32 @@ export default function ProductDetailPage() {
     (v) => v.sku === selectedSku
   );
 
+  // Two-tier selection: color first, then size within that color — falls
+  // back gracefully if a product only uses one dimension (e.g. the cap has
+  // colors but no sizes) or neither (single, undifferentiated variant).
+  const hasColor = product?.variants.some((v) => v.color) ?? false;
+  const hasSize = product?.variants.some((v) => v.size) ?? false;
+  // Variants already arrive sorted by color-group then size (see
+  // compareVariantsForDisplay server-side), so deduping preserves that order.
+  const colors = hasColor
+    ? Array.from(new Set(product!.variants.map((v) => v.color).filter((c): c is string => !!c)))
+    : [];
+  const sizeOptions = product
+    ? product.variants.filter((v) => (hasColor ? v.color === selectedVariant?.color : true))
+    : [];
+
+  function pickColor(color: string) {
+    if (!product) return;
+    const candidates = product.variants.filter((v) => v.color === color);
+    // Keep the same size if the new color has it too, otherwise prefer an
+    // in-stock size, otherwise just the first one.
+    const next =
+      (selectedVariant?.size && candidates.find((v) => v.size === selectedVariant.size)) ||
+      candidates.find((v) => v.quantity > 0) ||
+      candidates[0];
+    if (next) setSelectedSku(next.sku);
+  }
+
   // Shared mode: same photos regardless of which size/variant is picked.
   // Per-variant mode: the selected variant's own photos (e.g. different
   // colors need different photos). Size chart, if set, is always appended
@@ -127,7 +154,7 @@ export default function ProductDetailPage() {
       sku: selectedVariant.sku,
       productSlug: product.slug,
       name: product.name,
-      variantLabel: selectedVariant.label,
+      variantLabel: variantLabel(selectedVariant),
       unitPrice: selectedVariant.price,
       qty,
       image: variantPhotos[0] ?? null,
@@ -238,6 +265,11 @@ export default function ProductDetailPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       >
+        {product.active === false && (
+          <div className="mb-6 px-4 py-3 border-2 border-brand bg-brand/10 rounded-sm text-center text-sm font-bold uppercase tracking-wide text-white">
+            {t("previewOnlyBanner")}
+          </div>
+        )}
         <Link
           href="/shop"
           className="group inline-flex items-center gap-2 mb-8 text-sm font-medium uppercase tracking-wide text-gray-400 hover:text-white transition-colors"
@@ -284,7 +316,7 @@ export default function ProductDetailPage() {
                     alt={
                       isSizeChartSlide
                         ? t("sizeChartAlt", { name: product.name })
-                        : `${product.name} — ${selectedVariant?.label ?? ""}`
+                        : `${product.name} — ${selectedVariant ? variantLabel(selectedVariant) : ""}`
                     }
                     fill
                     // Lifestyle photos fill the frame edge-to-edge; the size
@@ -352,7 +384,7 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="flex flex-col gap-6 md:col-start-2 md:row-start-2">
-            <p className="text-gray-300 font-light leading-relaxed">{product.description}</p>
+            <p className="text-gray-300 font-light leading-relaxed whitespace-pre-wrap">{product.description}</p>
 
             {selectedVariant && (
               <div className="flex flex-col gap-2">
@@ -365,36 +397,72 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-bold uppercase tracking-wide text-gray-400">
-                {t("selectVariant")}
-              </span>
-              <div className="flex flex-wrap gap-2">
-                {product.variants.map((variant) => {
-                  const outOfStock = variant.quantity <= 0;
-                  const isSelected = variant.sku === selectedSku;
-                  return (
-                    <button
-                      key={variant.sku}
-                      type="button"
-                      onClick={() => setSelectedSku(variant.sku)}
-                      className={`px-4 py-2 border-2 rounded-sm text-sm font-medium transition-colors cursor-pointer ${
-                        isSelected
-                          ? outOfStock
-                            ? "border-gray-400 bg-gray-700 text-gray-300"
-                            : "border-white bg-white text-black"
-                          : outOfStock
-                            ? "border-gray-700 text-gray-500 hover:border-gray-500"
-                            : "border-gray-500 text-white hover:border-white"
-                      }`}
-                    >
-                      {variant.label}
-                      {outOfStock && ` (${t("outOfStock")})`}
-                    </button>
-                  );
-                })}
+            {hasColor && (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-bold uppercase tracking-wide text-gray-400">
+                  {t("selectColor")}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {colors.map((color) => {
+                    const variantsForColor = product.variants.filter((v) => v.color === color);
+                    const colorOutOfStock = variantsForColor.every((v) => v.quantity <= 0);
+                    const isSelected = selectedVariant?.color === color;
+                    return (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => pickColor(color)}
+                        className={`px-4 py-2 border-2 rounded-sm text-sm font-medium transition-colors cursor-pointer ${
+                          isSelected
+                            ? colorOutOfStock
+                              ? "border-gray-400 bg-gray-700 text-gray-300"
+                              : "border-white bg-white text-black"
+                            : colorOutOfStock
+                              ? "border-gray-700 text-gray-500 hover:border-gray-500"
+                              : "border-gray-500 text-white hover:border-white"
+                        }`}
+                      >
+                        {color}
+                        {colorOutOfStock && ` (${t("outOfStock")})`}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
+
+            {hasSize && (
+              <div className="flex flex-col gap-2">
+                <span className="text-sm font-bold uppercase tracking-wide text-gray-400">
+                  {t("selectSize")}
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {sizeOptions.map((variant) => {
+                    const outOfStock = variant.quantity <= 0;
+                    const isSelected = variant.sku === selectedSku;
+                    return (
+                      <button
+                        key={variant.sku}
+                        type="button"
+                        onClick={() => setSelectedSku(variant.sku)}
+                        className={`px-4 py-2 border-2 rounded-sm text-sm font-medium transition-colors cursor-pointer ${
+                          isSelected
+                            ? outOfStock
+                              ? "border-gray-400 bg-gray-700 text-gray-300"
+                              : "border-white bg-white text-black"
+                            : outOfStock
+                              ? "border-gray-700 text-gray-500 hover:border-gray-500"
+                              : "border-gray-500 text-white hover:border-white"
+                        }`}
+                      >
+                        {variant.size}
+                        {outOfStock && ` (${t("outOfStock")})`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {selectedVariant && selectedVariant.quantity <= 0 ? (
               <div className="flex flex-col gap-3">

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { stockRequestNotificationEmail } from "@/emails/stock-request-notification.mjs";
+import { variantLabel } from "@/lib/variantLabel";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_LEN = { customerName: 100, customerEmail: 200 };
@@ -47,7 +48,7 @@ export async function POST(req: Request) {
       data: {
         productSlug: variant.product.slug,
         productName: variant.product.name,
-        variantLabel: variant.label,
+        variantLabel: variantLabel(variant),
         sku: variant.sku,
         customerName,
         customerEmail,
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
       if (orderEmail) {
         const notification = stockRequestNotificationEmail({
           productName: variant.product.name,
-          variantLabel: variant.label,
+          variantLabel: variantLabel(variant),
           sku: variant.sku,
           customerName,
           customerEmail,

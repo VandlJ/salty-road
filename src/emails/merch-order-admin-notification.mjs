@@ -6,6 +6,7 @@ export function merchOrderAdminNotificationEmail({
   customerEmail,
   customerPhone,
   address,
+  deliveryMethod = "shipping",
   paymentMethod,
   items,
   totalAmount,
@@ -14,12 +15,15 @@ export function merchOrderAdminNotificationEmail({
 
   const itemLines = items.map((i) => `- ${i.name} (${i.label}) x${i.qty}`).join("\n");
 
+  const deliveryLine =
+    deliveryMethod === "pickup" ? "Doručení: osobní odběr" : `Adresa: ${address ?? ""}`;
+
   const text = `Nová objednávka v Salty Road Shopu!
 
 Zákazník: ${customerName}
 Email: ${customerEmail}
 Telefon: ${customerPhone}
-Adresa: ${address}
+${deliveryLine}
 Platba: ${paymentMethod}
 
 ${itemLines}

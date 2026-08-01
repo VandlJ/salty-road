@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
+import { compareVariantsForDisplay } from "@/lib/variantLabel";
 
 const MAX_LEN = { slug: 80, category: 40, name: 100, description: 2000 };
 
@@ -18,6 +19,7 @@ export async function GET() {
         variants: { orderBy: { order: Prisma.SortOrder.asc } },
       },
     });
+    for (const p of products) p.variants.sort(compareVariantsForDisplay);
     return NextResponse.json(products);
   } catch (err) {
     console.error("GET /api/admin/merch/products error:", err);

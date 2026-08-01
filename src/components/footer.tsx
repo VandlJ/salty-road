@@ -66,6 +66,9 @@ export default function Footer() {
           <Link href="/privacy" className="underline hover:text-gray-400 transition-colors">
             {t("privacy")}
           </Link>
+          <Link href="/shop/terms" className="underline hover:text-gray-400 transition-colors">
+            {t("shopTerms")}
+          </Link>
         </div>
       </div>
     </footer>

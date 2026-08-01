@@ -11,6 +11,8 @@ interface LastOrder {
   vs: string;
   totalAmount: number;
   paymentMethod: "bank_transfer" | "cod";
+  deliveryMethod?: "shipping" | "pickup";
+  shippingFee?: number;
   qrCodeBase64?: string;
   couponCode?: string | null;
   discountAmount?: number;
@@ -74,12 +76,21 @@ export default function ThankYouPage() {
               <span>-{formatPrice(order.discountAmount)}</span>
             </div>
           )}
+          {!!order.shippingFee && (
+            <div className="flex justify-between text-sm text-gray-400">
+              <span>{t("checkoutShippingFee")}</span>
+              <span>{formatPrice(order.shippingFee)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-sm text-gray-400">
             <span>{t("thankYouTotal")}</span>
             <span className="text-white font-bold">{formatPrice(order.totalAmount)}</span>
           </div>
 
           <p className="text-gray-300 text-sm mt-2">
+            {order.deliveryMethod === "pickup" ? t("checkoutDeliveryPickupDesc") : t("checkoutDeliveryShipping")}
+          </p>
+          <p className="text-gray-300 text-sm">
             {order.paymentMethod === "bank_transfer" ? t("thankYouBankTransfer") : t("thankYouCod")}
           </p>
 

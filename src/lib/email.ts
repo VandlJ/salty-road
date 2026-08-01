@@ -77,6 +77,9 @@ interface MerchOrderDetails {
   items: MerchOrderItem[];
   totalAmount: number; // halire
   paymentMethod: string; // "bank_transfer" | "cod"
+  deliveryMethod?: "shipping" | "pickup";
+  shippingFee?: number; // halire
+  address?: string | null;
   couponCode?: string | null;
   discountAmount?: number; // halire
 }

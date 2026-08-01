@@ -3,7 +3,7 @@ import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
 
-const MAX_LEN = { sku: 80, label: 100 };
+const MAX_LEN = { sku: 80, color: 60, size: 20 };
 const MAX_PHOTOS = 20;
 
 function isStringArray(value: unknown): value is string[] {
@@ -20,9 +20,9 @@ export async function POST(
   try {
     const { id: productId } = await params;
     const body = await req.json();
-    const { sku, label, price, quantity, images } = body;
+    const { sku, color, size, price, quantity, images } = body;
 
-    if (!sku || !label || price == null || quantity == null) {
+    if (!sku || price == null || quantity == null) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
     }
 
@@ -43,15 +43,41 @@ export async function POST(
       return NextResponse.json({ error: "invalid_photos" }, { status: 400 });
     }
 
-    // New variants go to the end of the display order (not alphabetical —
-    // that's the whole point of the `order` column, see admin UI reorder).
-    const { _max } = await prisma.merchVariant.aggregate({
-      where: { productId },
-      _max: { order: true },
-    });
+    const normalizedColor: string | null = color ? String(color).trim() : null;
+    const normalizedSize: string | null = size ? String(size).trim() : null;
+
+    // New variant order: join the existing color group if one already
+    // exists on this product (so a new size added to "Černá" lands with the
+    // rest of "Černá" instead of at the very end), otherwise start a new
+    // group after the last one.
+    let order: number;
+    const sibling = normalizedColor
+      ? await prisma.merchVariant.findFirst({
+          where: { productId, color: normalizedColor },
+          select: { order: true },
+        })
+      : null;
+    if (sibling) {
+      order = sibling.order;
+    } else {
+      const { _max } = await prisma.merchVariant.aggregate({
+        where: { productId },
+        _max: { order: true },
+      });
+      order = (_max.order ?? -1) + 1;
+    }
 
     const variant = await prisma.merchVariant.create({
-      data: { productId, sku, label, price, quantity, images: images ?? [], order: (_max.order ?? -1) + 1 },
+      data: {
+        productId,
+        sku,
+        color: normalizedColor,
+        size: normalizedSize,
+        price,
+        quantity,
+        images: images ?? [],
+        order,
+      },
     });
 
     return NextResponse.json(variant, { status: 201 });

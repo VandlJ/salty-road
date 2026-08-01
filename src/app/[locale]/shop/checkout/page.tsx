@@ -9,6 +9,7 @@ import PhoneCodeSelect from "@/components/phone-code-select";
 import AddressAutocomplete from "@/components/address-autocomplete";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore, cartTotal } from "@/lib/cartStore";
+import { SHIPPING_FEE } from "@/lib/shipping";
 
 // Groups digits in 3s ("123 456 789") — the CZ/SK/PL convention and a
 // reasonable universal display format for the others too, since this is
@@ -51,11 +52,14 @@ export default function CheckoutPage() {
   const [email, setEmail] = useState("");
   const [phoneCode, setPhoneCode] = useState("+420");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<"shipping" | "pickup">("shipping");
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
   const [zip, setZip] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const shippingFee = deliveryMethod === "pickup" ? 0 : SHIPPING_FEE;
 
   const cartItems = mounted ? items : [];
   const subtotal = cartTotal(cartItems);
@@ -83,7 +87,7 @@ export default function CheckoutPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [couponCode, subtotal]);
 
-  const finalTotal = Math.max(0, subtotal - discountAmount);
+  const finalTotal = Math.max(0, subtotal - discountAmount) + shippingFee;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -102,8 +106,12 @@ export default function CheckoutPage() {
           customerName: `${firstName.trim()} ${lastName.trim()}`.trim(),
           customerEmail: email.trim(),
           customerPhone: `${phoneCode} ${phoneNumber.trim()}`.trim(),
-          address: `${street.trim()}, ${zip.trim()} ${city.trim()}`.trim(),
+          address:
+            deliveryMethod === "shipping"
+              ? `${street.trim()}, ${zip.trim()} ${city.trim()}`.trim()
+              : undefined,
           paymentMethod: "bank_transfer",
+          deliveryMethod,
           items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
           couponCode: couponCode || undefined,
         }),
@@ -147,32 +155,6 @@ export default function CheckoutPage() {
         <SectionHeading as="h1" size="lg" className="mb-12">
           {t("checkoutTitle")}
         </SectionHeading>
-
-        <div className="mb-8 bg-[#111] border border-gray-700 rounded-sm p-4">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-gray-400 mb-3">
-            {t("checkoutSummary")}
-          </h2>
-          <div className="flex flex-col gap-2">
-            {cartItems.map((item) => (
-              <div key={item.sku} className="flex justify-between text-sm text-gray-300">
-                <span>
-                  {item.name} ({item.variantLabel}) x{item.qty}
-                </span>
-                <span>{formatPrice(item.unitPrice * item.qty)}</span>
-              </div>
-            ))}
-          </div>
-          {discountAmount > 0 && (
-            <div className="flex justify-between text-sm text-gray-400 mt-2">
-              <span>{t("couponDiscount")}</span>
-              <span>-{formatPrice(discountAmount)}</span>
-            </div>
-          )}
-          <div className="flex justify-between mt-4 pt-4 border-t border-gray-700 font-bold">
-            <span>{t("cartTotal")}</span>
-            <span>{formatPrice(finalTotal)}</span>
-          </div>
-        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -243,60 +225,130 @@ export default function CheckoutPage() {
 
           <div className="flex flex-col gap-2">
             <span className="text-white font-bold tracking-wide">
-              {t("checkoutAddress")}
+              {t("checkoutDeliveryMethod")}
             </span>
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <label htmlFor="street" className="text-xs text-gray-400 uppercase tracking-wide">
-                  {t("checkoutStreet")}
-                </label>
-                <AddressAutocomplete
-                  id="street"
-                  value={street}
-                  onChange={setStreet}
-                  onSelect={(s) => {
-                    setStreet(s.street);
-                    if (s.city) setCity(s.city);
-                    if (s.zip) setZip(s.zip);
-                  }}
-                  required
-                  maxLength={150}
-                />
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setDeliveryMethod("shipping")}
+                className={`px-4 py-3 rounded-sm border-2 text-left transition-colors cursor-pointer ${
+                  deliveryMethod === "shipping" ? "border-white bg-white/10" : "border-gray-600 hover:border-gray-400"
+                }`}
+              >
+                <div className="font-bold text-white">{t("checkoutDeliveryShipping")}</div>
+                <div className="text-sm text-gray-400 mt-0.5">{t("checkoutDeliveryShippingDesc", { price: formatPrice(SHIPPING_FEE) })}</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeliveryMethod("pickup")}
+                className={`px-4 py-3 rounded-sm border-2 text-left transition-colors cursor-pointer ${
+                  deliveryMethod === "pickup" ? "border-white bg-white/10" : "border-gray-600 hover:border-gray-400"
+                }`}
+              >
+                <div className="font-bold text-white">{t("checkoutDeliveryPickup")}</div>
+                <div className="text-sm text-gray-400 mt-0.5">{t("checkoutDeliveryPickupDesc")}</div>
+              </button>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="city" className="text-xs text-gray-400 uppercase tracking-wide">
-                    {t("checkoutCity")}
-                  </label>
-                  <input
-                    id="city"
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    required
-                    maxLength={100}
-                    className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
-                  />
-                </div>
+          <AnimatePresence initial={false}>
+          {deliveryMethod === "shipping" && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="flex flex-col gap-2">
+                <span className="text-white font-bold tracking-wide">
+                  {t("checkoutAddress")}
+                </span>
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="street" className="text-xs text-gray-400 uppercase tracking-wide">
+                      {t("checkoutStreet")}
+                    </label>
+                    <AddressAutocomplete
+                      id="street"
+                      value={street}
+                      onChange={setStreet}
+                      onSelect={(s) => {
+                        setStreet(s.street);
+                        if (s.city) setCity(s.city);
+                        if (s.zip) setZip(s.zip);
+                      }}
+                      required={deliveryMethod === "shipping"}
+                      maxLength={150}
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                  <label htmlFor="zip" className="text-xs text-gray-400 uppercase tracking-wide">
-                    {t("checkoutZip")}
-                  </label>
-                  <input
-                    id="zip"
-                    type="text"
-                    inputMode="numeric"
-                    value={zip}
-                    onChange={(e) => setZip(e.target.value)}
-                    placeholder="123 45"
-                    required
-                    maxLength={10}
-                    className="w-full sm:w-32 px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
-                  />
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="city" className="text-xs text-gray-400 uppercase tracking-wide">
+                        {t("checkoutCity")}
+                      </label>
+                      <input
+                        id="city"
+                        type="text"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        required={deliveryMethod === "shipping"}
+                        maxLength={100}
+                        className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="zip" className="text-xs text-gray-400 uppercase tracking-wide">
+                        {t("checkoutZip")}
+                      </label>
+                      <input
+                        id="zip"
+                        type="text"
+                        inputMode="numeric"
+                        value={zip}
+                        onChange={(e) => setZip(e.target.value)}
+                        placeholder="123 45"
+                        required={deliveryMethod === "shipping"}
+                        maxLength={10}
+                        className="w-full sm:w-32 px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
+            </motion.div>
+          )}
+          </AnimatePresence>
+
+          <div className="bg-[#111] border border-gray-700 rounded-sm p-4">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-gray-400 mb-3">
+              {t("checkoutSummary")}
+            </h2>
+            <div className="flex flex-col gap-2">
+              {cartItems.map((item) => (
+                <div key={item.sku} className="flex justify-between text-sm text-gray-300">
+                  <span>
+                    {item.name} ({item.variantLabel}) x{item.qty}
+                  </span>
+                  <span>{formatPrice(item.unitPrice * item.qty)}</span>
+                </div>
+              ))}
+            </div>
+            {discountAmount > 0 && (
+              <div className="flex justify-between text-sm text-gray-400 mt-2">
+                <span>{t("couponDiscount")}</span>
+                <span>-{formatPrice(discountAmount)}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm text-gray-400 mt-2">
+              <span>{t("checkoutShippingFee")}</span>
+              <span>{shippingFee > 0 ? formatPrice(shippingFee) : t("checkoutShippingFree")}</span>
+            </div>
+            <div className="flex justify-between mt-4 pt-4 border-t border-gray-700 font-bold">
+              <span>{t("cartTotal")}</span>
+              <span>{formatPrice(finalTotal)}</span>
             </div>
           </div>
 
@@ -329,6 +381,13 @@ export default function CheckoutPage() {
             )}
             {submitting ? t("checkoutSubmitting") : t("checkoutSubmit")}
           </button>
+
+          <p className="text-xs text-gray-500 text-center -mt-2">
+            {t("checkoutTermsPrefix")}{" "}
+            <Link href="/shop/terms" className="underline hover:text-gray-300 transition-colors">
+              {t("checkoutTermsLink")}
+            </Link>
+          </p>
         </form>
       </div>
     </section>

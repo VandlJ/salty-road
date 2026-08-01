@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { getAdminFromReq } from "@/lib/adminAuth";
+import { compareVariantsForDisplay } from "@/lib/variantLabel";
 
 export async function GET(
   _req: Request,
@@ -23,8 +25,22 @@ export async function GET(
       cacheStrategy: { ttl: 30 },
     });
 
-    if (!product || !product.active || product.variants.length === 0) {
-      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    if (product) product.variants.sort(compareVariantsForDisplay);
+
+    const isLive = !!product && product.active && product.variants.length > 0;
+
+    if (!isLive) {
+      // Not live to the public — only an authenticated admin previewing an
+      // unreleased/paused product gets to see it anyway, and that response
+      // must never be cached publicly (a shared CDN cache can't tell an
+      // admin's request apart from a regular visitor's on the same URL).
+      const admin = product ? await getAdminFromReq() : null;
+      if (!admin || !product || product.variants.length === 0) {
+        return NextResponse.json({ error: "not_found" }, { status: 404 });
+      }
+      return NextResponse.json(product, {
+        headers: { "Cache-Control": "private, no-store" },
+      });
     }
 
     // Matches the Accelerate cacheStrategy ttl above — browser/CDN cache the

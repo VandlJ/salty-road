@@ -253,7 +253,6 @@ export default function AdminOrdersPage() {
         {filteredOrders.map((order) => (
           <motion.div
             key={order.id}
-            layout
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
@@ -297,9 +296,11 @@ export default function AdminOrdersPage() {
                 </div>
                 <div>
                   <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold block">
-                    {t("address")}
+                    {order.deliveryMethod === "pickup" ? t("deliveryMethod") : t("address")}
                   </span>
-                  <span className="text-sm text-gray-300">{order.address}</span>
+                  <span className="text-sm text-gray-300">
+                    {order.deliveryMethod === "pickup" ? t("deliveryPickup") : order.address}
+                  </span>
                 </div>
                 <div>
                   <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold block">
@@ -333,7 +334,19 @@ export default function AdminOrdersPage() {
                     <span>-{formatPrice(order.discountAmount)}</span>
                   </div>
                 )}
-                <div className={`flex justify-between font-bold text-white pt-2 ${!(order.couponCode && order.discountAmount > 0) ? "border-t border-gray-700" : ""}`}>
+                {order.shippingFee > 0 && (
+                  <div className="flex justify-between text-sm text-gray-400 pt-2 border-t border-gray-700">
+                    <span>{t("shippingFee")}</span>
+                    <span>{formatPrice(order.shippingFee)}</span>
+                  </div>
+                )}
+                <div
+                  className={`flex justify-between font-bold text-white pt-2 ${
+                    !(order.couponCode && order.discountAmount > 0) && !(order.shippingFee > 0)
+                      ? "border-t border-gray-700"
+                      : ""
+                  }`}
+                >
                   <span>{t("total")}</span>
                   <span>{formatPrice(order.totalAmount)}</span>
                 </div>

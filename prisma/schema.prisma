@@ -69,12 +69,16 @@ model MerchVariant {
   productId String
   product   MerchProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
   sku       String       @unique
-  label     String // free text, e.g. "M / Black" or "Design: Shark"
-  price     Int // halire
-  quantity  Int          @default(0)
-  images    String[]     @default([]) // Vercel Blob URLs, used when product.photoMode = "per_variant"
-  active    Boolean      @default(true)
-  order     Int          @default(0) // admin-controlled display order, not alphabetical
+  color     String? // e.g. "Černá"; null = product has no color dimension
+  size      String? // e.g. "M", "XL", "2XL"; null = product has no size dimension. Sort order is
+  // computed from a fixed size ladder (see SIZE_ORDER in src/lib/variantLabel.ts), not stored.
+  price    Int // halire
+  quantity Int      @default(0)
+  images   String[] @default([]) // Vercel Blob URLs, used when product.photoMode = "per_variant"
+  active   Boolean  @default(true)
+  order    Int      @default(0) // admin-controlled color-group display order (shared across every
+  // variant with the same color on this product), not alphabetical — sizes within a color always
+  // sort automatically via the size ladder instead.
 
   @@index([productId])
 }
@@ -86,10 +90,12 @@ model Order {
   customerName   String
   customerEmail  String
   customerPhone  String
-  address        String
+  address        String? // null when deliveryMethod = "pickup"
   items          Json // snapshot: [{ sku, name, label, price, qty }]
-  totalAmount    Int // halire, final amount after any discount
+  totalAmount    Int // halire, final amount after any discount, includes shippingFee
   paymentMethod  String // "bank_transfer" | "cod"
+  deliveryMethod String    @default("shipping") // "shipping" | "pickup"
+  shippingFee    Int       @default(0) // halire, snapshot at order time, 0 for pickup
   status         String    @default("pending") // "pending" | "paid" | "shipped" | "cancelled"
   couponCode     String? // snapshot of the code used, if any
   discountAmount Int       @default(0) // halire, snapshot at order time

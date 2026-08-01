@@ -5,6 +5,8 @@ import { sendMerchOrderConfirmationEmail, sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { getOrderVs } from "@/lib/orderVs";
 import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
+import { SHIPPING_FEE } from "@/lib/shipping";
+import { variantLabel } from "@/lib/variantLabel";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_RE = /^[0-9+() .-]{6,20}$/;
@@ -27,9 +29,22 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { customerName, customerEmail, customerPhone, address, paymentMethod, items, couponCode: rawCouponCode } = body;
+    const {
+      customerName,
+      customerEmail,
+      customerPhone,
+      address,
+      paymentMethod,
+      deliveryMethod: rawDeliveryMethod,
+      items,
+      couponCode: rawCouponCode,
+    } = body;
+    const deliveryMethod = rawDeliveryMethod === "pickup" ? "pickup" : "shipping";
 
-    if (!customerName || !customerEmail || !customerPhone || !address || !paymentMethod) {
+    if (!customerName || !customerEmail || !customerPhone || !paymentMethod) {
+      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+    }
+    if (deliveryMethod === "shipping" && !address) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
     }
 
@@ -106,7 +121,7 @@ export async function POST(req: Request) {
         return {
           sku: variant.sku,
           name: variant.product.name,
-          label: variant.label,
+          label: variantLabel(variant),
           price: variant.price,
           qty: item.qty,
         };
@@ -156,17 +171,20 @@ export async function POST(req: Request) {
             : Math.min(coupon.value, eligibleSubtotal);
       }
 
-      const totalAmount = subtotal - discountAmount;
+      const shippingFee = deliveryMethod === "pickup" ? 0 : SHIPPING_FEE;
+      const totalAmount = subtotal - discountAmount + shippingFee;
 
       return tx.order.create({
         data: {
           customerName,
           customerEmail,
           customerPhone,
-          address,
+          address: deliveryMethod === "pickup" ? null : address,
           items: orderItems,
           totalAmount,
           paymentMethod,
+          deliveryMethod,
+          shippingFee,
           couponCode,
           discountAmount,
         },
@@ -195,6 +213,9 @@ export async function POST(req: Request) {
           items: orderItems,
           totalAmount: order.totalAmount,
           paymentMethod,
+          deliveryMethod: order.deliveryMethod as "shipping" | "pickup",
+          shippingFee: order.shippingFee,
+          address: order.address,
           couponCode: order.couponCode,
           discountAmount: order.discountAmount,
         },
@@ -212,7 +233,8 @@ export async function POST(req: Request) {
           customerName,
           customerEmail,
           customerPhone,
-          address,
+          address: order.address,
+          deliveryMethod: order.deliveryMethod,
           paymentMethod,
           items: orderItems,
           totalAmount: order.totalAmount,
@@ -229,6 +251,8 @@ export async function POST(req: Request) {
         vs,
         totalAmount: order.totalAmount,
         paymentMethod: order.paymentMethod,
+        deliveryMethod: order.deliveryMethod,
+        shippingFee: order.shippingFee,
         couponCode: order.couponCode,
         discountAmount: order.discountAmount,
         qrCodeBase64,

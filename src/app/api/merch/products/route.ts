@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
+import { compareVariantsForDisplay } from "@/lib/variantLabel";
 
 export async function GET() {
   try {
@@ -19,6 +20,12 @@ export async function GET() {
       },
       cacheStrategy: { ttl: 30 },
     });
+
+    // `order` groups variants by color only now (size sorts automatically),
+    // so multiple variants can share the same `order` — the DB orderBy above
+    // doesn't guarantee a stable size-within-color sequence, hence the
+    // explicit re-sort here.
+    for (const p of products) p.variants.sort(compareVariantsForDisplay);
 
     // Hide products left with no visible variants (e.g. all soft-deleted).
     const visible = products.filter((p) => p.variants.length > 0);

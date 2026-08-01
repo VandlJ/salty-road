@@ -34,13 +34,13 @@ export default function ShopPage() {
   }, [t]);
 
   return (
-    <section className="flex-1 bg-black text-white px-4 pt-6 md:pt-10 pb-12">
+    <section className="flex-1 bg-black text-white px-4 pt-4 md:pt-6 pb-6">
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col items-center mb-8 md:mb-12 gap-3 text-center">
+        <div className="flex flex-col items-center mb-4 md:mb-6 gap-2 text-center">
           <SectionHeading as="h1" size="lg">
             {t("title")}
           </SectionHeading>
-          <p className="text-gray-300 font-light max-w-xl">{t("subtitle")}</p>
+          <p className="text-gray-300 font-light max-w-xl text-sm sm:text-base">{t("subtitle")}</p>
         </div>
 
         {error && (

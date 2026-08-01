@@ -15,6 +15,7 @@ import { AnimatedModal } from "@/components/animated-modal";
 import { FadeSwap } from "@/components/fade-swap";
 import { AnimatePresence, motion } from "motion/react";
 import type { MerchProductAdmin, MerchVariantAdmin } from "@/types/merch";
+import { SIZE_ORDER, compareBySize } from "@/lib/variantLabel";
 
 type ActiveFilter = "all" | "active" | "inactive";
 
@@ -235,7 +236,6 @@ export default function AdminMerchPage() {
             return (
               <motion.div
                 key={product.id}
-                layout
                 initial={{ opacity: 0, scale: 0.97 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.97 }}
@@ -262,6 +262,27 @@ export default function AdminMerchPage() {
 }
 
 type Translate = ReturnType<typeof useTranslations<"AdminMerchPage">>;
+
+type ColorGroup = { color: string; order: number; variants: MerchVariantAdmin[] };
+
+function groupVariantsByColor(variants: MerchVariantAdmin[]): ColorGroup[] {
+  const map = new Map<string, MerchVariantAdmin[]>();
+  for (const v of variants) {
+    const key = v.color ?? "";
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(v);
+  }
+  const groups = Array.from(map.entries()).map(([color, vs]) => ({
+    color,
+    // All variants in a group are kept on the same `order` value by the
+    // reorder/create endpoints, but fall back to the min just in case two
+    // rows ever drift out of sync.
+    order: Math.min(...vs.map((v) => v.order)),
+    variants: [...vs].sort(compareBySize),
+  }));
+  groups.sort((a, b) => a.order - b.order);
+  return groups;
+}
 
 const CATEGORY_OPTIONS = ["hoodie", "tshirt", "car-scent", "cap"] as const;
 const CATEGORY_LABEL_KEY: Record<(typeof CATEGORY_OPTIONS)[number], string> = {
@@ -329,7 +350,8 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [variantSku, setVariantSku] = useState("");
-  const [variantLabel, setVariantLabel] = useState("");
+  const [variantColor, setVariantColor] = useState("");
+  const [variantSize, setVariantSize] = useState("");
   const [variantPrice, setVariantPrice] = useState("");
   const [variantQuantity, setVariantQuantity] = useState("0");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -377,7 +399,8 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sku: variantSku,
-          label: variantLabel,
+          color: variantColor,
+          size: variantSize || null,
           price: priceHalire,
           quantity: Number(variantQuantity),
         }),
@@ -396,7 +419,8 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
       setName("");
       setDescription("");
       setVariantSku("");
-      setVariantLabel("");
+      setVariantColor("");
+      setVariantSize("");
       setVariantPrice("");
       setVariantQuantity("0");
       setImageFile(null);
@@ -454,8 +478,8 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
           onChange={(e) => setDescription(e.target.value)}
           required
           maxLength={2000}
-          rows={2}
-          className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm resize-none"
+          rows={5}
+          className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm resize-y"
         />
       </div>
 
@@ -481,16 +505,29 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
             <span className="text-[11px] text-gray-500">{t("variantSkuHint")}</span>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-white text-sm font-bold">{t("variantLabel")}</label>
+            <label className="text-white text-sm font-bold">{t("colorLabel")}</label>
             <input
-              value={variantLabel}
-              onChange={(e) => setVariantLabel(e.target.value)}
-              placeholder={t("variantLabelPlaceholder")}
-              required
-              maxLength={100}
+              value={variantColor}
+              onChange={(e) => setVariantColor(e.target.value)}
+              placeholder={t("colorPlaceholder")}
+              maxLength={60}
               className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
             />
-            <span className="text-[11px] text-gray-500">{t("variantLabelHint")}</span>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-white text-sm font-bold">{t("sizeLabel")}</label>
+            <select
+              value={variantSize}
+              onChange={(e) => setVariantSize(e.target.value)}
+              className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm cursor-pointer"
+            >
+              <option value="" className="bg-black">{t("noSize")}</option>
+              {SIZE_ORDER.map((s) => (
+                <option key={s} value={s} className="bg-black">
+                  {s}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-white text-sm font-bold">{t("variantPrice")}</label>
@@ -617,26 +654,34 @@ function ProductCard({
 
   const [movingVariant, setMovingVariant] = useState(false);
 
-  async function moveVariant(index: number, dir: -1 | 1) {
-    const target = index + dir;
-    if (target < 0 || target >= product.variants.length || movingVariant) return;
-    const reordered = [...product.variants];
-    [reordered[index], reordered[target]] = [reordered[target], reordered[index]];
+  // Variants group by color; `order` is shared across every variant in a
+  // color group (sizes within a group always sort automatically instead,
+  // see compareBySize) — so "moving a variant" now means swapping two whole
+  // color groups' `order` values, not repositioning one row.
+  async function moveColorGroup(groupIndex: number, dir: -1 | 1) {
+    const groups = groupVariantsByColor(product.variants);
+    const targetIndex = groupIndex + dir;
+    if (targetIndex < 0 || targetIndex >= groups.length || movingVariant) return;
+    const a = groups[groupIndex];
+    const b = groups[targetIndex];
     setMovingVariant(true);
     try {
-      // Variant order lives server-side as a plain `order` int per row (no
-      // bulk-reorder endpoint) — swapping two variants means re-stamping
-      // every row's order to match its new array position, same as the
-      // photo gallery reorder does with the photos array.
-      await Promise.all(
-        reordered.map((v, i) =>
+      await Promise.all([
+        ...a.variants.map((v) =>
           fetch(`/api/admin/merch/variants/${v.id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ order: i }),
+            body: JSON.stringify({ order: b.order }),
           })
-        )
-      );
+        ),
+        ...b.variants.map((v) =>
+          fetch(`/api/admin/merch/variants/${v.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ order: a.order }),
+          })
+        ),
+      ]);
       onChange();
     } finally {
       setMovingVariant(false);
@@ -704,6 +749,18 @@ function ProductCard({
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <Link
+            href={`/shop/${product.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-gray-300 hover:text-white text-xs font-bold uppercase tracking-wide cursor-pointer transition-colors"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            {t("preview")}
+          </Link>
           <button
             onClick={toggleActive}
             role="switch"
@@ -742,8 +799,8 @@ function ProductCard({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={2000}
-          rows={2}
-          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm resize-none"
+          rows={5}
+          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm resize-y"
         />
         {dirty && (
           <button
@@ -846,20 +903,24 @@ function ProductCard({
           {product.variants.length === 0 && (
             <p className="text-gray-500 text-sm italic mb-3">{t("noVariants")}</p>
           )}
-          <div className="flex flex-col gap-3">
-            {product.variants.map((variant, i) => (
-              <VariantRow
-                key={variant.id}
-                variant={variant}
-                t={t}
-                onChange={onChange}
-                showPhotos={product.photoMode === "per_variant"}
-                onMove={(dir) => moveVariant(i, dir)}
-                canMoveUp={i > 0}
-                canMoveDown={i < product.variants.length - 1}
-                moving={movingVariant}
-              />
-            ))}
+          <div className="flex flex-col gap-4">
+            {(() => {
+              const groups = groupVariantsByColor(product.variants);
+              return groups.map((group, gi) => (
+                <ColorGroupSection
+                  key={group.color || "_nocolor"}
+                  productId={product.id}
+                  group={group}
+                  t={t}
+                  onChange={onChange}
+                  showPhotos={product.photoMode === "per_variant"}
+                  onMove={(dir) => moveColorGroup(gi, dir)}
+                  canMoveUp={gi > 0}
+                  canMoveDown={gi < groups.length - 1}
+                  moving={movingVariant}
+                />
+              ));
+            })()}
           </div>
           <AddVariantForm productId={product.id} t={t} onCreated={onChange} />
         </div>
@@ -893,8 +954,9 @@ function ProductCard({
   );
 }
 
-function VariantRow({
-  variant,
+function ColorGroupSection({
+  productId,
+  group,
   t,
   onChange,
   showPhotos,
@@ -903,7 +965,8 @@ function VariantRow({
   canMoveDown,
   moving,
 }: {
-  variant: MerchVariantAdmin;
+  productId: string;
+  group: ColorGroup;
   t: Translate;
   onChange: () => void;
   showPhotos: boolean;
@@ -912,13 +975,98 @@ function VariantRow({
   canMoveDown: boolean;
   moving: boolean;
 }) {
-  const [label, setLabel] = useState(variant.label);
+  const [color, setColor] = useState(group.color);
+  const [savingColor, setSavingColor] = useState(false);
+  const dirty = color !== group.color;
+
+  async function saveColor() {
+    setSavingColor(true);
+    try {
+      // Every variant in the group shares the color name, so renaming the
+      // group means patching all of them at once.
+      await Promise.all(
+        group.variants.map((v) =>
+          fetch(`/api/admin/merch/variants/${v.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ color }),
+          })
+        )
+      );
+      onChange();
+    } finally {
+      setSavingColor(false);
+    }
+  }
+
+  return (
+    <div className="border border-gray-700 rounded-sm overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 bg-white/5 px-3 py-2 border-b border-gray-700">
+        <div className="flex gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => onMove(-1)}
+            disabled={moving || !canMoveUp}
+            aria-label={t("moveColorUp")}
+            className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={() => onMove(1)}
+            disabled={moving || !canMoveDown}
+            aria-label={t("moveColorDown")}
+            className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            ›
+          </button>
+        </div>
+        <input
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          placeholder={t("colorPlaceholder")}
+          maxLength={60}
+          className="flex-1 min-w-[140px] p-2 bg-white/5 border-2 border-gray-600 text-white text-sm font-bold focus:border-white focus:outline-none rounded-sm"
+        />
+        {dirty && (
+          <button
+            onClick={saveColor}
+            disabled={savingColor}
+            className="px-3 py-1.5 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors cursor-pointer rounded-sm disabled:opacity-50"
+          >
+            {t("save")}
+          </button>
+        )}
+      </div>
+      <div className="flex flex-col gap-3 p-3">
+        {group.variants.map((variant) => (
+          <VariantRow key={variant.id} variant={variant} t={t} onChange={onChange} showPhotos={showPhotos} />
+        ))}
+        <AddVariantForm productId={productId} t={t} onCreated={onChange} presetColor={group.color} />
+      </div>
+    </div>
+  );
+}
+
+function VariantRow({
+  variant,
+  t,
+  onChange,
+  showPhotos,
+}: {
+  variant: MerchVariantAdmin;
+  t: Translate;
+  onChange: () => void;
+  showPhotos: boolean;
+}) {
+  const [size, setSize] = useState(variant.size ?? "");
   const [price, setPrice] = useState((variant.price / 100).toString());
   const [quantity, setQuantity] = useState(variant.quantity.toString());
   const [error, setError] = useState<string | null>(null);
 
   const dirty =
-    label !== variant.label ||
+    size !== (variant.size ?? "") ||
     Number(price) * 100 !== variant.price ||
     Number(quantity) !== variant.quantity;
 
@@ -937,7 +1085,7 @@ function VariantRow({
     const res = await fetch(`/api/admin/merch/variants/${variant.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ label, price: priceHalire, quantity: qty }),
+      body: JSON.stringify({ size: size || null, price: priceHalire, quantity: qty }),
     });
     const json = await res.json();
     if (!res.ok) {
@@ -973,33 +1121,18 @@ function VariantRow({
   return (
     <div className="flex flex-col gap-2 bg-white/5 border border-gray-700 rounded-sm p-3">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={() => onMove(-1)}
-            disabled={moving || !canMoveUp}
-            aria-label="Posunout nahoru"
-            className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={() => onMove(1)}
-            disabled={moving || !canMoveDown}
-            aria-label="Posunout dolů"
-            className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-          >
-            ›
-          </button>
-        </div>
-
-        <input
-          value={label}
-          onChange={(e) => setLabel(e.target.value)}
-          maxLength={100}
-          className="flex-1 min-w-[140px] p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
-        />
+        <select
+          value={size}
+          onChange={(e) => setSize(e.target.value)}
+          className="min-w-[100px] p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm cursor-pointer"
+        >
+          <option value="" className="bg-black">{t("noSize")}</option>
+          {SIZE_ORDER.map((s) => (
+            <option key={s} value={s} className="bg-black">
+              {s}
+            </option>
+          ))}
+        </select>
         <input
           type="number"
           step="0.01"
@@ -1066,14 +1199,21 @@ function AddVariantForm({
   productId,
   t,
   onCreated,
+  presetColor,
 }: {
   productId: string;
   t: Translate;
   onCreated: () => void;
+  // Set when this form lives inside an existing color group (adding a size
+  // to that color) — the color field is then fixed instead of editable.
+  // Omitted for the product-level "add variant" form, which starts a new
+  // color group (or a colorless one, if left blank).
+  presetColor?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [sku, setSku] = useState("");
-  const [label, setLabel] = useState("");
+  const [color, setColor] = useState("");
+  const [size, setSize] = useState("");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState("0");
   const [error, setError] = useState<string | null>(null);
@@ -1088,7 +1228,13 @@ function AddVariantForm({
       const res = await fetch(`/api/admin/merch/products/${productId}/variants`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sku, label, price: priceHalire, quantity: Number(quantity) }),
+        body: JSON.stringify({
+          sku,
+          color: presetColor ?? color,
+          size: size || null,
+          price: priceHalire,
+          quantity: Number(quantity),
+        }),
       });
       const json = await res.json();
       if (!res.ok) {
@@ -1096,7 +1242,8 @@ function AddVariantForm({
         return;
       }
       setSku("");
-      setLabel("");
+      setColor("");
+      setSize("");
       setPrice("");
       setQuantity("0");
       setOpen(false);
@@ -1115,7 +1262,7 @@ function AddVariantForm({
         onClick={() => setOpen(true)}
         className="mt-3 px-4 py-2 border-2 border-gray-600 text-gray-300 text-xs font-bold uppercase tracking-widest hover:border-white hover:text-white transition-colors cursor-pointer rounded-sm"
       >
-        + {t("addVariant")}
+        + {presetColor !== undefined ? t("addSize") : t("addVariant")}
       </button>
     );
   }
@@ -1134,17 +1281,27 @@ function AddVariantForm({
           />
           <span className="text-[11px] text-gray-500">{t("variantSkuHint")}</span>
         </div>
-        <div className="flex flex-col gap-1">
+        {presetColor === undefined && (
           <input
-            value={label}
-            onChange={(e) => setLabel(e.target.value)}
-            placeholder={t("variantLabelPlaceholder")}
-            required
-            maxLength={100}
-            className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+            value={color}
+            onChange={(e) => setColor(e.target.value)}
+            placeholder={t("colorPlaceholder")}
+            maxLength={60}
+            className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm h-fit"
           />
-          <span className="text-[11px] text-gray-500">{t("variantLabelHint")}</span>
-        </div>
+        )}
+        <select
+          value={size}
+          onChange={(e) => setSize(e.target.value)}
+          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm h-fit cursor-pointer"
+        >
+          <option value="" className="bg-black">{t("noSize")}</option>
+          {SIZE_ORDER.map((s) => (
+            <option key={s} value={s} className="bg-black">
+              {s}
+            </option>
+          ))}
+        </select>
         <input
           type="number"
           step="0.01"
@@ -1172,7 +1329,7 @@ function AddVariantForm({
           disabled={submitting}
           className="px-4 py-2 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50 rounded-sm"
         >
-          {t("addVariant")}
+          {presetColor !== undefined ? t("addSize") : t("addVariant")}
         </button>
         <button
           type="button"
