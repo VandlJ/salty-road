@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
 import sharp from "sharp";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { getAdminFromReq } from "@/lib/adminAuth";
 
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB
 const ALLOWED_TYPES = new Set([
@@ -27,6 +28,11 @@ export async function POST(req: Request) {
         ? requestedFolder
         : "registrations";
 
+    // merch images are only uploaded from the admin shop editor
+    if (folder === "merch" && !(await getAdminFromReq())) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
@@ -36,14 +42,16 @@ export async function POST(req: Request) {
     }
 
     const isHeicName = /\.(heic|heif)$/i.test(file.name);
-    if (file.type && !ALLOWED_TYPES.has(file.type) && !isHeicName) {
+    if (!ALLOWED_TYPES.has(file.type) && !isHeicName) {
       return NextResponse.json({ error: "Unsupported file type" }, { status: 415 });
     }
 
     const arrayBuffer = await file.arrayBuffer();
     let buffer: Buffer = Buffer.from(arrayBuffer);
     let fileName = file.name;
-    let contentType = file.type || "application/octet-stream";
+    // Never trust the client-supplied MIME string as-is — only pass through
+    // values that already passed the ALLOWED_TYPES check above.
+    let contentType = ALLOWED_TYPES.has(file.type) ? file.type : "application/octet-stream";
 
     // Helper to detect HEIC by magic bytes (content)
     const isHeicBuffer = (buf: Buffer) => {

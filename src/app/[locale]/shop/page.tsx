@@ -1,37 +1,18 @@
-"use client";
-
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
 import SectionHeading from "@/components/section-heading";
-import Skeleton from "@/components/skeleton";
-import { FadeSwap } from "@/components/fade-swap";
 import { formatPrice } from "@/lib/formatPrice";
-import type { MerchProduct } from "@/types/merch";
+import { getShopProductList } from "@/lib/shopProduct";
 
-export default function ShopPage() {
-  const t = useTranslations("ShopPage");
-  const [products, setProducts] = useState<MerchProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch("/api/merch/products");
-        if (!res.ok) throw new Error("Failed to load products");
-        const data: MerchProduct[] = await res.json();
-        setProducts(data);
-      } catch (err) {
-        console.error(err);
-        setError(t("errorLoad"));
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [t]);
+export default async function ShopPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "ShopPage" });
+  const products = await getShopProductList();
 
   return (
     <section className="flex-1 bg-black text-white px-4 pt-4 md:pt-6 pb-6">
@@ -43,27 +24,7 @@ export default function ShopPage() {
           <p className="text-gray-300 font-light max-w-xl text-sm sm:text-base">{t("subtitle")}</p>
         </div>
 
-        {error && (
-          <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 rounded-sm font-bold text-center">
-            {error}
-          </div>
-        )}
-
-        {!error && (
-        <FadeSwap activeKey={loading ? "loading" : products.length === 0 ? "empty" : "list"}>
-        {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6" aria-hidden="true">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="flex flex-col rounded-sm border border-gray-800 overflow-hidden">
-                <Skeleton className="aspect-[4/5] w-full rounded-none" />
-                <div className="p-3 sm:p-4 flex flex-col gap-2">
-                  <Skeleton className="h-4 w-2/3" />
-                  <Skeleton className="h-3 w-1/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : products.length === 0 ? (
+        {products.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-20 border border-dashed border-gray-800 rounded-sm">
             <svg
               width="40"
@@ -85,63 +46,61 @@ export default function ShopPage() {
             </p>
           </div>
         ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {products.map((product, index) => {
-            const prices = product.variants.map((v) => v.price);
-            const minPrice = Math.min(...prices);
-            const hasVaryingPrice = new Set(prices).size > 1;
-            const thumbnail =
-              product.photoMode === "per_variant"
-                ? product.variants.find((v) => v.images.length > 0)?.images[0]
-                : product.photos[0];
-            const inStock = product.variants.some((v) => v.quantity > 0);
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {products.map((product, index) => {
+              const prices = product.variants.map((v) => v.price);
+              const minPrice = Math.min(...prices);
+              const hasVaryingPrice = new Set(prices).size > 1;
+              const thumbnail =
+                product.photoMode === "per_variant"
+                  ? product.variants.find((v) => v.images.length > 0)?.images[0]
+                  : product.photos[0];
+              const inStock = product.variants.some((v) => v.quantity > 0);
 
-            return (
-              <Link
-                key={product.id}
-                href={`/shop/${product.slug}`}
-                className="group flex flex-col rounded-sm border border-gray-800 bg-white/[0.02] overflow-hidden hover:border-gray-500 hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-2xl"
-              >
-                {/* Full-bleed cover crop, no white plate — these are
-                    lifestyle photos of people wearing the product, not
-                    isolated flat-lay renders, so a portrait-ish crop shows
-                    more of the actual garment than a padded square would. */}
-                <div className="relative aspect-[4/5] bg-black overflow-hidden">
-                  {thumbnail ? (
-                    <Image
-                      src={thumbnail}
-                      alt={product.name}
-                      fill
-                      priority={index < 4}
-                      fetchPriority={index < 4 ? "high" : undefined}
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-400 italic text-sm">
-                      {product.name}
-                    </div>
-                  )}
+              return (
+                <Link
+                  key={product.id}
+                  href={`/shop/${product.slug}`}
+                  className="group flex flex-col rounded-sm border border-gray-800 bg-white/[0.02] overflow-hidden hover:border-gray-500 hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-2xl"
+                >
+                  {/* Full-bleed cover crop, no white plate — these are
+                      lifestyle photos of people wearing the product, not
+                      isolated flat-lay renders, so a portrait-ish crop shows
+                      more of the actual garment than a padded square would. */}
+                  <div className="relative aspect-[4/5] bg-black overflow-hidden">
+                    {thumbnail ? (
+                      <Image
+                        src={thumbnail}
+                        alt={product.name}
+                        fill
+                        priority={index < 4}
+                        fetchPriority={index < 4 ? "high" : undefined}
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-400 italic text-sm">
+                        {product.name}
+                      </div>
+                    )}
 
-                  {!inStock && (
-                    <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white font-bold rounded-sm">
-                      {t("outOfStock")}
+                    {!inStock && (
+                      <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-2 py-1 border border-white/20 text-[10px] uppercase tracking-widest text-white font-bold rounded-sm">
+                        {t("outOfStock")}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="p-3 sm:p-4 flex flex-col gap-0.5">
+                    <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">{product.name}</h2>
+                    <span className="text-base sm:text-lg text-white font-bold">
+                      {hasVaryingPrice ? t("priceFrom", { price: formatPrice(minPrice) }) : formatPrice(minPrice)}
                     </span>
-                  )}
-                </div>
-
-                <div className="p-3 sm:p-4 flex flex-col gap-0.5">
-                  <h2 className="text-sm sm:text-base font-bold text-white leading-tight truncate">{product.name}</h2>
-                  <span className="text-base sm:text-lg text-white font-bold">
-                    {hasVaryingPrice ? t("priceFrom", { price: formatPrice(minPrice) }) : formatPrice(minPrice)}
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-        )}
-        </FadeSwap>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         )}
       </div>
     </section>

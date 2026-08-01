@@ -58,6 +58,10 @@ export default function CheckoutPage() {
   const [zip, setZip] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Generated once per page load and reused across retries — the server
+  // dedupes on this key so a network retry or double-click can't create two
+  // orders / double-decrement stock.
+  const [idempotencyKey] = useState(() => crypto.randomUUID());
 
   const shippingFee = deliveryMethod === "pickup" ? 0 : SHIPPING_FEE;
 
@@ -114,6 +118,7 @@ export default function CheckoutPage() {
           deliveryMethod,
           items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
           couponCode: couponCode || undefined,
+          idempotencyKey,
         }),
       });
 

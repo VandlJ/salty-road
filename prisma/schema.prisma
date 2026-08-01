@@ -99,6 +99,7 @@ model Order {
   status         String    @default("pending") // "pending" | "paid" | "shipped" | "cancelled"
   couponCode     String? // snapshot of the code used, if any
   discountAmount Int       @default(0) // halire, snapshot at order time
+  idempotencyKey String?   @unique // client-generated, dedupes retried checkout submits
 
   @@index([status])
 }

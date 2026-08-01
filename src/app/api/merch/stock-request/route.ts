@@ -9,7 +9,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_LEN = { customerName: 100, customerEmail: 200 };
 
 export async function POST(req: Request) {
-  if (!(await rateLimit(`stock-request:${getClientIp(req)}`, 5, 60 * 60 * 1000))) {
+  if (!(await rateLimit(`stock-request:${getClientIp(req)}`, 20, 60 * 60 * 1000))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 

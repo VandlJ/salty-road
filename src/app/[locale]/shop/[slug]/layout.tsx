@@ -1,30 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { cache } from "react";
-import prisma from "@/lib/prisma";
 import { getShopEnabled } from "@/lib/shop";
 import { buildAlternates, canonicalUrl, jsonLdScript } from "@/lib/seo";
 import { variantLabel } from "@/lib/variantLabel";
-
-// generateMetadata and the layout body both need the product — React's
-// cache() dedupes the two Prisma calls into one per request instead of
-// querying twice for the same page.
-const getProduct = cache(async (slug: string) => {
-  return prisma.merchProduct.findUnique({
-    where: { slug },
-    select: {
-      name: true,
-      description: true,
-      active: true,
-      photoMode: true,
-      photos: true,
-      variants: {
-        where: { active: true },
-        select: { sku: true, color: true, size: true, price: true, quantity: true, images: true },
-      },
-    },
-  });
-});
+import { getShopProduct as getProduct } from "@/lib/shopProduct";
 
 export async function generateMetadata({
   params,

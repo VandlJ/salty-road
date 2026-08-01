@@ -11,7 +11,7 @@ const MAX_PHOTOS = 5;
 const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
 
 export async function POST(req: Request) {
-  if (!(await rateLimit(`register:${getClientIp(req)}`, 5, 60 * 60 * 1000))) {
+  if (!(await rateLimit(`register:${getClientIp(req)}`, 20, 60 * 60 * 1000))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 

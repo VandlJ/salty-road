@@ -1,3 +1,5 @@
+import Redis from "ioredis";
+
 const buckets = new Map<string, { count: number; resetAt: number }>();
 let callsSinceSweep = 0;
 
@@ -25,36 +27,52 @@ function memoryRateLimit(key: string, limit: number, windowMs: number): boolean 
   return true;
 }
 
-const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
-const UPSTASH_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const hasUpstash = !!(UPSTASH_URL && UPSTASH_TOKEN);
+const REDIS_URL = process.env.REDIS_URL;
+
+declare global {
+  // allow global var across module reloads / warm serverless invocations
+  var __redisClient__: Redis | undefined;
+}
+
+function getRedisClient(): Redis | null {
+  if (!REDIS_URL) return null;
+  if (!global.__redisClient__) {
+    const isTls = REDIS_URL.startsWith("rediss://");
+    // ioredis's own `rediss://` handling sets a bare `tls: true`, which
+    // doesn't reliably carry SNI through a TLS-terminating reverse proxy
+    // (e.g. Traefik routing by HostSNI) — passing servername explicitly
+    // is what actually gets the right certificate back.
+    global.__redisClient__ = new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      lazyConnect: false,
+      tls: isTls ? { servername: new URL(REDIS_URL).hostname } : undefined,
+    });
+    global.__redisClient__.on("error", (err) => {
+      console.error("Redis connection error:", err);
+    });
+  }
+  return global.__redisClient__;
+}
 
 // Serverless functions don't share memory across instances, so the in-memory
 // fallback only rate-limits per warm instance — good enough to blunt casual
-// abuse, not a hard guarantee. Set UPSTASH_REDIS_REST_URL/TOKEN for a real
+// abuse, not a hard guarantee. Set REDIS_URL (self-hosted Redis) for a real
 // shared limit across all instances.
 export async function rateLimit(key: string, limit: number, windowMs: number): Promise<boolean> {
-  if (hasUpstash) {
+  const redis = getRedisClient();
+  if (redis) {
     try {
       const windowSeconds = Math.max(1, Math.ceil(windowMs / 1000));
-      const res = await fetch(`${UPSTASH_URL}/pipeline`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${UPSTASH_TOKEN}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify([
-          ["INCR", key],
-          ["EXPIRE", key, windowSeconds, "NX"],
-        ]),
-      });
-      if (!res.ok) throw new Error(`Upstash request failed: ${res.status}`);
-      const data = await res.json();
-      const count = data?.[0]?.result;
-      if (typeof count !== "number") throw new Error("Unexpected Upstash response shape");
+      const results = await redis
+        .multi()
+        .incr(key)
+        .expire(key, windowSeconds, "NX")
+        .exec();
+      const count = results?.[0]?.[1];
+      if (typeof count !== "number") throw new Error("Unexpected Redis response shape");
       return count <= limit;
     } catch (err) {
-      console.error("Upstash rate limit failed, falling back to in-memory:", err);
+      console.error("Redis rate limit failed, falling back to in-memory:", err);
       return memoryRateLimit(key, limit, windowMs);
     }
   }

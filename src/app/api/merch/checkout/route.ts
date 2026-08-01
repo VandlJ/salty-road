@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
 import { sendMerchOrderConfirmationEmail, sendEmail } from "@/lib/email";
@@ -20,7 +20,7 @@ interface CheckoutItemInput {
 }
 
 export async function POST(req: Request) {
-  if (!(await rateLimit(`merch-checkout:${getClientIp(req)}`, 5, 60 * 60 * 1000))) {
+  if (!(await rateLimit(`merch-checkout:${getClientIp(req)}`, 20, 60 * 60 * 1000))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
@@ -38,7 +38,12 @@ export async function POST(req: Request) {
       deliveryMethod: rawDeliveryMethod,
       items,
       couponCode: rawCouponCode,
+      idempotencyKey: rawIdempotencyKey,
     } = body;
+    const idempotencyKey =
+      typeof rawIdempotencyKey === "string" && rawIdempotencyKey.length > 0
+        ? rawIdempotencyKey
+        : null;
     const deliveryMethod = rawDeliveryMethod === "pickup" ? "pickup" : "shipping";
 
     if (!customerName || !customerEmail || !customerPhone || !paymentMethod) {
@@ -102,6 +107,14 @@ export async function POST(req: Request) {
     }
 
     const order = await prisma.$transaction(async (tx) => {
+      // A network retry or double-submit sends the same client-generated
+      // key twice — return the already-created order instead of decrementing
+      // stock and charging the coupon a second time.
+      if (idempotencyKey) {
+        const existing = await tx.order.findUnique({ where: { idempotencyKey } });
+        if (existing) return existing;
+      }
+
       for (const item of typedItems) {
         // Atomic conditional decrement: the WHERE clause only matches (and
         // the row only updates) if enough stock is still available, so
@@ -181,6 +194,7 @@ export async function POST(req: Request) {
           customerPhone,
           address: deliveryMethod === "pickup" ? null : address,
           items: orderItems,
+          idempotencyKey,
           totalAmount,
           paymentMethod,
           deliveryMethod,
@@ -191,59 +205,63 @@ export async function POST(req: Request) {
       });
     });
 
-    // Send confirmation email + optional payment QR (best-effort, doesn't block the response).
+    // Payment QR is part of the response body, so it has to be generated
+    // synchronously. Emails are not — they're deferred via after() below so
+    // the customer's response isn't blocked on two Resend API calls.
     const vs = getOrderVs(order.createdAt, order.orderNumber);
     let qrCodeBase64: string | undefined;
-    try {
-      if (paymentMethod === "bank_transfer") {
-        const spd = generateSPD({
-          amount: order.totalAmount / 100,
-          message: `Salty Road Shop ${vs}`,
-          vs,
-        });
-        qrCodeBase64 = await generateQRCodeBase64(spd);
-      }
-
-      const orderItems = order.items as { name: string; label: string; price: number; qty: number }[];
-      await sendMerchOrderConfirmationEmail(
-        customerEmail,
-        {
-          orderId: order.id,
-          vs,
-          items: orderItems,
-          totalAmount: order.totalAmount,
-          paymentMethod,
-          deliveryMethod: order.deliveryMethod as "shipping" | "pickup",
-          shippingFee: order.shippingFee,
-          address: order.address,
-          couponCode: order.couponCode,
-          discountAmount: order.discountAmount,
-        },
-        qrCodeBase64
-      );
-
-      // Merch order notifications go to their own inbox, separate from
-      // event registration notifications (ADMIN_EMAIL). Falls back to
-      // ADMIN_EMAIL if ORDER_EMAIL isn't configured, so notifications don't
-      // just silently disappear.
-      const orderEmail = process.env.ORDER_EMAIL || process.env.ADMIN_EMAIL;
-      if (orderEmail) {
-        const adminNotification = merchOrderAdminNotificationEmail({
-          orderId: order.id,
-          customerName,
-          customerEmail,
-          customerPhone,
-          address: order.address,
-          deliveryMethod: order.deliveryMethod,
-          paymentMethod,
-          items: orderItems,
-          totalAmount: order.totalAmount,
-        });
-        await sendEmail(orderEmail, adminNotification.subject, adminNotification.text);
-      }
-    } catch (err) {
-      console.error("Error sending merch order emails:", err);
+    if (paymentMethod === "bank_transfer") {
+      const spd = generateSPD({
+        amount: order.totalAmount / 100,
+        message: `Salty Road Shop ${vs}`,
+        vs,
+      });
+      qrCodeBase64 = await generateQRCodeBase64(spd);
     }
+
+    after(async () => {
+      try {
+        const orderItems = order.items as { name: string; label: string; price: number; qty: number }[];
+        await sendMerchOrderConfirmationEmail(
+          customerEmail,
+          {
+            orderId: order.id,
+            vs,
+            items: orderItems,
+            totalAmount: order.totalAmount,
+            paymentMethod,
+            deliveryMethod: order.deliveryMethod as "shipping" | "pickup",
+            shippingFee: order.shippingFee,
+            address: order.address,
+            couponCode: order.couponCode,
+            discountAmount: order.discountAmount,
+          },
+          qrCodeBase64
+        );
+
+        // Merch order notifications go to their own inbox, separate from
+        // event registration notifications (ADMIN_EMAIL). Falls back to
+        // ADMIN_EMAIL if ORDER_EMAIL isn't configured, so notifications don't
+        // just silently disappear.
+        const orderEmail = process.env.ORDER_EMAIL || process.env.ADMIN_EMAIL;
+        if (orderEmail) {
+          const adminNotification = merchOrderAdminNotificationEmail({
+            orderId: order.id,
+            customerName,
+            customerEmail,
+            customerPhone,
+            address: order.address,
+            deliveryMethod: order.deliveryMethod,
+            paymentMethod,
+            items: orderItems,
+            totalAmount: order.totalAmount,
+          });
+          await sendEmail(orderEmail, adminNotification.subject, adminNotification.text);
+        }
+      } catch (err) {
+        console.error("Error sending merch order emails:", err);
+      }
+    });
 
     return NextResponse.json(
       {
