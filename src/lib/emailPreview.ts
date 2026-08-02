@@ -6,6 +6,7 @@ import { merchOrderConfirmationEmail } from "@/emails/merch-order-confirmation.m
 import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
 import { eventInfoSummaryEmail } from "@/emails/event-info-summary.mjs";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
+import { SITE_URL } from "@/lib/seo";
 
 export interface EmailTemplateMeta {
   id: string;
@@ -52,7 +53,7 @@ async function sampleQr(amount: number, vs: string): Promise<string | undefined>
 }
 
 export async function buildEmailPreview(id: string): Promise<EmailPreview> {
-  const siteUrl = process.env.NEXT_PUBLIC_URL || "https://saltyroad.cz";
+  const siteUrl = process.env.NEXT_PUBLIC_URL || SITE_URL;
 
   switch (id) {
     case "registration-received":

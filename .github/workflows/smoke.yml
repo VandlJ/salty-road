@@ -32,7 +32,7 @@ jobs:
           echo "Homepage never returned 200"; exit 1
 
       - name: /shop returns 200
-        # No data-testid markers exist yet (see F2.1 in Test_Implementation_Plan.md)
+        # No data-testid markers exist yet (see F2.1 in docs/Test_Implementation_Plan.md)
         # to grep for reliably — just confirms the route itself doesn't 500/404.
         run: |
           code=$(curl -s -o /dev/null -w "%{http_code}" "$SITE/cs/shop")

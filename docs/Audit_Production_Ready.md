@@ -1,3 +1,5 @@
+> **VYŘEŠENO** — nálezy z tohoto auditu jsou z velké části opravené (nechráněný upload endpoint, klientsky renderovaný katalog, bezpečnostní hlavičky, idempotence checkoutu, `after()` pro e-maily). Ponecháno pro historii. Navazující audit: `Final_Launch_Audit.md`.
+
 # Audit Production Readiness — Salty Road
 
 **Datum:** 1. 8. 2026

@@ -6,6 +6,7 @@ import { getRegistrationOpen } from "@/lib/registration";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { registrationReceivedEmail } from "@/emails/registration-received.mjs";
 import { registrationAdminNotificationEmail } from "@/emails/registration-admin-notification.mjs";
+import { SITE_URL } from "@/lib/seo";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_PHOTOS = 5;
@@ -126,7 +127,7 @@ export async function POST(req: Request) {
     after(async () => {
       try {
         const adminEmail = process.env.ADMIN_EMAIL;
-        const siteUrl = process.env.NEXT_PUBLIC_URL || "https://saltyroad.cz";
+        const siteUrl = process.env.NEXT_PUBLIC_URL || SITE_URL;
 
         const userEmail = registrationReceivedEmail({ registrationId: record.id, siteUrl });
         const adminNotification = registrationAdminNotificationEmail({

@@ -369,7 +369,7 @@ V praxi to částečně kryje `disabled={... || isUploading}` na tlačítku, ale
 
 ## CLEANUP
 
-### [ ] C1 — Nekonzistentní fallback URL webu
+### [x] C1 — Nekonzistentní fallback URL webu
 **Soubory:** `src/app/api/register/route.ts:79`, `src/lib/emailPreview.ts:55`
 
 ```ts
@@ -382,7 +382,7 @@ Použít importovanou `SITE_URL` místo hardcoded stringu.
 
 ---
 
-### [ ] C2 — Root repozitáře je zaplevelený plánovacími dokumenty
+### [x] C2 — Root repozitáře je zaplevelený plánovacími dokumenty
 **Soubory:** `Audit_Production_Ready.md` (25 KB), `MERCH_PLAN.md`, `Test_Implementation_Plan.md` (28 KB), `WARP.md`, a nově tenhle soubor
 
 Jde o interní pracovní dokumenty. `Audit_Production_Ready.md` je navíc předchozí verze auditu, jehož nálezy jsou už z velké části vyřešené — někdo, kdo repozitář uvidí poprvé, bude řešit neexistující problémy.
@@ -391,7 +391,7 @@ Doporučení: přesunout do `docs/` a u hotových auditů doplnit hlavičku "vy�
 
 ---
 
-### [ ] C3 — `.DS_Store` v pracovním adresáři
+### [x] C3 — `.DS_Store` v pracovním adresáři
 **Soubor:** `.DS_Store` (6 KB)
 
 Není v gitu (`git ls-files` ho nevrací), ale ani v `.gitignore` — takže se do commitu dostane, jakmile někdo udělá `git add -A` v jiné podsložce. Přidat `.DS_Store` do `.gitignore`.

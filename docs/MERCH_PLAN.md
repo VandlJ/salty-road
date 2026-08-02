@@ -1,3 +1,5 @@
+> **VYŘEŠENO** — všechny kroky hotové, merch e-shop je v produkci. Ponecháno pro historii.
+
 # Merch E-shop — Implementation Plan
 
 Small merch shop (mikiny, trička, voňavky, čepice) bolted onto the existing Salty Road Meet event site. Payment: bank transfer (SPD QR) or cash on delivery — no payment gateway.
