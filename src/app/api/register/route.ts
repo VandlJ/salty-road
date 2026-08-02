@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
@@ -120,37 +120,39 @@ export async function POST(req: Request) {
       throw err;
     }
 
-    // Send emails
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const siteUrl = process.env.NEXT_PUBLIC_URL || "https://saltyroad.cz";
+    // Emails are deferred via after() so the response isn't blocked on two
+    // Resend API calls — a slow/failed send never affects the registration
+    // itself (it already committed above).
+    after(async () => {
+      try {
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const siteUrl = process.env.NEXT_PUBLIC_URL || "https://saltyroad.cz";
 
-    const userEmail = registrationReceivedEmail({ registrationId: record.id, siteUrl });
-    const adminNotification = registrationAdminNotificationEmail({
-      firstName,
-      lastName,
-      email,
-      instagram,
-      brand,
-      model,
-      year,
-      description,
-      registrationId: record.id,
-      photoCount: uploadedUrls.length,
-      siteUrl,
+        const userEmail = registrationReceivedEmail({ registrationId: record.id, siteUrl });
+        const adminNotification = registrationAdminNotificationEmail({
+          firstName,
+          lastName,
+          email,
+          instagram,
+          brand,
+          model,
+          year,
+          description,
+          registrationId: record.id,
+          photoCount: uploadedUrls.length,
+          siteUrl,
+        });
+
+        await Promise.all([
+          sendEmail(email, userEmail.subject, userEmail.text),
+          adminEmail
+            ? sendEmail(adminEmail, adminNotification.subject, adminNotification.text)
+            : Promise.resolve(),
+        ]);
+      } catch (err) {
+        console.error("Error sending registration emails:", err);
+      }
     });
-
-    // Await email sending to ensure execution before response closes
-    try {
-      await Promise.all([
-        sendEmail(email, userEmail.subject, userEmail.text),
-        adminEmail
-          ? sendEmail(adminEmail, adminNotification.subject, adminNotification.text)
-          : Promise.resolve(),
-      ]);
-    } catch (err) {
-      console.error("Error sending emails:", err);
-      // We don't block the success response if emails fail, but we log it.
-    }
 
     return NextResponse.json({ id: record.id }, { status: 201 });
   } catch (err) {

@@ -284,6 +284,7 @@
       "errorRequired": "Prosím vyplňte všechna povinná pole.",
       "errorAgreement": "Musíte souhlasit s pravidly.",
       "errorMaxPhotos": "Maximálně je povoleno 5 fotografií.",
+      "errorPhotosUploading": "Fotografie se ještě nahrávají, počkejte prosím chvíli a zkuste to znovu.",
       "errorTotalSize": "Celková velikost souborů překračuje 4 MB.",
       "errorSubmission": "Odeslání se nezdařilo",
       "errorClosed": "Registrace jsou momentálně uzavřené.",

@@ -156,14 +156,16 @@ export default function RegisterForm() {
       return;
     }
 
-    // Filter out photos that are still loading or failed
-    const validPhotos = photos.filter(p => p.url && !p.loading).map(p => p.url);
-
-    if (photos.length > 0 && validPhotos.length === 0 && photos.some(p => p.loading)) {
-       // Wait for uploads? For now, just error or block button.
-       // Ideally button is disabled while loading.
-       return;
+    // A photo still mid-upload has no URL yet — block submit with a clear
+    // message rather than silently dropping it or doing nothing (the
+    // submit button is disabled while isUploading, but that flag can lag
+    // a photo starting to upload by a render).
+    if (photos.some(p => p.loading)) {
+      setError(t("errorPhotosUploading"));
+      return;
     }
+
+    const validPhotos = photos.filter(p => p.url && !p.loading).map(p => p.url);
 
     if (validPhotos.length > 5) {
        setError(t("errorMaxPhotos"));

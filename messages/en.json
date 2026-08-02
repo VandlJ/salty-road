@@ -284,6 +284,7 @@
       "errorRequired": "Please fill all required fields.",
       "errorAgreement": "You must agree to the rules.",
       "errorMaxPhotos": "Maximum 5 photos allowed.",
+      "errorPhotosUploading": "Photos are still uploading — please wait a moment and try again.",
       "errorTotalSize": "Total file size exceeds 4 MB.",
       "errorSubmission": "Submission failed",
       "errorClosed": "Registration is currently closed.",

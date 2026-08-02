@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
@@ -41,15 +41,19 @@ export async function POST(req: Request) {
       data: { name, email, message },
     });
 
-    try {
-      const orderEmail = process.env.ORDER_EMAIL || process.env.ADMIN_EMAIL;
-      if (orderEmail) {
-        const notification = contactMessageEmail({ name, email, message });
-        await sendEmail(orderEmail, notification.subject, notification.text);
+    // Deferred so the response isn't blocked on a Resend API call — a
+    // slow/failed send never affects the message itself (already saved).
+    after(async () => {
+      try {
+        const orderEmail = process.env.ORDER_EMAIL || process.env.ADMIN_EMAIL;
+        if (orderEmail) {
+          const notification = contactMessageEmail({ name, email, message });
+          await sendEmail(orderEmail, notification.subject, notification.text);
+        }
+      } catch (err) {
+        console.error("Error sending contact message notification email:", err);
       }
-    } catch (err) {
-      console.error("Error sending contact message notification email:", err);
-    }
+    });
 
     return NextResponse.json({ id: contactMessage.id }, { status: 201 });
   } catch (err) {

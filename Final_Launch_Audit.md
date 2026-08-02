@@ -318,7 +318,7 @@ Navíc: nikde se nekontroluje, že datum je v budoucnosti — dá se založit ku
 
 ## UI/UX & ERROR HANDLING
 
-### [ ] U1 — `/api/register` blokuje odpověď odesláním e-mailů
+### [x] U1 — `/api/register` blokuje odpověď odesláním e-mailů
 **Soubor:** `src/app/api/register/route.ts:96-106`
 
 ```ts
@@ -334,7 +334,7 @@ Stejné platí pro `/api/contact` (`contact/route.ts:36-44`).
 
 ---
 
-### [ ] U2 — Chybí `loading.tsx` u většiny rout
+### [x] U2 — Chybí `loading.tsx` u většiny rout
 **Soubory:** existuje pouze `src/app/[locale]/shop/loading.tsx`
 
 Detail produktu (`/shop/[slug]`), stránka vozů, `/check` a další nemají loading fallback. Při pomalé DB (Prisma Accelerate cold start) uživatel vidí prostě nic, dokud se stránka nedorenderuje.
@@ -343,14 +343,14 @@ Admin stránky mají vlastní skeletony v komponentách, takže tam je to pokryt
 
 ---
 
-### [ ] U3 — Chybí `global-error.tsx`
+### [x] U3 — Chybí `global-error.tsx`
 **Soubory:** `src/app/[locale]/error.tsx` existuje, root-level nikoliv
 
 `error.tsx` uvnitř `[locale]` nepokryje chyby v samotném root layoutu (`src/app/[locale]/layout.tsx`) ani v i18n providerech. Když spadne něco tam, uživatel dostane výchozí bílou Next.js chybovou stránku bez našeho brandingu.
 
 ---
 
-### [ ] U4 — Registrační formulář má tichý dead-end při nahrávání fotek
+### [x] U4 — Registrační formulář má tichý dead-end při nahrávání fotek
 **Soubor:** `src/components/registerForm.tsx:157-161`
 
 ```ts
