@@ -4,6 +4,27 @@ import { getAdminFromReq } from "@/lib/adminAuth";
 
 const VALID_STATUSES = new Set(["pending", "paid", "shipped", "cancelled"]);
 
+type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+// Mirrors the stock release/re-reserve above, for a coupon's usedCount —
+// cancelling an order should give the use back (so a maxUses-limited code
+// isn't permanently burned by an order that never happened), un-cancelling
+// should re-consume it.
+async function releaseCouponUse(tx: TxClient, code: string) {
+  await tx.$executeRaw`
+    UPDATE "Coupon" SET "usedCount" = "usedCount" - 1
+    WHERE code = ${code} AND "usedCount" > 0
+  `;
+}
+
+async function reconsumeCouponUse(tx: TxClient, code: string) {
+  const affected = await tx.$executeRaw`
+    UPDATE "Coupon" SET "usedCount" = "usedCount" + 1
+    WHERE code = ${code} AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
+  `;
+  if (affected === 0) throw new Error("INSUFFICIENT_COUPON");
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -33,6 +54,8 @@ export async function PATCH(
             data: { quantity: { increment: item.qty } },
           });
         }
+        if (current.couponCode) await releaseCouponUse(tx, current.couponCode);
+        if (current.shippingCouponCode) await releaseCouponUse(tx, current.shippingCouponCode);
       } else if (status !== "cancelled" && current.status === "cancelled") {
         // Order is being un-cancelled — re-reserve the stock. Same atomic
         // conditional decrement as checkout, so it can't go negative if
@@ -44,6 +67,8 @@ export async function PATCH(
           });
           if (result.count === 0) throw new Error("INSUFFICIENT_STOCK");
         }
+        if (current.couponCode) await reconsumeCouponUse(tx, current.couponCode);
+        if (current.shippingCouponCode) await reconsumeCouponUse(tx, current.shippingCouponCode);
       }
 
       return tx.order.update({ where: { id }, data: { status } });
@@ -56,6 +81,9 @@ export async function PATCH(
     }
     if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
       return NextResponse.json({ error: "insufficient_stock" }, { status: 409 });
+    }
+    if (err instanceof Error && err.message === "INSUFFICIENT_COUPON") {
+      return NextResponse.json({ error: "insufficient_coupon" }, { status: 409 });
     }
     console.error("PATCH /api/admin/orders/[id] error:", err);
     return NextResponse.json({ error: "server_error" }, { status: 500 });
@@ -86,6 +114,8 @@ export async function DELETE(
             data: { quantity: { increment: item.qty } },
           });
         }
+        if (current.couponCode) await releaseCouponUse(tx, current.couponCode);
+        if (current.shippingCouponCode) await releaseCouponUse(tx, current.shippingCouponCode);
       }
 
       await tx.order.delete({ where: { id } });

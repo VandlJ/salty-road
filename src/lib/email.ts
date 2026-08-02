@@ -24,9 +24,10 @@ export async function sendEmail(
   subject: string,
   text: string,
   html?: string,
-  attachments?: Attachment[]
+  attachments?: Attachment[],
+  from?: string
 ) {
-  const from = process.env.EMAIL_FROM || 'Salty Road <onboarding@resend.dev>';
+  from = from || process.env.EMAIL_FROM || 'Salty Road <onboarding@resend.dev>';
 
   const client = getResendClient();
   if (!client) {
@@ -86,6 +87,12 @@ interface MerchOrderDetails {
   giftLabel?: string | null;
 }
 
+// Shop emails use their own sender address, separate from EMAIL_FROM (which
+// is the event-registration sender) — falls back to EMAIL_FROM if unset so
+// this doesn't silently break in an environment that hasn't been configured
+// with the new var yet.
+export const SHOP_EMAIL_FROM = process.env.SHOP_EMAIL_FROM || process.env.EMAIL_FROM;
+
 export async function sendMerchOrderConfirmationEmail(
   to: string,
   order: MerchOrderDetails,
@@ -103,6 +110,7 @@ export async function sendMerchOrderConfirmationEmail(
     html,
     qrCodeBase64
       ? [{ filename: 'qr-platba.png', content: qrCodeBase64, contentId: 'qr-code' }]
-      : undefined
+      : undefined,
+    SHOP_EMAIL_FROM
   );
 }

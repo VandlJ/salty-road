@@ -485,6 +485,7 @@
     "statusShipped": "Odesláno",
     "statusCancelled": "Zrušeno",
     "errorInsufficientStock": "Nelze vrátit objednávku zpět — sklad už nemá dostatek kusů.",
+    "errorInsufficientCoupon": "Nelze vrátit objednávku zpět — kupón už vyčerpal limit použití.",
     "coupon": "Kupón",
     "gift": "Dárek",
     "discount": "Sleva"

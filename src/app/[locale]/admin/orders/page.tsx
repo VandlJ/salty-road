@@ -101,7 +101,13 @@ export default function AdminOrdersPage() {
     });
     if (!res.ok) {
       const json = await res.json().catch(() => null);
-      setError(json?.error === "insufficient_stock" ? t("errorInsufficientStock") : t("errorLoad"));
+      setError(
+        json?.error === "insufficient_stock"
+          ? t("errorInsufficientStock")
+          : json?.error === "insufficient_coupon"
+            ? t("errorInsufficientCoupon")
+            : t("errorLoad")
+      );
       loadOrders(); // revert to server state on failure
     }
   }

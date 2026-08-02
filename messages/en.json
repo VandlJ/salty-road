@@ -485,6 +485,7 @@
     "statusShipped": "Shipped",
     "statusCancelled": "Cancelled",
     "errorInsufficientStock": "Can't revert this order — stock no longer has enough units.",
+    "errorInsufficientCoupon": "Can't revert this order — the coupon has since hit its use limit.",
     "coupon": "Coupon",
     "gift": "Gift",
     "discount": "Discount"

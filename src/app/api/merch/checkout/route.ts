@@ -1,7 +1,7 @@
 import { NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
-import { sendMerchOrderConfirmationEmail, sendEmail } from "@/lib/email";
+import { sendMerchOrderConfirmationEmail, sendEmail, SHOP_EMAIL_FROM } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { getOrderVs } from "@/lib/orderVs";
 import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
@@ -348,7 +348,7 @@ export async function POST(req: Request) {
             items: orderItems,
             totalAmount: order.totalAmount,
           });
-          await sendEmail(orderEmail, adminNotification.subject, adminNotification.text);
+          await sendEmail(orderEmail, adminNotification.subject, adminNotification.text, undefined, undefined, SHOP_EMAIL_FROM);
         }
       } catch (err) {
         console.error("Error sending merch order emails:", err);
