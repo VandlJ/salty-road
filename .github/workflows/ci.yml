@@ -26,3 +26,51 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test
+
+  e2e:
+    name: E2E (Playwright)
+    runs-on: ubuntu-latest
+    # Only worth the runtime once the cheap checks are green.
+    needs: quality
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: saltyroad_test
+        options: >-
+          --health-cmd pg_isready --health-interval 10s
+          --health-timeout 5s --health-retries 5
+        ports: ["5432:5432"]
+    env:
+      # Plain Postgres, not Accelerate — the test DB is local to the runner,
+      # created fresh and destroyed with it (no manual setup needed).
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/saltyroad_test
+      DIRECT_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/saltyroad_test
+      BANK_ACCOUNT_IBAN: CZ0000000000000000000000
+      ENTRY_PIN: "1234"
+      ENTRY_SESSION_SECRET: ci-secret-not-used-in-production
+      CRON_SECRET: ci-cron-secret
+      NEXT_PUBLIC_URL: http://localhost:3000
+      # RESEND_API_KEY and BLOB_READ_WRITE_TOKEN are intentionally unset:
+      # src/lib/email.ts no-ops without a key, so no real mail is ever sent.
+      # REDIS_URL is unset too, so rate limiting stays in-memory and resets
+      # with the process instead of carrying 429s between runs.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm install -g npm@11
+      - run: npm ci
+      - run: npx prisma migrate deploy
+      - run: node scripts/seedTestDb.mjs
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

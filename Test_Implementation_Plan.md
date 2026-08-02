@@ -76,7 +76,7 @@ process.env.ENTRY_PIN = "1234";
 // it, which is exactly the behaviour we want during tests.
 ```
 
-### [ ] F1.2 Nainstalovat Playwright + konfigurace
+### [x] F1.2 Nainstalovat Playwright + konfigurace
 
 **Balíčky:** `@playwright/test`.
 
@@ -132,11 +132,13 @@ Chybí i `typecheck` — `tsc --noEmit` se dnes spouští jen ručně, což znam
 }
 ```
 
-### [ ] F1.4 Vytvořit izolovanou testovací databázi + seed skript
+### [x] F1.4 Vytvořit izolovanou testovací databázi + seed skript
 
-**Nový soubor:** `scripts/seedTestDb.mjs`, **nový soubor:** `.env.test`
+**Nový soubor:** `scripts/seedTestDb.mjs`
 
 Toto je **předpoklad pro celou Fázi 2** — bez něj by E2E testy zapisovaly do produkce.
+
+Rozhodnuto: **žádná perzistentní test DB, jen ephemeral Postgres kontejner v CI** (`services: postgres:16` v `.github/workflows/ci.yml`, job `e2e`) — vzniká a zaniká s každým CI během, nic se ručně nezakládá. Žádný `.env.test`, proměnné jdou přímo z `env:` bloku toho jobu.
 
 Seed musí založit deterministickou sadu dat, na kterou se testy odkazují napevno:
 - produkt `test-hoodie` (aktivní, prodejný, 2 barvy × 3 velikosti, dostatečný sklad)
