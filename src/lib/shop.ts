@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
 
 const SHOP_ENABLED_KEY = "shop_enabled";
@@ -17,6 +18,17 @@ export async function setShopEnabled(enabled: boolean): Promise<void> {
     create: { key: SHOP_ENABLED_KEY, value: enabled ? "true" : "false" },
   });
 }
+
+// Short-lived cached read for the root layout's initial navbar render —
+// the navbar itself is a client component that polls /api/shop-status live,
+// but without a server-rendered starting value it always paints as "shop
+// hidden" first and pops in a second later on every fresh load. A 10s
+// revalidate keeps the layout cacheable (unlike getShopEnabled(), a plain
+// uncached read here would force the whole site dynamic) while staying
+// close enough to live for an admin toggle to show up quickly.
+export const getShopEnabledCached = unstable_cache(getShopEnabled, ["shop-enabled"], {
+  revalidate: 10,
+});
 
 // Halire. 0 (or unset) means the free-gift feature is off entirely — no
 // gift options are offered at checkout regardless of order size.

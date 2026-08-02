@@ -282,55 +282,55 @@ export default function AdminMerchPage() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6 px-4 py-4 sm:px-6 bg-[#111]/90 border border-gray-700 rounded-sm">
-        <span className="font-bold uppercase tracking-widest text-sm sm:text-base">
-          {t("shippingFee")}
-        </span>
-        <div className="flex items-center gap-2">
-          <input
-            type="number"
-            min="0"
-            step="1"
-            value={shippingFeeCzk}
-            onChange={(e) => setShippingFeeCzk(e.target.value)}
-            placeholder="99"
-            disabled={shippingFree}
-            className="w-28 p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm disabled:opacity-40"
-          />
-          <span className="text-gray-400 text-sm">Kč</span>
-          {shippingFeeCzk !== savedShippingFeeCzk && (
-            <button
-              onClick={saveShippingFee}
-              disabled={savingShippingFee || shippingFree}
-              className="px-4 py-2 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50 rounded-sm"
-            >
-              {t("save")}
-            </button>
-          )}
+      <div className="flex flex-col gap-4 mb-6 px-4 py-4 sm:px-6 bg-[#111]/90 border border-gray-700 rounded-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <span className="font-bold uppercase tracking-widest text-sm sm:text-base">
+            {t("shippingFee")}
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={shippingFeeCzk}
+              onChange={(e) => setShippingFeeCzk(e.target.value)}
+              placeholder="99"
+              disabled={shippingFree}
+              className="w-28 p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm disabled:opacity-40"
+            />
+            <span className="text-gray-400 text-sm">Kč</span>
+            {shippingFeeCzk !== savedShippingFeeCzk && (
+              <button
+                onClick={saveShippingFee}
+                disabled={savingShippingFee || shippingFree}
+                className="px-4 py-2 bg-white text-black text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors cursor-pointer disabled:opacity-50 rounded-sm"
+              >
+                {t("save")}
+              </button>
+            )}
+          </div>
+        </div>
 
-          <div className="h-5 w-px bg-gray-700 mx-1" />
-
-          <label className="flex items-center gap-2 cursor-pointer select-none">
-            <button
-              onClick={toggleShippingFree}
-              disabled={togglingShippingFree}
-              role="switch"
-              aria-checked={shippingFree}
-              aria-label={t("shippingFreePromo")}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
-                shippingFree ? "bg-brand" : "bg-gray-600"
+        <div className="flex items-center justify-between gap-4 pt-4 border-t border-gray-700">
+          <span className="text-xs font-bold uppercase tracking-wide text-gray-400">
+            {t("shippingFreePromo")}
+          </span>
+          <button
+            onClick={toggleShippingFree}
+            disabled={togglingShippingFree}
+            role="switch"
+            aria-checked={shippingFree}
+            aria-label={t("shippingFreePromo")}
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer ${
+              shippingFree ? "bg-brand" : "bg-gray-600"
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                shippingFree ? "translate-x-6" : "translate-x-1"
               }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                  shippingFree ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
-            <span className="text-xs font-bold uppercase tracking-wide text-gray-400 whitespace-nowrap">
-              {t("shippingFreePromo")}
-            </span>
-          </label>
+            />
+          </button>
         </div>
       </div>
 

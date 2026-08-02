@@ -8,7 +8,7 @@ import CartLink from "@/components/cart-link";
 
 const HOME_SECTION_IDS = ["info", "register", "vehicles"];
 
-export default function Navbar({ fixed = false }) {
+export default function Navbar({ fixed = false, initialShopVisible = false }: { fixed?: boolean; initialShopVisible?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const t = useTranslations("Navbar");
   const locale = useLocale();
@@ -18,7 +18,7 @@ export default function Navbar({ fixed = false }) {
   // Admin-controlled kill switch (Merch admin page) — declared here (ahead
   // of its own effect further down) because the indicator-measuring effect
   // below needs it in its dependency array.
-  const [shopVisible, setShopVisible] = useState(false);
+  const [shopVisible, setShopVisible] = useState(initialShopVisible);
 
   // Sliding active-link indicator (desktop nav only). "home"/"info"/
   // "register"/"vehicles" are scroll-spied on the homepage; "shop"/"check"

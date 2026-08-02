@@ -13,6 +13,7 @@ import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
 import { buildAlternates, jsonLdScript, ORGANIZATION_JSON_LD, SITE_URL } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
+import { getShopEnabledCached } from "@/lib/shop";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -116,6 +117,7 @@ export default async function RootLayout({
   // page/layout that wants prerendering.
   setRequestLocale(locale);
   const messages = await getMessages();
+  const shopEnabled = await getShopEnabledCached();
 
   return (
     <html lang={locale} data-scroll-behavior="smooth">
@@ -132,7 +134,7 @@ export default async function RootLayout({
         <NextIntlClientProvider messages={messages}>
           <MotionConfigProvider>
             <div className="w-full">
-              <ClientNavbarWrapper />
+              <ClientNavbarWrapper initialShopVisible={shopEnabled} />
             </div>
             <PageTransition>{children}</PageTransition>
             <Footer />
