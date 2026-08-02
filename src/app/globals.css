@@ -187,6 +187,15 @@
     view-transition-name: cart-summary;
   }
 
+  /* Cart-count badge pop-in — replaces a motion/react AnimatePresence
+     spring (see cart-link.tsx) so the animation library isn't forced into
+     every page's bundle just for this. No exit animation: the badge is
+     small enough that popping out of existence when the count hits 0 reads
+     fine without one, unlike the cart-row removal above. */
+  .badge-pop {
+    animation: badge-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
 }
 
 @keyframes reveal-fade-up {
@@ -251,5 +260,16 @@
   to {
     opacity: 0;
     transform: scale(0.92) translateX(12px);
+  }
+}
+
+@keyframes badge-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

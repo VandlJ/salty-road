@@ -33,10 +33,11 @@ export default function Hero() {
         sizes="100vw"
         className="object-cover"
         priority
-        // Next 16 split `priority` and `fetchPriority` into separate props —
-        // `priority` alone no longer implies fetchpriority="high" on the
-        // preload link, has to be set explicitly.
-        fetchPriority="high"
+        // Not fetchPriority="high" — the wordmark image below is the actual
+        // LCP element (dominant painted content), so this competing for
+        // early mobile bandwidth against it was pushing LCP out. `priority`
+        // alone still gets this preloaded/discovered early, just not at the
+        // same fetch priority.
         // The dark overlay + blur right on top of this image (below) hides
         // compression artifacts, so a lower quality is a free byte saving.
         quality={60}

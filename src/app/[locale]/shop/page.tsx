@@ -83,6 +83,11 @@ export default async function ShopPage({
                         fill
                         priority={index < 4}
                         fetchPriority={index < 4 ? "high" : undefined}
+                        // Default quality (75) is overkill for a grid
+                        // thumbnail — 65 is already an allowed value in
+                        // next.config.ts and shaves bytes with no visible
+                        // difference at this size.
+                        quality={65}
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                       />

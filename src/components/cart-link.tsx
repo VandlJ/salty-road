@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Link } from "@/i18n/routing";
-import { AnimatePresence, motion } from "motion/react";
 import { useCartStore, cartCount } from "@/lib/cartStore";
 
 export default function CartLink({
@@ -39,24 +38,18 @@ export default function CartLink({
           d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
         />
       </svg>
-      <AnimatePresence>
-        {count > 0 && (
-          // Keying on `count` remounts this element on every change, so it
-          // re-plays the pop-in animation each time an item is added or
-          // removed — not just on the 0→1 transition.
-          <motion.span
-            key={count}
-            data-testid="cart-badge"
-            initial={{ scale: 0.4, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.4, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 500, damping: 20 }}
-            className="absolute -top-2 -right-2 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full"
-          >
-            {count}
-          </motion.span>
-        )}
-      </AnimatePresence>
+      {count > 0 && (
+        // Keying on `count` remounts this element on every change, so the
+        // CSS pop-in animation replays each time an item is added or
+        // removed — not just on the 0→1 transition.
+        <span
+          key={count}
+          data-testid="cart-badge"
+          className="badge-pop absolute -top-2 -right-2 bg-brand text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full"
+        >
+          {count}
+        </span>
+      )}
     </Link>
   );
 }

@@ -26,6 +26,9 @@ const roboto = Roboto({
 });
 
 const montserrat = Montserrat({
+  // Only ever used with font-semibold (see hero.tsx) — no default weight
+  // set means next/font pulls the full weight range otherwise.
+  weight: ['600'],
   subsets: ['latin'],
   variable: '--font-montserrat',
 });

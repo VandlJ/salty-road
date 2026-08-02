@@ -132,7 +132,15 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
     const fetchShopStatus = () => {
       fetch("/api/shop-status", { cache: "no-store" })
         .then((res) => (res.ok ? res.json() : null))
-        .then((data) => data && setShopVisible(!!data.enabled))
+        .then((data) => {
+          if (!data) return;
+          const next = !!data.enabled;
+          // Only update when the value actually changed — shopVisible is a
+          // dependency of the indicator-measuring effect below, so setting
+          // it unconditionally on every 15s tick forces a needless
+          // getBoundingClientRect() reflow even when nothing changed.
+          setShopVisible((prev) => (prev === next ? prev : next));
+        })
         .catch(() => {});
     };
     fetchShopStatus();
