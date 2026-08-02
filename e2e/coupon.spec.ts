@@ -35,11 +35,15 @@ test.describe("cart coupons", () => {
     await addHoodieToCart(page);
     await applyCoupon(page, "TESTSHIP");
     await expect(page.getByText("TESTSHIP", { exact: false })).toBeVisible();
-    await expect(page.getByText("Zdarma", { exact: false })).toBeVisible();
+    await expect(page.locator('[data-testid="cart-shipping-fee"]')).toHaveText("Zdarma");
   });
 
   test("an invalid code shows an error and leaves the total unchanged", async ({ page }) => {
     await addHoodieToCart(page);
+    // The shipping-fee preview is fetched async and folds into cart-total
+    // once it lands — wait for that to settle before snapshotting the
+    // "before" value, or a slow fetch makes this a false failure.
+    await expect(page.locator('[data-testid="cart-shipping-fee"]')).toBeVisible();
     const totalBefore = await page.locator('[data-testid="cart-total"]').innerText();
     await applyCoupon(page, "NOTREAL");
     await expect(page.getByText("Neplatný nebo vyčerpaný kupón.")).toBeVisible();

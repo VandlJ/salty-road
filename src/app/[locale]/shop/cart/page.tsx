@@ -465,7 +465,7 @@ export default function CartPage() {
                 {shippingFeePreview > 0 && (
                   <div className="flex items-center justify-between text-gray-400 text-sm">
                     <span>{t("checkoutShippingFee")}</span>
-                    <span>{shippingFee > 0 ? formatPrice(shippingFee) : t("checkoutShippingFree")}</span>
+                    <span data-testid="cart-shipping-fee">{shippingFee > 0 ? formatPrice(shippingFee) : t("checkoutShippingFree")}</span>
                   </div>
                 )}
                 <p className="text-xs text-gray-500 mt-0.5">{t("cartShippingEstimateNote")}</p>

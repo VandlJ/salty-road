@@ -3,6 +3,12 @@ import { getShopEnabled } from '@/lib/shop';
 import prisma from '@/lib/prisma';
 import { SITE_URL, LOCALES } from '@/lib/seo';
 
+// shopEnabled is flipped live from the admin panel — without this, Next.js
+// statically generates the sitemap once at build time and a later toggle
+// never gets reflected (same class of bug as the shop page's own kill
+// switch, see src/app/[locale]/shop/page.tsx).
+export const dynamic = "force-dynamic";
+
 // Fixed per-deployment rather than per-request — a static page's content
 // only actually changes on a new deploy, so "now" on every crawl would just
 // be noise (the thing lastModified is supposed to signal).

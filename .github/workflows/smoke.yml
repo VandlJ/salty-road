@@ -14,9 +14,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Homepage responds
+        # "/" legitimately 307s to "/cs" (next-intl locale routing) — follow
+        # redirects (-L) so that's not mistaken for a down site.
         run: |
           for i in $(seq 1 10); do
-            code=$(curl -s -o /dev/null -w "%{http_code}" https://saltyroad.cz/)
+            code=$(curl -sL -o /dev/null -w "%{http_code}" https://saltyroad.cz/)
             if [ "$code" = "200" ]; then exit 0; fi
             echo "Attempt $i: got $code, retrying in 30s..."
             sleep 30

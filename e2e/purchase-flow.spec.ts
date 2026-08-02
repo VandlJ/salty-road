@@ -32,7 +32,9 @@ test.describe("purchase flow", () => {
     await expect(page.getByText("650 Kč", { exact: false })).toBeVisible();
 
     await page.locator('[data-testid="add-to-cart"]').click();
-    await expect(page.locator('[data-testid="cart-badge"]')).toHaveText("1");
+    // Both desktop and mobile nav render a CartLink (one hidden via CSS,
+    // both present in the DOM) — .first() avoids a strict-mode violation.
+    await expect(page.locator('[data-testid="cart-badge"]').first()).toHaveText("1");
 
     await page.locator('[data-testid="cart-link"]').first().click();
     await expect(page).toHaveURL(/\/shop\/cart$/);

@@ -57,20 +57,12 @@ test.describe("vehicle registration", () => {
 
     await request.patch("/api/admin/settings", { data: { registrationOpen: false } });
     try {
+      // Closed registration replaces the form entirely with a message (see
+      // RegistrationSection) — there's no form to fill/submit against, the
+      // gate is that the form never renders in the first place.
       await page.goto("/cs");
-      await page.getByLabel("Jméno").fill("Blocked");
-      await page.getByLabel("Příjmení").fill("Attempt");
-      await page.getByLabel("E-mail").fill("e2e-blocked@example.com");
-      await page.getByLabel("Značka vozu").fill("Škoda");
-      await page.getByLabel("Model vozu").fill("Fabia");
-      await page.getByLabel("Rok výroby").fill("2019");
-      await page.getByLabel("Informace o vozidle").fill("Should not go through.");
-      await page.getByLabel("Souhlasím s pravidly registrace").check();
-      await page.locator('[data-testid="register-submit"]').click();
-
-      await expect(page.getByText("Registrace jsou momentálně uzavřené.")).toBeVisible();
-      const blocked = await prisma.registration.findFirst({ where: { email: "e2e-blocked@example.com" } });
-      expect(blocked).toBeNull();
+      await expect(page.getByText("Registrace uzavřeny")).toBeVisible();
+      await expect(page.getByLabel("Jméno")).toHaveCount(0);
     } finally {
       await request.patch("/api/admin/settings", { data: { registrationOpen: true } });
     }

@@ -13,7 +13,9 @@ async function addHoodieToCart(page: Page, qty: number) {
   await page.locator('[data-testid="variant-size-option"][data-size="L"]').click();
   for (let i = 0; i < qty; i++) {
     await page.locator('[data-testid="add-to-cart"]').click();
-    if (i === 0) await expect(page.locator('[data-testid="cart-badge"]')).toBeVisible();
+    // Both desktop and mobile nav render a CartLink (one hidden via CSS,
+    // both present in the DOM) — .first() avoids a strict-mode violation.
+    if (i === 0) await expect(page.locator('[data-testid="cart-badge"]').first()).toBeVisible();
   }
   await page.goto("/cs/shop/cart");
 }
