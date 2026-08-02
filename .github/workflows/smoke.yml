@@ -8,17 +8,23 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  # Canonical domain (see SITE_URL in src/lib/seo.ts) — the bare apex
+  # domain 307-redirects here, so hit it directly instead of chasing
+  # redirects on every single check.
+  SITE: https://www.saltyroad.cz
+
 jobs:
   smoke:
     name: Smoke test saltyroad.cz
     runs-on: ubuntu-latest
     steps:
       - name: Homepage responds
-        # "/" legitimately 307s to "/cs" (next-intl locale routing) — follow
+        # "/" itself still 307s to "/cs" (next-intl locale routing) — follow
         # redirects (-L) so that's not mistaken for a down site.
         run: |
           for i in $(seq 1 10); do
-            code=$(curl -sL -o /dev/null -w "%{http_code}" https://saltyroad.cz/)
+            code=$(curl -sL -o /dev/null -w "%{http_code}" "$SITE/")
             if [ "$code" = "200" ]; then exit 0; fi
             echo "Attempt $i: got $code, retrying in 30s..."
             sleep 30
@@ -29,15 +35,15 @@ jobs:
         # No data-testid markers exist yet (see F2.1 in Test_Implementation_Plan.md)
         # to grep for reliably — just confirms the route itself doesn't 500/404.
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" https://saltyroad.cz/cs/shop)
+          code=$(curl -s -o /dev/null -w "%{http_code}" "$SITE/cs/shop")
           [ "$code" = "200" ] || { echo "/cs/shop returned $code"; exit 1; }
 
       - name: /api/shop-status responds with expected shape
         run: |
-          json=$(curl -s https://saltyroad.cz/api/shop-status)
+          json=$(curl -s "$SITE/api/shop-status")
           echo "$json" | grep -q '"enabled"' || { echo "Unexpected shop-status response: $json"; exit 1; }
 
       - name: /sitemap.xml responds
         run: |
-          code=$(curl -s -o /dev/null -w "%{http_code}" https://saltyroad.cz/sitemap.xml)
+          code=$(curl -s -o /dev/null -w "%{http_code}" "$SITE/sitemap.xml")
           [ "$code" = "200" ] || { echo "sitemap.xml returned $code"; exit 1; }
