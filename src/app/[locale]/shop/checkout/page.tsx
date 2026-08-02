@@ -9,7 +9,7 @@ import PhoneCodeSelect from "@/components/phone-code-select";
 import AddressAutocomplete from "@/components/address-autocomplete";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore, cartTotal } from "@/lib/cartStore";
-import { DEFAULT_SHIPPING_FEE } from "@/lib/shipping";
+import { DEFAULT_SHIPPING_FEE } from "@/lib/shippingConstants";
 
 // Groups digits in 3s ("123 456 789") — the CZ/SK/PL convention and a
 // reasonable universal display format for the others too, since this is
@@ -40,6 +40,7 @@ export default function CheckoutPage() {
   const items = useCartStore((state) => state.items);
   const clear = useCartStore((state) => state.clear);
   const couponCode = useCartStore((state) => state.couponCode);
+  const shippingCouponCode = useCartStore((state) => state.shippingCouponCode);
   const giftSku = useCartStore((state) => state.giftSku);
 
   const [mounted, setMounted] = useState(false);
@@ -81,11 +82,10 @@ export default function CheckoutPage() {
   // but checkout is a fresh page load) — purely cosmetic, the checkout POST
   // always re-validates the coupon server-side regardless.
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [couponFreeShipping, setCouponFreeShipping] = useState(false);
   useEffect(() => {
     if (!couponCode || subtotal === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDiscountAmount(0);
-      setCouponFreeShipping(false);
       return;
     }
     fetch("/api/merch/coupon/validate", {
@@ -97,18 +97,35 @@ export default function CheckoutPage() {
       }),
     })
       .then((res) => (res.ok ? res.json() : null))
-      .then((json) => {
-        setDiscountAmount(json?.discountAmount ?? 0);
-        setCouponFreeShipping(!!json?.freeShipping);
-      })
-      .catch(() => {
-        setDiscountAmount(0);
-        setCouponFreeShipping(false);
-      });
+      .then((json) => setDiscountAmount(json?.discountAmount ?? 0))
+      .catch(() => setDiscountAmount(0));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [couponCode, subtotal]);
 
-  const shippingFee = deliveryMethod === "pickup" ? 0 : couponFreeShipping ? 0 : baseShippingFee;
+  // Independent slot — only confirms the shipping coupon is still valid,
+  // doesn't affect discountAmount.
+  const [shippingCouponValid, setShippingCouponValid] = useState(false);
+  useEffect(() => {
+    if (!shippingCouponCode || subtotal === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShippingCouponValid(false);
+      return;
+    }
+    fetch("/api/merch/coupon/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: shippingCouponCode,
+        items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
+      }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((json) => setShippingCouponValid(!!json?.freeShipping))
+      .catch(() => setShippingCouponValid(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shippingCouponCode, subtotal]);
+
+  const shippingFee = deliveryMethod === "pickup" ? 0 : shippingCouponValid ? 0 : baseShippingFee;
   const finalTotal = Math.max(0, subtotal - discountAmount) + shippingFee;
 
   async function handleSubmit(e: React.FormEvent) {
@@ -136,6 +153,7 @@ export default function CheckoutPage() {
           deliveryMethod,
           items: cartItems.map((i) => ({ sku: i.sku, qty: i.qty })),
           couponCode: couponCode || undefined,
+          shippingCouponCode: shippingCouponCode || undefined,
           giftSku: giftSku || undefined,
           idempotencyKey,
         }),

@@ -18,6 +18,8 @@ export default function CartPage() {
   const updateQty = useCartStore((state) => state.updateQty);
   const storedCouponCode = useCartStore((state) => state.couponCode);
   const setCoupon = useCartStore((state) => state.setCoupon);
+  const storedShippingCouponCode = useCartStore((state) => state.shippingCouponCode);
+  const setShippingCoupon = useCartStore((state) => state.setShippingCoupon);
   const giftSku = useCartStore((state) => state.giftSku);
   const setGift = useCartStore((state) => state.setGift);
 
@@ -85,11 +87,15 @@ export default function CartPage() {
   // fresh validate call, never trusted from storage, and checkout
   // re-validates again server-side regardless.
   const [couponInput, setCouponInput] = useState("");
-  const [couponPreview, setCouponPreview] = useState<{ code: string; discountAmount: number; freeShipping: boolean } | null>(null);
+  const [couponPreview, setCouponPreview] = useState<{ code: string; discountAmount: number } | null>(null);
+  const [shippingCouponPreview, setShippingCouponPreview] = useState<{ code: string } | null>(null);
   const [couponChecking, setCouponChecking] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
   const subtotal = cartTotal(cartItems);
 
+  // A validated code lands in whichever slot matches its real `type` — a
+  // discount coupon (percent/fixed) and a free_shipping coupon can both be
+  // active at once, so this never clears the other slot.
   async function validateCoupon(code: string) {
     if (!code.trim() || subtotal === 0) return;
     setCouponChecking(true);
@@ -106,13 +112,17 @@ export default function CartPage() {
       if (!res.ok) {
         const json = await res.json().catch(() => null);
         setCouponError(json?.error === "coupon_not_applicable" ? t("couponNotApplicable") : t("couponInvalid"));
-        setCouponPreview(null);
-        setCoupon(null);
         return;
       }
       const json = await res.json();
-      setCouponPreview({ code: json.code, discountAmount: json.discountAmount, freeShipping: !!json.freeShipping });
-      setCoupon(json.code);
+      if (json.freeShipping) {
+        setShippingCouponPreview({ code: json.code });
+        setShippingCoupon(json.code);
+      } else {
+        setCouponPreview({ code: json.code, discountAmount: json.discountAmount });
+        setCoupon(json.code);
+      }
+      setCouponInput("");
     } catch (err) {
       console.error(err);
       setCouponError(t("couponInvalid"));
@@ -124,35 +134,57 @@ export default function CartPage() {
   function removeCoupon() {
     setCoupon(null);
     setCouponPreview(null);
-    setCouponInput("");
     setCouponError(null);
   }
 
-  // Re-validate a coupon carried over from a previous visit (cart contents
+  function removeShippingCoupon() {
+    setShippingCoupon(null);
+    setShippingCouponPreview(null);
+    setCouponError(null);
+  }
+
+  // Re-validate coupons carried over from a previous visit (cart contents
   // may have changed since, changing the discount amount or invalidating it
-  // entirely) — but only once mounted+hydrated, and only if nothing has
-  // been typed into the input yet this session.
+  // entirely) — but only once mounted+hydrated.
   useEffect(() => {
-    if (mounted && storedCouponCode && !couponPreview && !couponInput) {
-      setCouponInput(storedCouponCode);
+    if (mounted && storedCouponCode && !couponPreview) {
+      // Re-validating a coupon carried over from a previous visit, not a
+      // render-cascade loop — guarded above so it only fires once per code.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       validateCoupon(storedCouponCode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, storedCouponCode]);
 
-  const discountAmount = couponPreview?.discountAmount ?? 0;
-  const finalTotal = Math.max(0, subtotal - discountAmount);
+  useEffect(() => {
+    if (mounted && storedShippingCouponCode && !shippingCouponPreview) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      validateCoupon(storedShippingCouponCode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, storedShippingCouponCode]);
 
-  // Free gift: threshold comes from admin settings (0 = feature off).
-  // Options only fetched once the cart is actually eligible, so a cart that
-  // never crosses the threshold never pays for the extra request.
+  const discountAmount = couponPreview?.discountAmount ?? 0;
+
+  // Preview-only "Poštovné" line — assumes shipping delivery (pickup is
+  // always free but the cart doesn't know the checkout choice yet); the
+  // checkout page recomputes this for real once a delivery method is picked.
+  // Fetched together with the gift threshold below, one shop-status call.
+  const [shippingFeePreview, setShippingFeePreview] = useState(0);
   const [giftThreshold, setGiftThreshold] = useState(0);
   useEffect(() => {
     fetch("/api/shop-status")
       .then((res) => (res.ok ? res.json() : null))
-      .then((data) => data && setGiftThreshold(data.stickerGiftThresholdHalire ?? 0))
+      .then((data) => {
+        if (!data) return;
+        setShippingFeePreview(data.shippingFeeHalire ?? 0);
+        setGiftThreshold(data.stickerGiftThresholdHalire ?? 0);
+      })
       .catch((err) => console.error(err));
   }, []);
+
+  const shippingFee = shippingCouponPreview ? 0 : shippingFeePreview;
+  const finalTotal = Math.max(0, subtotal - discountAmount) + shippingFee;
 
   const giftEligible = giftThreshold > 0 && finalTotal >= giftThreshold;
 
@@ -303,42 +335,19 @@ export default function CartPage() {
                       setCouponError(null);
                     }}
                     placeholder={t("couponPlaceholder")}
-                    disabled={!!couponPreview}
-                    className="flex-1 px-4 py-2.5 bg-white/5 text-white placeholder-gray-500 border-2 border-gray-600 rounded-sm focus:outline-none focus:border-white transition-colors text-sm disabled:opacity-50 uppercase"
+                    className="flex-1 px-4 py-2.5 bg-white/5 text-white placeholder-gray-500 border-2 border-gray-600 rounded-sm focus:outline-none focus:border-white transition-colors text-sm uppercase"
                   />
-                  <AnimatePresence mode="wait" initial={false}>
-                  {couponPreview ? (
-                    <motion.button
-                      key="remove"
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      type="button"
-                      onClick={removeCoupon}
-                      className="px-4 py-2.5 border-2 border-gray-500 text-gray-300 rounded-sm hover:border-white hover:text-white transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer"
-                    >
-                      {t("couponRemove")}
-                    </motion.button>
-                  ) : (
-                    <motion.button
-                      key="apply"
-                      initial={{ opacity: 0, x: -6 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      type="button"
-                      onClick={() => validateCoupon(couponInput)}
-                      disabled={couponChecking || !couponInput.trim()}
-                      className="px-4 py-2.5 border-2 border-white text-white rounded-sm hover:bg-white hover:text-black transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {couponChecking ? t("couponChecking") : t("couponApply")}
-                    </motion.button>
-                  )}
-                  </AnimatePresence>
+                  <button
+                    type="button"
+                    onClick={() => validateCoupon(couponInput)}
+                    disabled={couponChecking || !couponInput.trim()}
+                    className="px-4 py-2.5 border-2 border-white text-white rounded-sm hover:bg-white hover:text-black transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {couponChecking ? t("couponChecking") : t("couponApply")}
+                  </button>
                 </div>
-                <AnimatePresence mode="wait" initial={false}>
-                {couponError ? (
+                <AnimatePresence initial={false}>
+                {couponError && (
                   <motion.p
                     key="error"
                     initial={{ opacity: 0, y: -4 }}
@@ -349,21 +358,55 @@ export default function CartPage() {
                   >
                     {couponError}
                   </motion.p>
-                ) : couponPreview ? (
-                  <motion.p
-                    key="applied"
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="text-green-500 text-sm font-bold mt-2"
-                  >
-                    {couponPreview.freeShipping
-                      ? t("couponAppliedFreeShipping", { code: couponPreview.code })
-                      : t("couponApplied", { code: couponPreview.code })}
-                  </motion.p>
-                ) : null}
+                )}
                 </AnimatePresence>
+
+                <div className="flex flex-col gap-2 mt-3">
+                  <AnimatePresence initial={false}>
+                  {couponPreview && (
+                    <motion.div
+                      key="discount-chip"
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex items-center justify-between gap-3 px-3 py-2 border-2 border-green-600/50 bg-green-600/10 rounded-sm"
+                    >
+                      <span className="text-green-500 text-sm font-bold">
+                        {t("couponApplied", { code: couponPreview.code })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removeCoupon}
+                        className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wide cursor-pointer shrink-0"
+                      >
+                        {t("couponRemove")}
+                      </button>
+                    </motion.div>
+                  )}
+                  {shippingCouponPreview && (
+                    <motion.div
+                      key="shipping-chip"
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="flex items-center justify-between gap-3 px-3 py-2 border-2 border-green-600/50 bg-green-600/10 rounded-sm"
+                    >
+                      <span className="text-green-500 text-sm font-bold">
+                        {t("couponAppliedFreeShipping", { code: shippingCouponPreview.code })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removeShippingCoupon}
+                        className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-wide cursor-pointer shrink-0"
+                      >
+                        {t("couponRemove")}
+                      </button>
+                    </motion.div>
+                  )}
+                  </AnimatePresence>
+                </div>
               </div>
 
               <AnimatePresence>
@@ -412,6 +455,13 @@ export default function CartPage() {
                     <span>-{formatPrice(discountAmount)}</span>
                   </div>
                 )}
+                {shippingFeePreview > 0 && (
+                  <div className="flex items-center justify-between text-gray-400 text-sm">
+                    <span>{t("checkoutShippingFee")}</span>
+                    <span>{shippingFee > 0 ? formatPrice(shippingFee) : t("checkoutShippingFree")}</span>
+                  </div>
+                )}
+                <p className="text-xs text-gray-500 mt-0.5">{t("cartShippingEstimateNote")}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold uppercase tracking-wide">{t("cartTotal")}</span>
                   <span className="text-2xl font-bold">{formatPrice(finalTotal)}</span>

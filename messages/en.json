@@ -55,6 +55,7 @@
     "couponInvalid": "Invalid or exhausted coupon.",
     "couponNotApplicable": "This coupon doesn't apply to the items in your cart.",
     "couponDiscount": "Discount",
+    "cartShippingEstimateNote": "Shipping fee is an estimate, applies to postal delivery. Pickup is always free.",
     "cartRemove": "Remove",
     "cartContinueShopping": "Continue shopping",
     "cartCheckout": "Proceed to checkout",

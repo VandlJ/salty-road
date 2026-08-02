@@ -84,12 +84,15 @@ export default function Navbar({ fixed = false }) {
   // Match "shop"/"check" (or any future non-homepage nav route) by pathname.
   // Anything else (admin, entry, privacy, a 404, ...) has no corresponding
   // nav link, so the indicator should hide rather than default to "home".
+  /* eslint-disable react-hooks/set-state-in-effect -- derives the active
+     nav indicator from the current route, not a render-cascade loop. */
   useEffect(() => {
     if (pathname.startsWith("/shop")) setActiveId("shop");
     else if (pathname.startsWith("/check")) setActiveId("check");
     else if (pathname === "/") setActiveId((current) => (HOME_SECTION_IDS.includes(current) ? current : "home"));
     else setActiveId("");
   }, [pathname]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Scroll-spy the homepage sections so the indicator follows scroll
   // position, not just clicks.

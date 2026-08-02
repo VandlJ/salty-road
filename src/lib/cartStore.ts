@@ -17,10 +17,13 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
-  // Only the code persists — the discount amount/type is always re-derived
-  // from a fresh /api/merch/coupon/validate call (or re-validated server-side
-  // at checkout), never trusted from storage.
+  // Two independent coupon slots — a discount coupon (percent/fixed) and a
+  // free_shipping coupon can both be active at once. Only the codes persist
+  // — the discount amount/type is always re-derived from a fresh
+  // /api/merch/coupon/validate call (or re-validated server-side at
+  // checkout), never trusted from storage.
   couponCode: string | null;
+  shippingCouponCode: string | null;
   // Same "only the choice persists" reasoning as couponCode — eligibility
   // and stock are always re-checked server-side at checkout.
   giftSku: string | null;
@@ -28,6 +31,7 @@ interface CartState {
   removeItem: (sku: string) => void;
   updateQty: (sku: string, qty: number) => void;
   setCoupon: (code: string | null) => void;
+  setShippingCoupon: (code: string | null) => void;
   setGift: (sku: string | null) => void;
   clear: () => void;
 }
@@ -37,6 +41,7 @@ export const useCartStore = create<CartState>()(
     (set) => ({
       items: [],
       couponCode: null,
+      shippingCouponCode: null,
       giftSku: null,
       addItem: (item, maxQty) =>
         set((state) => {
@@ -55,16 +60,21 @@ export const useCartStore = create<CartState>()(
       removeItem: (sku) =>
         set((state) => {
           const items = state.items.filter((i) => i.sku !== sku);
-          return items.length === 0 ? { items, couponCode: null, giftSku: null } : { items };
+          return items.length === 0
+            ? { items, couponCode: null, shippingCouponCode: null, giftSku: null }
+            : { items };
         }),
       updateQty: (sku, qty) =>
         set((state) => {
           const items = state.items.map((i) => (i.sku === sku ? { ...i, qty } : i));
-          return items.length === 0 ? { items, couponCode: null, giftSku: null } : { items };
+          return items.length === 0
+            ? { items, couponCode: null, shippingCouponCode: null, giftSku: null }
+            : { items };
         }),
       setCoupon: (code) => set({ couponCode: code }),
+      setShippingCoupon: (code) => set({ shippingCouponCode: code }),
       setGift: (sku) => set({ giftSku: sku }),
-      clear: () => set({ items: [], couponCode: null, giftSku: null }),
+      clear: () => set({ items: [], couponCode: null, shippingCouponCode: null, giftSku: null }),
     }),
     { name: "salty-road-cart" }
   )

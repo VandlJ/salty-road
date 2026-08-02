@@ -1,10 +1,10 @@
 import prisma from "@/lib/prisma";
+import { DEFAULT_SHIPPING_FEE } from "@/lib/shippingConstants";
+
+export { DEFAULT_SHIPPING_FEE };
 
 const SHIPPING_FEE_KEY = "shipping_fee_halire";
 const SHIPPING_FREE_KEY = "shipping_free";
-
-// 99 Kč — used whenever the admin hasn't set a custom fee yet.
-export const DEFAULT_SHIPPING_FEE = 9900;
 
 // Admin-configurable flat shipping fee (halire), with a site-wide "free
 // shipping" promo switch that overrides it to 0 regardless of the

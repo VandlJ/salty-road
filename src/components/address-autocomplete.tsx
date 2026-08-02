@@ -31,6 +31,9 @@ export default function AddressAutocomplete({
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (value.trim().length < 3) {
+      // Clearing stale suggestions once the input is too short to search,
+      // not a render-cascade loop.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuggestions([]);
       return;
     }

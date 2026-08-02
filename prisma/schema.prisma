@@ -104,9 +104,11 @@ model Order {
   deliveryMethod String    @default("shipping") // "shipping" | "pickup"
   shippingFee    Int       @default(0) // halire, snapshot at order time, 0 for pickup
   status         String    @default("pending") // "pending" | "paid" | "shipped" | "cancelled"
-  couponCode     String? // snapshot of the code used, if any
+  // Two independent coupon slots — a discount coupon (percent/fixed) and a
+  // free_shipping coupon can both be active on the same order at once.
+  couponCode     String? // discount coupon code, if any
   discountAmount Int       @default(0) // halire, snapshot at order time
-  couponFreeShipping Boolean @default(false) // true when couponCode was a "free_shipping" type coupon (discountAmount stays 0 in that case, this is what tells the admin view the coupon actually did something)
+  shippingCouponCode String? // free_shipping coupon code, if any
   idempotencyKey String?   @unique // client-generated, dedupes retried checkout submits
   giftProductId  String? // free gift chosen at checkout, if any (see MerchProduct.giftEligible)
   giftVariantSku String?

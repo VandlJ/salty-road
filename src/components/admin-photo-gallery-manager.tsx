@@ -25,6 +25,9 @@ export default function AdminPhotoGalleryManager({
   // it still fires (via `onChange`), this is purely so the UI doesn't feel
   // like the click did nothing for the ~1s the request takes.
   const [localPhotos, setLocalPhotos] = useState(photos);
+  // Re-syncs the optimistic local mirror whenever the persisted prop
+  // changes (e.g. after the parent reloads), not a render-cascade loop.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setLocalPhotos(photos), [photos]);
 
   const [uploading, setUploading] = useState(false);

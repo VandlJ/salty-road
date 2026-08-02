@@ -86,6 +86,10 @@ export default function GlobalNotFound() {
           Tahle stránka neexistuje nebo byla přesunuta.
         </p>
 
+        {/* next/link isn't available in this framework-minimal fallback
+            (no root layout, no locale segment resolved) — a plain <a> is
+            the only option here. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/cs"
           style={{

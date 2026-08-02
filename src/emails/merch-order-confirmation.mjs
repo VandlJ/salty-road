@@ -10,6 +10,7 @@ function formatHalire(halire) {
  *   deliveryMethod?: "shipping" | "pickup", shippingFee?: number,
  *   address?: string | null,
  *   couponCode?: string | null, discountAmount?: number,
+ *   shippingCouponCode?: string | null,
  *   giftLabel?: string | null,
  * }} order
  */
@@ -25,6 +26,7 @@ export function merchOrderConfirmationEmail({
   address = null,
   couponCode = null,
   discountAmount = 0,
+  shippingCouponCode = null,
   giftLabel = null,
 }) {
   const subject = `Potvrzení objednávky #${orderId} - Salty Road Shop`;
@@ -48,6 +50,10 @@ export function merchOrderConfirmationEmail({
       ? `Kupón ${couponCode}: -${formatHalire(discountAmount)}\n`
       : "";
 
+  const shippingCouponLine = shippingCouponCode
+    ? `Kupón na dopravu zdarma: ${shippingCouponCode}\n`
+    : "";
+
   const giftLine = giftLabel ? `Dárek zdarma: ${giftLabel}\n` : "";
 
   const text = `Ahoj,
@@ -58,7 +64,7 @@ Objednávka: #${orderId}
 Variabilní symbol platby: ${vs}
 ${itemLines}
 
-${discountLine}${giftLine}Celkem: ${formatHalire(totalAmount)}
+${discountLine}${shippingCouponLine}${giftLine}Celkem: ${formatHalire(totalAmount)}
 
 ${deliveryText}
 ${paymentText}
@@ -74,6 +80,10 @@ Tým Salty Road Meet`;
       ? `<p>Kupón ${couponCode}: -${formatHalire(discountAmount)}</p>`
       : "";
 
+  const shippingCouponHtml = shippingCouponCode
+    ? `<p>Kupón na dopravu zdarma: ${shippingCouponCode}</p>`
+    : "";
+
   const giftHtml = giftLabel ? `<p>Dárek zdarma: ${giftLabel}</p>` : "";
 
   const html = `
@@ -83,6 +93,7 @@ Tým Salty Road Meet`;
     <p><strong>Variabilní symbol platby: ${vs}</strong></p>
     <ul>${itemsHtml}</ul>
     ${discountHtml}
+    ${shippingCouponHtml}
     ${giftHtml}
     <p><strong>Celkem: ${formatHalire(totalAmount)}</strong></p>
     <p>${deliveryText}</p>

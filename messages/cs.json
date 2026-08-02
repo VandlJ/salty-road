@@ -55,6 +55,7 @@
     "couponInvalid": "Neplatný nebo vyčerpaný kupón.",
     "couponNotApplicable": "Tento kupón neplatí pro zboží ve vašem košíku.",
     "couponDiscount": "Sleva",
+    "cartShippingEstimateNote": "Poštovné je orientační, platí při doručení poštou. Osobní odběr je vždy zdarma.",
     "cartRemove": "Odebrat",
     "cartContinueShopping": "Pokračovat v nákupu",
     "cartCheckout": "Dokončit objednávku",

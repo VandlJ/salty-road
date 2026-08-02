@@ -19,6 +19,29 @@ interface CheckoutItemInput {
   qty: number;
 }
 
+// Inferred from prisma.$transaction itself rather than Prisma.TransactionClient
+// — the extended client (see @/lib/prisma) doesn't structurally match that
+// stock type once extensions are applied.
+type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+
+// Atomic conditional increment via raw SQL, mirroring the stock decrement
+// below. Prisma's typed `updateMany` where-clause can't compare one column
+// against another ("usedCount < maxUses"), so the "consume a use only if
+// one is still available" check has to be raw SQL to stay race-safe (two
+// concurrent checkouts against the last remaining use can't both succeed).
+async function consumeCouponUse(tx: TxClient, normalizedCode: string) {
+  const affected = await tx.$executeRaw`
+    UPDATE "Coupon" SET "usedCount" = "usedCount" + 1
+    WHERE code = ${normalizedCode} AND active = true
+      AND ("expiresAt" IS NULL OR "expiresAt" > now())
+      AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
+  `;
+  if (affected === 0) {
+    throw new Error("INVALID_COUPON");
+  }
+  return tx.coupon.findUniqueOrThrow({ where: { code: normalizedCode } });
+}
+
 export async function POST(req: Request) {
   if (!(await rateLimit(`merch-checkout:${getClientIp(req)}`, 20, 60 * 60 * 1000))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
@@ -38,6 +61,7 @@ export async function POST(req: Request) {
       deliveryMethod: rawDeliveryMethod,
       items,
       couponCode: rawCouponCode,
+      shippingCouponCode: rawShippingCouponCode,
       giftSku: rawGiftSku,
       idempotencyKey: rawIdempotencyKey,
     } = body;
@@ -154,51 +178,51 @@ export async function POST(req: Request) {
 
       const subtotal = orderItems.reduce((sum, i) => sum + i.price * i.qty, 0);
 
-      // Coupon: atomic conditional increment via raw SQL, mirroring the
-      // stock decrement above. Prisma's typed `updateMany` where-clause
-      // can't compare one column against another ("usedCount < maxUses"),
-      // so the "consume a use only if one is still available" check has to
-      // be raw SQL to stay race-safe (two concurrent checkouts against the
-      // last remaining use can't both succeed).
+      // Two independent coupon slots — a discount coupon (percent/fixed) and
+      // a free_shipping coupon can both be active at once. Which raw field
+      // the client put a code in is only a UI-side hint (from the earlier
+      // /coupon/validate call); the actual slot each code lands in here is
+      // decided by its real `type`, and duplicate codes across both fields
+      // are deduped so the same coupon is never consumed twice.
+      const submittedCodes = Array.from(
+        new Set(
+          [rawCouponCode, rawShippingCouponCode]
+            .filter((c): c is string => typeof c === "string" && c.trim().length > 0)
+            .map((c) => c.trim().toUpperCase())
+        )
+      );
+
       let couponCode: string | null = null;
       let discountAmount = 0;
-      let couponFreeShipping = false;
-      if (rawCouponCode) {
-        const normalized = String(rawCouponCode).trim().toUpperCase();
-        const affected = await tx.$executeRaw`
-          UPDATE "Coupon" SET "usedCount" = "usedCount" + 1
-          WHERE code = ${normalized} AND active = true
-            AND ("expiresAt" IS NULL OR "expiresAt" > now())
-            AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
-        `;
-        if (affected === 0) {
-          throw new Error("INVALID_COUPON");
-        }
-        const coupon = await tx.coupon.findUniqueOrThrow({ where: { code: normalized } });
-        couponCode = coupon.code;
+      let shippingCouponCode: string | null = null;
+
+      for (const normalized of submittedCodes) {
+        const coupon = await consumeCouponUse(tx, normalized);
 
         if (coupon.type === "free_shipping") {
-          couponFreeShipping = true;
-        } else {
-          // Category-restricted coupons only discount the matching slice of
-          // the cart — empty `categories` means "applies to everything".
-          const eligibleSubtotal =
-            coupon.categories.length === 0
-              ? subtotal
-              : typedItems.reduce((sum, item) => {
-                  const variant = variantBySku.get(item.sku)!;
-                  return coupon.categories.includes(variant.product.category) ? sum + variant.price * item.qty : sum;
-                }, 0);
-
-          if (eligibleSubtotal === 0) {
-            throw new Error("INVALID_COUPON");
-          }
-
-          discountAmount =
-            coupon.type === "percent"
-              ? Math.round((eligibleSubtotal * coupon.value) / 100)
-              : Math.min(coupon.value, eligibleSubtotal);
+          shippingCouponCode = coupon.code;
+          continue;
         }
+
+        // Category-restricted coupons only discount the matching slice of
+        // the cart — empty `categories` means "applies to everything".
+        const eligibleSubtotal =
+          coupon.categories.length === 0
+            ? subtotal
+            : typedItems.reduce((sum, item) => {
+                const variant = variantBySku.get(item.sku)!;
+                return coupon.categories.includes(variant.product.category) ? sum + variant.price * item.qty : sum;
+              }, 0);
+
+        if (eligibleSubtotal === 0) {
+          throw new Error("INVALID_COUPON");
+        }
+
+        couponCode = coupon.code;
+        discountAmount =
+          coupon.type === "percent"
+            ? Math.round((eligibleSubtotal * coupon.value) / 100)
+            : Math.min(coupon.value, eligibleSubtotal);
       }
 
       // Free gift: never trust eligibility or stock from the client — a
@@ -246,7 +270,7 @@ export async function POST(req: Request) {
         }
       }
 
-      const shippingFee = deliveryMethod === "pickup" ? 0 : couponFreeShipping ? 0 : baseShippingFee;
+      const shippingFee = deliveryMethod === "pickup" ? 0 : shippingCouponCode ? 0 : baseShippingFee;
       const totalAmount = subtotal - discountAmount + shippingFee;
 
       return tx.order.create({
@@ -263,7 +287,7 @@ export async function POST(req: Request) {
           shippingFee,
           couponCode,
           discountAmount,
-          couponFreeShipping,
+          shippingCouponCode,
           giftProductId,
           giftVariantSku,
           giftLabel,
@@ -301,6 +325,7 @@ export async function POST(req: Request) {
             address: order.address,
             couponCode: order.couponCode,
             discountAmount: order.discountAmount,
+            shippingCouponCode: order.shippingCouponCode,
             giftLabel: order.giftLabel,
           },
           qrCodeBase64
@@ -340,6 +365,7 @@ export async function POST(req: Request) {
         shippingFee: order.shippingFee,
         couponCode: order.couponCode,
         discountAmount: order.discountAmount,
+        shippingCouponCode: order.shippingCouponCode,
         giftLabel: order.giftLabel,
         qrCodeBase64,
       },

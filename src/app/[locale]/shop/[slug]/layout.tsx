@@ -78,7 +78,11 @@ export default async function ProductDetailLayout({
   // Google Merchant / Rich Results recommend an explicit expiry on the
   // quoted price rather than none at all — there's no real per-product
   // expiry concept here, so a rolling 90-day window is used (re-rendered
-  // fresh on every request, so this never actually goes stale).
+  // fresh on every request, so this never actually goes stale). The
+  // react-hooks/purity rule flags Date.now() as an impure render call, but
+  // this is an async Server Component computing a per-request value —
+  // exactly what it's supposed to do here, not a client render purity bug.
+  // eslint-disable-next-line react-hooks/purity
   const priceValidUntil = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
     .toISOString()
     .slice(0, 10);

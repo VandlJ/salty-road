@@ -46,20 +46,31 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
   // must not keep toggling as photoIndex changes on swipe (that just
   // generates pointless <link rel=preload> churn for images that are
   // already on screen). True only for this component's very first render.
-  const isInitialRenderRef = useRef(true);
+  // State (not a ref) specifically so this can be read directly during
+  // render — reading ref.current in render is unsafe under concurrent
+  // rendering, reading state is exactly what it's for.
+  const [isInitialRender, setIsInitialRender] = useState(true);
   useEffect(() => {
-    isInitialRenderRef.current = false;
+    // Flips once after mount so `priority` above stops being true — a
+    // one-shot mount flag, not a render-cascade loop.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsInitialRender(false);
   }, []);
 
   // Reset to the first photo whenever the selected variant changes — an
   // index from the previous variant's gallery can be out of range for the
-  // new one (per-variant photo mode).
+  // new one (per-variant photo mode). This resets derived UI-only state in
+  // response to a prop/derived-value change, not a render-cascade loop.
+  /* eslint-disable react-hooks/set-state-in-effect -- resetting derived
+     UI-only state in response to a prop/derived-value change, not a
+     render-cascade loop. */
   useEffect(() => {
     setPhotoIndex(0);
     setNotifyOpen(false);
     setNotifySent(false);
     setNotifyError(null);
   }, [selectedSku]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const selectedVariant: MerchVariant | undefined = product.variants.find(
     (v) => v.sku === selectedSku
@@ -245,7 +256,7 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
                     // contain+white-plate treatment just for that one slide.
                     className={isSizeChartSlide ? "object-contain p-8 sm:p-12" : "object-cover"}
                     sizes="(max-width: 768px) 100vw, 50vw"
-                    priority={photoIndex === 0 && isInitialRenderRef.current}
+                    priority={photoIndex === 0 && isInitialRender}
                   />
                 </div>
               ) : (
