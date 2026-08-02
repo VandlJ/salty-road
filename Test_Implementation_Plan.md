@@ -415,7 +415,7 @@ Checkout route je **nejsložitější soubor v repu** (~300 řádků, přes 15 v
 - prázdné `items`, přes 20 řádků, `qty: 0`, `qty: 999`, `qty` desetinné → `400 invalid_items`
 - `deliveryMethod: "pickup"` **bez adresy** → projde (adresa je povinná jen pro `shipping`)
 
-### [ ] F4.2 `/api/merch/checkout` — byznysová logika (s mockem Prisma)
+### [x] F4.2 `/api/merch/checkout` — byznysová logika (s mockem Prisma)
 
 **Nový soubor:** `src/app/api/merch/checkout/business.test.ts`
 
@@ -428,7 +428,7 @@ Invarianty, na kterých stojí celý e-shop:
 - **Atomický odečet skladu**: `updateMany` je volaný s `where: { quantity: { gte: qty } }` — podmínka nesmí z where clause zmizet
 - **Nedostatek skladu** → `409 insufficient_stock` a **rollback** (transakce se nepotvrdí)
 - **Kupón**: percent → `round(subtotal * value / 100)`; fixed → `min(value, subtotal)` (nikdy záporný total); kategoriové omezení počítá jen odpovídající část košíku
-- **`free_shipping` kupón** → `discountAmount` zůstane 0, `shippingFee` = 0, `couponFreeShipping: true`
+- **`free_shipping` kupón** → `discountAmount` zůstane 0, `shippingFee` = 0, `shippingCouponCode` vyplněný (nezávislý slot vedle `couponCode` — jde kombinovat s procentuálním/fixním kupónem zároveň)
 - **Poštovné**: `pickup` → 0; promo „doprava zdarma" → 0; jinak hodnota ze `Setting`
 - **Dárek**: pod limitem → tiše zahozen, objednávka projde; vyprodaný dárek → tiše zahozen, **nikdy neshodí objednávku**
 - **E-maily jsou odložené** přes `after()` (`route.ts:~280`) — response se vrátí, i když odeslání selže
@@ -533,7 +533,7 @@ jobs:
 
 Dnes je to bez omezení — celá tahle session pushovala rovnou do `main`.
 
-### [ ] F5.3 Smoke test proti produkci po deployi
+### [x] F5.3 Smoke test proti produkci po deployi
 
 **Nový soubor:** `.github/workflows/smoke.yml`
 
