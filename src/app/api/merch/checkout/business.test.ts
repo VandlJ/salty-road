@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Prisma } from "@prisma/client";
 
 // Business-logic invariants for the checkout route, exercised against a
 // mocked Prisma client (no real DB) — the validation cascade that returns
@@ -28,6 +29,7 @@ const coupons: Record<string, { code: string; type: string; value: number; categ
 
 let orderFindUnique: ReturnType<typeof vi.fn>;
 let orderCreate: ReturnType<typeof vi.fn>;
+let outerOrderFindUnique: ReturnType<typeof vi.fn>;
 let merchVariantUpdateMany: ReturnType<typeof vi.fn>;
 let merchVariantFindUnique: ReturnType<typeof vi.fn>;
 let settingFindUnique: ReturnType<typeof vi.fn>;
@@ -44,6 +46,14 @@ function buildTx() {
         if (!coupon) throw new Error("not found");
         return Promise.resolve({ ...coupon, id: code, usedCount: 0, maxUses: null, active: true, expiresAt: null });
       }),
+      // Used to peek each submitted code's type before consuming it (see
+      // the B4 fix in route.ts) — unknown codes just resolve to an empty
+      // array, matching a real DB miss.
+      findMany: vi.fn(({ where: { code } }: { where: { code: { in: string[] } } }) =>
+        Promise.resolve(
+          code.in.filter((c) => coupons[c]).map((c) => ({ code: c, type: coupons[c].type }))
+        )
+      ),
     },
     $executeRaw: executeRaw,
   };
@@ -55,6 +65,13 @@ vi.mock("@/lib/prisma", () => ({
       findMany: vi.fn(({ where }: { where: { sku: { in: string[] } } }) =>
         Promise.resolve(where.sku.in.map((sku) => variantMap[sku]).filter(Boolean))
       ),
+    },
+    // Outer (non-transactional) order.findUnique — used only by the P2002
+    // race fallback in the catch block, separate from tx.order.findUnique
+    // (the idempotency check inside the transaction).
+    order: {
+      findUnique: (...args: unknown[]) =>
+        (outerOrderFindUnique as (...a: unknown[]) => unknown)(...args),
     },
     $transaction: vi.fn((cb: (tx: unknown) => unknown) => cb(buildTx())),
   },
@@ -113,6 +130,7 @@ beforeEach(() => {
   merchVariantFindUnique = vi.fn().mockResolvedValue(null);
   settingFindUnique = vi.fn().mockResolvedValue(null);
   executeRaw = vi.fn().mockResolvedValue(1);
+  outerOrderFindUnique = vi.fn().mockResolvedValue(null);
 });
 
 describe("POST /api/merch/checkout — business logic", () => {
@@ -198,6 +216,24 @@ describe("POST /api/merch/checkout — business logic", () => {
     expect((await res.json()).error).toBe("invalid_coupon");
   });
 
+  it("rejects two discount-type codes without consuming either", async () => {
+    // TEST10 and TESTFIX both land in the discount slot via the couponCode/
+    // shippingCouponCode fields — must be rejected before either coupon's
+    // usedCount is touched, otherwise a maxUses:1 coupon gets burned for
+    // an order that never applied it.
+    const res = await POST(
+      postRequest({
+        ...validBase,
+        items: [{ sku: "TEST-M", qty: 1 }],
+        couponCode: "TEST10",
+        shippingCouponCode: "TESTFIX",
+      })
+    );
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toBe("invalid_coupon");
+    expect(executeRaw).not.toHaveBeenCalled();
+  });
+
   it("a free_shipping coupon zeroes the shipping fee without discounting items", async () => {
     const res = await POST(
       postRequest({ ...validBase, items: [{ sku: "TEST-M", qty: 1 }], shippingCouponCode: "TESTSHIP" })
@@ -280,5 +316,34 @@ describe("POST /api/merch/checkout — business logic", () => {
   it("returns 201 even though email sending is deferred and out of the critical path", async () => {
     const res = await POST(postRequest(validBase));
     expect(res.status).toBe(201);
+  });
+
+  it("returns the winning order (not a 500) when a concurrent retry loses the idempotency-key race", async () => {
+    // Two truly concurrent requests with the same key can both pass the
+    // in-transaction findUnique check before either commits — the loser's
+    // tx.order.create() hits the unique constraint here instead.
+    orderCreate.mockRejectedValue(
+      new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
+        code: "P2002",
+        clientVersion: "test",
+      })
+    );
+    outerOrderFindUnique.mockResolvedValue({
+      id: "order-winner",
+      createdAt: new Date("2026-08-02"),
+      orderNumber: 1,
+      totalAmount: 65000,
+      paymentMethod: "bank_transfer",
+      deliveryMethod: "shipping",
+      shippingFee: 9900,
+      couponCode: null,
+      discountAmount: 0,
+      shippingCouponCode: null,
+      giftLabel: null,
+    });
+
+    const res = await POST(postRequest({ ...validBase, idempotencyKey: "race-key" }));
+    expect(res.status).toBe(201);
+    expect((await res.json()).orderId).toBe("order-winner");
   });
 });

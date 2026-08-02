@@ -1,4 +1,5 @@
 import { NextResponse, after } from "next/server";
+import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
 import { sendMerchOrderConfirmationEmail, sendEmail, SHOP_EMAIL_FROM } from "@/lib/email";
@@ -47,8 +48,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
-  // Declared outside the try block so the catch handler can read it.
+  // Declared outside the try block so the catch handler can read them.
   let insufficientStockSku: string | null = null;
+  let idempotencyKey: string | null = null;
 
   try {
     const body = await req.json();
@@ -65,7 +67,7 @@ export async function POST(req: Request) {
       giftSku: rawGiftSku,
       idempotencyKey: rawIdempotencyKey,
     } = body;
-    const idempotencyKey =
+    idempotencyKey =
       typeof rawIdempotencyKey === "string" && rawIdempotencyKey.length > 0
         ? rawIdempotencyKey
         : null;
@@ -195,6 +197,18 @@ export async function POST(req: Request) {
       let couponCode: string | null = null;
       let discountAmount = 0;
       let shippingCouponCode: string | null = null;
+
+      // Peek at each code's real type WITHOUT consuming it first — the
+      // legitimate UI only ever sends one discount-type code, but if a
+      // client somehow sent two, consuming both here (one of which never
+      // ends up applied) would burn a maxUses:1 coupon for nothing. Reject
+      // before either one is atomically consumed below.
+      const peeked = await tx.coupon.findMany({ where: { code: { in: submittedCodes } } });
+      const typeByCode = new Map(peeked.map((c) => [c.code, c.type]));
+      const discountCodeCount = submittedCodes.filter((code) => typeByCode.get(code) !== "free_shipping").length;
+      if (discountCodeCount > 1) {
+        throw new Error("INVALID_COUPON");
+      }
 
       for (const normalized of submittedCodes) {
         const coupon = await consumeCouponUse(tx, normalized);
@@ -380,6 +394,46 @@ export async function POST(req: Request) {
     }
     if (err instanceof Error && err.message === "INVALID_COUPON") {
       return NextResponse.json({ error: "invalid_coupon" }, { status: 400 });
+    }
+    // Two truly concurrent requests with the same idempotency key can both
+    // pass the findUnique check inside the transaction before either
+    // commits — the loser hits the unique constraint here. Return the
+    // winner's order instead of a 500 the customer would read as "try
+    // again" (and risk a real double order).
+    if (
+      idempotencyKey &&
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002"
+    ) {
+      const existing = await prisma.order.findUnique({ where: { idempotencyKey } });
+      if (existing) {
+        const vs = getOrderVs(existing.createdAt, existing.orderNumber);
+        let qrCodeBase64: string | undefined;
+        if (existing.paymentMethod === "bank_transfer") {
+          const spd = generateSPD({
+            amount: existing.totalAmount / 100,
+            message: `Salty Road Shop ${vs}`,
+            vs,
+          });
+          qrCodeBase64 = await generateQRCodeBase64(spd);
+        }
+        return NextResponse.json(
+          {
+            orderId: existing.id,
+            vs,
+            totalAmount: existing.totalAmount,
+            paymentMethod: existing.paymentMethod,
+            deliveryMethod: existing.deliveryMethod,
+            shippingFee: existing.shippingFee,
+            couponCode: existing.couponCode,
+            discountAmount: existing.discountAmount,
+            shippingCouponCode: existing.shippingCouponCode,
+            giftLabel: existing.giftLabel,
+            qrCodeBase64,
+          },
+          { status: 201 }
+        );
+      }
     }
     console.error("POST /api/merch/checkout error:", err);
     return NextResponse.json({ error: "server_error" }, { status: 500 });

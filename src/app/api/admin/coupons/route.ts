@@ -53,13 +53,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid_categories" }, { status: 400 });
     }
 
+    let parsedExpiresAt: Date | null = null;
+    if (expiresAt) {
+      parsedExpiresAt = new Date(expiresAt);
+      // Invalid input (e.g. a malformed string) parses to "Invalid Date"
+      // rather than throwing — isNaN is the only reliable way to catch it.
+      // Also reject a date already in the past: nothing legitimate creates
+      // a coupon that's expired from the moment it exists.
+      if (isNaN(parsedExpiresAt.getTime()) || parsedExpiresAt <= new Date()) {
+        return NextResponse.json({ error: "invalid_expires_at" }, { status: 400 });
+      }
+    }
+
     const coupon = await prisma.coupon.create({
       data: {
         code: code.trim().toUpperCase(),
         type,
         value,
         maxUses: maxUses ?? null,
-        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        expiresAt: parsedExpiresAt,
         categories: Array.isArray(categories) ? categories : [],
       },
     });

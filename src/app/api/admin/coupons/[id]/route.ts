@@ -24,12 +24,24 @@ export async function PATCH(
       return NextResponse.json({ error: "invalid_categories" }, { status: 400 });
     }
 
+    let parsedExpiresAt: Date | null = null;
+    if (expiresAt) {
+      parsedExpiresAt = new Date(expiresAt);
+      // Invalid input (e.g. a malformed string) parses to "Invalid Date"
+      // rather than throwing — isNaN is the only reliable way to catch it.
+      // A past date is allowed here (unlike creation) — it's a legitimate
+      // way for an admin to expire a coupon immediately.
+      if (isNaN(parsedExpiresAt.getTime())) {
+        return NextResponse.json({ error: "invalid_expires_at" }, { status: 400 });
+      }
+    }
+
     const coupon = await prisma.coupon.update({
       where: { id },
       data: {
         ...(active !== undefined && { active: !!active }),
         ...(maxUses !== undefined && { maxUses }),
-        ...(expiresAt !== undefined && { expiresAt: expiresAt ? new Date(expiresAt) : null }),
+        ...(expiresAt !== undefined && { expiresAt: parsedExpiresAt }),
         ...(categories !== undefined && { categories }),
       },
     });

@@ -207,7 +207,7 @@ Doporučení: guard přesunout do `proxy.ts` a nepřihlášené na `/admin/*` (k
 
 ## BUSINESS LOGIC RISKS
 
-### [ ] B1 — `/api/vehicles` má neomezený `limit` a chybí mu rate limit
+### [x] B1 — `/api/vehicles` má neomezený `limit` a chybí mu rate limit
 **Soubor:** `src/app/api/vehicles/route.ts:7-9`
 
 ```ts
@@ -241,7 +241,7 @@ Plus přidat `rateLimit(\`vehicles:${getClientIp(req)}\`, 120, 60 * 60 * 1000)` 
 
 ---
 
-### [ ] B2 — Registrace vozu nemá ochranu proti duplicitnímu odeslání
+### [x] B2 — Registrace vozu nemá ochranu proti duplicitnímu odeslání
 **Soubory:** `src/components/registerForm.tsx:167-183`, `src/app/api/register/route.ts:63`
 
 Checkout tenhle problém řeší příkladně (`idempotencyKey`, unique constraint, dedupe uvnitř transakce). Registrace ne:
@@ -256,7 +256,7 @@ Stejný vzor jako checkout: přidat `idempotencyKey String? @unique` na `Registr
 
 ---
 
-### [ ] B3 — Souběžný retry se stejným idempotency klíčem vrátí 500 místo původní objednávky
+### [x] B3 — Souběžný retry se stejným idempotency klíčem vrátí 500 místo původní objednávky
 **Soubor:** `src/app/api/merch/checkout/route.ts:149-152`
 
 ```ts
@@ -290,7 +290,7 @@ Pozn.: `idempotencyKey` je dnes deklarovaný uvnitř `try` bloku (`route.ts:68`)
 
 ---
 
-### [ ] B4 — Dva slevové kupóny stejného typu: spotřebují se oba, uplatní se jeden
+### [x] B4 — Dva slevové kupóny stejného typu: spotřebují se oba, uplatní se jeden
 **Soubor:** `src/app/api/merch/checkout/route.ts:199-226`
 
 Smyčka projde všechny odeslané kódy a u každého zavolá `consumeCouponUse()` (inkrementuje `usedCount`). Pokud ale někdo pošle **dva percent/fixed kódy** v obou polích (`couponCode` i `shippingCouponCode`), přiřazení `couponCode = coupon.code` a `discountAmount = ...` se prostě přepíše — vyhraje poslední.
@@ -303,7 +303,7 @@ Fix: pokud už `couponCode !== null` a přijde druhý discount kupón, vyhodit `
 
 ---
 
-### [ ] B5 — `expiresAt` u kupónu se nevaliduje jako datum
+### [x] B5 — `expiresAt` u kupónu se nevaliduje jako datum
 **Soubor:** `src/app/api/admin/coupons/route.ts:61`
 
 ```ts

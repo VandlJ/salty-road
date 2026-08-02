@@ -55,6 +55,7 @@ model Registration {
   infoEmailSentAt DateTime?
   arrived     Boolean  @default(false)
   arrivedAt   DateTime?
+  idempotencyKey String? @unique // client-generated, dedupes retried submits
 
   @@index([status, order])
 }

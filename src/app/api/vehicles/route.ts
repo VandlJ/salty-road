@@ -1,11 +1,22 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
+
+const MAX_LIMIT = 50;
 
 export async function GET(req: Request) {
+  if (!(await rateLimit(`vehicles:${getClientIp(req)}`, 120, 60 * 60 * 1000))) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  }
+
   try {
     const url = new URL(req.url);
-    const page = parseInt(url.searchParams.get("page") || "1");
-    const limit = parseInt(url.searchParams.get("limit") || "20");
+    // Clamp both, and fall back on NaN — an unbounded or NaN take/skip is
+    // either a full-table dump or a 500 from Prisma.
+    const rawPage = parseInt(url.searchParams.get("page") || "1", 10);
+    const rawLimit = parseInt(url.searchParams.get("limit") || "20", 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), MAX_LIMIT) : 20;
     const skip = (page - 1) * limit;
 
     const [regs, total] = await Promise.all([

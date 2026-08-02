@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { getRegistrationOpen } from "@/lib/registration";
@@ -37,8 +38,21 @@ export async function POST(req: Request) {
       year,
       description,
       instagram,
-      photos
+      photos,
+      idempotencyKey: rawIdempotencyKey,
     } = body;
+    const idempotencyKey =
+      typeof rawIdempotencyKey === "string" && rawIdempotencyKey.length > 0
+        ? rawIdempotencyKey
+        : null;
+
+    // A network retry or double-submit sends the same client-generated key
+    // twice — return the already-created registration instead of creating
+    // a duplicate (same pattern as the merch checkout route).
+    if (idempotencyKey) {
+      const existing = await prisma.registration.findUnique({ where: { idempotencyKey } });
+      if (existing) return NextResponse.json({ id: existing.id }, { status: 201 });
+    }
 
     // Server-side validation
     if (!firstName || !lastName || !email || !brand || !model || !year || !description) {
@@ -78,19 +92,33 @@ export async function POST(req: Request) {
           .slice(0, MAX_PHOTOS)
       : [];
 
-    const record = await prisma.registration.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        brand,
-        model,
-        year,
-        description,
-        instagram: instagram || null,
-        photos: uploadedUrls,
-      },
-    });
+    let record;
+    try {
+      record = await prisma.registration.create({
+        data: {
+          firstName,
+          lastName,
+          email,
+          brand,
+          model,
+          year,
+          description,
+          instagram: instagram || null,
+          photos: uploadedUrls,
+          idempotencyKey,
+        },
+      });
+    } catch (err) {
+      // Two truly concurrent requests with the same key can both pass the
+      // findUnique check above before either commits — the loser hits the
+      // unique constraint here. Return the winner's record instead of a
+      // 500 the customer would read as "try again" (and submit a dupe).
+      if (idempotencyKey && err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+        const existing = await prisma.registration.findUnique({ where: { idempotencyKey } });
+        if (existing) return NextResponse.json({ id: existing.id }, { status: 201 });
+      }
+      throw err;
+    }
 
     // Send emails
     const adminEmail = process.env.ADMIN_EMAIL;

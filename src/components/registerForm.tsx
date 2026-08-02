@@ -32,6 +32,11 @@ export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const photosRef = useRef<HTMLInputElement | null>(null);
+  // Deduplicates a network retry or double-submit server-side — regenerated
+  // after each successful submit so a second (genuinely different)
+  // registration from the same mounted form isn't deduped against the
+  // first one.
+  const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
 
   const closeError = useCallback(() => setError(null), []);
   const closeSuccess = useCallback(() => setSuccess(null), []);
@@ -179,7 +184,8 @@ export default function RegisterForm() {
           year: year.trim(),
           description: desc.trim(),
           instagram: instagram.trim() || null,
-          photos: validPhotos
+          photos: validPhotos,
+          idempotencyKey,
         }),
       });
 
@@ -209,6 +215,7 @@ export default function RegisterForm() {
       setInstagram("");
       setPhotos([]);
       setAgreed(false);
+      setIdempotencyKey(crypto.randomUUID());
     } catch (err) {
       console.error(err);
       setError(t("errorSubmission")); 
