@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { createAdminToken, adminCookieOptions, ADMIN_COOKIE_NAME } from "@/lib/adminAuth";
+import { createAdminToken, hashAdminToken, adminCookieOptions, ADMIN_COOKIE_NAME, ADMIN_SESSION_MS } from "@/lib/adminAuth";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
@@ -23,7 +23,16 @@ export async function POST(req: Request) {
     if (!admin || !ok) return NextResponse.json({ error: "invalid_credentials" }, { status: 401 });
 
     const token = createAdminToken();
-    await prisma.admin.update({ where: { id: admin.id }, data: { sessionToken: token } });
+    // A separate row per device/browser — logging in from a second device
+    // no longer silently kicks the first one out.
+    await prisma.adminSession.create({
+      data: {
+        adminId: admin.id,
+        tokenHash: hashAdminToken(token),
+        expiresAt: new Date(Date.now() + ADMIN_SESSION_MS),
+        userAgent: req.headers.get("user-agent")?.slice(0, 200) || null,
+      },
+    });
 
     const res = NextResponse.json({ success: true });
     res.cookies.set(ADMIN_COOKIE_NAME, token, adminCookieOptions);
@@ -39,7 +48,8 @@ export async function DELETE() {
     const cookieStore = await cookies();
     const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
     if (token) {
-      await prisma.admin.updateMany({ where: { sessionToken: token }, data: { sessionToken: null } });
+      // Only this device's session — other logged-in devices stay logged in.
+      await prisma.adminSession.deleteMany({ where: { tokenHash: hashAdminToken(token) } });
     }
     const res = NextResponse.json({ success: true });
     res.cookies.delete(ADMIN_COOKIE_NAME);

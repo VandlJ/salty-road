@@ -9,6 +9,9 @@ import { registrationAdminNotificationEmail } from "@/emails/registration-admin-
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_PHOTOS = 5;
 const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
+// Only accept blob URLs we actually issued via /api/upload — never trust a
+// client-supplied href just because it's a string.
+const BLOB_URL_RE = /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//;
 
 export async function POST(req: Request) {
   if (!(await rateLimit(`register:${getClientIp(req)}`, 20, 60 * 60 * 1000))) {
@@ -45,6 +48,19 @@ export async function POST(req: Request) {
       );
     }
 
+    // A non-string here otherwise skips the MAX_LEN guard below entirely
+    // (it only checks string values) and surfaces as an opaque 500 from
+    // Prisma instead of a clean 400 — same regression class already fixed
+    // in the checkout route.
+    for (const field of ["firstName", "lastName", "brand", "model", "year", "description"] as const) {
+      if (typeof body[field] !== "string") {
+        return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+      }
+    }
+    if (instagram != null && typeof instagram !== "string") {
+      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+    }
+
     if (typeof email !== "string" || !EMAIL_RE.test(email)) {
       return NextResponse.json({ error: "invalid_email" }, { status: 400 });
     }
@@ -57,7 +73,9 @@ export async function POST(req: Request) {
     }
 
     const uploadedUrls: string[] = Array.isArray(photos)
-      ? photos.filter((p): p is string => typeof p === "string").slice(0, MAX_PHOTOS)
+      ? photos
+          .filter((p): p is string => typeof p === "string" && BLOB_URL_RE.test(p))
+          .slice(0, MAX_PHOTOS)
       : [];
 
     const record = await prisma.registration.create({

@@ -3,6 +3,23 @@ import createNextIntlPlugin from 'next-intl/plugin';
 
 const withNextIntl = createNextIntlPlugin();
 
+// Report-Only for now (see Final_Launch_Audit.md S1) — check the browser
+// console / a CSP report endpoint on production for violations before
+// switching the header name to the enforcing 'Content-Security-Policy'.
+const CSP = [
+  "default-src 'self'",
+  // Next.js injects inline bootstrap scripts; 'unsafe-inline' is required
+  // unless this moves to a nonce-based setup in the proxy/middleware.
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
+  "font-src 'self' data:",
+  "connect-src 'self' https://vitals.vercel-insights.com",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ');
+
 const nextConfig: NextConfig = {
   images: {
     // Next.js 16 restricts custom `quality` props to this allowlist (default
@@ -34,6 +51,7 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
           },
+          { key: 'Content-Security-Policy-Report-Only', value: CSP },
         ],
       },
     ];

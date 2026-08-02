@@ -49,6 +49,18 @@ describe("rateLimit (in-memory fallback)", () => {
 });
 
 describe("getClientIp", () => {
+  it("prefers x-vercel-forwarded-for over x-forwarded-for", () => {
+    // Vercel sets this itself — unlike x-forwarded-for, a client can't
+    // spoof it to dodge rate limits.
+    const req = new Request("http://localhost", {
+      headers: {
+        "x-vercel-forwarded-for": "1.1.1.1",
+        "x-forwarded-for": "9.9.9.9",
+      },
+    });
+    expect(getClientIp(req)).toBe("1.1.1.1");
+  });
+
   it("takes the first IP from x-forwarded-for", () => {
     const req = new Request("http://localhost", {
       headers: { "x-forwarded-for": "1.2.3.4, 5.6.7.8" },

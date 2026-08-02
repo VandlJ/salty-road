@@ -1,9 +1,33 @@
 import createMiddleware from 'next-intl/middleware';
-import {routing} from './i18n/routing';
+import { NextRequest, NextResponse } from 'next/server';
+import { routing } from './i18n/routing';
+import { ADMIN_COOKIE_NAME, tokenExpired } from '@/lib/adminTokenEdge';
 
-const proxy = createMiddleware(routing);
+const intlMiddleware = createMiddleware(routing);
 
-export default proxy;
+// Matches "/cs/admin/orders", "/en/admin/merch/..." etc. but NOT the bare
+// "/cs/admin" hub itself — that route renders its own login form in place
+// when logged out (see AdminHubPage), so it doesn't need a redirect.
+const ADMIN_SUBPAGE_RE = /^\/(en|cs)\/admin\/.+/;
+
+export default function proxy(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  if (ADMIN_SUBPAGE_RE.test(pathname)) {
+    // Cheap, edge-safe check only (no DB round trip) — this exists so a
+    // logged-out visitor is redirected before the admin JS bundle and page
+    // shell even download, not as the source of truth for authorization.
+    // Every admin API route still independently verifies the session
+    // against the DB via getAdminFromReq().
+    const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
+    if (!token || tokenExpired(token)) {
+      const locale = pathname.startsWith('/en') ? 'en' : 'cs';
+      return NextResponse.redirect(new URL(`/${locale}/admin`, req.url));
+    }
+  }
+
+  return intlMiddleware(req);
+}
 
 export const config = {
   // Match only internationalized pathnames

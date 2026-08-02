@@ -19,6 +19,14 @@ export async function POST(req: Request) {
     if (!name || !email || !message) {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
     }
+    // A non-string here otherwise skips the MAX_LEN guard below entirely
+    // (it only checks string values) and surfaces as an opaque 500 from
+    // Prisma instead of a clean 400.
+    for (const field of ["name", "email", "message"] as const) {
+      if (typeof body[field] !== "string") {
+        return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+      }
+    }
     if (typeof email !== "string" || !EMAIL_RE.test(email)) {
       return NextResponse.json({ error: "invalid_email" }, { status: 400 });
     }

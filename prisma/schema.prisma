@@ -14,13 +14,27 @@ model Setting {
 }
 
 model Admin {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique
-  password     String
-  sessionToken String?
-  createdAt    DateTime @default(now())
+  id        Int            @id @default(autoincrement())
+  username  String         @unique
+  password  String
+  createdAt DateTime       @default(now())
+  sessions  AdminSession[]
+}
 
-  @@index([sessionToken])
+// One row per logged-in device/browser — replaces the old single
+// Admin.sessionToken (which meant a second login silently kicked out the
+// first). tokenHash is a SHA-256 of the cookie value, never the raw token
+// itself, so a leaked DB dump alone can't be used to log in.
+model AdminSession {
+  id        String   @id @default(cuid())
+  adminId   Int
+  admin     Admin    @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userAgent String?
+
+  @@index([adminId])
 }
 
 model Registration {

@@ -87,6 +87,10 @@ export async function rateLimit(key: string, limit: number, windowMs: number): P
 }
 
 export function getClientIp(req: Request): string {
+  // Vercel sets this itself and it can't be spoofed by the client, unlike
+  // x-forwarded-for which anyone can send when not behind a trusted proxy.
+  const vercelIp = req.headers.get("x-vercel-forwarded-for");
+  if (vercelIp) return vercelIp.split(",")[0].trim();
   const forwardedFor = req.headers.get("x-forwarded-for");
   if (forwardedFor) return forwardedFor.split(",")[0].trim();
   return req.headers.get("x-real-ip") || "unknown";
