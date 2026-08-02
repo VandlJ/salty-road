@@ -122,7 +122,7 @@ export function getClientIp(req: Request): string {
 
 ---
 
-### [ ] S5 — Rate limity jsou v produkci bez Redisu prakticky neúčinné
+### [x] S5 — Rate limity jsou v produkci bez Redisu prakticky neúčinné
 **Soubor:** `src/lib/rateLimit.ts:59-66`
 
 Kód si toho je vědom a loguje varování, ale stojí za to to říct natvrdo: **bez `REDIS_URL` každá serverless instance počítá vlastní bucket**. Vercel jich při zátěži roztočí desítky, takže limit "10 pokusů o admin login za 15 minut" znamená ve skutečnosti "10 × počet instancí".
