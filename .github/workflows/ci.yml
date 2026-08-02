@@ -15,6 +15,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      # package-lock.json is generated with npm 11 locally; npm 10 (bundled
+      # with node 22) reads lockfileVersion 3 slightly differently and
+      # fails `npm ci` with a false "out of sync" error. Match versions.
+      - run: npm install -g npm@11
       - run: npm ci
       # postinstall already runs `prisma generate`, but an explicit call keeps
       # this job working even if that hook is ever removed.
