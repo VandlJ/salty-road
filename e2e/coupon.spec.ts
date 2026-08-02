@@ -14,6 +14,13 @@ async function addHoodieToCart(page: Page) {
 async function applyCoupon(page: Page, code: string) {
   await page.locator('[data-testid="coupon-input"]').fill(code);
   await page.locator('[data-testid="coupon-apply"]').click();
+  // validateCoupon() is async and only clears the input on success — apply
+  // calls fired back-to-back before this settles would fill the field while
+  // a stale response is still in flight and clobber it. Wait for either
+  // outcome (this code's chip, or the error message) before returning.
+  await expect(
+    page.getByText(code, { exact: false }).or(page.getByText("Neplatný nebo vyčerpaný kupón."))
+  ).toBeVisible();
 }
 
 test.describe("cart coupons", () => {

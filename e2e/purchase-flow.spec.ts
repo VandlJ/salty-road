@@ -42,9 +42,10 @@ test.describe("purchase flow", () => {
     const cartItem = page.locator('[data-testid="cart-item"][data-sku="TEST-HOODIE-BLACK-M"]');
     await expect(cartItem).toBeVisible();
 
-    // Bump quantity to 2 and confirm the line total follows.
+    // Bump quantity to 2 and confirm the line total follows (2 x 650 Kč +
+    // shipping — cart-total includes the shipping preview, not just items).
     await cartItem.getByRole("button", { name: "Zvýšit počet" }).click();
-    await expect(page.locator('[data-testid="cart-total"]')).toContainText("300 Kč");
+    await expect(page.locator('[data-testid="cart-total"]')).toContainText("399 Kč");
 
     await page.locator('[data-testid="cart-checkout"]').click();
     await expect(page).toHaveURL(/\/shop\/checkout$/);
