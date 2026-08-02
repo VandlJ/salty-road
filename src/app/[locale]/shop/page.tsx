@@ -67,6 +67,8 @@ export default async function ShopPage({
                 <Link
                   key={product.id}
                   href={`/shop/${product.slug}`}
+                  data-testid="product-card"
+                  data-slug={product.slug}
                   className="group flex flex-col rounded-sm border border-gray-800 bg-white/[0.02] overflow-hidden hover:border-gray-500 hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-2xl"
                 >
                   {/* Full-bleed cover crop, no white plate — these are

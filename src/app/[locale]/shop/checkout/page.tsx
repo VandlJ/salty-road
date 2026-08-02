@@ -254,6 +254,7 @@ export default function CheckoutPage() {
               <PhoneCodeSelect value={phoneCode} onChange={setPhoneCode} label={t("checkoutPhone")} />
               <input
                 id="phone"
+                data-testid="checkout-phone-number"
                 type="tel"
                 inputMode="numeric"
                 value={phoneNumber}
@@ -272,6 +273,7 @@ export default function CheckoutPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button
                 type="button"
+                data-testid="delivery-method-shipping"
                 onClick={() => setDeliveryMethod("shipping")}
                 className={`px-4 py-3 rounded-sm border-2 text-left transition-colors cursor-pointer ${
                   deliveryMethod === "shipping" ? "border-white bg-white/10" : "border-gray-600 hover:border-gray-400"
@@ -282,6 +284,7 @@ export default function CheckoutPage() {
               </button>
               <button
                 type="button"
+                data-testid="delivery-method-pickup"
                 onClick={() => setDeliveryMethod("pickup")}
                 className={`px-4 py-3 rounded-sm border-2 text-left transition-colors cursor-pointer ${
                   deliveryMethod === "pickup" ? "border-white bg-white/10" : "border-gray-600 hover:border-gray-400"
@@ -412,6 +415,7 @@ export default function CheckoutPage() {
 
           <button
             type="submit"
+            data-testid="checkout-submit"
             disabled={submitting}
             className="flex items-center justify-center gap-2 px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >

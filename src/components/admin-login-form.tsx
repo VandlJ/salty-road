@@ -56,6 +56,7 @@ export default function AdminLoginForm({ onSuccess }: { onSuccess: () => void })
           <div className="flex flex-col gap-2">
             <label className="text-white font-bold tracking-wide">{t("username")}</label>
             <input
+              data-testid="admin-username"
               value={user}
               onChange={(e) => setUser(e.target.value)}
               placeholder={t("username")}
@@ -67,6 +68,7 @@ export default function AdminLoginForm({ onSuccess }: { onSuccess: () => void })
             <label className="text-white font-bold tracking-wide">{t("password")}</label>
             <div className="relative">
               <input
+                data-testid="admin-password"
                 value={pass}
                 onChange={(e) => setPass(e.target.value)}
                 placeholder={t("password")}
@@ -96,6 +98,7 @@ export default function AdminLoginForm({ onSuccess }: { onSuccess: () => void })
           </div>
           <button
             type="submit"
+            data-testid="admin-login-submit"
             disabled={loggingIn}
             className="flex items-center justify-center gap-3 px-6 py-3 bg-white text-black font-bold text-lg tracking-widest uppercase hover:bg-gray-200 hover:shadow-xl transition-all duration-200 mt-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none"
           >

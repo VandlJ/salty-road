@@ -259,6 +259,8 @@ export default function AdminOrdersPage() {
         {filteredOrders.map((order) => (
           <motion.div
             key={order.id}
+            data-testid="admin-order-row"
+            data-order-id={order.id}
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
@@ -380,6 +382,7 @@ export default function AdminOrdersPage() {
                       {t("status")}
                     </span>
                     <select
+                      data-testid="admin-order-status"
                       value={order.status}
                       onChange={(e) => updateStatus(order.id, e.target.value as Order["status"])}
                       className={`bg-[#111] border-2 border-gray-600 rounded-sm px-2 py-1 text-sm font-bold cursor-pointer focus:outline-none focus:border-white ${STATUS_COLOR[order.status]}`}

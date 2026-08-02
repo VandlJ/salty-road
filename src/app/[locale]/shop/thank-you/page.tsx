@@ -68,7 +68,7 @@ export default function ThankYouPage() {
           </div>
           <div className="flex justify-between text-sm text-gray-400">
             <span>{t("thankYouVs")}</span>
-            <span className="text-white font-mono font-bold">{order.vs}</span>
+            <span data-testid="order-vs" className="text-white font-mono font-bold">{order.vs}</span>
           </div>
           {order.couponCode && !!order.discountAmount && (
             <div className="flex justify-between text-sm text-gray-400">

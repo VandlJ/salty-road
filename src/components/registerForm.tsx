@@ -555,6 +555,7 @@ export default function RegisterForm() {
         <div className="flex-shrink-0">
           <button
             type="submit"
+            data-testid="register-submit"
             className="mt-0 px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase bg-white text-black shadow-xl border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={
               !(
@@ -634,7 +635,7 @@ export default function RegisterForm() {
             </svg>
           </div>
           <h3 id="register-success-title" className="text-xl font-bold text-white mb-2">{t("successTitle")}</h3>
-          <p className="text-gray-300 mb-6 font-medium">
+          <p data-testid="register-success-message" className="text-gray-300 mb-6 font-medium">
             {success}
           </p>
           <button

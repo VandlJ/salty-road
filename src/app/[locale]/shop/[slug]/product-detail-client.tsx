@@ -346,6 +346,8 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
                       <button
                         key={color}
                         type="button"
+                        data-testid="variant-color-option"
+                        data-color={color}
                         onClick={() => pickColor(color)}
                         className={`px-4 py-2 border-2 rounded-sm text-sm font-medium transition-colors cursor-pointer ${
                           isSelected
@@ -379,6 +381,8 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
                       <button
                         key={variant.sku}
                         type="button"
+                        data-testid="variant-size-option"
+                        data-size={variant.size}
                         onClick={() => setSelectedSku(variant.sku)}
                         className={`px-4 py-2 border-2 rounded-sm text-sm font-medium transition-colors cursor-pointer ${
                           isSelected
@@ -497,6 +501,7 @@ export default function ProductDetailClient({ product }: { product: MerchProduct
 
                 <button
                   type="button"
+                  data-testid="add-to-cart"
                   onClick={handleAddToCart}
                   disabled={!selectedVariant || selectedVariant.quantity <= 0}
                   className={`flex items-center justify-center gap-2 px-8 py-3 rounded-sm font-bold text-base tracking-widest uppercase shadow-xl border-2 transition-all duration-200 cursor-pointer hover:scale-[1.02] hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 ${

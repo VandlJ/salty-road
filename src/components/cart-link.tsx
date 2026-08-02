@@ -27,6 +27,7 @@ export default function CartLink({
     <Link
       href="/shop/cart"
       aria-label="Cart"
+      data-testid="cart-link"
       onClick={onClick}
       className={`relative flex items-center text-white hover:text-gray-300 transition-colors duration-200 ${className}`}
     >
@@ -45,6 +46,7 @@ export default function CartLink({
           // removed — not just on the 0→1 transition.
           <motion.span
             key={count}
+            data-testid="cart-badge"
             initial={{ scale: 0.4, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.4, opacity: 0 }}

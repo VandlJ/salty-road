@@ -161,7 +161,7 @@ Skript musí být **idempotentní** (nejdřív smazat vše s prefixem `test-`, p
 > **Priorita napříč fází:** F2.2 (nákup) > F2.3 (kupóny) > F2.5 (registrace) > F2.4 (dárek) > F2.6 (admin) > F2.7 (kill switch).
 > Pokud dojde čas, F2.2 sama o sobě pokrývá ~80 % byznysového rizika.
 
-### [ ] F2.1 Přidat `data-testid` na kritické prvky
+### [x] F2.1 Přidat `data-testid` na kritické prvky
 
 **Soubory:** `src/app/[locale]/shop/page.tsx`, `src/app/[locale]/shop/[slug]/product-detail-client.tsx`, `src/app/[locale]/shop/cart/page.tsx`, `src/app/[locale]/shop/checkout/page.tsx`, `src/app/[locale]/shop/thank-you/page.tsx`
 
@@ -174,7 +174,7 @@ Dva konkrétní nálezy, které to dělají nutným, ne jen hezkým:
 
 Minimální sada: `product-card`, `variant-color-option`, `variant-size-option`, `add-to-cart`, `cart-badge`, `cart-item`, `cart-item-remove`, `coupon-input`, `coupon-apply`, `cart-total`, `checkout-submit`, `order-vs`.
 
-### [ ] F2.2 E2E: Kompletní nákupní cesta (nejvyšší priorita)
+### [x] F2.2 E2E: Kompletní nákupní cesta (nejvyšší priorita)
 
 **Nový soubor:** `e2e/purchase-flow.spec.ts`
 
@@ -191,7 +191,7 @@ Ověřuje krok za krokem:
 - **na thank-you stránce je variabilní symbol a QR kód** (`thank-you/page.tsx` čte ze `sessionStorage`)
 - **cross-check proti DB:** objednávka existuje, `totalAmount` = suma položek + poštovné, sklad varianty klesl přesně o objednané množství
 
-### [ ] F2.3 E2E: Kupóny v košíku
+### [x] F2.3 E2E: Kupóny v košíku
 
 **Nový soubor:** `e2e/coupon.spec.ts`
 
@@ -205,7 +205,7 @@ Plus regrese na dvě věci, které jsou dnes ošetřené v `cartStore.ts:55-64`,
 - odebrání poslední položky z košíku → **kupón se zruší** (jinak by naskočil znovu při dalším nákupu)
 - kupón `TESTONCE` (`maxUses: 1`) použitý podruhé → checkout vrátí `invalid_coupon`, objednávka nevznikne
 
-### [ ] F2.4 E2E: Dárek zdarma nad limit
+### [x] F2.4 E2E: Dárek zdarma nad limit
 
 **Nový soubor:** `e2e/gift.spec.ts`
 
@@ -216,7 +216,7 @@ Plus regrese na dvě věci, které jsou dnes ošetřené v `cartStore.ts:55-64`,
 - výběr dárku → checkout → **`Order.giftLabel` vyplněný**, sklad samolepky klesl o 1
 - **negativní scénář (kritický):** vybrat dárek nad limitem → vrátit se do košíku → snížit množství pod limit → dokončit objednávku → **objednávka projde bez dárku, ne s chybou** (logika „bonus nesmí shodit placený nákup", `checkout/route.ts:197-245`)
 
-### [ ] F2.5 E2E: Registrace vozu (druhá byznysová cesta)
+### [x] F2.5 E2E: Registrace vozu (druhá byznysová cesta)
 
 **Nový soubor:** `e2e/registration.spec.ts`
 
@@ -231,7 +231,7 @@ E-shop není jediná kritická cesta — registrace na výstavu je původní ú�
 
 *Poznámka: upload fotek přeskočit — jde na Vercel Blob, testovat integračně s mockem (F4.3).*
 
-### [ ] F2.6 E2E: Admin — přijetí objednávky a změna stavu
+### [x] F2.6 E2E: Admin — přijetí objednávky a změna stavu
 
 **Nový soubor:** `e2e/admin.spec.ts`
 
@@ -244,7 +244,7 @@ E-shop není jediná kritická cesta — registrace na výstavu je původní ú�
 
 Playwright `storageState` pro admin session, ať se nepřihlašuje v každém testu znovu.
 
-### [ ] F2.7 E2E: Kill switch e-shopu
+### [x] F2.7 E2E: Kill switch e-shopu
 
 **Nový soubor:** `e2e/shop-kill-switch.spec.ts`
 
@@ -435,7 +435,7 @@ Invarianty, na kterých stojí celý e-shop:
 - **Dárek**: pod limitem → tiše zahozen, objednávka projde; vyprodaný dárek → tiše zahozen, **nikdy neshodí objednávku**
 - **E-maily jsou odložené** přes `after()` (`route.ts:~280`) — response se vrátí, i když odeslání selže
 
-### [ ] F4.3 Ostatní kritické routy
+### [x] F4.3 Ostatní kritické routy
 
 **Nové soubory:** `src/app/api/merch/coupon/validate/route.test.ts`, `src/app/api/upload/route.test.ts`, `src/app/api/admin/settings/route.test.ts`
 

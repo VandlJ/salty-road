@@ -82,13 +82,15 @@ export default function CheckPage() {
         </SectionHeading>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4 mb-6 sm:mb-8">
           <input
+            data-testid="check-id-input"
             value={idInput}
             onChange={(e) => setIdInput(e.target.value)}
             placeholder={t("placeholder")}
             className="p-3 sm:p-4 bg-white/10 border-2 border-gray-400 rounded-sm text-white placeholder-gray-300 focus:border-white focus:bg-white/20 focus:outline-none transition-all duration-200 text-sm sm:text-base font-medium"
           />
-          <button 
-            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-sm border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl hover:cursor-pointer transition-all duration-200 disabled:opacity-50" 
+          <button
+            data-testid="check-submit"
+            className="px-6 py-2 sm:px-8 sm:py-3 bg-white text-black font-bold text-base sm:text-lg tracking-widest uppercase rounded-sm border-2 border-white hover:bg-gray-200 hover:scale-105 hover:shadow-2xl hover:cursor-pointer transition-all duration-200 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? t("loading") : t("button")}
@@ -110,6 +112,7 @@ export default function CheckPage() {
         ) : result ? (
           <motion.div
             key="result"
+            data-testid="check-result"
             initial={{ opacity: 0, y: 10, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0 }}
@@ -124,7 +127,7 @@ export default function CheckPage() {
                 </div>
               </div>
               <div>
-                <span className="inline-flex items-center px-3 py-1 bg-white/10 border border-white/50 rounded-sm text-xs sm:text-sm text-white font-semibold uppercase">
+                <span data-testid="check-status" className="inline-flex items-center px-3 py-1 bg-white/10 border border-white/50 rounded-sm text-xs sm:text-sm text-white font-semibold uppercase">
                   <div className={`w-2 h-2 ${getStatusColor(result.status)} rounded-full mr-2 shadow-[0_0_8px_rgba(255,255,255,0.8)]`}></div>
                   {getStatusLabel(result.status)}
                 </span>

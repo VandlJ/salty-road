@@ -260,6 +260,8 @@ export default function CartPage() {
                 return (
                   <div
                     key={item.sku}
+                    data-testid="cart-item"
+                    data-sku={item.sku}
                     className={`flex flex-wrap items-center gap-3 sm:gap-4 bg-[#111] border rounded-sm p-3 sm:p-4 ${
                       exceedsStock ? "border-red-600" : "border-gray-700"
                     } ${removingSku === item.sku ? "item-exit" : ""}`}
@@ -298,6 +300,7 @@ export default function CartPage() {
 
                       <button
                         type="button"
+                        data-testid="cart-item-remove"
                         onClick={() => handleRemove(item.sku)}
                         className="text-red-500 hover:text-red-400 text-xs sm:text-sm font-bold uppercase tracking-wide cursor-pointer whitespace-nowrap"
                       >
@@ -329,6 +332,7 @@ export default function CartPage() {
               <div className="mt-8 pt-6 border-t border-gray-700">
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input
+                    data-testid="coupon-input"
                     value={couponInput}
                     onChange={(e) => {
                       setCouponInput(e.target.value);
@@ -339,6 +343,7 @@ export default function CartPage() {
                   />
                   <button
                     type="button"
+                    data-testid="coupon-apply"
                     onClick={() => validateCoupon(couponInput)}
                     disabled={couponChecking || !couponInput.trim()}
                     className="px-4 py-2.5 border-2 border-white text-white rounded-sm hover:bg-white hover:text-black transition-colors font-bold uppercase tracking-wide text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -429,6 +434,8 @@ export default function CartPage() {
                         <button
                           key={opt.sku}
                           type="button"
+                          data-testid="gift-option"
+                          data-sku={opt.sku}
                           onClick={() => setGift(selected ? null : opt.sku)}
                           className={`flex flex-col items-center gap-2 p-3 rounded-sm border-2 transition-colors cursor-pointer text-center ${
                             selected ? "border-white bg-white/10" : "border-gray-700 hover:border-gray-500"
@@ -464,7 +471,7 @@ export default function CartPage() {
                 <p className="text-xs text-gray-500 mt-0.5">{t("cartShippingEstimateNote")}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-lg font-bold uppercase tracking-wide">{t("cartTotal")}</span>
-                  <span className="text-2xl font-bold">{formatPrice(finalTotal)}</span>
+                  <span data-testid="cart-total" className="text-2xl font-bold">{formatPrice(finalTotal)}</span>
                 </div>
               </div>
 
@@ -478,6 +485,7 @@ export default function CartPage() {
                 {hasStockIssue ? (
                   <span
                     aria-disabled="true"
+                    data-testid="cart-checkout-disabled"
                     className="px-6 py-3 text-center bg-white/30 text-black/50 rounded-sm border-2 border-white/30 font-bold uppercase tracking-wide cursor-not-allowed"
                   >
                     {t("cartCheckout")}
@@ -485,6 +493,7 @@ export default function CartPage() {
                 ) : (
                   <Link
                     href="/shop/checkout"
+                    data-testid="cart-checkout"
                     className="px-6 py-3 text-center bg-white text-black rounded-sm border-2 border-white hover:bg-gray-200 transition-all duration-200 font-bold uppercase tracking-wide"
                   >
                     {t("cartCheckout")}
