@@ -26,7 +26,17 @@ export default function proxy(req: NextRequest) {
     }
   }
 
-  return intlMiddleware(req);
+  const res = intlMiddleware(req);
+  // next-intl's own locale-detection redirect (e.g. "/" → "/cs") defaults to
+  // a 307 Temporary Redirect. That's a weaker canonicalization signal for
+  // Google than a permanent one — same class of issue as the apex→www
+  // domain redirect (see Vercel Domains settings) — so upgrade it to 308
+  // here. Preserves every header next-intl set (Location, the NEXT_LOCALE
+  // cookie, etc.) — only the status code changes.
+  if (res.status === 307 && res.headers.has('location')) {
+    return new NextResponse(null, { status: 308, headers: res.headers });
+  }
+  return res;
 }
 
 export const config = {

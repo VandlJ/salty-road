@@ -39,3 +39,15 @@ export const ORGANIZATION_JSON_LD = {
   sameAs: ["https://www.instagram.com/salty_road_meet/"],
   email: "info@saltyroad.cz",
 };
+
+// A WebSite entry with an explicit `name` is one of the signals Google
+// documents for choosing the bold "sitename" shown in search results
+// (https://developers.google.com/search/docs/appearance/site-names) —
+// without it Google falls back to displaying the bare domain, which is
+// what was happening before this was added.
+export const WEBSITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Salty Road Meet",
+  url: SITE_URL,
+};

@@ -113,7 +113,8 @@
     "dateValue": "25. 07. 2026",
     "locationLabel": "Místo",
     "locationValue": "Velké náměstí, Prachatice",
-    "registerButton": "Registrovat"
+    "registerButton": "Registrovat",
+    "metaDescription": "Sraz aut Salty Road Meet — 25. července 2026, Velké náměstí, Prachatice. Přehlídka vozidel, hudba a program pro návštěvníky. Zaregistruj své auto nebo přijeď se podívat."
   },
   "RegisterPage": {
     "title": "Zaregistrujte své auto",

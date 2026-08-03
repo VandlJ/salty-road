@@ -11,7 +11,7 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from "next/navigation";
 import { Analytics } from "@vercel/analytics/next";
-import { buildAlternates, jsonLdScript, ORGANIZATION_JSON_LD, SITE_URL } from "@/lib/seo";
+import { buildAlternates, jsonLdScript, ORGANIZATION_JSON_LD, WEBSITE_JSON_LD, SITE_URL } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 import { getShopEnabledCached } from "@/lib/shop";
 
@@ -58,10 +58,14 @@ const amika = localFont({
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'Hero' });
-  const tReg = await getTranslations({ locale, namespace: 'RegisterPage' });
 
   const title = `${t('title1')} ${t('title2')}`;
-  const description = tReg('subtitle');
+  // Dedicated SEO copy, deliberately not the RegisterForm section's UI
+  // subtitle ("Vyplňte formulář níže...") — a meta description doesn't have
+  // to match visible page content, and Google was ignoring that one anyway
+  // (falling back to scraping the arrival-instructions text off the page)
+  // because it wasn't relevant to what people actually search for.
+  const description = t('metaDescription');
 
   return {
     title: {
@@ -72,6 +76,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
       languages: buildAlternates(''),
+    },
+    // Seznam.cz Webmaster Tools site-ownership verification.
+    other: {
+      "seznam-wmt": "POKAANCNVw0nzcBxekQjJZbi58sEKzYb",
     },
     openGraph: {
       title,
@@ -133,6 +141,10 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdScript(ORGANIZATION_JSON_LD) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScript(WEBSITE_JSON_LD) }}
         />
         <NextIntlClientProvider messages={messages}>
           <MotionConfigProvider>

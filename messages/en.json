@@ -113,7 +113,8 @@
     "dateValue": "25/07/2026",
     "locationLabel": "Location",
     "locationValue": "Velké náměstí, Prachatice",
-    "registerButton": "Register"
+    "registerButton": "Register",
+    "metaDescription": "Car meet Salty Road Meet — July 25, 2026, Velké náměstí, Prachatice, Czech Republic. Vehicle showcase, music, and a full day program. Register your car or come check it out."
   },
   "RegisterPage": {
     "title": "Register<line>Your Car</line>",
