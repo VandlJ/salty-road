@@ -2,6 +2,7 @@ import { Resend } from 'resend';
 import { registrationRejectedEmail } from '@/emails/registration-rejected.mjs';
 import { registrationAcceptedEmail } from '@/emails/registration-accepted.mjs';
 import { merchOrderConfirmationEmail } from '@/emails/merch-order-confirmation.mjs';
+import { restockNotificationEmail } from '@/emails/restock-notification.mjs';
 
 // Instantiated lazily: the Resend constructor throws if the key is missing,
 // which would otherwise crash module evaluation (and the build) in any
@@ -113,4 +114,12 @@ export async function sendMerchOrderConfirmationEmail(
       : undefined,
     SHOP_EMAIL_FROM
   );
+}
+
+export async function sendRestockNotificationEmail(
+  to: string,
+  details: { productName: string; variantLabel: string; productUrl: string }
+) {
+  const { subject, text } = restockNotificationEmail(details);
+  await sendEmail(to, subject, text, undefined, undefined, SHOP_EMAIL_FROM);
 }

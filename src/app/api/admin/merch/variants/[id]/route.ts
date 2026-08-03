@@ -1,6 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
+import { sendRestockNotificationEmail } from "@/lib/email";
+import { SITE_URL } from "@/lib/seo";
+import { variantLabel } from "@/lib/variantLabel";
 
 const MAX_LEN = { color: 60, size: 20 };
 const MAX_PHOTOS = 20;
@@ -40,6 +43,12 @@ export async function PATCH(
       return NextResponse.json({ error: "invalid_order" }, { status: 400 });
     }
 
+    // Read the pre-update quantity so a restock (0 -> >0) can be detected
+    // after the write, without a separate round trip racing the update.
+    const before = quantity !== undefined
+      ? await prisma.merchVariant.findUnique({ where: { id }, select: { quantity: true } })
+      : null;
+
     const variant = await prisma.merchVariant.update({
       where: { id },
       data: {
@@ -51,7 +60,36 @@ export async function PATCH(
         ...(active !== undefined && { active: !!active }),
         ...(order !== undefined && { order }),
       },
+      include: { product: true },
     });
+
+    if (before && before.quantity === 0 && variant.quantity > 0) {
+      const requests = await prisma.stockRequest.findMany({
+        where: { sku: variant.sku, fulfilled: false },
+      });
+      if (requests.length > 0) {
+        await prisma.stockRequest.updateMany({
+          where: { id: { in: requests.map((r) => r.id) } },
+          data: { fulfilled: true },
+        });
+        const productName = variant.product.name;
+        const label = variantLabel(variant);
+        const productUrl = `${SITE_URL}/cs/shop/${variant.product.slug}`;
+        after(async () => {
+          for (const r of requests) {
+            try {
+              await sendRestockNotificationEmail(r.customerEmail, {
+                productName,
+                variantLabel: label,
+                productUrl,
+              });
+            } catch (err) {
+              console.error("Error sending restock notification email:", err);
+            }
+          }
+        });
+      }
+    }
 
     return NextResponse.json(variant);
   } catch (err) {
