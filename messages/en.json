@@ -490,7 +490,8 @@
     "errorInsufficientCoupon": "Can't revert this order — the coupon has since hit its use limit.",
     "coupon": "Coupon",
     "gift": "Gift",
-    "discount": "Discount"
+    "discount": "Discount",
+    "invoice": "Invoice (PDF)"
   },
   "AdminMessagesPage": {
     "title": "Messages",

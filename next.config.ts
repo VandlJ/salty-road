@@ -21,6 +21,23 @@ const CSP = [
 ].join('; ');
 
 const nextConfig: NextConfig = {
+  // Font + logo assets for invoice PDF generation are read via
+  // fs.readFileSync at runtime (@/lib/invoice.ts) — Next's build-time file
+  // tracing doesn't always pick up dynamically-constructed fs paths, so
+  // they're pinned explicitly to ship with both serverless functions that
+  // generate invoices (mark-as-paid, and the on-demand admin download).
+  outputFileTracingIncludes: {
+    "/api/admin/orders/[id]": [
+      "./src/assets/fonts/**",
+      "./src/assets/invoice-logo.png",
+      "./src/app/fonts/Amika_Blackletter.ttf",
+    ],
+    "/api/admin/orders/[id]/invoice": [
+      "./src/assets/fonts/**",
+      "./src/assets/invoice-logo.png",
+      "./src/app/fonts/Amika_Blackletter.ttf",
+    ],
+  },
   images: {
     // Next.js 16 restricts custom `quality` props to this allowlist (default
     // is just [75]) — without it, any quality={60}/{65} silently clamps back

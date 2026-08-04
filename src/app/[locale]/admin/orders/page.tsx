@@ -394,12 +394,22 @@ export default function AdminOrdersPage() {
                       ))}
                     </select>
                   </div>
-                  <button
-                    onClick={() => setRemoveId(order.id)}
-                    className="px-3 py-1.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] border border-red-900/50 hover:border-red-500 rounded-sm transition-all"
-                  >
-                    {t("remove")}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`/api/admin/orders/${order.id}/invoice`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 bg-transparent hover:bg-white/10 text-gray-300 hover:text-white font-bold uppercase tracking-wider text-[10px] border border-gray-600 hover:border-white rounded-sm transition-all"
+                    >
+                      {t("invoice")}
+                    </a>
+                    <button
+                      onClick={() => setRemoveId(order.id)}
+                      className="px-3 py-1.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] border border-red-900/50 hover:border-red-500 rounded-sm transition-all"
+                    >
+                      {t("remove")}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

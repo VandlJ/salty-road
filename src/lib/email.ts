@@ -3,6 +3,7 @@ import { registrationRejectedEmail } from '@/emails/registration-rejected.mjs';
 import { registrationAcceptedEmail } from '@/emails/registration-accepted.mjs';
 import { merchOrderConfirmationEmail } from '@/emails/merch-order-confirmation.mjs';
 import { restockNotificationEmail } from '@/emails/restock-notification.mjs';
+import { paymentConfirmationEmail } from '@/emails/payment-confirmation.mjs';
 
 // Instantiated lazily: the Resend constructor throws if the key is missing,
 // which would otherwise crash module evaluation (and the build) in any
@@ -114,6 +115,19 @@ export async function sendMerchOrderConfirmationEmail(
       : undefined,
     SHOP_EMAIL_FROM
   );
+}
+
+export async function sendPaymentConfirmationEmail(
+  to: string,
+  details: { orderNumber: number; invoiceNumber: string; invoicePdf: Buffer }
+) {
+  const { subject, text } = paymentConfirmationEmail(details);
+  await sendEmail(to, subject, text, undefined, [
+    {
+      filename: `faktura-${details.invoiceNumber}.pdf`,
+      content: details.invoicePdf.toString('base64'),
+    },
+  ], SHOP_EMAIL_FROM);
 }
 
 export async function sendRestockNotificationEmail(

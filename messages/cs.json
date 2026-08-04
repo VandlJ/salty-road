@@ -490,7 +490,8 @@
     "errorInsufficientCoupon": "Nelze vrátit objednávku zpět — kupón už vyčerpal limit použití.",
     "coupon": "Kupón",
     "gift": "Dárek",
-    "discount": "Sleva"
+    "discount": "Sleva",
+    "invoice": "Faktura (PDF)"
   },
   "AdminMessagesPage": {
     "title": "Zprávy",

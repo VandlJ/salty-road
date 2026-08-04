@@ -1,6 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
+import { sendPaymentConfirmationEmail } from "@/lib/email";
+import { generateInvoicePdf } from "@/lib/invoice";
+import { getOrderVs } from "@/lib/orderVs";
 
 const VALID_STATUSES = new Set(["pending", "paid", "shipped", "cancelled"]);
 
@@ -40,9 +43,13 @@ export async function PATCH(
       return NextResponse.json({ error: "invalid_status" }, { status: 400 });
     }
 
+    let newlyPaid = false;
+
     const order = await prisma.$transaction(async (tx) => {
       const current = await tx.order.findUnique({ where: { id } });
       if (!current) throw new Error("NOT_FOUND");
+
+      newlyPaid = status === "paid" && current.status !== "paid";
 
       const items = current.items as { sku: string; qty: number }[];
 
@@ -73,6 +80,34 @@ export async function PATCH(
 
       return tx.order.update({ where: { id }, data: { status } });
     });
+
+    if (newlyPaid) {
+      const invoiceNumber = getOrderVs(order.createdAt, order.orderNumber);
+      const invoicePdf = await generateInvoicePdf({
+        orderNumber: order.orderNumber,
+        createdAt: order.createdAt,
+        customerName: order.customerName,
+        customerEmail: order.customerEmail,
+        address: order.address,
+        items: order.items as { name: string; label: string; price: number; qty: number }[],
+        totalAmount: order.totalAmount,
+        shippingFee: order.shippingFee,
+        couponCode: order.couponCode,
+        discountAmount: order.discountAmount,
+        giftLabel: order.giftLabel,
+      });
+      after(async () => {
+        try {
+          await sendPaymentConfirmationEmail(order.customerEmail, {
+            orderNumber: order.orderNumber,
+            invoiceNumber,
+            invoicePdf,
+          });
+        } catch (err) {
+          console.error("Error sending payment confirmation email:", err);
+        }
+      });
+    }
 
     return NextResponse.json(order);
   } catch (err) {
