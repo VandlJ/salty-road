@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
 import PhotoGallery from "@/components/photo-gallery";
 
 const PAGE_SIZE = 24;
-const PLACEHOLDER_COUNT = 8;
+// Placeholder tiles vary in height so the empty state already reads as a
+// masonry layout, not a plain grid — no layout-shape change once real photos
+// land, only the shift from grey to real pixels.
+const PLACEHOLDER_HEIGHTS = ["h-48", "h-64", "h-56", "h-72", "h-60", "h-48", "h-64", "h-56"];
 
 // Photos arrive as props from the server (see getGalleryPhotosCached) rather
 // than being fetched client-side — the whole list is a handful of KB of URLs,
@@ -29,16 +31,13 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
 
       {photos.length === 0 ? (
         <>
-          {/* Same grid geometry as the populated state, so the page doesn't
-              reflow once photos are actually uploaded. */}
-          <div
-            aria-hidden="true"
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-          >
-            {Array.from({ length: PLACEHOLDER_COUNT }, (_, i) => (
+          {/* CSS-columns masonry, same as the populated state below — a
+              placeholder grid here wouldn't preview the actual layout. */}
+          <div aria-hidden="true" className="columns-2 md:columns-3 lg:columns-4 gap-4">
+            {PLACEHOLDER_HEIGHTS.map((h, i) => (
               <div
                 key={i}
-                className="aspect-[4/3] rounded-sm border border-gray-800 bg-white/[0.03]"
+                className={`mb-4 break-inside-avoid rounded-sm border border-gray-800 bg-white/[0.03] ${h}`}
               />
             ))}
           </div>
@@ -46,7 +45,15 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
         </>
       ) : (
         <>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {/* Masonry via CSS columns rather than a fixed-aspect grid — photo
+              dimensions aren't known ahead of render (no stored width/height,
+              just a list of blob URLs), so a plain <img> that keeps its
+              natural aspect ratio is what makes that possible. Trade-off:
+              this loses next/image's automatic AVIF/WebP re-encoding and
+              responsive srcset on the grid tiles specifically — acceptable
+              for a modest admin-curated photo count. The lightbox (below)
+              still uses next/image for the full-size view. */}
+          <div className="columns-2 md:columns-3 lg:columns-4 gap-4">
             {shown.map((url, i) => (
               <button
                 key={url}
@@ -54,16 +61,14 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
                 data-testid="gallery-photo"
                 onClick={() => setLightboxIndex(i)}
                 aria-label={`${t("photoLabel")} ${i + 1}`}
-                className="relative aspect-[4/3] rounded-sm overflow-hidden border border-gray-800 bg-black cursor-pointer group"
+                className="mb-4 block w-full break-inside-avoid rounded-sm overflow-hidden border border-gray-800 bg-black cursor-pointer group"
               >
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element -- intrinsic size is required for masonry; next/image needs it supplied upfront, which we don't have. */}
+                <img
                   src={url}
                   alt=""
-                  fill
-                  sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
-                  quality={65}
+                  className="w-full h-auto block transition-transform duration-300 group-hover:scale-105"
                 />
               </button>
             ))}
