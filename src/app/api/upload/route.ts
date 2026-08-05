@@ -141,8 +141,15 @@ export async function POST(req: Request) {
     // We rely on DB reconciliation to clean up unused files (see
     // /api/cron/cleanup for the registrations folder).
     const remotePath = `${folder}/${now}_${fileName.replace(/\s+/g, "_")}`;
-    
-    const blob = await put(remotePath, buffer, {
+
+    // sharp's/heic-convert's output Buffer can end up backed by a
+    // SharedArrayBuffer under Vercel's runtime — undici's fetch (used
+    // internally by @vercel/blob's put()) rejects that outright with
+    // "SharedArrayBuffer is not allowed". Buffer.from() here copies into a
+    // fresh, guaranteed-non-shared ArrayBuffer.
+    const uploadBuffer = Buffer.from(buffer);
+
+    const blob = await put(remotePath, uploadBuffer, {
       access: "public",
       token: process.env.BLOB_READ_WRITE_TOKEN,
       contentType: contentType,
