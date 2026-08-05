@@ -14,11 +14,14 @@ export default function AdminPhotoGalleryManager({
   onChange,
   uploadingLabel,
   uploadLabel,
+  folder = "merch",
 }: {
   photos: string[];
   onChange: (photos: string[]) => Promise<void> | void;
   uploadingLabel: string;
   uploadLabel: string;
+  /** Blob storage folder — must be in ALLOWED_FOLDERS in /api/upload. */
+  folder?: "merch" | "gallery";
 }) {
   // Mirrors `photos` but updates instantly on reorder/delete instead of
   // waiting for the PATCH round-trip — the request that actually persists
@@ -46,7 +49,7 @@ export default function AdminPhotoGalleryManager({
       for (const file of files) {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("folder", "merch");
+        formData.append("folder", folder);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         if (!res.ok) throw new Error("Upload failed");
         const blob = await res.json();

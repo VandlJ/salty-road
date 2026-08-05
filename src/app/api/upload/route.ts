@@ -12,7 +12,7 @@ const ALLOWED_TYPES = new Set([
   "image/heic",
   "image/heif",
 ]);
-const ALLOWED_FOLDERS = new Set(["registrations", "merch"]);
+const ALLOWED_FOLDERS = new Set(["registrations", "merch", "gallery"]);
 
 export async function POST(req: Request) {
   try {
@@ -28,8 +28,12 @@ export async function POST(req: Request) {
         ? requestedFolder
         : "registrations";
 
-    // merch images are only uploaded from the admin shop editor
-    if (folder === "merch" && !(await getAdminFromReq())) {
+    // "registrations" is the only folder the public writes to (the vehicle
+    // sign-up form) — everything else is admin-only. Phrased as a denylist of
+    // one rather than an allowlist so adding a folder can't accidentally leave
+    // it publicly writable, which is what a `folder === "merch"` check here
+    // would have done.
+    if (folder !== "registrations" && !(await getAdminFromReq())) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

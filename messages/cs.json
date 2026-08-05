@@ -346,6 +346,8 @@
     "subtitle": "Vyberte sekci, kterou chcete spravovat.",
     "registrationsTile": "Registrace",
     "registrationsTileDesc": "Přehled a schvalování přihlášených vozů.",
+    "galleryTile": "Galerie",
+    "galleryTileDesc": "Fotky z akce zobrazené na hlavní stránce.",
     "merchTile": "Merch",
     "merchTileDesc": "Správa produktů a skladu e-shopu.",
     "ordersTile": "Objednávky",
@@ -359,6 +361,15 @@
     "couponsTile": "Slevové kupóny",
     "couponsTileDesc": "Vytváření a správa slevových kódů.",
     "logout": "Odhlásit"
+  },
+  "AdminGalleryPage": {
+    "title": "Galerie",
+    "backToAdmin": "Zpět do administrace",
+    "hint": "Fotky se zobrazí na hlavní stránce v sekci Galerie, v pořadí zleva doprava.",
+    "uploadPhotos": "Nahrát fotky",
+    "uploading": "Nahrávám…",
+    "errorLoad": "Nelze načíst galerii.",
+    "errorSave": "Uložení se nepovedlo."
   },
   "AdminEmailsPage": {
     "title": "E-maily",

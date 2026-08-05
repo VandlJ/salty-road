@@ -346,6 +346,8 @@
     "subtitle": "Pick a section to manage.",
     "registrationsTile": "Registrations",
     "registrationsTileDesc": "Review and approve submitted vehicles.",
+    "galleryTile": "Gallery",
+    "galleryTileDesc": "Event photos shown on the homepage.",
     "merchTile": "Merch",
     "merchTileDesc": "Manage shop products and stock.",
     "ordersTile": "Orders",
@@ -359,6 +361,15 @@
     "couponsTile": "Discount coupons",
     "couponsTileDesc": "Create and manage discount codes.",
     "logout": "Log out"
+  },
+  "AdminGalleryPage": {
+    "title": "Gallery",
+    "backToAdmin": "Back to admin",
+    "hint": "Photos appear in the Gallery section of the homepage, in left-to-right order.",
+    "uploadPhotos": "Upload photos",
+    "uploading": "Uploading…",
+    "errorLoad": "Couldn't load the gallery.",
+    "errorSave": "Saving failed."
   },
   "AdminEmailsPage": {
     "title": "Emails",
