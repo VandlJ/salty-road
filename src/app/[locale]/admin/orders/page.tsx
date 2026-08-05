@@ -376,36 +376,52 @@ export default function AdminOrdersPage() {
                   <span>{formatPrice(order.totalAmount)}</span>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 mt-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold shrink-0">
                       {t("status")}
                     </span>
-                    <select
-                      data-testid="admin-order-status"
-                      value={order.status}
-                      onChange={(e) => updateStatus(order.id, e.target.value as Order["status"])}
-                      className={`bg-[#111] border-2 border-gray-600 rounded-sm px-2 py-1 text-sm font-bold cursor-pointer focus:outline-none focus:border-white ${STATUS_COLOR[order.status]}`}
-                    >
-                      {STATUSES.map((s) => (
-                        <option key={s} value={s} className="text-white bg-[#111]">
-                          {t(`status${s.charAt(0).toUpperCase()}${s.slice(1)}` as "statusPending")}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        data-testid="admin-order-status"
+                        value={order.status}
+                        onChange={(e) => updateStatus(order.id, e.target.value as Order["status"])}
+                        className={`appearance-none bg-[#111] border-2 border-gray-600 rounded-sm pl-2 pr-7 py-1 text-sm font-bold cursor-pointer focus:outline-none focus:border-white ${STATUS_COLOR[order.status]}`}
+                      >
+                        {STATUSES.map((s) => (
+                          <option key={s} value={s} className="text-white bg-[#111]">
+                            {t(`status${s.charAt(0).toUpperCase()}${s.slice(1)}` as "statusPending")}
+                          </option>
+                        ))}
+                      </select>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-gray-400"
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <a
                       href={`/api/admin/orders/${order.id}/invoice`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-3 py-1.5 bg-transparent hover:bg-white/10 text-gray-300 hover:text-white font-bold uppercase tracking-wider text-[10px] border border-gray-600 hover:border-white rounded-sm transition-all"
+                      className="flex-1 sm:flex-none text-center px-3 py-1.5 bg-transparent hover:bg-white/10 text-gray-300 hover:text-white font-bold uppercase tracking-wider text-[10px] border border-gray-600 hover:border-white rounded-sm transition-all whitespace-nowrap"
                     >
                       {t("invoice")}
                     </a>
                     <button
                       onClick={() => setRemoveId(order.id)}
-                      className="px-3 py-1.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] border border-red-900/50 hover:border-red-500 rounded-sm transition-all"
+                      className="flex-1 sm:flex-none px-3 py-1.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] border border-red-900/50 hover:border-red-500 rounded-sm transition-all whitespace-nowrap"
                     >
                       {t("remove")}
                     </button>
