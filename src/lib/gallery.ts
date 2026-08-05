@@ -49,11 +49,24 @@ export async function setGalleryPhotos(photos: string[]): Promise<void> {
   });
 }
 
-// The homepage reads this during render. A plain uncached read would force the
-// whole page dynamic (same reasoning as getShopEnabledCached in @/lib/shop);
-// the tag lets the admin PUT push a change through immediately instead of
-// waiting out the revalidate window.
-export const getGalleryPhotosCached = unstable_cache(getGalleryPhotos, ["gallery-photos"], {
+// The homepage reads this during render — including at build time, when
+// Next.js statically prerenders the page. A DB that's briefly unreachable
+// specifically from the build environment (see the matching comment on
+// getShopEnabledCached in @/lib/shop) must not fail the entire build over
+// the gallery; an empty gallery just falls back to the "coming soon"
+// placeholder state until the next revalidate. A plain uncached read would
+// also force the whole page dynamic; the tag lets the admin PUT push a
+// change through immediately instead of waiting out the revalidate window.
+const getGalleryPhotosUncaught = unstable_cache(getGalleryPhotos, ["gallery-photos"], {
   revalidate: 60,
   tags: [GALLERY_CACHE_TAG],
 });
+
+export async function getGalleryPhotosCached(): Promise<string[]> {
+  try {
+    return await getGalleryPhotosUncaught();
+  } catch (err) {
+    console.error("getGalleryPhotosCached: falling back to empty", err);
+    return [];
+  }
+}
