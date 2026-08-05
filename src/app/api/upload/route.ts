@@ -108,14 +108,22 @@ export async function POST(req: Request) {
     }
 
     // Gallery photos are served straight from Blob as plain <img> tags on
-    // the homepage (masonry layout — see EventGallerySection), bypassing
-    // next/image's usual automatic AVIF/WebP re-encoding. Converting to WebP
-    // here is what actually shrinks them, since nothing downstream will.
-    // Scoped to this one folder so merch/registrations keep their existing
-    // (already-working) upload behavior untouched.
+    // the homepage (fixed-height horizontal carousel — see
+    // EventGallerySection), bypassing next/image's usual automatic
+    // resizing/AVIF/WebP re-encoding entirely. Without this, a photo shot at
+    // ~4000px tall got shipped in full to display in a ~250-300px-tall row —
+    // the WebP reformat alone doesn't fix that, only capping the actual
+    // pixel dimensions does. 1000px covers the tallest row size (md:h-72 =
+    // 288px) at 3x pixel density with headroom; `withoutEnlargement` leaves
+    // already-small source photos alone. Scoped to this one folder so
+    // merch/registrations keep their existing (already-working) behavior.
     if (folder === "gallery") {
       try {
-        buffer = (await sharp(buffer).rotate().toFormat("webp", { quality: 80 }).toBuffer()) as unknown as Buffer;
+        buffer = (await sharp(buffer)
+          .rotate()
+          .resize({ height: 1000, withoutEnlargement: true })
+          .toFormat("webp", { quality: 80 })
+          .toBuffer()) as unknown as Buffer;
         fileName = fileName.replace(/\.[a-zA-Z0-9]+$/, "") + ".webp";
         contentType = "image/webp";
       } catch (err) {

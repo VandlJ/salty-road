@@ -47,7 +47,7 @@ export default function SponsorsSection() {
   return (
     <section id="sponsors" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 max-w-5xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="space-y-8">
-        <SectionHeading>{t("sponsorsTitle")}</SectionHeading>
+        <SectionHeading as="h2" size="lg">{t("sponsorsTitle")}</SectionHeading>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-16 gap-y-16 items-center justify-items-center max-w-5xl mx-auto px-6 sm:px-14 py-12 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
           {sponsors.map((s) => (

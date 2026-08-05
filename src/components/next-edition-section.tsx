@@ -16,7 +16,7 @@ export default function NextEditionSection() {
       id="next"
       className="reveal-on-scroll bg-transparent text-white px-4 py-16 md:py-24 max-w-3xl mx-auto scroll-mt-24 text-center"
     >
-      <SectionHeading className="mb-6">{t("title")}</SectionHeading>
+      <SectionHeading as="h2" size="lg" className="mb-6">{t("title")}</SectionHeading>
       <p className="text-gray-200 text-base sm:text-lg leading-relaxed font-light mb-8">
         {t("text")}
       </p>

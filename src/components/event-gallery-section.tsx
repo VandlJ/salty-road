@@ -31,18 +31,18 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
       id="gallery"
       className="reveal-on-scroll bg-transparent text-white px-4 py-12 md:py-20 max-w-6xl mx-auto scroll-mt-24 text-center"
     >
-      <SectionHeading className="mb-4">{t("title")}</SectionHeading>
+      <SectionHeading as="h2" size="lg" className="mb-4">{t("title")}</SectionHeading>
       <p className="text-gray-400 text-sm mb-10">{t("subtitle")}</p>
 
       {photos.length === 0 ? (
         <>
           {/* Same row-of-fixed-height-tiles shape as the populated state, so
               the layout doesn't change once photos are actually uploaded. */}
-          <div aria-hidden="true" className={`flex gap-4 overflow-hidden ${ROW_HEIGHT}`}>
+          <div aria-hidden="true" className={`flex gap-3 overflow-hidden ${ROW_HEIGHT}`}>
             {Array.from({ length: PLACEHOLDER_COUNT }, (_, i) => (
               <div
                 key={i}
-                className="h-full aspect-[4/3] shrink-0 rounded-sm border border-gray-800 bg-white/[0.03]"
+                className="h-full aspect-[4/3] shrink-0 rounded-lg border border-gray-800 bg-white/[0.03]"
               />
             ))}
           </div>
@@ -50,9 +50,15 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
         </>
       ) : (
         <div className="relative">
+          {/* Edge fades hint that the row scrolls, without relying on the
+              arrow buttons alone (which are hidden on mobile anyway, where
+              swipe is the primary gesture). */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 bg-gradient-to-r from-black to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 bg-gradient-to-l from-black to-transparent z-10" />
+
           <div
             ref={scrollerRef}
-            className={`no-scrollbar flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory ${ROW_HEIGHT}`}
+            className={`no-scrollbar flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory px-2 ${ROW_HEIGHT}`}
           >
             {photos.map((url, i) => (
               <button
@@ -61,7 +67,7 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
                 data-testid="gallery-photo"
                 onClick={() => setLightboxIndex(i)}
                 aria-label={`${t("photoLabel")} ${i + 1}`}
-                className="h-full shrink-0 snap-start rounded-sm overflow-hidden border border-gray-800 bg-black cursor-pointer group"
+                className="h-full shrink-0 snap-start rounded-lg overflow-hidden border border-gray-800 bg-black cursor-pointer group shadow-lg shadow-black/50 transition-shadow duration-300 hover:shadow-xl hover:shadow-black/70"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- fixed row height, natural width from intrinsic aspect ratio; next/image needs a width/height we don't have. */}
                 <img
@@ -80,7 +86,7 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
                 type="button"
                 onClick={() => scrollBy(-1)}
                 aria-label={t("scrollLeft")}
-                className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-black/80 border border-gray-700 hover:border-white text-white rounded-full cursor-pointer transition-colors"
+                className="hidden sm:flex absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 items-center justify-center bg-black/90 backdrop-blur border border-gray-700 hover:border-brand text-white hover:text-brand rounded-full cursor-pointer transition-colors shadow-lg"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M15 18l-6-6 6-6" />
@@ -90,7 +96,7 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
                 type="button"
                 onClick={() => scrollBy(1)}
                 aria-label={t("scrollRight")}
-                className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center bg-black/80 border border-gray-700 hover:border-white text-white rounded-full cursor-pointer transition-colors"
+                className="hidden sm:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-11 h-11 items-center justify-center bg-black/90 backdrop-blur border border-gray-700 hover:border-brand text-white hover:text-brand rounded-full cursor-pointer transition-colors shadow-lg"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M9 18l6-6-6-6" />
