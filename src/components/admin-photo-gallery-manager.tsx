@@ -4,6 +4,12 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import PhotoGallery from "@/components/photo-gallery";
 
+type UploadItem = {
+  name: string;
+  status: "pending" | "uploading" | "done" | "error";
+  message?: string;
+};
+
 // Admin-only multi-photo manager: upload (multiple at once), reorder via
 // left/right buttons, delete, click a thumbnail to view it full-size. No
 // drag-and-drop library — this project doesn't have one installed, and
@@ -34,8 +40,8 @@ export default function AdminPhotoGalleryManager({
   useEffect(() => setLocalPhotos(photos), [photos]);
 
   const [uploading, setUploading] = useState(false);
+  const [uploadQueue, setUploadQueue] = useState<UploadItem[]>([]);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
   const busy = uploading || saving;
 
@@ -43,28 +49,44 @@ export default function AdminPhotoGalleryManager({
     const files = Array.from(e.target.files ?? []);
     if (files.length === 0) return;
     setUploading(true);
-    setError(null);
-    try {
-      const uploaded: string[] = [];
-      for (const file of files) {
+    setUploadQueue(files.map((f) => ({ name: f.name, status: "pending" })));
+
+    // Sequential, not Promise.all — each successful upload is persisted
+    // immediately (one photo at a time) instead of only saving once the
+    // whole batch finishes. With 20-30 files that matters twice over: the
+    // admin sees each one land instead of a single spinner with no
+    // feedback for a minute-plus, and a failure partway through (a bad
+    // file, a transient network blip) doesn't lose every upload that
+    // already succeeded. `current` (not React state) tracks the running
+    // list between iterations — reading `localPhotos` here would race, since
+    // state updates from the previous iteration aren't guaranteed to have
+    // committed yet.
+    let current = localPhotos;
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setUploadQueue((q) => q.map((item, idx) => (idx === i ? { ...item, status: "uploading" } : item)));
+      try {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("folder", folder);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
-        if (!res.ok) throw new Error("Upload failed");
-        const blob = await res.json();
-        uploaded.push(blob.url);
+        const json = await res.json().catch(() => null);
+        if (!res.ok) {
+          throw new Error(json?.error || `Upload failed (${res.status})`);
+        }
+        current = [...current, json.url as string];
+        setLocalPhotos(current);
+        await onChange(current);
+        setUploadQueue((q) => q.map((item, idx) => (idx === i ? { ...item, status: "done" } : item)));
+      } catch (err) {
+        console.error(err);
+        const message = err instanceof Error ? err.message : "Upload failed";
+        setUploadQueue((q) => q.map((item, idx) => (idx === i ? { ...item, status: "error", message } : item)));
       }
-      const next = [...localPhotos, ...uploaded];
-      setLocalPhotos(next);
-      await onChange(next);
-    } catch (err) {
-      console.error(err);
-      setError("!");
-    } finally {
-      setUploading(false);
-      e.target.value = "";
     }
+
+    setUploading(false);
+    e.target.value = "";
   }
 
   async function remove(index: number) {
@@ -167,7 +189,30 @@ export default function AdminPhotoGalleryManager({
         )}
       </div>
 
-      {error && <span className="text-red-400 text-xs font-bold">{error}</span>}
+      {uploadQueue.length > 0 && (
+        <div className="flex flex-col gap-1 max-w-md">
+          {uploadQueue.map((item, i) => (
+            <div key={`${item.name}-${i}`} className="flex items-center gap-2 text-xs">
+              {item.status === "pending" && (
+                <span className="w-3.5 h-3.5 shrink-0 rounded-full border border-gray-600" />
+              )}
+              {item.status === "uploading" && (
+                <span className="w-3.5 h-3.5 shrink-0 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              )}
+              {item.status === "done" && (
+                <span className="w-3.5 h-3.5 shrink-0 flex items-center justify-center text-green-500 font-bold">✓</span>
+              )}
+              {item.status === "error" && (
+                <span className="w-3.5 h-3.5 shrink-0 flex items-center justify-center text-red-500 font-bold">×</span>
+              )}
+              <span className={`truncate ${item.status === "error" ? "text-red-400" : "text-gray-400"}`}>
+                {item.name}
+                {item.status === "error" && item.message ? ` — ${item.message}` : ""}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {previewIndex !== null && (
         <PhotoGallery

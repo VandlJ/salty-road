@@ -16,10 +16,6 @@ const ALLOWED_FOLDERS = new Set(["registrations", "merch", "gallery"]);
 
 export async function POST(req: Request) {
   try {
-    if (!(await rateLimit(`upload:${getClientIp(req)}`, 30, 60 * 60 * 1000))) {
-      return NextResponse.json({ error: "Too many uploads, try again later" }, { status: 429 });
-    }
-
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const requestedFolder = formData.get("folder");
@@ -33,8 +29,18 @@ export async function POST(req: Request) {
     // one rather than an allowlist so adding a folder can't accidentally leave
     // it publicly writable, which is what a `folder === "merch"` check here
     // would have done.
-    if (folder !== "registrations" && !(await getAdminFromReq())) {
+    const admin = folder !== "registrations" ? await getAdminFromReq() : null;
+    if (folder !== "registrations" && !admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // The public registrations path is rate-limited against abuse; an
+    // authenticated admin batch-importing an event photo gallery is a
+    // legitimate burst that shouldn't hit the same cap (30/hour was tuned for
+    // one person filling out a form, not a 30-photo album upload).
+    const limit = admin ? 300 : 30;
+    if (!(await rateLimit(`upload:${getClientIp(req)}`, limit, 60 * 60 * 1000))) {
+      return NextResponse.json({ error: "Too many uploads, try again later" }, { status: 429 });
     }
 
     if (!file) {

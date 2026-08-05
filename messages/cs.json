@@ -145,7 +145,7 @@
         "Občerstvení a posezení od lokálních podniků"
       ],
       "stats": [
-        { "value": "100", "label": "vystavených vozů" },
+        { "value": "90+", "label": "vystavených vozů" },
         { "value": "24", "label": "partnerů akce" },
         { "value": "1.", "label": "ročník" }
       ],
@@ -417,8 +417,9 @@
   },
   "AdminGalleryPage": {
     "title": "Galerie",
+    "edition": "Salty Road Meet — Volume 1",
     "backToAdmin": "Zpět do administrace",
-    "hint": "Fotky se zobrazí na hlavní stránce v sekci Galerie, v pořadí zleva doprava.",
+    "hint": "Fotky se zobrazí na hlavní stránce (aktuálně archiv Volume 1) v sekci Galerie, v pořadí zleva doprava — až přibude Volume 2, bude pro něj potřeba samostatná galerie.",
     "uploadPhotos": "Nahrát fotky",
     "uploading": "Nahrávám…",
     "errorLoad": "Nelze načíst galerii.",

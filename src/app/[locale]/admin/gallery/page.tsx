@@ -65,9 +65,12 @@ export default function AdminGalleryPage() {
   return (
     <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-4xl mx-auto">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
-          {t("title")} <span className="text-gray-400 text-2xl ml-2">({photos.length})</span>
-        </h1>
+        <div>
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
+            {t("title")} <span className="text-gray-400 text-2xl ml-2">({photos.length})</span>
+          </h1>
+          <p className="text-brand text-xs font-bold uppercase tracking-widest mt-1">{t("edition")}</p>
+        </div>
         <Link
           href="/admin"
           className="flex items-center gap-2 px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"

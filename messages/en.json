@@ -145,7 +145,7 @@
         "Food and seating from local venues"
       ],
       "stats": [
-        { "value": "100", "label": "cars on display" },
+        { "value": "90+", "label": "cars on display" },
         { "value": "24", "label": "event partners" },
         { "value": "1st", "label": "edition" }
       ],
@@ -417,8 +417,9 @@
   },
   "AdminGalleryPage": {
     "title": "Gallery",
+    "edition": "Salty Road Meet — Volume 1",
     "backToAdmin": "Back to admin",
-    "hint": "Photos appear in the Gallery section of the homepage, in left-to-right order.",
+    "hint": "Photos appear in the Gallery section of the homepage (currently the Volume 1 archive), in left-to-right order — once Volume 2 exists, it'll need its own gallery.",
     "uploadPhotos": "Upload photos",
     "uploading": "Uploading…",
     "errorLoad": "Couldn't load the gallery.",
