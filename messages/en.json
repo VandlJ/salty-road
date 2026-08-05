@@ -1,7 +1,9 @@
 {
   "Navbar": {
     "home": "Home",
-    "vehicles": "Confirmed Vehicles",
+    "recap": "Recap",
+    "gallery": "Gallery",
+    "vehicles": "Cars on display",
     "register": "Registration",
     "check": "Registration Check",
     "info": "Information",
@@ -114,7 +116,57 @@
     "locationLabel": "Location",
     "locationValue": "Velké náměstí, Prachatice",
     "registerButton": "Register",
-    "metaDescription": "Car meet Salty Road Meet — July 25, 2026, Velké náměstí, Prachatice, Czech Republic. Vehicle showcase, music, and a full day program. Register your car or come check it out."
+    "metaDescription": "Car meet Salty Road Meet — Velké náměstí, Prachatice, Czech Republic. Vehicle showcase, music and a full-day programme. See how the first edition went."
+  },
+  "ArchivePage": {
+    "hero": {
+      "title1": "Salty Road Meet",
+      "title2": "Volume 1",
+      "dateLabel": "Took place",
+      "dateValue": "25/07/2026",
+      "locationLabel": "Location",
+      "locationValue": "Velké náměstí, Prachatice",
+      "galleryButton": "View the photos"
+    },
+    "meta": {
+      "description": "Looking back at the first Salty Road Meet — July 25, 2026 at Velké náměstí in Prachatice, Czech Republic. Photos, programme and the cars on display."
+    },
+    "recap": {
+      "title": "How it went",
+      "p1": "The first Salty Road Meet took place on July 25, 2026 at Velké náměstí in Prachatice. For one day the town's historic centre turned into a showground full of modified cars — from youngtimers to modern builds.",
+      "p2": "Entry was free for visitors and a full programme ran all day: contests, music, and food and drink from local venues. Thank you to every exhibitor, partner and visitor who showed up.",
+      "highlightsTitle": "What happened",
+      "highlights": [
+        "Cars on display at Velké náměstí from noon until the evening",
+        "Visitor vote for the TOP 3 cars of the meet",
+        "Wheel-change contest and a car-pulling contest",
+        "DJ Raty and an evening afterparty at Music Club Hrozen",
+        "All-day side programme — hairstylist, face painting, kids' play area",
+        "Food and seating from local venues"
+      ],
+      "stats": [
+        { "value": "100", "label": "cars on display" },
+        { "value": "24", "label": "event partners" },
+        { "value": "1st", "label": "edition" }
+      ],
+      "mapTitle": "Where it took place",
+      "locationText": "Velké and Kostelní náměstí, Prachatice"
+    },
+    "gallery": {
+      "title": "Gallery",
+      "subtitle": "Photos from the first edition.",
+      "empty": "Photos from the event are coming soon.",
+      "photoLabel": "Event photo",
+      "loadMore": "Load more"
+    },
+    "vehicles": {
+      "title": "Cars on display"
+    },
+    "next": {
+      "title": "Volume 2 is coming",
+      "text": "We're working on the next edition. Follow us on Instagram — that's where we'll announce the date and open registrations first.",
+      "instagramCta": "Follow on Instagram"
+    }
   },
   "RegisterPage": {
     "title": "Register<line>Your Car</line>",
@@ -139,6 +191,7 @@
       "statusDeclined": "Declined"
   },
   "InfoPage": {
+      "_comment": "DO NOT DELETE. The homepage no longer uses this namespace (Volume 1 is archived), but it holds the content for src/templates/homepage-vol2.tsx — InfoSection, programme, visitor rules, arrival, entry fee. i18n keys are not type-checked, so deleting them passes tsc and only crashes at runtime once Volume 2 is restored. Same applies to RegisterPage, RegisterForm, CheckPage and EntryPage.",
       "title": "What are you interested in?",
       "parkingTitle": "Parking",
       "parkingList": {

@@ -1,7 +1,9 @@
 {
   "Navbar": {
     "home": "Úvod",
-    "vehicles": "Potvrzené vozy",
+    "recap": "Ohlédnutí",
+    "gallery": "Galerie",
+    "vehicles": "Vystavené vozy",
     "register": "Registrace",
     "check": "Stav registrace",
     "info": "Informace",
@@ -114,7 +116,57 @@
     "locationLabel": "Místo",
     "locationValue": "Velké náměstí, Prachatice",
     "registerButton": "Registrovat",
-    "metaDescription": "Sraz aut Salty Road Meet — 25. července 2026, Velké náměstí, Prachatice. Přehlídka vozidel, hudba a program pro návštěvníky. Zaregistruj své auto nebo přijeď se podívat."
+    "metaDescription": "Sraz aut Salty Road Meet — Velké náměstí, Prachatice. Přehlídka vozidel, hudba a doprovodný program. Podívejte se, jak probíhal první ročník."
+  },
+  "ArchivePage": {
+    "hero": {
+      "title1": "Salty Road Meet",
+      "title2": "Volume 1",
+      "dateLabel": "Konalo se",
+      "dateValue": "25. 07. 2026",
+      "locationLabel": "Místo",
+      "locationValue": "Velké náměstí, Prachatice",
+      "galleryButton": "Prohlédnout fotky"
+    },
+    "meta": {
+      "description": "Ohlédnutí za prvním ročníkem Salty Road Meet — 25. července 2026 na Velkém náměstí v Prachaticích. Fotky, program a vystavené vozy."
+    },
+    "recap": {
+      "title": "Jak to probíhalo",
+      "p1": "První ročník Salty Road Meet se konal 25. července 2026 na Velkém náměstí v Prachaticích. Historické centrum města se na jeden den proměnilo ve výstavní plochu plnou upravených vozů — od youngtimerů po moderní stavby.",
+      "p2": "Vstup pro návštěvníky byl zdarma a po celý den běžel doprovodný program: soutěže, hudba, jídlo a pití z lokálních podniků. Děkujeme všem vystavovatelům, partnerům i návštěvníkům, kteří dorazili.",
+      "highlightsTitle": "Co se dělo",
+      "highlights": [
+        "Přehlídka vozů na Velkém náměstí od poledne do večera",
+        "Hlasování návštěvníků o TOP 3 vozidla srazu",
+        "Soutěž ve výměně kola a v tahání auta",
+        "DJ Raty a večerní afterparty v Music Club Hrozen",
+        "Doprovodný program po celý den — hairstylist, malování na obličej, hraní pro děti",
+        "Občerstvení a posezení od lokálních podniků"
+      ],
+      "stats": [
+        { "value": "100", "label": "vystavených vozů" },
+        { "value": "24", "label": "partnerů akce" },
+        { "value": "1.", "label": "ročník" }
+      ],
+      "mapTitle": "Kde se to konalo",
+      "locationText": "Velké a Kostelní náměstí, Prachatice"
+    },
+    "gallery": {
+      "title": "Galerie",
+      "subtitle": "Fotky z prvního ročníku.",
+      "empty": "Fotky z akce sem přidáme brzy.",
+      "photoLabel": "Fotka z akce",
+      "loadMore": "Načíst další"
+    },
+    "vehicles": {
+      "title": "Vystavené vozy"
+    },
+    "next": {
+      "title": "Volume 2 se blíží",
+      "text": "Pracujeme na dalším ročníku. Sledujte nás na Instagramu, kde jako první oznámíme termín i otevření registrací.",
+      "instagramCta": "Sledovat na Instagramu"
+    }
   },
   "RegisterPage": {
     "title": "Zaregistrujte své auto",
@@ -139,6 +191,7 @@
       "statusDeclined": "Zamítnuto"
   },
   "InfoPage": {
+      "_comment": "NEMAZAT. Tento namespace už homepage nepoužívá (Volume 1 je archivovaný), ale drží obsah pro src/templates/homepage-vol2.tsx — InfoSection, program, návštěvní řád, příjezd, startovné. i18n klíče nejsou typově kontrolované, takže smazání projde tsc a spadne až za běhu, když se Volume 2 obnoví. Totéž platí pro RegisterPage, RegisterForm, CheckPage a EntryPage.",
       "title": "Co vás zajímá?",
       "parkingTitle": "Parkování",
       "parkingList": {

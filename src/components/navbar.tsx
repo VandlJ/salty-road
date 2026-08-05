@@ -6,7 +6,10 @@ import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useLocale, useTranslations } from "next-intl";
 import CartLink from "@/components/cart-link";
 
-const HOME_SECTION_IDS = ["info", "register", "vehicles"];
+// Only ids that have a matching nav link belong here — the scroll-spy moves
+// the indicator to whatever it sees, and a spied section with no link makes
+// it vanish mid-scroll. #next is deliberately absent for that reason.
+const HOME_SECTION_IDS = ["recap", "gallery", "vehicles"];
 
 export default function Navbar({ fixed = false, initialShopVisible = false }: { fixed?: boolean; initialShopVisible?: boolean }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -81,14 +84,14 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
     // it — re-measure so the indicator doesn't end up under the wrong link.
   }, [measureIndicator, shopVisible]);
 
-  // Match "shop"/"check" (or any future non-homepage nav route) by pathname.
-  // Anything else (admin, entry, privacy, a 404, ...) has no corresponding
-  // nav link, so the indicator should hide rather than default to "home".
+  // Match "shop" (or any future non-homepage nav route) by pathname.
+  // Anything else (admin, entry, check, privacy, a 404, ...) has no
+  // corresponding nav link, so the indicator should hide rather than default
+  // to "home".
   /* eslint-disable react-hooks/set-state-in-effect -- derives the active
      nav indicator from the current route, not a render-cascade loop. */
   useEffect(() => {
     if (pathname.startsWith("/shop")) setActiveId("shop");
-    else if (pathname.startsWith("/check")) setActiveId("check");
     else if (pathname === "/") setActiveId((current) => (HOME_SECTION_IDS.includes(current) ? current : "home"));
     else setActiveId("");
   }, [pathname]);
@@ -105,15 +108,16 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
 
     // No raw `window.addEventListener("scroll")` — IntersectionObserver
     // handles both directions: entering a section activates it, and
-    // exiting #info upward (scrolling back toward the hero) falls back to
-    // "home" instead of leaving the indicator stuck on the last section.
+    // exiting the first section upward (scrolling back toward the hero)
+    // falls back to "home" instead of leaving the indicator stuck on the
+    // last section.
     const observer = new IntersectionObserver(
       (entries) => {
         if (suppressSpyRef.current) return;
         for (const entry of entries) {
           if (entry.isIntersecting) {
             setActiveId(entry.target.id);
-          } else if (entry.target.id === "info" && entry.boundingClientRect.top > 0) {
+          } else if (entry.target.id === HOME_SECTION_IDS[0] && entry.boundingClientRect.top > 0) {
             setActiveId("home");
           }
         }
@@ -269,20 +273,20 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
             {t("home")}
           </Link>
           <Link
-            ref={(el) => { linkRefs.current.info = el; }}
-            href="/#info"
+            ref={(el) => { linkRefs.current.recap = el; }}
+            href="/#recap"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
-            onClick={(e) => handleScroll(e, '/#info')}
+            onClick={(e) => handleScroll(e, '/#recap')}
           >
-            {t("info")}
+            {t("recap")}
           </Link>
           <Link
-            ref={(el) => { linkRefs.current.register = el; }}
-            href="/#register"
+            ref={(el) => { linkRefs.current.gallery = el; }}
+            href="/#gallery"
             className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
-            onClick={(e) => handleScroll(e, '/#register')}
+            onClick={(e) => handleScroll(e, '/#gallery')}
           >
-            {t("register")}
+            {t("gallery")}
           </Link>
           <Link
             ref={(el) => { linkRefs.current.vehicles = el; }}
@@ -302,14 +306,6 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
               {t("shop")}
             </Link>
           )}
-          <Link
-            ref={(el) => { linkRefs.current.check = el; }}
-            href="/check"
-            className="no-underline text-white font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 text-xs lg:text-sm whitespace-nowrap"
-            onClick={() => setActiveId('check')}
-          >
-            {t("check")}
-          </Link>
 
           {/* Sliding active-link indicator — position/width are measured
               from the active link's real DOM rect (see measureIndicator),
@@ -407,18 +403,18 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
               {t("home")}
             </Link>
             <Link
-              href="/#info"
+              href="/#recap"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={(e) => handleScroll(e, '/#info')}
+              onClick={(e) => handleScroll(e, '/#recap')}
             >
-              {t("info")}
+              {t("recap")}
             </Link>
             <Link
-              href="/#register"
+              href="/#gallery"
               className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={(e) => handleScroll(e, '/#register')}
+              onClick={(e) => handleScroll(e, '/#gallery')}
             >
-              {t("register")}
+              {t("gallery")}
             </Link>
             <Link
               href="/#vehicles"
@@ -436,13 +432,6 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
                 {t("shop")}
               </Link>
             )}
-            <Link
-              href="/check"
-              className="no-underline text-white text-lg font-semibold uppercase tracking-wide hover:text-gray-300 transition-colors duration-200 py-3 border-b border-gray-600"
-              onClick={closeMenu}
-            >
-              {t("check")}
-            </Link>
           </div>
 
           {/* Mobile Language Switch — pinned to the bottom of the panel */}
