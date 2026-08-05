@@ -397,7 +397,7 @@ export default function AdminMerchPage() {
       {loading && products.length === 0 ? (
         <MerchSkeleton />
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="flex flex-col gap-6 mt-6">
           <AnimatePresence mode="popLayout" initial={false}>
           {filteredProducts.map((product) => {
             const sortedIds = [...products].sort((a, b) => a.order - b.order).map((p) => p.id);
@@ -913,8 +913,8 @@ function ProductCard({
 
   return (
     <div className="bg-[#111]/90 border border-gray-700 rounded-sm overflow-hidden">
-      <div className="flex flex-col gap-3 px-4 py-4 bg-white/5 border-b border-gray-700">
-        <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 px-4 py-4 bg-white/5 border-b border-gray-700 lg:flex-row lg:items-center lg:gap-4">
+        <div className="flex items-center justify-between gap-3 lg:flex-1">
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-500 font-mono">{product.slug}</span>
             <div className="flex gap-1">
@@ -925,7 +925,7 @@ function ProductCard({
                 aria-label={t("moveProductUp")}
                 className="w-6 h-6 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                ‹
+                ▲
               </button>
               <button
                 type="button"
@@ -934,7 +934,7 @@ function ProductCard({
                 aria-label={t("moveProductDown")}
                 className="w-6 h-6 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-sm font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
-                ›
+                ▼
               </button>
             </div>
 
@@ -973,7 +973,7 @@ function ProductCard({
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 lg:shrink-0">
           <Link
             href={`/shop/${product.slug}`}
             target="_blank"
@@ -1013,22 +1013,24 @@ function ProductCard({
       </div>
 
       <div className="p-4 flex flex-col gap-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength={100}
-            className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm font-bold"
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:flex lg:flex-col lg:w-[360px] lg:shrink-0">
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={100}
+              className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm font-bold"
+            />
+            <CategorySelect value={category} onChange={setCategory} t={t} />
+          </div>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            maxLength={2000}
+            rows={5}
+            className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm resize-y lg:flex-1"
           />
-          <CategorySelect value={category} onChange={setCategory} t={t} />
         </div>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          maxLength={2000}
-          rows={5}
-          className="p-2 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm resize-y"
-        />
         {dirty && (
           <button
             onClick={saveFields}
@@ -1044,12 +1046,12 @@ function ProductCard({
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">
               {t("photosTitle")}
             </h3>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 lg:inline-flex">
               <button
                 type="button"
                 onClick={() => setPhotoMode("shared")}
                 aria-pressed={product.photoMode === "shared"}
-                className={`flex-1 text-left px-4 py-2.5 rounded-sm border-2 transition-colors cursor-pointer ${
+                className={`flex-1 text-left px-4 py-2.5 rounded-sm border-2 transition-colors cursor-pointer lg:flex-none lg:w-64 ${
                   product.photoMode === "shared"
                     ? "border-white bg-white/10"
                     : "border-gray-700 hover:border-gray-500"
@@ -1062,7 +1064,7 @@ function ProductCard({
                 type="button"
                 onClick={() => setPhotoMode("per_variant")}
                 aria-pressed={product.photoMode === "per_variant"}
-                className={`flex-1 text-left px-4 py-2.5 rounded-sm border-2 transition-colors cursor-pointer ${
+                className={`flex-1 text-left px-4 py-2.5 rounded-sm border-2 transition-colors cursor-pointer lg:flex-none lg:w-64 ${
                   product.photoMode === "per_variant"
                     ? "border-white bg-white/10"
                     : "border-gray-700 hover:border-gray-500"
@@ -1237,7 +1239,7 @@ function ColorGroupSection({
             aria-label={t("moveColorUp")}
             className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            ‹
+            ▲
           </button>
           <button
             type="button"
@@ -1246,7 +1248,7 @@ function ColorGroupSection({
             aria-label={t("moveColorDown")}
             className="w-8 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
-            ›
+            ▼
           </button>
         </div>
         <input
@@ -1266,11 +1268,13 @@ function ColorGroupSection({
           </button>
         )}
       </div>
-      <div className="flex flex-col gap-3 p-3">
+      <div className="flex flex-col gap-3 p-3 lg:grid lg:grid-cols-2 lg:items-start lg:gap-3">
         {group.variants.map((variant) => (
           <VariantRow key={variant.id} variant={variant} t={t} onChange={onChange} showPhotos={showPhotos} />
         ))}
-        <AddVariantForm productId={productId} t={t} onCreated={onChange} presetColor={group.color} />
+        <div className="lg:col-span-2">
+          <AddVariantForm productId={productId} t={t} onCreated={onChange} presetColor={group.color} />
+        </div>
       </div>
     </div>
   );
