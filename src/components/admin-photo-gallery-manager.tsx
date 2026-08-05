@@ -225,7 +225,7 @@ export default function AdminPhotoGalleryManager({
                   onClick={() => setPreviewIndex(i)}
                   aria-label="Zobrazit fotku"
                   className={`relative ${TILE_CLASS} block bg-white rounded-sm overflow-hidden border-2 transition-colors cursor-pointer ${
-                    isSelected ? "border-brand" : "border-gray-700 hover:border-white"
+                    isSelected ? "border-blue-600" : "border-gray-700 hover:border-white"
                   }`}
                 >
                   <Image src={url} alt="" fill className="object-contain p-1.5" sizes="96px" />
@@ -238,7 +238,7 @@ export default function AdminPhotoGalleryManager({
                   aria-label={isSelected ? "Zrušit výběr fotky" : "Vybrat fotku"}
                   aria-pressed={isSelected}
                   className={`absolute -top-2 -left-2 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold cursor-pointer transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed border-2 ${
-                    isSelected ? "bg-brand border-brand text-white" : "bg-[#111] border-gray-600 text-transparent hover:border-white"
+                    isSelected ? "bg-blue-600 border-blue-600 text-white" : "bg-[#111] border-gray-600 text-transparent hover:border-white"
                   }`}
                 >
                   ✓

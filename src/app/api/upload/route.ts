@@ -4,6 +4,12 @@ import sharp from "sharp";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { getAdminFromReq } from "@/lib/adminAuth";
 
+// HEIC fallback conversion + full-res sharp resizing (gallery uploads) can
+// take longer than the platform's 15s default on a large phone photo —
+// past that, Vercel kills the function outright (the client just sees a
+// bare 500, nothing our own try/catch below ever gets a chance to run).
+export const maxDuration = 60;
+
 const MAX_FILE_BYTES = 15 * 1024 * 1024; // 15MB
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
