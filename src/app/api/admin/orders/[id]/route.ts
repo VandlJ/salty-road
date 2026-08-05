@@ -88,6 +88,7 @@ export async function PATCH(
         createdAt: order.createdAt,
         customerName: order.customerName,
         customerEmail: order.customerEmail,
+        customerPhone: order.customerPhone,
         address: order.address,
         items: order.items as { name: string; label: string; price: number; qty: number }[],
         totalAmount: order.totalAmount,

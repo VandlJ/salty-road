@@ -12,11 +12,8 @@ import { getOrderVs } from "@/lib/orderVs";
 // relies on and silently renders most characters as the wrong glyph.
 const FONTS_DIR = path.join(process.cwd(), "src/assets/fonts");
 
-// Same wordmark font as the site navbar (see .font-amika in globals.css).
-const AMIKA_PATH = path.join(process.cwd(), "src/app/fonts/Amika_Blackletter.ttf");
-
-// Downscaled copy of public/Logo/SRM_logo-1.png (2520x3308 originally) —
-// the invoice only ever renders it a few dozen points tall, so a 300px-tall
+// Downscaled copy of public/Logo/logob.png (8103x2349 originally) — the
+// invoice only ever renders it a few dozen points tall, so a 900px-wide
 // copy keeps the PDF (and the e-mail attachment built from it) small.
 const LOGO_PATH = path.join(process.cwd(), "src/assets/invoice-logo.png");
 
@@ -44,6 +41,7 @@ export interface InvoiceOrder {
   createdAt: Date;
   customerName: string;
   customerEmail: string;
+  customerPhone: string;
   address: string | null;
   items: InvoiceItem[];
   totalAmount: number; // halire
@@ -69,7 +67,6 @@ export async function generateInvoicePdf(order: InvoiceOrder): Promise<Buffer> {
   const page = doc.addPage([pageWidth, pageHeight]);
   const font = await doc.embedFont(fs.readFileSync(path.join(FONTS_DIR, "Roboto-Regular.ttf")));
   const bold = await doc.embedFont(fs.readFileSync(path.join(FONTS_DIR, "Roboto-Bold.ttf")));
-  const amika = await doc.embedFont(fs.readFileSync(AMIKA_PATH));
 
   const invoiceNumber = getOrderVs(order.createdAt, order.orderNumber);
 
@@ -112,21 +109,24 @@ export async function generateInvoicePdf(order: InvoiceOrder): Promise<Buffer> {
     text(value, xRight - width, yPos, opts);
   }
 
-  // Header: logo mark + wordmark on the left, invoice title on the right.
+  // Header: wordmark logo on the left, invoice title on the right — both
+  // vertically centered on the same row instead of top-aligned (the logo's
+  // own baseline sits lower than a text baseline would).
   const logoBytes = fs.readFileSync(LOGO_PATH);
   const logoImage = await doc.embedPng(logoBytes);
-  const logoHeight = 54;
+  const logoHeight = 40;
   const logoWidth = (logoImage.width / logoImage.height) * logoHeight;
-  page.drawImage(logoImage, { x: marginX, y: y - logoHeight, width: logoWidth, height: logoHeight });
-  text("Salty Road", marginX + logoWidth + 12, y - logoHeight / 2 - 6, {
-    size: 20,
-    f: amika,
-    color: black,
+  const headerTextCenterY = y - 3; // "FAKTURA" + invoice number block midpoint
+  page.drawImage(logoImage, {
+    x: marginX,
+    y: headerTextCenterY - logoHeight / 2,
+    width: logoWidth,
+    height: logoHeight,
   });
 
   textRight("FAKTURA", contentRight, y, { size: 20, f: bold });
   textRight(`č. ${invoiceNumber}`, contentRight, y - 18, { size: 11, color: gray });
-  y -= logoHeight + 6;
+  y = headerTextCenterY - logoHeight / 2 - 12;
   page.drawLine({
     start: { x: marginX, y },
     end: { x: contentRight, y },
@@ -150,35 +150,56 @@ export async function generateInvoicePdf(order: InvoiceOrder): Promise<Buffer> {
   text(order.customerName, rightX, colY - 16, { f: bold, size: 11 });
   const buyerAddrY = order.address ? colY - 30 : null;
   if (buyerAddrY) text(order.address as string, rightX, buyerAddrY);
-  text(order.customerEmail, rightX, buyerAddrY ? buyerAddrY - 14 : colY - 30);
+  const buyerEmailY = buyerAddrY ? buyerAddrY - 14 : colY - 30;
+  text(order.customerEmail, rightX, buyerEmailY);
+  text(order.customerPhone, rightX, buyerEmailY - 14);
 
   y -= 116;
 
   const iban = process.env.BANK_ACCOUNT_IBAN;
-  const metaRows: [string, string][] = [
+  const paidDate = formatDate(new Date());
+  const metaColLeft: [string, string][] = [
+    ["Číslo objednávky", String(order.orderNumber)],
+    ["Variabilní symbol", invoiceNumber],
     ["Datum vystavení", formatDate(order.createdAt)],
-    ["Datum úhrady", formatDate(new Date())],
-    ["Způsob platby", "Bankovní převod"],
-    ...(iban ? ([["Účet (IBAN)", iban]] as [string, string][]) : []),
   ];
+  const metaColRight: [string, string][] = [
+    ["Datum splatnosti", paidDate],
+    ["Datum úhrady", paidDate],
+    ["Způsob platby", "Bankovní převod"],
+  ];
+  const metaRowCount = Math.max(metaColLeft.length, metaColRight.length);
+  const ibanRow = metaRowCount + (iban ? 1 : 0);
   page.drawRectangle({
     x: marginX,
-    y: y - metaRows.length * 15 - 10,
+    y: y - ibanRow * 15 - 10,
     width: contentRight - marginX,
-    height: metaRows.length * 15 + 20,
+    height: ibanRow * 15 + 20,
     color: lightGray,
   });
   y -= 8;
-  for (const [label, value] of metaRows) {
-    text(label, marginX + 12, y - 10, { size: 9, color: gray });
-    text(value, marginX + 160, y - 10, { size: 9, f: bold });
-    y -= 15;
+  const metaColRightX = marginX + 300;
+  for (let i = 0; i < metaRowCount; i++) {
+    const rowY = y - 10 - i * 15;
+    if (metaColLeft[i]) {
+      text(metaColLeft[i][0], marginX + 12, rowY, { size: 9, color: gray });
+      text(metaColLeft[i][1], marginX + 140, rowY, { size: 9, f: bold });
+    }
+    if (metaColRight[i]) {
+      text(metaColRight[i][0], metaColRightX, rowY, { size: 9, color: gray });
+      text(metaColRight[i][1], metaColRightX + 100, rowY, { size: 9, f: bold });
+    }
   }
-  y -= 26;
+  if (iban) {
+    const rowY = y - 10 - metaRowCount * 15;
+    text("Účet (IBAN)", marginX + 12, rowY, { size: 9, color: gray });
+    text(iban, marginX + 140, rowY, { size: 9, f: bold });
+  }
+  y -= ibanRow * 15 + 26;
 
   // Items table header
-  const colQty = 350;
-  const colUnit = 410;
+  const colQty = 330;
+  const colUnit = 450;
   const colTotal = contentRight;
   page.drawRectangle({
     x: marginX,

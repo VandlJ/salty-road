@@ -27,16 +27,8 @@ const nextConfig: NextConfig = {
   // they're pinned explicitly to ship with both serverless functions that
   // generate invoices (mark-as-paid, and the on-demand admin download).
   outputFileTracingIncludes: {
-    "/api/admin/orders/[id]": [
-      "./src/assets/fonts/**",
-      "./src/assets/invoice-logo.png",
-      "./src/app/fonts/Amika_Blackletter.ttf",
-    ],
-    "/api/admin/orders/[id]/invoice": [
-      "./src/assets/fonts/**",
-      "./src/assets/invoice-logo.png",
-      "./src/app/fonts/Amika_Blackletter.ttf",
-    ],
+    "/api/admin/orders/[id]": ["./src/assets/fonts/**", "./src/assets/invoice-logo.png"],
+    "/api/admin/orders/[id]/invoice": ["./src/assets/fonts/**", "./src/assets/invoice-logo.png"],
   },
   images: {
     // Next.js 16 restricts custom `quality` props to this allowlist (default
