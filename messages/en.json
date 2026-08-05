@@ -157,7 +157,8 @@
       "subtitle": "Photos from the first edition.",
       "empty": "Photos from the event are coming soon.",
       "photoLabel": "Event photo",
-      "loadMore": "Load more"
+      "scrollLeft": "Scroll left",
+      "scrollRight": "Scroll right"
     },
     "vehicles": {
       "title": "Cars on display"

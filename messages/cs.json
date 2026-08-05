@@ -157,7 +157,8 @@
       "subtitle": "Fotky z prvního ročníku.",
       "empty": "Fotky z akce sem přidáme brzy.",
       "photoLabel": "Fotka z akce",
-      "loadMore": "Načíst další"
+      "scrollLeft": "Posunout doleva",
+      "scrollRight": "Posunout doprava"
     },
     "vehicles": {
       "title": "Vystavené vozy"

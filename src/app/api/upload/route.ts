@@ -107,6 +107,22 @@ export async function POST(req: Request) {
       }
     }
 
+    // Gallery photos are served straight from Blob as plain <img> tags on
+    // the homepage (masonry layout — see EventGallerySection), bypassing
+    // next/image's usual automatic AVIF/WebP re-encoding. Converting to WebP
+    // here is what actually shrinks them, since nothing downstream will.
+    // Scoped to this one folder so merch/registrations keep their existing
+    // (already-working) upload behavior untouched.
+    if (folder === "gallery") {
+      try {
+        buffer = (await sharp(buffer).rotate().toFormat("webp", { quality: 80 }).toBuffer()) as unknown as Buffer;
+        fileName = fileName.replace(/\.[a-zA-Z0-9]+$/, "") + ".webp";
+        contentType = "image/webp";
+      } catch (err) {
+        console.error(`WebP conversion failed for ${fileName}, uploading original:`, err);
+      }
+    }
+
     const now = Date.now();
     // We rely on DB reconciliation to clean up unused files (see
     // /api/cron/cleanup for the registrations folder).
