@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import imageCompression from "browser-image-compression";
 import PhotoGallery from "@/components/photo-gallery";
 
 type UploadItem = {
@@ -66,8 +67,25 @@ export default function AdminPhotoGalleryManager({
       const file = files[i];
       setUploadQueue((q) => q.map((item, idx) => (idx === i ? { ...item, status: "uploading" } : item)));
       try {
+        // Vercel's Serverless Functions reject request bodies over ~4.5MB
+        // outright (413, before our own MAX_FILE_BYTES check in /api/upload
+        // ever runs) — a phone/camera JPEG routinely exceeds that. Same fix
+        // as registerForm.tsx's registration-photo upload.
+        let fileToUpload: File | Blob = file;
+        try {
+          if (file.type.startsWith("image/")) {
+            fileToUpload = await imageCompression(file, {
+              maxSizeMB: 4,
+              maxWidthOrHeight: 1920,
+              useWebWorker: true,
+            });
+          }
+        } catch (compressionError) {
+          console.warn("Image compression failed, uploading original:", compressionError);
+        }
+
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", fileToUpload, file.name);
         formData.append("folder", folder);
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         const json = await res.json().catch(() => null);
