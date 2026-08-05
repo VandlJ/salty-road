@@ -1,14 +1,16 @@
 import { test, expect, type Page } from "@playwright/test";
 
-// F2.3 — coupon behaviour in the cart, against the coupons seeded by
-// scripts/seedTestDb.mjs (TEST10, TESTFIX, TESTSHIP, TESTONCE).
+// F2.3 — coupon behaviour at checkout, against the coupons seeded by
+// scripts/seedTestDb.mjs (TEST10, TESTFIX, TESTSHIP, TESTONCE). Coupon entry
+// lives on the checkout page (not the cart) — it sits next to delivery
+// method, which the free-shipping coupon needs to make sense of.
 
-async function addHoodieToCart(page: Page) {
+async function addHoodieToCheckout(page: Page) {
   await page.goto("/cs/shop/test-hoodie");
   await page.locator('[data-testid="variant-color-option"][data-color="Černá"]').click();
   await page.locator('[data-testid="variant-size-option"][data-size="M"]').click();
   await page.locator('[data-testid="add-to-cart"]').click();
-  await page.goto("/cs/shop/cart");
+  await page.goto("/cs/shop/checkout");
 }
 
 async function applyCoupon(page: Page, code: string) {
@@ -23,9 +25,9 @@ async function applyCoupon(page: Page, code: string) {
   ).toBeVisible();
 }
 
-test.describe("cart coupons", () => {
+test.describe("checkout coupons", () => {
   test("a percent coupon discounts 10% of the subtotal", async ({ page }) => {
-    await addHoodieToCart(page);
+    await addHoodieToCheckout(page);
     await applyCoupon(page, "TEST10");
     await expect(page.getByText("TEST10", { exact: false })).toBeVisible();
     // 10% of 65000 halire = 6500 halire = 65 Kč
@@ -33,32 +35,33 @@ test.describe("cart coupons", () => {
   });
 
   test("a fixed coupon discounts exactly 100 Kč", async ({ page }) => {
-    await addHoodieToCart(page);
+    await addHoodieToCheckout(page);
     await applyCoupon(page, "TESTFIX");
     await expect(page.getByText("-100 Kč", { exact: false })).toBeVisible();
   });
 
   test("a free_shipping coupon zeroes the shipping line without touching the item subtotal", async ({ page }) => {
-    await addHoodieToCart(page);
+    await addHoodieToCheckout(page);
     await applyCoupon(page, "TESTSHIP");
     await expect(page.getByText("TESTSHIP", { exact: false })).toBeVisible();
-    await expect(page.locator('[data-testid="cart-shipping-fee"]')).toHaveText("Zdarma");
+    await expect(page.locator('[data-testid="checkout-shipping-fee"]')).toHaveText("Zdarma");
   });
 
   test("an invalid code shows an error and leaves the total unchanged", async ({ page }) => {
-    await addHoodieToCart(page);
-    // The shipping-fee preview is fetched async and folds into cart-total
-    // once it lands — wait for that to settle before snapshotting the
-    // "before" value, or a slow fetch makes this a false failure.
-    await expect(page.locator('[data-testid="cart-shipping-fee"]')).toBeVisible();
-    const totalBefore = await page.locator('[data-testid="cart-total"]').innerText();
+    await addHoodieToCheckout(page);
+    // The shipping fee is fetched async and folds into checkout-total once
+    // it lands — wait for it to settle before snapshotting the "before"
+    // value, or a slow fetch makes this a false failure.
+    const total = page.locator('[data-testid="checkout-total"]');
+    await expect(total).toContainText("Kč");
+    const totalBefore = await total.innerText();
     await applyCoupon(page, "NOTREAL");
     await expect(page.getByText("Neplatný nebo vyčerpaný kupón.")).toBeVisible();
-    await expect(page.locator('[data-testid="cart-total"]')).toHaveText(totalBefore);
+    await expect(total).toHaveText(totalBefore);
   });
 
   test("a discount coupon and a shipping coupon combine independently", async ({ page }) => {
-    await addHoodieToCart(page);
+    await addHoodieToCheckout(page);
     await applyCoupon(page, "TEST10");
     await applyCoupon(page, "TESTSHIP");
     await expect(page.getByText("TEST10", { exact: false })).toBeVisible();
@@ -66,19 +69,20 @@ test.describe("cart coupons", () => {
   });
 
   test("removing the last cart item clears the applied coupon", async ({ page }) => {
-    await addHoodieToCart(page);
+    await addHoodieToCheckout(page);
     await applyCoupon(page, "TEST10");
+    await page.goto("/cs/shop/cart");
     await page.locator('[data-testid="cart-item-remove"]').click();
     // Cart becomes empty — re-adding the item must not silently resurrect
     // the discount from localStorage.
-    await addHoodieToCart(page);
+    await addHoodieToCheckout(page);
     await expect(page.getByText("TEST10", { exact: false })).not.toBeVisible();
   });
 
   test("a maxUses:1 coupon is rejected on a second checkout", async ({ page, browser }) => {
     // First order consumes TESTONCE's single use, via the real checkout API
     // (not re-driving the whole UI flow twice) — the interesting assertion
-    // is what happens on the *second* attempt, exercised through the cart UI.
+    // is what happens on the *second* attempt, exercised through the UI.
     const firstOrderRes = await page.request.post("/api/merch/checkout", {
       data: {
         customerName: "První Zákazník",
@@ -98,7 +102,7 @@ test.describe("cart coupons", () => {
     // leak from the first — apply the same code and confirm it's rejected.
     const context = await browser.newContext();
     const page2 = await context.newPage();
-    await addHoodieToCart(page2);
+    await addHoodieToCheckout(page2);
     await applyCoupon(page2, "TESTONCE");
     await expect(page2.getByText("Neplatný nebo vyčerpaný kupón.")).toBeVisible();
     await context.close();

@@ -5,9 +5,10 @@ const prisma = new PrismaClient();
 
 // F2.4 — free gift above threshold (seeded at 150000 halire / 1500 Kč via
 // scripts/seedTestDb.mjs). test-hoodie is 650 Kč/unit, so 3 units clears it
-// and 1 unit doesn't.
+// and 1 unit doesn't. The gift progress bar / picker live on the checkout
+// page (not the cart) — eligibility depends on any coupon applied there.
 
-async function addHoodieToCart(page: Page, qty: number) {
+async function addHoodieAndGoToCheckout(page: Page, qty: number) {
   await page.goto("/cs/shop/test-hoodie");
   await page.locator('[data-testid="variant-color-option"][data-color="Bílá"]').click();
   await page.locator('[data-testid="variant-size-option"][data-size="L"]').click();
@@ -17,7 +18,7 @@ async function addHoodieToCart(page: Page, qty: number) {
     // both present in the DOM) — .first() avoids a strict-mode violation.
     if (i === 0) await expect(page.locator('[data-testid="cart-badge"]').first()).toBeVisible();
   }
-  await page.goto("/cs/shop/cart");
+  await page.goto("/cs/shop/checkout");
 }
 
 test.describe("free gift over threshold", () => {
@@ -26,13 +27,13 @@ test.describe("free gift over threshold", () => {
   });
 
   test("below threshold shows progress, not the gift picker", async ({ page }) => {
-    await addHoodieToCart(page, 1);
+    await addHoodieAndGoToCheckout(page, 1);
     await expect(page.locator('[data-testid="gift-option"]')).toHaveCount(0);
     await expect(page.getByText("Ještě", { exact: false })).toBeVisible();
   });
 
   test("above threshold offers the seeded gift and it can be selected", async ({ page }) => {
-    await addHoodieToCart(page, 3);
+    await addHoodieAndGoToCheckout(page, 3);
     const stickerOption = page.locator('[data-testid="gift-option"][data-sku="TEST-STICKER"]');
     await expect(stickerOption).toBeVisible();
     await stickerOption.click();
@@ -40,9 +41,8 @@ test.describe("free gift over threshold", () => {
   });
 
   test("a selected gift is attached to the order and decrements its own stock", async ({ page }) => {
-    await addHoodieToCart(page, 3);
+    await addHoodieAndGoToCheckout(page, 3);
     await page.locator('[data-testid="gift-option"][data-sku="TEST-STICKER"]').click();
-    await page.locator('[data-testid="cart-checkout"]').click();
 
     await page.getByLabel("Jméno").fill("Gift");
     await page.getByLabel("Příjmení").fill("Test");
@@ -66,17 +66,18 @@ test.describe("free gift over threshold", () => {
   });
 
   test("dropping below the threshold before checkout silently drops the gift, order still succeeds", async ({ page }) => {
-    await addHoodieToCart(page, 3);
+    await addHoodieAndGoToCheckout(page, 3);
     await page.locator('[data-testid="gift-option"][data-sku="TEST-STICKER"]').click();
 
     // Remove enough quantity to fall back under the threshold without
     // clearing the cart (which would reset the gift selection itself) —
-    // reduce via the stepper on the single cart line instead.
+    // reduce via the stepper on the cart page, then return to checkout.
+    await page.goto("/cs/shop/cart");
     const cartItem = page.locator('[data-testid="cart-item"]').first();
     await cartItem.getByRole("button", { name: "Snížit počet" }).click();
     await cartItem.getByRole("button", { name: "Snížit počet" }).click();
+    await page.goto("/cs/shop/checkout");
 
-    await page.locator('[data-testid="cart-checkout"]').click();
     await page.getByLabel("Jméno").fill("Below");
     await page.getByLabel("Příjmení").fill("Threshold");
     await page.getByLabel("E-mail").fill("e2e-gift-dropped@example.com");
