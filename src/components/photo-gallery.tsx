@@ -123,11 +123,25 @@ export default function PhotoGallery({
         className="relative w-full h-full p-4 flex items-center justify-center outline-none"
         onClick={(e) => e.stopPropagation()}
       >
-        <div key={index} className="fade-swap relative w-full h-full max-w-6xl max-h-[85vh]">
+        <motion.div
+          key={index}
+          className="fade-swap relative w-full h-full max-w-6xl max-h-[85vh] touch-pan-y"
+          drag={photos.length > 1 ? "x" : false}
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.6}
+          onDragEnd={(_, info) => {
+            // Swipe distance beats a raw velocity threshold on trackpad-style
+            // slow drags; velocity beats distance on a fast flick that
+            // barely moves. Either one alone misses one of those two cases.
+            if (info.offset.x < -60 || info.velocity.x < -500) next();
+            else if (info.offset.x > 60 || info.velocity.x > 500) prev();
+          }}
+        >
           <Image
             src={getFullUrl(photos[index])}
             alt={t("photoAlt", { label, index: index + 1, total: photos.length })}
             fill
+            draggable={false}
             className="object-contain"
             sizes="100vw"
             quality={90}
@@ -138,7 +152,7 @@ export default function PhotoGallery({
             // load gets the same immediate-fetch behavior without that.
             loading="eager"
           />
-        </div>
+        </motion.div>
 
         {photos.length > 1 && (
           <>
