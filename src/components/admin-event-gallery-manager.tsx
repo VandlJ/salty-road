@@ -506,7 +506,7 @@ function GalleryTile({
             isSelected ? "border-blue-600" : "border-gray-700 hover:border-white"
           }`}
         >
-          <Image src={photo.url} alt="" fill className="object-contain p-1.5" sizes="96px" />
+          <Image src={photo.url} alt="" fill draggable={false} className="object-contain p-1.5" sizes="96px" />
         </button>
 
         {photo.instagram && (
