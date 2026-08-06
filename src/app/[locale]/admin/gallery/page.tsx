@@ -4,14 +4,15 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import React, { useCallback, useEffect, useState } from "react";
 import AdminLoginForm from "@/components/admin-login-form";
-import AdminPhotoGalleryManager from "@/components/admin-photo-gallery-manager";
+import AdminEventGalleryManager from "@/components/admin-event-gallery-manager";
 import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
+import type { GalleryPhoto } from "@/lib/gallery";
 
 export default function AdminGalleryPage() {
   const t = useTranslations("AdminGalleryPage");
   const { loggedIn, checking, recheck } = useAdminAuth();
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,9 +41,9 @@ export default function AdminGalleryPage() {
     }
   }, [loggedIn, loadPhotos]);
 
-  // AdminPhotoGalleryManager has already applied the change to its own
+  // AdminEventGalleryManager has already applied the change to its own
   // optimistic mirror by the time this runs; persisting is all that's left.
-  async function savePhotos(next: string[]) {
+  async function savePhotos(next: GalleryPhoto[]) {
     setPhotos(next);
     setError(null);
     try {
@@ -98,10 +99,9 @@ export default function AdminGalleryPage() {
           ))}
         </div>
       ) : (
-        <AdminPhotoGalleryManager
+        <AdminEventGalleryManager
           photos={photos}
           onChange={savePhotos}
-          folder="gallery"
           uploadLabel={t("uploadPhotos")}
           uploadingLabel={t("uploading")}
         />

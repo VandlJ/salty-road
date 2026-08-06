@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
 import PhotoGallery from "@/components/photo-gallery";
+import { normalizeInstagramUrl, type GalleryPhoto } from "@/lib/gallery";
 
 const PLACEHOLDER_COUNT = 8;
 // One fixed row height — each photo's width is whatever its natural aspect
@@ -11,13 +12,13 @@ const PLACEHOLDER_COUNT = 8;
 // needed), so the section never grows with photo count. That's the point:
 // a horizontal scroll instead of a page that gets taller the more photos
 // get uploaded.
-const ROW_HEIGHT = "h-72 sm:h-96 md:h-[30rem] lg:h-[34rem]";
+const ROW_HEIGHT = "h-72 sm:h-96 md:h-[26rem] lg:h-[28rem]";
 const SCROLL_STEP = 640;
 
 // Photos arrive as props from the server (see getGalleryPhotosCached) rather
 // than being fetched client-side — the whole list is a handful of KB of URLs,
 // so a public API route and a loading state would be pure overhead.
-export default function EventGallerySection({ photos }: { photos: string[] }) {
+export default function EventGallerySection({ photos }: { photos: GalleryPhoto[] }) {
   const t = useTranslations("ArchivePage.gallery");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -67,24 +68,45 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
               ref={scrollerRef}
               className={`no-scrollbar flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory px-2 ${ROW_HEIGHT}`}
             >
-              {photos.map((url, i) => (
-                <button
-                  key={url}
-                  type="button"
-                  data-testid="gallery-photo"
-                  onClick={() => setLightboxIndex(i)}
-                  aria-label={`${t("photoLabel")} ${i + 1}`}
-                  className="h-full shrink-0 snap-start rounded-lg overflow-hidden border border-gray-800 bg-black cursor-pointer group shadow-lg shadow-black/50 transition-shadow duration-300 hover:shadow-xl hover:shadow-black/70"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element -- fixed row height, natural width from intrinsic aspect ratio; next/image needs a width/height we don't have. */}
-                  <img
-                    src={url}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-auto block transition-transform duration-300 group-hover:scale-105"
-                  />
-                </button>
-              ))}
+              {photos.map((photo, i) => {
+                const instagramUrl = normalizeInstagramUrl(photo.instagram);
+                return (
+                  <button
+                    key={photo.url}
+                    type="button"
+                    data-testid="gallery-photo"
+                    onClick={() => setLightboxIndex(i)}
+                    aria-label={`${t("photoLabel")} ${i + 1}`}
+                    className="relative h-full shrink-0 snap-start rounded-lg overflow-hidden border border-gray-800 bg-black cursor-pointer group shadow-lg shadow-black/50 transition-shadow duration-300 hover:shadow-xl hover:shadow-black/70"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- fixed row height, natural width from intrinsic aspect ratio; next/image needs a width/height we don't have. */}
+                    <img
+                      src={photo.url}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-auto block transition-transform duration-300 group-hover:scale-105"
+                    />
+                    {instagramUrl && (
+                      // Own <a>, not a nested button-in-button — stopPropagation
+                      // keeps a click here from also opening the lightbox behind it.
+                      <a
+                        href={instagramUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label={t("photoCredit")}
+                        className="absolute bottom-2 right-2 z-10 w-8 h-8 flex items-center justify-center bg-black/70 backdrop-blur hover:bg-black/90 border border-white/20 hover:border-white text-white rounded-full transition-colors"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                        </svg>
+                      </a>
+                    )}
+                  </button>
+                );
+              })}
             </div>
 
             {photos.length > 3 && (
@@ -117,7 +139,7 @@ export default function EventGallerySection({ photos }: { photos: string[] }) {
 
       {lightboxIndex !== null && (
         <PhotoGallery
-          photos={photos}
+          photos={photos.map((p) => p.url)}
           initialIndex={lightboxIndex}
           label={t("photoLabel")}
           onClose={() => setLightboxIndex(null)}

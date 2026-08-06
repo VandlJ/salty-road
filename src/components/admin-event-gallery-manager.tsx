@@ -6,6 +6,7 @@ import imageCompression from "browser-image-compression";
 import PhotoGallery from "@/components/photo-gallery";
 import { AnimatedModal } from "@/components/animated-modal";
 import { useModalA11y } from "@/lib/useModalA11y";
+import type { GalleryPhoto } from "@/lib/gallery";
 
 type UploadItem = {
   id: number;
@@ -16,29 +17,26 @@ type UploadItem = {
 
 const TILE_CLASS = "w-20 h-20 sm:w-24 sm:h-24";
 
-// Admin-only multi-photo manager: upload (multiple at once), reorder via
-// left/right buttons, delete (single, multi-select, or all), click a
-// thumbnail to view it full-size. No drag-and-drop library — this project
-// doesn't have one installed, and left/right buttons cover the "reorder"
-// need without adding a dependency for what's an infrequent admin action.
-export default function AdminPhotoGalleryManager({
+// Event-gallery-specific sibling of AdminPhotoGalleryManager (which stays
+// string[]-only for merch product/variant photos). This one carries a
+// per-photo Instagram credit — the whole reason it's a separate component
+// rather than a generalized prop on the shared one, which had no reason to
+// grow a merch-irrelevant concept.
+export default function AdminEventGalleryManager({
   photos,
   onChange,
   uploadingLabel,
   uploadLabel,
-  folder = "merch",
 }: {
-  photos: string[];
-  onChange: (photos: string[]) => Promise<void> | void;
+  photos: GalleryPhoto[];
+  onChange: (photos: GalleryPhoto[]) => Promise<void> | void;
   uploadingLabel: string;
   uploadLabel: string;
-  /** Blob storage folder — must be in ALLOWED_FOLDERS in /api/upload. */
-  folder?: "merch" | "gallery";
 }) {
-  // Mirrors `photos` but updates instantly on reorder/delete instead of
-  // waiting for the PATCH round-trip — the request that actually persists
-  // it still fires (via `onChange`), this is purely so the UI doesn't feel
-  // like the click did nothing for the ~1s the request takes.
+  // Mirrors `photos` but updates instantly on reorder/delete/tag instead of
+  // waiting for the PUT round-trip — the request that actually persists it
+  // still fires (via `onChange`), this is purely so the UI doesn't feel like
+  // the click did nothing for the ~1s the request takes.
   const [localPhotos, setLocalPhotos] = useState(photos);
   // Re-syncs the optimistic local mirror whenever the persisted prop
   // changes (e.g. after the parent reloads), not a render-cascade loop.
@@ -56,6 +54,11 @@ export default function AdminPhotoGalleryManager({
   const [confirmMode, setConfirmMode] = useState<"selected" | "all" | null>(null);
   const closeConfirm = () => setConfirmMode(null);
   const confirmModalRef = useModalA11y<HTMLDivElement>(confirmMode !== null, closeConfirm);
+
+  const [tagModalOpen, setTagModalOpen] = useState(false);
+  const [tagInput, setTagInput] = useState("");
+  const closeTagModal = () => setTagModalOpen(false);
+  const tagModalRef = useModalA11y<HTMLDivElement>(tagModalOpen, closeTagModal);
 
   async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
@@ -99,13 +102,13 @@ export default function AdminPhotoGalleryManager({
 
         const formData = new FormData();
         formData.append("file", fileToUpload, file.name);
-        formData.append("folder", folder);
+        formData.append("folder", "gallery");
         const res = await fetch("/api/upload", { method: "POST", body: formData });
         const json = await res.json().catch(() => null);
         if (!res.ok) {
           throw new Error(json?.error || `Upload failed (${res.status})`);
         }
-        current = [...current, json.url as string];
+        current = [...current, { url: json.url as string, instagram: null }];
         setLocalPhotos(current);
         await onChange(current);
         // Done — the photo is now in localPhotos itself, so the queue entry
@@ -127,7 +130,7 @@ export default function AdminPhotoGalleryManager({
     setUploadQueue((q) => q.filter((item) => item.id !== id));
   }
 
-  async function persist(next: string[]) {
+  async function persist(next: GalleryPhoto[]) {
     setLocalPhotos(next);
     setSaving(true);
     try {
@@ -139,7 +142,7 @@ export default function AdminPhotoGalleryManager({
 
   async function remove(index: number) {
     if (busy) return;
-    const url = localPhotos[index];
+    const url = localPhotos[index].url;
     await persist(localPhotos.filter((_, i) => i !== index));
     setSelected((prev) => {
       if (!prev.has(url)) return prev;
@@ -174,9 +177,25 @@ export default function AdminPhotoGalleryManager({
       await persist([]);
       setSelected(new Set());
     } else if (mode === "selected") {
-      await persist(localPhotos.filter((url) => !selected.has(url)));
+      await persist(localPhotos.filter((p) => !selected.has(p.url)));
       setSelected(new Set());
     }
+  }
+
+  function openTagModal() {
+    // Pre-fill with the existing tag only if every selected photo already
+    // shares the exact same one — otherwise start blank rather than picking
+    // one arbitrarily and looking like it applies to all of them already.
+    const tags = new Set(localPhotos.filter((p) => selected.has(p.url)).map((p) => p.instagram ?? ""));
+    setTagInput(tags.size === 1 ? [...tags][0] : "");
+    setTagModalOpen(true);
+  }
+
+  async function applyTag() {
+    const value = tagInput.trim() || null;
+    const next = localPhotos.map((p) => (selected.has(p.url) ? { ...p, instagram: value } : p));
+    setTagModalOpen(false);
+    await persist(next);
   }
 
   const allSelected = localPhotos.length > 0 && selected.size === localPhotos.length;
@@ -187,21 +206,31 @@ export default function AdminPhotoGalleryManager({
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <button
             type="button"
-            onClick={() => setSelected(allSelected ? new Set() : new Set(localPhotos))}
+            onClick={() => setSelected(allSelected ? new Set() : new Set(localPhotos.map((p) => p.url)))}
             disabled={busy}
             className="text-gray-400 hover:text-white font-bold uppercase tracking-wide cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {allSelected ? "Zrušit výběr" : "Vybrat vše"}
           </button>
           {selected.size > 0 && (
-            <button
-              type="button"
-              onClick={() => setConfirmMode("selected")}
-              disabled={busy}
-              className="text-red-400 hover:text-red-300 font-bold uppercase tracking-wide cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Smazat vybrané ({selected.size})
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={openTagModal}
+                disabled={busy}
+                className="text-blue-400 hover:text-blue-300 font-bold uppercase tracking-wide cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Přidat Instagram ({selected.size})
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmMode("selected")}
+                disabled={busy}
+                className="text-red-400 hover:text-red-300 font-bold uppercase tracking-wide cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Smazat vybrané ({selected.size})
+              </button>
+            </>
           )}
           <button
             type="button"
@@ -216,10 +245,10 @@ export default function AdminPhotoGalleryManager({
 
       {(localPhotos.length > 0 || uploadQueue.length > 0) && (
         <div className={`flex flex-wrap gap-x-6 gap-y-3 transition-opacity duration-150 ${saving ? "opacity-60" : ""}`}>
-          {localPhotos.map((url, i) => {
-            const isSelected = selected.has(url);
+          {localPhotos.map((photo, i) => {
+            const isSelected = selected.has(photo.url);
             return (
-              <div key={url} className="relative w-20 sm:w-24 shrink-0">
+              <div key={photo.url} className="relative w-20 sm:w-24 shrink-0">
                 <button
                   type="button"
                   onClick={() => setPreviewIndex(i)}
@@ -228,12 +257,25 @@ export default function AdminPhotoGalleryManager({
                     isSelected ? "border-blue-600" : "border-gray-700 hover:border-white"
                   }`}
                 >
-                  <Image src={url} alt="" fill className="object-contain p-1.5" sizes="96px" />
+                  <Image src={photo.url} alt="" fill className="object-contain p-1.5" sizes="96px" />
                 </button>
+
+                {photo.instagram && (
+                  <span
+                    title={`Instagram: ${photo.instagram}`}
+                    className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center bg-black/80 border border-white/30 text-white rounded-full"
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                    </svg>
+                  </span>
+                )}
 
                 <button
                   type="button"
-                  onClick={() => toggleSelected(url)}
+                  onClick={() => toggleSelected(photo.url)}
                   disabled={busy}
                   aria-label={isSelected ? "Zrušit výběr fotky" : "Vybrat fotku"}
                   aria-pressed={isSelected}
@@ -338,7 +380,7 @@ export default function AdminPhotoGalleryManager({
 
       {previewIndex !== null && (
         <PhotoGallery
-          photos={localPhotos}
+          photos={localPhotos.map((p) => p.url)}
           initialIndex={previewIndex}
           label="Náhled fotky"
           onClose={() => setPreviewIndex(null)}
@@ -368,6 +410,42 @@ export default function AdminPhotoGalleryManager({
             className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 transition-all cursor-pointer"
           >
             Smazat
+          </button>
+        </div>
+      </AnimatedModal>
+
+      <AnimatedModal
+        open={tagModalOpen}
+        panelRef={tagModalRef}
+        labelledBy="tag-instagram-title"
+        panelClassName="bg-[#111] border-2 border-blue-600 p-8 max-w-md w-full shadow-[0_0_20px_rgba(37,99,235,0.3)]"
+      >
+        <h3 id="tag-instagram-title" className="text-white font-bold mb-2 text-center">
+          Instagram pro {selected.size} {selected.size === 1 ? "fotku" : "fotky"}
+        </h3>
+        <p className="text-gray-400 text-xs mb-4 text-center">
+          Handle, @handle nebo celá URL — hodí se pro dávku fotek od stejného fotografa.
+        </p>
+        <input
+          type="text"
+          value={tagInput}
+          onChange={(e) => setTagInput(e.target.value)}
+          placeholder="@fotograf"
+          autoFocus
+          className="w-full p-3 mb-6 bg-white/5 border-2 border-gray-600 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+        />
+        <div className="flex gap-4">
+          <button
+            onClick={closeTagModal}
+            className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
+          >
+            Zrušit
+          </button>
+          <button
+            onClick={applyTag}
+            className="flex-1 px-4 py-3 bg-blue-600 border border-blue-500 text-white font-bold uppercase tracking-wider hover:bg-blue-500 transition-all cursor-pointer"
+          >
+            Uložit
           </button>
         </div>
       </AnimatedModal>

@@ -5,15 +5,22 @@ const GALLERY_PHOTOS_KEY = "gallery_photos";
 
 export const GALLERY_CACHE_TAG = "gallery-photos";
 
-// Event photo gallery — an ordered list of Vercel Blob URLs, stored as JSON in
-// a single Setting row rather than its own table. The whole data model is "an
-// ordered list of URLs", which is exactly what AdminPhotoGalleryManager already
-// speaks (string[] in, string[] out), so a relational model would only add a
-// migration against production Postgres plus a mapping layer in both
-// directions. The trade-off: no per-photo metadata (caption, photographer
-// credit) without a later migration, and writes are last-write-wins over the
+export interface GalleryPhoto {
+  url: string;
+  // Photographer/car-owner Instagram, tagged per-photo (usually in a batch —
+  // one photographer's whole set at once) from /admin/gallery. Free text as
+  // typed by the admin (handle, @handle, or full URL) — normalizeInstagramUrl
+  // turns it into a real link wherever it's rendered, so storage doesn't have
+  // to guess the format up front.
+  instagram: string | null;
+}
+
+// Event photo gallery — an ordered list of { url, instagram } entries, stored
+// as JSON in a single Setting row rather than its own table. A relational
+// model would only have bought a migration against production Postgres for a
+// data shape this simple. Trade-off: writes are last-write-wins over the
 // whole array — fine for a single admin.
-export async function getGalleryPhotos(): Promise<string[]> {
+export async function getGalleryPhotos(): Promise<GalleryPhoto[]> {
   const setting = await prisma.setting.findUnique({
     where: { key: GALLERY_PHOTOS_KEY },
   });
@@ -22,17 +29,21 @@ export async function getGalleryPhotos(): Promise<string[]> {
   try {
     const parsed = JSON.parse(setting.value);
     if (!Array.isArray(parsed)) return [];
-    // Tolerates both ["url", ...] and [{ url }, ...] so a future upgrade to
-    // per-photo objects doesn't need a data backfill to stay readable here.
+    // Tolerates the earlier plain-string-array format too (["url", ...]),
+    // so the pre-Instagram-tagging data already saved doesn't need a
+    // backfill migration to stay readable.
     return parsed
-      .map((entry) =>
-        typeof entry === "string"
-          ? entry
-          : typeof entry?.url === "string"
-            ? entry.url
-            : null
-      )
-      .filter((url): url is string => url !== null);
+      .map((entry): GalleryPhoto | null => {
+        if (typeof entry === "string") return { url: entry, instagram: null };
+        if (typeof entry?.url === "string") {
+          return {
+            url: entry.url,
+            instagram: typeof entry.instagram === "string" ? entry.instagram : null,
+          };
+        }
+        return null;
+      })
+      .filter((entry): entry is GalleryPhoto => entry !== null);
   } catch {
     // A hand-edited or truncated value shouldn't take the homepage down.
     console.error("Malformed gallery_photos setting, treating as empty");
@@ -40,13 +51,24 @@ export async function getGalleryPhotos(): Promise<string[]> {
   }
 }
 
-export async function setGalleryPhotos(photos: string[]): Promise<void> {
+export async function setGalleryPhotos(photos: GalleryPhoto[]): Promise<void> {
   const value = JSON.stringify(photos);
   await prisma.setting.upsert({
     where: { key: GALLERY_PHOTOS_KEY },
     update: { value },
     create: { key: GALLERY_PHOTOS_KEY, value },
   });
+}
+
+// Accepts a handle ("foo"), an @handle ("@foo"), or a full URL, and always
+// returns a real, clickable instagram.com link (or null for empty input) —
+// the admin gallery input doesn't force a particular format.
+export function normalizeInstagramUrl(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  const handle = trimmed.replace(/^@/, "");
+  return `https://www.instagram.com/${handle}`;
 }
 
 // The homepage reads this during render — including at build time, when
@@ -62,7 +84,7 @@ const getGalleryPhotosUncaught = unstable_cache(getGalleryPhotos, ["gallery-phot
   tags: [GALLERY_CACHE_TAG],
 });
 
-export async function getGalleryPhotosCached(): Promise<string[]> {
+export async function getGalleryPhotosCached(): Promise<GalleryPhoto[]> {
   try {
     return await getGalleryPhotosUncaught();
   } catch (err) {
