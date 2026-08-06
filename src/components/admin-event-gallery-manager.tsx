@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { motion, useDragControls, type PanInfo } from "motion/react";
+import { motion, useDragControls, useMotionValue, animate, type PanInfo } from "motion/react";
 import imageCompression from "browser-image-compression";
 import PhotoGallery from "@/components/photo-gallery";
 import { AnimatedModal } from "@/components/animated-modal";
@@ -469,6 +469,14 @@ function GalleryTile({
   onDragEnd: () => void;
 }) {
   const dragControls = useDragControls();
+  // Bound explicitly via style={{x, y}} rather than left as Framer's
+  // internal (hidden) drag motion values — that's what lets us reset them
+  // to 0 on drop below. Without this, the tile keeps whatever transform
+  // offset it had when the pointer lifted forever, since the array reorder
+  // already moved its natural DOM slot underneath it; the two together is
+  // what produced the "tile stuck floating, hole left in the grid" bug.
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
 
   return (
     <motion.div
@@ -479,12 +487,17 @@ function GalleryTile({
       dragListener={false}
       dragMomentum={false}
       dragElastic={0}
+      style={{ x, y }}
       onDragStart={onDragStart}
       onDrag={(_, info: PanInfo) => onDragMove({ x: info.point.x, y: info.point.y })}
-      onDragEnd={onDragEnd}
+      onDragEnd={() => {
+        animate(x, 0, { type: "spring", stiffness: 500, damping: 40 });
+        animate(y, 0, { type: "spring", stiffness: 500, damping: 40 });
+        onDragEnd();
+      }}
       whileDrag={{ scale: 1.08, boxShadow: "0 12px 28px rgba(0,0,0,0.6)" }}
       transition={{ layout: { type: "spring", stiffness: 500, damping: 40 } }}
-      className={`relative w-20 sm:w-24 shrink-0 ${isDragging ? "z-50" : ""}`}
+      className={`relative w-20 sm:w-24 shrink-0 select-none ${isDragging ? "z-50" : ""}`}
     >
       <div className="relative">
         <button
@@ -542,10 +555,10 @@ function GalleryTile({
         }}
         aria-hidden="true"
         style={{ touchAction: "none" }}
-        className="mt-1 h-6 flex items-center justify-center gap-0.5 bg-gray-800 border border-gray-600 rounded-sm cursor-grab active:cursor-grabbing text-gray-500 hover:text-white hover:border-gray-400 transition-colors"
+        className="mt-1 h-9 flex items-center justify-center gap-1 bg-gray-800 border border-gray-600 rounded-sm cursor-grab active:cursor-grabbing active:bg-gray-700 text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
       >
         {Array.from({ length: 6 }).map((_, i) => (
-          <span key={i} className="w-1 h-1 rounded-full bg-current" />
+          <span key={i} className="w-1.5 h-1.5 rounded-full bg-current" />
         ))}
       </div>
     </motion.div>
