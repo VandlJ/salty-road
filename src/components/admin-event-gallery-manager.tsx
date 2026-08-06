@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { motion, useDragControls, type PanInfo } from "motion/react";
 import imageCompression from "browser-image-compression";
 import PhotoGallery from "@/components/photo-gallery";
 import { AnimatedModal } from "@/components/animated-modal";
@@ -16,6 +17,12 @@ type UploadItem = {
 };
 
 const TILE_CLASS = "w-20 h-20 sm:w-24 sm:h-24";
+// A dragged tile only swaps into a neighbor's slot once its pointer gets
+// this close to that neighbor's center — without a gate, the tile nearest
+// the pointer would always be the target, so a barely-nudged drag would
+// keep swapping with whatever's immediately adjacent instead of only
+// reacting once the drag actually reaches toward it.
+const DRAG_SWAP_THRESHOLD = 110;
 
 // Event-gallery-specific sibling of AdminPhotoGalleryManager (which stays
 // string[]-only for merch product/variant photos). This one carries a
@@ -50,6 +57,18 @@ export default function AdminEventGalleryManager({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const busy = uploading || saving;
   const nextUploadId = useRef(0);
+
+  // Drag-to-reorder: itemRefs backs the "which tile is under the pointer"
+  // hit-test, orderRef mirrors localPhotos so the rapid-fire onDrag
+  // callback always reorders off the latest array instead of a stale
+  // closure from when the drag started.
+  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const orderRef = useRef(localPhotos);
+  useEffect(() => {
+    orderRef.current = localPhotos;
+  }, [localPhotos]);
+  const [draggingUrl, setDraggingUrl] = useState<string | null>(null);
+  const dragStartOrderRef = useRef<GalleryPhoto[] | null>(null);
 
   const [confirmMode, setConfirmMode] = useState<"selected" | "all" | null>(null);
   const closeConfirm = () => setConfirmMode(null);
@@ -152,13 +171,48 @@ export default function AdminEventGalleryManager({
     });
   }
 
-  async function move(index: number, dir: -1 | 1) {
-    if (busy) return;
-    const target = index + dir;
-    if (target < 0 || target >= localPhotos.length) return;
-    const next = [...localPhotos];
-    [next[index], next[target]] = [next[target], next[index]];
-    await persist(next);
+  function handleDragStart(url: string) {
+    dragStartOrderRef.current = orderRef.current;
+    setDraggingUrl(url);
+  }
+
+  // Fires continuously while a tile is dragged. Live-reorders localPhotos
+  // (optimistic only, not persisted yet) whenever the pointer gets close
+  // enough to a neighbor's center, which is what makes the other tiles
+  // visibly slide out of the way mid-drag instead of only snapping once on
+  // release.
+  function handleDragMove(url: string, point: { x: number; y: number }) {
+    const current = orderRef.current;
+    const fromIndex = current.findIndex((p) => p.url === url);
+    if (fromIndex === -1) return;
+    let toIndex = fromIndex;
+    let bestDist = DRAG_SWAP_THRESHOLD;
+    current.forEach((p, i) => {
+      if (p.url === url) return;
+      const el = itemRefs.current.get(p.url);
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const dist = Math.hypot(point.x - (rect.left + rect.width / 2), point.y - (rect.top + rect.height / 2));
+      if (dist < bestDist) {
+        bestDist = dist;
+        toIndex = i;
+      }
+    });
+    if (toIndex !== fromIndex) {
+      const next = [...current];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      orderRef.current = next;
+      setLocalPhotos(next);
+    }
+  }
+
+  async function handleDragEnd() {
+    setDraggingUrl(null);
+    const startOrder = dragStartOrderRef.current;
+    dragStartOrderRef.current = null;
+    const changed = startOrder?.some((p, i) => p.url !== orderRef.current[i]?.url);
+    if (changed) await persist(orderRef.current);
   }
 
   function toggleSelected(url: string) {
@@ -245,84 +299,25 @@ export default function AdminEventGalleryManager({
 
       {(localPhotos.length > 0 || uploadQueue.length > 0) && (
         <div className={`flex flex-wrap gap-x-6 gap-y-3 transition-opacity duration-150 ${saving ? "opacity-60" : ""}`}>
-          {localPhotos.map((photo, i) => {
-            const isSelected = selected.has(photo.url);
-            return (
-              <div key={photo.url} className="relative w-20 sm:w-24 shrink-0">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => setPreviewIndex(i)}
-                    aria-label="Zobrazit fotku"
-                    className={`relative ${TILE_CLASS} block bg-white rounded-sm overflow-hidden border-2 transition-colors cursor-pointer ${
-                      isSelected ? "border-blue-600" : "border-gray-700 hover:border-white"
-                    }`}
-                  >
-                    <Image src={photo.url} alt="" fill className="object-contain p-1.5" sizes="96px" />
-                  </button>
-
-                  {photo.instagram && (
-                    <span
-                      title={`Instagram: ${photo.instagram}`}
-                      className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center bg-black/80 border border-white/30 text-white rounded-full"
-                    >
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                      </svg>
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => toggleSelected(photo.url)}
-                  disabled={busy}
-                  aria-label={isSelected ? "Zrušit výběr fotky" : "Vybrat fotku"}
-                  aria-pressed={isSelected}
-                  className={`absolute -top-2 -left-2 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold cursor-pointer transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed border-2 ${
-                    isSelected ? "bg-blue-600 border-blue-600 text-white" : "bg-[#111] border-gray-600 text-transparent hover:border-white"
-                  }`}
-                >
-                  ✓
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => remove(i)}
-                  disabled={busy}
-                  aria-label="Odstranit fotku"
-                  className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-500 text-white rounded-full text-sm font-bold cursor-pointer transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  ×
-                </button>
-
-                {localPhotos.length > 1 && (
-                <div className="flex mt-1 gap-1">
-                  <button
-                    type="button"
-                    onClick={() => move(i, -1)}
-                    disabled={busy || i === 0}
-                    aria-label="Posunout doleva"
-                    className="flex-1 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    ‹
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => move(i, 1)}
-                    disabled={busy || i === localPhotos.length - 1}
-                    aria-label="Posunout doprava"
-                    className="flex-1 h-8 flex items-center justify-center bg-gray-800 border border-gray-600 hover:bg-white hover:text-black text-white rounded-sm text-base font-bold cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    ›
-                  </button>
-                </div>
-                )}
-              </div>
-            );
-          })}
+          {localPhotos.map((photo, i) => (
+            <GalleryTile
+              key={photo.url}
+              photo={photo}
+              isSelected={selected.has(photo.url)}
+              isDragging={draggingUrl === photo.url}
+              busy={busy}
+              onPreview={() => setPreviewIndex(i)}
+              onToggleSelect={() => toggleSelected(photo.url)}
+              onRemove={() => remove(i)}
+              registerRef={(el) => {
+                if (el) itemRefs.current.set(photo.url, el);
+                else itemRefs.current.delete(photo.url);
+              }}
+              onDragStart={() => handleDragStart(photo.url)}
+              onDragMove={(point) => handleDragMove(photo.url, point)}
+              onDragEnd={handleDragEnd}
+            />
+          ))}
 
           {/* Upload placeholders live in the same grid as the real
               thumbnails (not a separate list below) — each one sits exactly
@@ -452,5 +447,118 @@ export default function AdminEventGalleryManager({
         </div>
       </AnimatedModal>
     </div>
+  );
+}
+
+// A single tile in the grid: drag is bound to the grip handle only
+// (`dragListener={false}` + `dragControls.start()` on the handle's
+// pointerdown), so the preview/select/delete buttons keep working as
+// plain clicks and never race against a drag gesture starting on them.
+function GalleryTile({
+  photo,
+  isSelected,
+  isDragging,
+  busy,
+  onPreview,
+  onToggleSelect,
+  onRemove,
+  registerRef,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
+}: {
+  photo: GalleryPhoto;
+  isSelected: boolean;
+  isDragging: boolean;
+  busy: boolean;
+  onPreview: () => void;
+  onToggleSelect: () => void;
+  onRemove: () => void;
+  registerRef: (el: HTMLDivElement | null) => void;
+  onDragStart: () => void;
+  onDragMove: (point: { x: number; y: number }) => void;
+  onDragEnd: () => void;
+}) {
+  const dragControls = useDragControls();
+
+  return (
+    <motion.div
+      ref={registerRef}
+      layout="position"
+      drag
+      dragControls={dragControls}
+      dragListener={false}
+      dragMomentum={false}
+      dragElastic={0}
+      onDragStart={onDragStart}
+      onDrag={(_, info: PanInfo) => onDragMove({ x: info.point.x, y: info.point.y })}
+      onDragEnd={onDragEnd}
+      whileDrag={{ scale: 1.08, boxShadow: "0 12px 28px rgba(0,0,0,0.6)" }}
+      transition={{ layout: { type: "spring", stiffness: 500, damping: 40 } }}
+      className={`relative w-20 sm:w-24 shrink-0 ${isDragging ? "z-50" : ""}`}
+    >
+      <div className="relative">
+        <button
+          type="button"
+          onClick={onPreview}
+          aria-label="Zobrazit fotku"
+          className={`relative ${TILE_CLASS} block bg-white rounded-sm overflow-hidden border-2 transition-colors cursor-pointer ${
+            isSelected ? "border-blue-600" : "border-gray-700 hover:border-white"
+          }`}
+        >
+          <Image src={photo.url} alt="" fill className="object-contain p-1.5" sizes="96px" />
+        </button>
+
+        {photo.instagram && (
+          <span
+            title={`Instagram: ${photo.instagram}`}
+            className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center bg-black/80 border border-white/30 text-white rounded-full"
+          >
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+            </svg>
+          </span>
+        )}
+      </div>
+
+      <button
+        type="button"
+        onClick={onToggleSelect}
+        disabled={busy}
+        aria-label={isSelected ? "Zrušit výběr fotky" : "Vybrat fotku"}
+        aria-pressed={isSelected}
+        className={`absolute -top-2 -left-2 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold cursor-pointer transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed border-2 ${
+          isSelected ? "bg-blue-600 border-blue-600 text-white" : "bg-[#111] border-gray-600 text-transparent hover:border-white"
+        }`}
+      >
+        ✓
+      </button>
+
+      <button
+        type="button"
+        onClick={onRemove}
+        disabled={busy}
+        aria-label="Odstranit fotku"
+        className="absolute -top-2 -right-2 w-6 h-6 flex items-center justify-center bg-red-600 hover:bg-red-500 text-white rounded-full text-sm font-bold cursor-pointer transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        ×
+      </button>
+
+      <div
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          dragControls.start(e);
+        }}
+        aria-hidden="true"
+        style={{ touchAction: "none" }}
+        className="mt-1 h-6 flex items-center justify-center gap-0.5 bg-gray-800 border border-gray-600 rounded-sm cursor-grab active:cursor-grabbing text-gray-500 hover:text-white hover:border-gray-400 transition-colors"
+      >
+        {Array.from({ length: 6 }).map((_, i) => (
+          <span key={i} className="w-1 h-1 rounded-full bg-current" />
+        ))}
+      </div>
+    </motion.div>
   );
 }
