@@ -140,6 +140,7 @@ export default function EventGallerySection({ photos }: { photos: GalleryPhoto[]
       {lightboxIndex !== null && (
         <PhotoGallery
           photos={photos.map((p) => p.url)}
+          credits={photos.map((p) => p.instagram)}
           initialIndex={lightboxIndex}
           label={t("photoLabel")}
           onClose={() => setLightboxIndex(null)}

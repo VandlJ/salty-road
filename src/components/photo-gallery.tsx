@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "motion/react";
 import { useModalA11y } from "@/lib/useModalA11y";
+import { normalizeInstagramUrl } from "@/lib/galleryPhoto";
 
 type PhotoGalleryProps = {
   photos: string[];
@@ -15,6 +16,12 @@ type PhotoGalleryProps = {
   label: string;
   /** Defaults to `${url}?q=90`. */
   getFullUrl?: (url: string) => string;
+  /**
+   * Parallel to `photos` — the photographer's Instagram handle/URL/null for
+   * each entry. Only the event gallery has these; every other caller omits
+   * the prop and no credit is shown.
+   */
+  credits?: (string | null)[];
 };
 
 const defaultGetFullUrl = (url: string) => `${url}?q=90`;
@@ -25,9 +32,11 @@ export default function PhotoGallery({
   onClose,
   label,
   getFullUrl = defaultGetFullUrl,
+  credits,
 }: PhotoGalleryProps) {
   const t = useTranslations("PhotoGallery");
   const [index, setIndex] = useState(initialIndex);
+  const credit = credits ? normalizeInstagramUrl(credits[index]) : null;
 
   const next = useCallback(() => setIndex((i) => (i + 1) % photos.length), [photos.length]);
   const prev = useCallback(
@@ -75,6 +84,23 @@ export default function PhotoGallery({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
       onClick={onClose}
     >
+      {credit && (
+        <a
+          href={credit}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="absolute top-4 sm:top-6 left-4 sm:left-6 z-50 flex items-center gap-2 text-white text-xs sm:text-sm bg-black/60 hover:bg-black/80 px-3 py-2 sm:px-4 rounded-full border-2 border-white/50 hover:border-white transition-colors duration-200"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+          </svg>
+          {credit.replace(/^https?:\/\/(www\.)?instagram\.com\//i, "@").replace(/\/$/, "")}
+        </a>
+      )}
+
       <button
         onClick={onClose}
         className="absolute top-4 sm:top-6 right-4 sm:right-6 z-50 text-white bg-black/60 hover:bg-white hover:text-black rounded-full p-2 sm:p-3 border-2 border-white/50 hover:border-white transition-all duration-200 cursor-pointer"
