@@ -68,6 +68,13 @@ export default function EventGallerySection({ photos }: { photos: GalleryPhoto[]
               ref={scrollerRef}
               className={`no-scrollbar flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory px-2 ${ROW_HEIGHT}`}
             >
+              {/* Mobile-only spacers so the first/last photo can actually
+                  reach the center of the viewport — scrollLeft can't go
+                  negative, so without these the edge photos snap-center
+                  against the wall instead of the middle. Desktop uses
+                  snap-start (see the button below), where this isn't
+                  needed. */}
+              <div aria-hidden="true" className="shrink-0 w-[28vw] sm:hidden" />
               {photos.map((photo, i) => {
                 const instagramUrl = normalizeInstagramUrl(photo.instagram);
                 return (
@@ -77,7 +84,7 @@ export default function EventGallerySection({ photos }: { photos: GalleryPhoto[]
                     data-testid="gallery-photo"
                     onClick={() => setLightboxIndex(i)}
                     aria-label={`${t("photoLabel")} ${i + 1}`}
-                    className="relative h-full shrink-0 snap-start rounded-lg overflow-hidden border border-gray-800 bg-black cursor-pointer group shadow-lg shadow-black/50 transition-shadow duration-300 hover:shadow-xl hover:shadow-black/70"
+                    className="relative h-full shrink-0 snap-center sm:snap-start rounded-lg overflow-hidden border border-gray-800 bg-black cursor-pointer group shadow-lg shadow-black/50 transition-shadow duration-300 hover:shadow-xl hover:shadow-black/70"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element -- fixed row height, natural width from intrinsic aspect ratio; next/image needs a width/height we don't have. */}
                     <img
@@ -107,6 +114,7 @@ export default function EventGallerySection({ photos }: { photos: GalleryPhoto[]
                   </button>
                 );
               })}
+              <div aria-hidden="true" className="shrink-0 w-[28vw] sm:hidden" />
             </div>
 
             {photos.length > 3 && (
