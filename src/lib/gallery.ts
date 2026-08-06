@@ -1,19 +1,13 @@
 import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
+import type { GalleryPhoto } from "@/lib/galleryPhoto";
+
+export type { GalleryPhoto } from "@/lib/galleryPhoto";
+export { normalizeInstagramUrl } from "@/lib/galleryPhoto";
 
 const GALLERY_PHOTOS_KEY = "gallery_photos";
 
 export const GALLERY_CACHE_TAG = "gallery-photos";
-
-export interface GalleryPhoto {
-  url: string;
-  // Photographer/car-owner Instagram, tagged per-photo (usually in a batch —
-  // one photographer's whole set at once) from /admin/gallery. Free text as
-  // typed by the admin (handle, @handle, or full URL) — normalizeInstagramUrl
-  // turns it into a real link wherever it's rendered, so storage doesn't have
-  // to guess the format up front.
-  instagram: string | null;
-}
 
 // Event photo gallery — an ordered list of { url, instagram } entries, stored
 // as JSON in a single Setting row rather than its own table. A relational
@@ -58,17 +52,6 @@ export async function setGalleryPhotos(photos: GalleryPhoto[]): Promise<void> {
     update: { value },
     create: { key: GALLERY_PHOTOS_KEY, value },
   });
-}
-
-// Accepts a handle ("foo"), an @handle ("@foo"), or a full URL, and always
-// returns a real, clickable instagram.com link (or null for empty input) —
-// the admin gallery input doesn't force a particular format.
-export function normalizeInstagramUrl(value: string | null | undefined): string | null {
-  const trimmed = value?.trim();
-  if (!trimmed) return null;
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  const handle = trimmed.replace(/^@/, "");
-  return `https://www.instagram.com/${handle}`;
 }
 
 // The homepage reads this during render — including at build time, when

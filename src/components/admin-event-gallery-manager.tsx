@@ -6,7 +6,7 @@ import imageCompression from "browser-image-compression";
 import PhotoGallery from "@/components/photo-gallery";
 import { AnimatedModal } from "@/components/animated-modal";
 import { useModalA11y } from "@/lib/useModalA11y";
-import type { GalleryPhoto } from "@/lib/gallery";
+import type { GalleryPhoto } from "@/lib/galleryPhoto";
 
 type UploadItem = {
   id: number;
@@ -249,29 +249,31 @@ export default function AdminEventGalleryManager({
             const isSelected = selected.has(photo.url);
             return (
               <div key={photo.url} className="relative w-20 sm:w-24 shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setPreviewIndex(i)}
-                  aria-label="Zobrazit fotku"
-                  className={`relative ${TILE_CLASS} block bg-white rounded-sm overflow-hidden border-2 transition-colors cursor-pointer ${
-                    isSelected ? "border-blue-600" : "border-gray-700 hover:border-white"
-                  }`}
-                >
-                  <Image src={photo.url} alt="" fill className="object-contain p-1.5" sizes="96px" />
-                </button>
-
-                {photo.instagram && (
-                  <span
-                    title={`Instagram: ${photo.instagram}`}
-                    className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center bg-black/80 border border-white/30 text-white rounded-full"
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setPreviewIndex(i)}
+                    aria-label="Zobrazit fotku"
+                    className={`relative ${TILE_CLASS} block bg-white rounded-sm overflow-hidden border-2 transition-colors cursor-pointer ${
+                      isSelected ? "border-blue-600" : "border-gray-700 hover:border-white"
+                    }`}
                   >
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                    </svg>
-                  </span>
-                )}
+                    <Image src={photo.url} alt="" fill className="object-contain p-1.5" sizes="96px" />
+                  </button>
+
+                  {photo.instagram && (
+                    <span
+                      title={`Instagram: ${photo.instagram}`}
+                      className="absolute bottom-1 right-1 w-5 h-5 flex items-center justify-center bg-black/80 border border-white/30 text-white rounded-full"
+                    >
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                      </svg>
+                    </span>
+                  )}
+                </div>
 
                 <button
                   type="button"

@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
 import PhotoGallery from "@/components/photo-gallery";
-import { normalizeInstagramUrl, type GalleryPhoto } from "@/lib/gallery";
+import { normalizeInstagramUrl, type GalleryPhoto } from "@/lib/galleryPhoto";
 
 const PLACEHOLDER_COUNT = 8;
 // One fixed row height — each photo's width is whatever its natural aspect
