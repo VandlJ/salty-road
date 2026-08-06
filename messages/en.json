@@ -161,6 +161,11 @@
       "scrollLeft": "Scroll left",
       "scrollRight": "Scroll right"
     },
+    "aftermovie": {
+      "title": "Aftermovie",
+      "subtitle": "A full day in motion — press play.",
+      "playLabel": "Play video"
+    },
     "vehicles": {
       "title": "Cars on display"
     },

@@ -161,6 +161,11 @@
       "scrollLeft": "Posunout doleva",
       "scrollRight": "Posunout doprava"
     },
+    "aftermovie": {
+      "title": "Aftermovie",
+      "subtitle": "Celý den v pohybu — pusť si to.",
+      "playLabel": "Přehrát video"
+    },
     "vehicles": {
       "title": "Vystavené vozy"
     },
