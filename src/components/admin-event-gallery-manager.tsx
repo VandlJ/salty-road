@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { motion, useDragControls, useMotionValue, animate, type PanInfo } from "motion/react";
+import { motion, useDragControls, useMotionValue, animate } from "motion/react";
 import imageCompression from "browser-image-compression";
 import PhotoGallery from "@/components/photo-gallery";
 import { AnimatedModal } from "@/components/animated-modal";
@@ -171,21 +171,26 @@ export default function AdminEventGalleryManager({
   }
 
   // Fires continuously while a tile is dragged. Live-reorders localPhotos
-  // (optimistic only, not persisted yet) once the pointer is actually over
-  // a different tile — a plain rect hit-test, not nearest-center distance.
-  // On a wrapping flex grid, distance-based nearest-neighbor picks the
-  // wrong tile near row boundaries (a tile in the row below can be closer
-  // than the real target in the same row), which is what made the swap
-  // feel like it wasn't snapping into the grid correctly.
-  function handleDragMove(url: string, point: { x: number; y: number }) {
+  // (optimistic only, not persisted yet) once the dragged tile's own
+  // on-screen center is over a different tile's rect. Deliberately re-reads
+  // the dragged tile's *own* bounding box each time (not the raw pointer
+  // position) — the drag is grabbed from the handle below the photo, so
+  // the pointer itself sits well below the tile's visual center the whole
+  // time, which made every hit-test land a row lower than the photo
+  // actually was.
+  function handleDragMove(url: string) {
     const current = orderRef.current;
     const fromIndex = current.findIndex((p) => p.url === url);
     if (fromIndex === -1) return;
+    const draggedRect = itemRefs.current.get(url)?.getBoundingClientRect();
+    if (!draggedRect) return;
+    const cx = draggedRect.left + draggedRect.width / 2;
+    const cy = draggedRect.top + draggedRect.height / 2;
     const toIndex = current.findIndex((p) => {
       if (p.url === url) return false;
       const rect = itemRefs.current.get(p.url)?.getBoundingClientRect();
       if (!rect) return false;
-      return point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom;
+      return cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom;
     });
     if (toIndex !== -1 && toIndex !== fromIndex) {
       const next = [...current];
@@ -303,7 +308,7 @@ export default function AdminEventGalleryManager({
                 else itemRefs.current.delete(photo.url);
               }}
               onDragStart={() => handleDragStart(photo.url)}
-              onDragMove={(point) => handleDragMove(photo.url, point)}
+              onDragMove={() => handleDragMove(photo.url)}
               onDragEnd={handleDragEnd}
             />
           ))}
@@ -465,7 +470,7 @@ function GalleryTile({
   onRemove: () => void;
   registerRef: (el: HTMLDivElement | null) => void;
   onDragStart: () => void;
-  onDragMove: (point: { x: number; y: number }) => void;
+  onDragMove: () => void;
   onDragEnd: () => void;
 }) {
   const dragControls = useDragControls();
@@ -481,7 +486,12 @@ function GalleryTile({
   return (
     <motion.div
       ref={registerRef}
-      layout="position"
+      // The dragged tile's own position is fully owned by the manual x/y
+      // transform above — letting its `layout` animation run at the same
+      // time fights that transform and makes its measured rect (used for
+      // hit-testing in handleDragMove) unreliable mid-drag. Only the
+      // *other* tiles animate into their new slots via layout.
+      layout={isDragging ? false : "position"}
       drag
       dragControls={dragControls}
       dragListener={false}
@@ -489,7 +499,7 @@ function GalleryTile({
       dragElastic={0}
       style={{ x, y }}
       onDragStart={onDragStart}
-      onDrag={(_, info: PanInfo) => onDragMove({ x: info.point.x, y: info.point.y })}
+      onDrag={() => onDragMove()}
       onDragEnd={() => {
         animate(x, 0, { type: "spring", stiffness: 500, damping: 40 });
         animate(y, 0, { type: "spring", stiffness: 500, damping: 40 });
@@ -555,10 +565,10 @@ function GalleryTile({
         }}
         aria-hidden="true"
         style={{ touchAction: "none" }}
-        className="mt-1 h-9 flex items-center justify-center gap-1 bg-gray-800 border border-gray-600 rounded-sm cursor-grab active:cursor-grabbing active:bg-gray-700 text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
+        className="mt-1 h-6 flex items-center justify-center gap-0.5 bg-gray-800 border border-gray-600 rounded-sm cursor-grab active:cursor-grabbing active:bg-gray-700 text-gray-400 hover:text-white hover:border-gray-400 transition-colors"
       >
         {Array.from({ length: 6 }).map((_, i) => (
-          <span key={i} className="w-1.5 h-1.5 rounded-full bg-current" />
+          <span key={i} className="w-1 h-1 rounded-full bg-current" />
         ))}
       </div>
     </motion.div>
