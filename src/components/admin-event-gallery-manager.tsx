@@ -17,12 +17,6 @@ type UploadItem = {
 };
 
 const TILE_CLASS = "w-20 h-20 sm:w-24 sm:h-24";
-// A dragged tile only swaps into a neighbor's slot once its pointer gets
-// this close to that neighbor's center — without a gate, the tile nearest
-// the pointer would always be the target, so a barely-nudged drag would
-// keep swapping with whatever's immediately adjacent instead of only
-// reacting once the drag actually reaches toward it.
-const DRAG_SWAP_THRESHOLD = 110;
 
 // Event-gallery-specific sibling of AdminPhotoGalleryManager (which stays
 // string[]-only for merch product/variant photos). This one carries a
@@ -177,28 +171,23 @@ export default function AdminEventGalleryManager({
   }
 
   // Fires continuously while a tile is dragged. Live-reorders localPhotos
-  // (optimistic only, not persisted yet) whenever the pointer gets close
-  // enough to a neighbor's center, which is what makes the other tiles
-  // visibly slide out of the way mid-drag instead of only snapping once on
-  // release.
+  // (optimistic only, not persisted yet) once the pointer is actually over
+  // a different tile — a plain rect hit-test, not nearest-center distance.
+  // On a wrapping flex grid, distance-based nearest-neighbor picks the
+  // wrong tile near row boundaries (a tile in the row below can be closer
+  // than the real target in the same row), which is what made the swap
+  // feel like it wasn't snapping into the grid correctly.
   function handleDragMove(url: string, point: { x: number; y: number }) {
     const current = orderRef.current;
     const fromIndex = current.findIndex((p) => p.url === url);
     if (fromIndex === -1) return;
-    let toIndex = fromIndex;
-    let bestDist = DRAG_SWAP_THRESHOLD;
-    current.forEach((p, i) => {
-      if (p.url === url) return;
-      const el = itemRefs.current.get(p.url);
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const dist = Math.hypot(point.x - (rect.left + rect.width / 2), point.y - (rect.top + rect.height / 2));
-      if (dist < bestDist) {
-        bestDist = dist;
-        toIndex = i;
-      }
+    const toIndex = current.findIndex((p) => {
+      if (p.url === url) return false;
+      const rect = itemRefs.current.get(p.url)?.getBoundingClientRect();
+      if (!rect) return false;
+      return point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom;
     });
-    if (toIndex !== fromIndex) {
+    if (toIndex !== -1 && toIndex !== fromIndex) {
       const next = [...current];
       const [moved] = next.splice(fromIndex, 1);
       next.splice(toIndex, 0, moved);
