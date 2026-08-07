@@ -19,7 +19,7 @@ export default function VideosSection() {
   return (
     <section
       id="videos"
-      className="reveal-on-scroll bg-transparent text-white px-4 py-12 md:py-20 scroll-mt-24 text-center"
+      className="reveal-on-scroll bg-transparent text-white px-4 pt-2 pb-12 md:pt-4 md:pb-20 scroll-mt-24 text-center"
     >
       <div className="max-w-5xl mx-auto">
         <SectionHeading as="h2" size="lg" className="mb-4">
