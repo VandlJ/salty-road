@@ -10,7 +10,7 @@ import { SITE_URL, canonicalUrl, jsonLdScript } from "@/lib/seo";
 // to ssr: true), this just code-splits their JS into separate chunks so the
 // initial bundle needed for the hero/LCP doesn't have to include them.
 const EventGallerySection = dynamic(() => import("@/components/event-gallery-section"));
-const AftermovieSection = dynamic(() => import("@/components/aftermovie-section"));
+const VideosSection = dynamic(() => import("@/components/videos-section"));
 const VehiclesSection = dynamic(() => import("@/components/vehicles-section"));
 const SponsorsSection = dynamic(() => import("@/components/sponsors-section"));
 const NextEditionSection = dynamic(() => import("@/components/next-edition-section"));
@@ -96,7 +96,7 @@ export default async function Page({
       <div className="bg-black">
         <EventRecapSection />
         <EventGallerySection photos={galleryPhotos} />
-        <AftermovieSection />
+        <VideosSection />
         <VehiclesSection title={t("vehicles.title")} />
         <SponsorsSection />
         <NextEditionSection />

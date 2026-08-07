@@ -161,8 +161,8 @@
       "scrollLeft": "Posunout doleva",
       "scrollRight": "Posunout doprava"
     },
-    "aftermovie": {
-      "title": "Aftermovie",
+    "videos": {
+      "title": "Videa z akce",
       "subtitle": "Celý den v pohybu — pusť si to.",
       "playLabel": "Přehrát video"
     },
