@@ -4,7 +4,14 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
 
-const YOUTUBE_IDS = ["11di09owZRU", "uKLELTHzO9M"];
+// thumbZoom counteracts pillarboxing baked into a video's own auto-generated
+// YouTube thumbnail (source wasn't shot 16:9, so YouTube pads the jpg itself
+// with black bars — object-cover can't crop that away since the image
+// already fills the container width). Tuned by eye per video.
+const VIDEOS = [
+  { id: "11di09owZRU", thumbZoom: "scale-[1.4] group-hover:scale-[1.47]" },
+  { id: "uKLELTHzO9M" },
+];
 
 export default function VideosSection() {
   const t = useTranslations("ArchivePage.videos");
@@ -21,8 +28,8 @@ export default function VideosSection() {
         <p className="text-gray-400 text-sm mb-10">{t("subtitle")}</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {YOUTUBE_IDS.map((id) => (
-            <VideoTile key={id} youtubeId={id} title={t("title")} playLabel={t("playLabel")} />
+          {VIDEOS.map(({ id, thumbZoom }) => (
+            <VideoTile key={id} youtubeId={id} thumbZoom={thumbZoom} title={t("title")} playLabel={t("playLabel")} />
           ))}
         </div>
       </div>
@@ -32,10 +39,12 @@ export default function VideosSection() {
 
 function VideoTile({
   youtubeId,
+  thumbZoom,
   title,
   playLabel,
 }: {
   youtubeId: string;
+  thumbZoom?: string;
   title: string;
   playLabel: string;
 }) {
@@ -68,7 +77,7 @@ function VideoTile({
             alt=""
             loading="lazy"
             onError={() => setThumbSrc(`https://i.ytimg.com/vi/${youtubeId}/hqdefault.jpg`)}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className={`w-full h-full object-cover transition-transform duration-300 ${thumbZoom ?? "group-hover:scale-105"}`}
           />
           <span className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
           <span className="absolute inset-0 flex items-center justify-center">
