@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, VOL1_THANK_YOU_EMAIL_FROM } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { vol1ExhibitorThankYouEmail } from "@/emails/vol1-exhibitor-thank-you.mjs";
 import { SITE_URL } from "@/lib/seo";
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         couponCode: couponCode.trim().toUpperCase(),
         siteUrl,
       });
-      await sendEmail(recipient.email, subject, text, html);
+      await sendEmail(recipient.email, subject, text, html, undefined, VOL1_THANK_YOU_EMAIL_FROM);
       await prisma.registration.update({
         where: { id: recipient.id },
         data: { thankYouEmailSentAt: new Date() },
