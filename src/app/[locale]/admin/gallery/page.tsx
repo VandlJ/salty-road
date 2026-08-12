@@ -1,18 +1,22 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
 import React, { useCallback, useEffect, useState } from "react";
-import AdminLoginForm from "@/components/admin-login-form";
 import AdminEventGalleryManager from "@/components/admin-event-gallery-manager";
 import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
 import type { GalleryPhoto } from "@/lib/gallery";
+import AdminPageHeader from "@/components/admin-page-header";
+import AdminGate from "@/components/admin-gate";
 
 export default function AdminGalleryPage() {
   const t = useTranslations("AdminGalleryPage");
-  const { loggedIn, checking, recheck } = useAdminAuth();
+  const auth = useAdminAuth();
+  const { loggedIn } = auth;
   const [photos, setPhotos] = useState<GalleryPhoto[]>([]);
+  // Which edition these photos belong to — the label used to be a hard-coded
+  // "Volume 1" string in messages/*.json.
+  const [editionName, setEditionName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,6 +27,7 @@ export default function AdminGalleryPage() {
       if (!res.ok) throw new Error("Failed to load");
       const json = await res.json();
       setPhotos(Array.isArray(json.photos) ? json.photos : []);
+      setEditionName(typeof json.editionName === "string" ? json.editionName : null);
       setError(null);
     } catch (err) {
       console.error(err);
@@ -60,52 +65,37 @@ export default function AdminGalleryPage() {
     }
   }
 
-  if (checking) return null;
-  if (!loggedIn) return <AdminLoginForm onSuccess={recheck} />;
-
   return (
-    <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-4xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
-            {t("title")} <span className="text-gray-400 text-2xl ml-2">({photos.length})</span>
-          </h1>
-          <p className="text-brand text-xs font-bold uppercase tracking-widest mt-1">{t("edition")}</p>
-        </div>
-        <Link
-          href="/admin"
-          className="flex items-center gap-2 px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            <path d="M9 22V12h6v10" />
-          </svg>
-          {t("backToAdmin")}
-        </Link>
-      </div>
-
-      <p className="text-gray-400 text-sm mb-6">{t("hint")}</p>
-
-      {error && (
-        <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 font-bold rounded-sm">
-          {error}
-        </div>
-      )}
-
-      {loading && photos.length === 0 ? (
-        <div className="flex flex-wrap gap-3">
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-sm" />
-          ))}
-        </div>
-      ) : (
-        <AdminEventGalleryManager
-          photos={photos}
-          onChange={savePhotos}
-          uploadLabel={t("uploadPhotos")}
-          uploadingLabel={t("uploading")}
+    <AdminGate auth={auth}>
+      <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-4xl mx-auto">
+        <AdminPageHeader
+          title={t("title")}
+          count={photos.length}
+          eyebrow={editionName ?? undefined}
+          subtitle={t("hint")}
         />
-      )}
-    </section>
+
+        {error && (
+          <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 font-bold rounded-sm">
+            {error}
+          </div>
+        )}
+
+        {loading && photos.length === 0 ? (
+          <div className="flex flex-wrap gap-3">
+            {[0, 1, 2, 3].map((i) => (
+              <Skeleton key={i} className="w-20 h-20 sm:w-24 sm:h-24 rounded-sm" />
+            ))}
+          </div>
+        ) : (
+          <AdminEventGalleryManager
+            photos={photos}
+            onChange={savePhotos}
+            uploadLabel={t("uploadPhotos")}
+            uploadingLabel={t("uploading")}
+          />
+        )}
+      </section>
+    </AdminGate>
   );
 }

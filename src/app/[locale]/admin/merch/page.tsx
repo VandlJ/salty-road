@@ -18,6 +18,7 @@ import type { MerchProductAdmin, MerchVariantAdmin } from "@/types/merch";
 import { SIZE_ORDER, compareBySize } from "@/lib/variantLabel";
 import { serverErrorToKey } from "@/lib/serverError";
 import { MERCH_CATEGORY_SUGGESTIONS } from "@/lib/constants";
+import AdminPageHeader from "@/components/admin-page-header";
 
 type ActiveFilter = "all" | "active" | "inactive";
 
@@ -340,21 +341,7 @@ export default function AdminMerchPage() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
-          {t("title")}
-        </h1>
-        <Link
-          href="/admin"
-          className="flex items-center gap-2 px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            <path d="M9 22V12h6v10" />
-          </svg>
-          {t("backToAdmin")}
-        </Link>
-      </div>
+      <AdminPageHeader title={t("title")} />
 
       {loading && (
         <div className="text-white mb-6 text-center font-bold animate-pulse">{t("loading")}</div>

@@ -408,7 +408,6 @@
     "logout": "Odhlásit",
     "merchLink": "Merch",
     "ordersLink": "Objednávky",
-    "backToAdmin": "Zpět do administrace",
     "filterAll": "Vše",
     "noResultsFilter": "Žádné registrace neodpovídají zvolenému filtru.",
     "searchPlaceholder": "Hledat jméno nebo auto…"
@@ -434,13 +433,12 @@
     "couponsTileDesc": "Vytváření a správa slevových kódů.",
     "thankYouTile": "Vol.1 poděkování",
     "thankYouTileDesc": "Hromadné poděkování a slevový kód vystavovatelům, co dorazili.",
+    "backToAdmin": "Zpět do administrace",
     "logout": "Odhlásit"
   },
   "AdminGalleryPage": {
     "title": "Galerie",
-    "edition": "Salty Road Meet — Volume 1",
-    "backToAdmin": "Zpět do administrace",
-    "hint": "Fotky se zobrazí na hlavní stránce (aktuálně archiv Volume 1) v sekci Galerie, v pořadí zleva doprava — až přibude Volume 2, bude pro něj potřeba samostatná galerie.",
+    "hint": "Fotky patří k ročníku uvedenému výše a zobrazí se v jeho sekci Galerie, v pořadí zleva doprava. Každý ročník má vlastní galerii — založením dalšího ročníku se tahle nepřepíše.",
     "uploadPhotos": "Nahrát fotky",
     "uploading": "Nahrávám…",
     "errorLoad": "Nelze načíst galerii.",
@@ -448,7 +446,6 @@
   },
   "AdminEmailsPage": {
     "title": "E-maily",
-    "backToAdmin": "Zpět do administrace",
     "loading": "Načítám…",
     "errorLoad": "Nepodařilo se načíst e-maily.",
     "subject": "Předmět",
@@ -463,7 +460,6 @@
   },
   "AdminThankYouPage": {
     "title": "Vol.1 poděkování",
-    "backToAdmin": "Zpět do administrace",
     "intro": "Pošle poděkování a 10% slevový kód všem vystavovatelům, kteří byli schváleni a reálně dorazili na akci (odbaveno ve Vjezdu). Šablonu si nejdřív vyzkoušejte v sekci",
     "introEmailsLink": "E-maily",
     "loading": "Načítám…",
@@ -501,7 +497,6 @@
     "giftThreshold": "Limit pro dárek zdarma",
     "shippingFee": "Cena dopravy",
     "shippingFreePromo": "Doprava zdarma",
-    "backToAdmin": "Zpět do administrace",
     "preview": "Náhled",
     "filterAll": "Vše",
     "noResultsFilter": "Žádné produkty neodpovídají zvolenému filtru.",
@@ -569,7 +564,6 @@
   },
   "AdminOrdersPage": {
     "title": "Objednávky",
-    "backToAdmin": "Zpět do administrace",
     "stockRequestsTitle": "Poptávky po nedostupném zboží",
     "stockRequestFulfill": "Vyřízeno",
     "stockRequestReopen": "Vrátit zpět",
@@ -612,7 +606,6 @@
   },
   "AdminMessagesPage": {
     "title": "Zprávy",
-    "backToAdmin": "Zpět do administrace",
     "loading": "Načítám…",
     "errorLoad": "Nelze načíst zprávy.",
     "noMessages": "Zatím žádné zprávy.",
@@ -621,7 +614,6 @@
   "AdminCouponsPage": {
     "title": "Slevové kupóny",
     "typeFreeShipping": "Doprava",
-    "backToAdmin": "Zpět do administrace",
     "loading": "Načítám…",
     "errorLoad": "Nelze načíst kupóny.",
     "noCoupons": "Zatím žádné kupóny.",

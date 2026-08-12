@@ -408,7 +408,6 @@
     "logout": "Log out",
     "merchLink": "Merch",
     "ordersLink": "Orders",
-    "backToAdmin": "Back to admin",
     "filterAll": "All",
     "noResultsFilter": "No registrations match the selected filter.",
     "searchPlaceholder": "Search name or car…"
@@ -434,13 +433,12 @@
     "couponsTileDesc": "Create and manage discount codes.",
     "thankYouTile": "Vol.1 thank-you",
     "thankYouTileDesc": "Bulk thank-you email and discount code for exhibitors who showed up.",
+    "backToAdmin": "Back to admin",
     "logout": "Log out"
   },
   "AdminGalleryPage": {
     "title": "Gallery",
-    "edition": "Salty Road Meet — Volume 1",
-    "backToAdmin": "Back to admin",
-    "hint": "Photos appear in the Gallery section of the homepage (currently the Volume 1 archive), in left-to-right order — once Volume 2 exists, it'll need its own gallery.",
+    "hint": "Photos belong to the edition named above and appear in its Gallery section, in left-to-right order. Each edition has its own gallery — creating a new one won't overwrite this.",
     "uploadPhotos": "Upload photos",
     "uploading": "Uploading…",
     "errorLoad": "Couldn't load the gallery.",
@@ -448,7 +446,6 @@
   },
   "AdminEmailsPage": {
     "title": "Emails",
-    "backToAdmin": "Back to admin",
     "loading": "Loading…",
     "errorLoad": "Could not load emails.",
     "subject": "Subject",
@@ -463,7 +460,6 @@
   },
   "AdminThankYouPage": {
     "title": "Vol.1 thank-you",
-    "backToAdmin": "Back to admin",
     "intro": "Sends a thank-you and 10% discount code to every exhibitor who was accepted and actually showed up (checked off at Entry). Try the template first in the",
     "introEmailsLink": "Emails",
     "loading": "Loading…",
@@ -501,7 +497,6 @@
     "giftThreshold": "Free gift threshold",
     "shippingFee": "Shipping cost",
     "shippingFreePromo": "Free shipping",
-    "backToAdmin": "Back to admin",
     "preview": "Preview",
     "filterAll": "All",
     "noResultsFilter": "No products match the selected filter.",
@@ -569,7 +564,6 @@
   },
   "AdminOrdersPage": {
     "title": "Orders",
-    "backToAdmin": "Back to admin",
     "stockRequestsTitle": "Out-of-stock requests",
     "stockRequestFulfill": "Fulfilled",
     "stockRequestReopen": "Reopen",
@@ -612,7 +606,6 @@
   },
   "AdminMessagesPage": {
     "title": "Messages",
-    "backToAdmin": "Back to admin",
     "loading": "Loading…",
     "errorLoad": "Failed to load messages.",
     "noMessages": "No messages yet.",
@@ -621,7 +614,6 @@
   "AdminCouponsPage": {
     "title": "Discount coupons",
     "typeFreeShipping": "Shipping",
-    "backToAdmin": "Back to admin",
     "loading": "Loading…",
     "errorLoad": "Could not load coupons.",
     "noCoupons": "No coupons yet.",
