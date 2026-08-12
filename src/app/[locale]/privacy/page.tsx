@@ -29,12 +29,16 @@ export default function PrivacyPage() {
 
       <div className="space-y-12">
         <Section title={t("controllerTitle")}>
-          <p>{t("controllerText")}</p>
+          <ul className="list-disc list-outside pl-5 space-y-2">
+            {[1, 2].map((i) => (
+              <li key={i}>{t(`controllerList.item${i}`)}</li>
+            ))}
+          </ul>
         </Section>
 
         <Section title={t("dataTitle")}>
           <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <li key={i}>{t(`dataList.item${i}`)}</li>
             ))}
           </ul>
@@ -42,7 +46,7 @@ export default function PrivacyPage() {
 
         <Section title={t("purposeTitle")}>
           <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <li key={i}>{t(`purposeList.item${i}`)}</li>
             ))}
           </ul>
@@ -54,7 +58,7 @@ export default function PrivacyPage() {
 
         <Section title={t("recipientsTitle")}>
           <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2, 3, 4].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <li key={i}>{t(`recipientsList.item${i}`)}</li>
             ))}
           </ul>

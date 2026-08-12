@@ -47,7 +47,7 @@ export default function SponsorsSection() {
   return (
     <section id="sponsors" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 max-w-5xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="space-y-8">
-        <SectionHeading>{t("sponsorsTitle")}</SectionHeading>
+        <SectionHeading as="h2" size="lg">{t("sponsorsTitle")}</SectionHeading>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-16 gap-y-16 items-center justify-items-center max-w-5xl mx-auto px-6 sm:px-14 py-12 overflow-hidden bg-white border border-gray-800 shadow-lg rounded-sm">
           {sponsors.map((s) => (
@@ -66,18 +66,34 @@ export default function SponsorsSection() {
         {/* Media/press credit, not a paying sponsor — kept as its own
             full-width row instead of the sm:col-span hack it used inside
             the 3-col grid before this pass. Own white card (logo assets are
-            designed for light backgrounds, same as the grid above). */}
-        <div className="inline-block bg-white border border-gray-800 shadow-lg rounded-sm px-8 py-5">
-          <div className="relative w-40 h-10 sm:w-52 sm:h-14">
-            <Image
-              src="/sponsors/denik.webp"
-              alt="Deník"
-              fill
-              sizes="208px"
-              className="object-contain"
-            />
+            designed for light backgrounds, same as the grid above). Links
+            out to their coverage of the event — the logo alone doesn't
+            explain the connection to a first-time visitor. */}
+        <a
+          href="https://prachaticky.denik.cz/zpravy-region/vytunene-kary-na-salty-road-meet-prilakaly-do-centra-prachatic-davy-fanousku/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group inline-flex flex-col items-center gap-2"
+        >
+          <div className="bg-white border border-gray-800 shadow-lg rounded-sm px-8 py-5 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-xl">
+            <div className="relative w-40 h-10 sm:w-52 sm:h-14">
+              <Image
+                src="/sponsors/denik.webp"
+                alt="Deník"
+                fill
+                sizes="208px"
+                className="object-contain"
+              />
+            </div>
           </div>
-        </div>
+          <span className="inline-flex items-center gap-1 text-gray-400 text-xs uppercase tracking-widest group-hover:text-white transition-colors">
+            {t("mediaArticleCta")}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-200 group-hover:translate-x-0.5">
+              <path d="M7 17L17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
+          </span>
+        </a>
       </div>
     </section>
   );

@@ -6,6 +6,11 @@ const prisma = new PrismaClient();
 // F2.5 — vehicle registration, the site's original purpose alongside the
 // shop. Photo upload is skipped (goes to Vercel Blob, no token in CI — see
 // Test_Implementation_Plan.md F4.3), the form doesn't require photos to submit.
+//
+// The form moved off the homepage to the unlisted /register route when Volume
+// 1 was archived (see src/app/[locale]/register/page.tsx) — the point of
+// keeping these tests pointed at it is that the whole registration path stays
+// exercised in CI while it's dormant, ready for Volume 2.
 
 test.describe("vehicle registration", () => {
   test.afterAll(async () => {
@@ -14,7 +19,7 @@ test.describe("vehicle registration", () => {
 
   test("submitting the form creates a pending registration, checkable via /check", async ({ page }) => {
     const email = `e2e-register-${Date.now()}@example.com`;
-    await page.goto("/cs");
+    await page.goto("/cs/register");
 
     await page.getByLabel("Jméno").fill("Petr");
     await page.getByLabel("Příjmení").fill("Svoboda");
@@ -60,7 +65,7 @@ test.describe("vehicle registration", () => {
       // Closed registration replaces the form entirely with a message (see
       // RegistrationSection) — there's no form to fill/submit against, the
       // gate is that the form never renders in the first place.
-      await page.goto("/cs");
+      await page.goto("/cs/register");
       await expect(page.getByText("Registrace uzavřeny")).toBeVisible();
       await expect(page.getByLabel("Jméno")).toHaveCount(0);
     } finally {

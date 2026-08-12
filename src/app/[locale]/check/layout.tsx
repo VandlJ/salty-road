@@ -18,6 +18,12 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description,
+    // Volume 1 is archived — there are no registrations left to check, so
+    // this is out of the sitemap and out of the index. Deliberately a meta
+    // noindex rather than a robots.txt disallow: a disallow would stop
+    // crawlers fetching the page at all, so they'd never see the noindex and
+    // the URL could sit in the index indefinitely.
+    robots: { index: false, follow: false },
     alternates: {
       canonical: canonicalUrl(locale, "/check"),
       languages: buildAlternates("/check"),

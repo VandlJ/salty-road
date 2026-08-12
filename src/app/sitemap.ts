@@ -31,9 +31,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // meaningful signal (better than reporting "now" on every single crawl).
   const productModifiedAt = new Map(products.map((p) => [p.slug, p.createdAt]));
 
+  // /check is deliberately absent: Volume 1 is archived, so there's nothing
+  // left to look up. The route still answers 200 for anyone holding an old
+  // link (and carries a noindex), it just isn't advertised any more.
   const routes = [
     '',
-    '/check',
     '/privacy',
     '/shop/terms',
     ...(shopEnabled ? ['/shop', ...productSlugs.map((slug) => `/shop/${slug}`)] : []),

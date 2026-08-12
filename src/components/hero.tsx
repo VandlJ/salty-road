@@ -11,15 +11,30 @@ const fadeUp = {
   visible: { opacity: 1, y: 0 },
 };
 
-export default function Hero() {
-  const t = useTranslations("Hero");
+// Props all default to the pre-archive ("Volume 1 is coming, register now")
+// behaviour so src/templates/homepage-vol2.tsx keeps rendering identically
+// with a bare <Hero />. The archived homepage overrides them to point at the
+// gallery instead of a registration form.
+export default function Hero({
+  namespace = "Hero",
+  ctaKey = "registerButton",
+  ctaTargetId = "register",
+}: {
+  /** Message namespace — next-intl accepts a dotted path, e.g. "ArchivePage.hero". */
+  namespace?: string;
+  /** Key within `namespace` for the CTA button label. */
+  ctaKey?: string;
+  /** Element id the CTA smooth-scrolls to. */
+  ctaTargetId?: string;
+} = {}) {
+  const t = useTranslations(namespace);
 
-  const handleRegisterClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleCtaClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const element = document.getElementById("register");
+    const element = document.getElementById(ctaTargetId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
-      window.history.pushState(null, "", `${window.location.pathname}#register`);
+      window.history.pushState(null, "", `${window.location.pathname}#${ctaTargetId}`);
     }
   };
 
@@ -108,9 +123,9 @@ export default function Hero() {
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className="flex items-center justify-center mt-2 sm:mt-4 z-30"
         >
-          <Link href="/#register" onClick={handleRegisterClick}>
+          <Link href={`/#${ctaTargetId}`} onClick={handleCtaClick}>
             <button className="px-8 md:px-12 py-3 md:py-4 text-base rounded-sm font-bold tracking-widest uppercase bg-white text-black shadow-2xl border-2 border-white hover:bg-gray-200 hover:text-black hover:scale-110 transition-all duration-300 cursor-pointer">
-              {t("registerButton")}
+              {t(ctaKey)}
             </button>
           </Link>
         </motion.div>

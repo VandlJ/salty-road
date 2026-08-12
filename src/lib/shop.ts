@@ -26,9 +26,27 @@ export async function setShopEnabled(enabled: boolean): Promise<void> {
 // revalidate keeps the layout cacheable (unlike getShopEnabled(), a plain
 // uncached read here would force the whole site dynamic) while staying
 // close enough to live for an admin toggle to show up quickly.
-export const getShopEnabledCached = unstable_cache(getShopEnabled, ["shop-enabled"], {
+//
+// This runs from the ROOT layout, so it's on the critical path for every
+// single page — including at build time, when Next.js statically
+// prerenders a locale route. A DB that's briefly unreachable specifically
+// from the build environment (seen on a Preview deployment pointed at a
+// raw-Postgres dev database, as opposed to production's Accelerate proxy)
+// must not fail the entire build over what's ultimately just an initial
+// paint hint; the client-side poll in navbar.tsx corrects a wrong guess
+// within 15s regardless.
+const getShopEnabledUncaught = unstable_cache(getShopEnabled, ["shop-enabled"], {
   revalidate: 10,
 });
+
+export async function getShopEnabledCached(): Promise<boolean> {
+  try {
+    return await getShopEnabledUncaught();
+  } catch (err) {
+    console.error("getShopEnabledCached: falling back to false", err);
+    return false;
+  }
+}
 
 // Halire. 0 (or unset) means the free-gift feature is off entirely — no
 // gift options are offered at checkout regardless of order size.

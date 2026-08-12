@@ -10,8 +10,21 @@ const intlMiddleware = createMiddleware(routing);
 // when logged out (see AdminHubPage), so it doesn't need a redirect.
 const ADMIN_SUBPAGE_RE = /^\/(en|cs)\/admin\/.+/;
 
+// Any deployment reachable at a hostname other than the real domain — a
+// Vercel preview URL, a custom "prev." alias, *.vercel.app — gets a blanket
+// noindex. Route-level metadata (robots.ts, per-page generateMetadata) only
+// covers www.saltyroad.cz; this catches every other host in one place
+// instead of needing every future preview alias remembered individually.
+// Deployment Protection (Vercel's SSO wall) already blocks crawlers on
+// vercel.app URLs by default — this specifically covers a preview alias like
+// prev.saltyroad.cz once that protection is turned off to make it
+// link-shareable.
+const PRODUCTION_HOST = "www.saltyroad.cz";
+
 export default function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const host = req.headers.get("host") ?? "";
+  const isProduction = host === PRODUCTION_HOST;
 
   if (ADMIN_SUBPAGE_RE.test(pathname)) {
     // Cheap, edge-safe check only (no DB round trip) — this exists so a
@@ -22,11 +35,11 @@ export default function proxy(req: NextRequest) {
     const token = req.cookies.get(ADMIN_COOKIE_NAME)?.value;
     if (!token || tokenExpired(token)) {
       const locale = pathname.startsWith('/en') ? 'en' : 'cs';
-      return NextResponse.redirect(new URL(`/${locale}/admin`, req.url));
+      return withRobotsHeader(NextResponse.redirect(new URL(`/${locale}/admin`, req.url)), isProduction);
     }
   }
 
-  const res = intlMiddleware(req);
+  let res = intlMiddleware(req);
   // next-intl's own locale-detection redirect (e.g. "/" → "/cs") defaults to
   // a 307 Temporary Redirect. That's a weaker canonicalization signal for
   // Google than a permanent one — same class of issue as the apex→www
@@ -34,7 +47,14 @@ export default function proxy(req: NextRequest) {
   // here. Preserves every header next-intl set (Location, the NEXT_LOCALE
   // cookie, etc.) — only the status code changes.
   if (res.status === 307 && res.headers.has('location')) {
-    return new NextResponse(null, { status: 308, headers: res.headers });
+    res = new NextResponse(null, { status: 308, headers: res.headers });
+  }
+  return withRobotsHeader(res, isProduction);
+}
+
+function withRobotsHeader(res: NextResponse, isProduction: boolean): NextResponse {
+  if (!isProduction) {
+    res.headers.set('x-robots-tag', 'noindex, nofollow');
   }
   return res;
 }

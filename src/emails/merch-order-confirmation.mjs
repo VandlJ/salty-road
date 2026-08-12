@@ -45,6 +45,9 @@ export function merchOrderConfirmationEmail({
       ? "Doručení: osobní odběr (po telefonické domluvě)."
       : `Doručení: poštou na adresu ${address ?? ""} (poštovné ${formatHalire(shippingFee)}).`;
 
+  const cancelUrl = `https://www.saltyroad.cz/cs/shop/cancel-order?id=${encodeURIComponent(orderId)}&vs=${encodeURIComponent(vs)}`;
+  const cancelText = `Rozmyslel/a sis to? Dokud objednávku neuhradíš, můžeš ji sám/sama zrušit zde: ${cancelUrl}\nPo 14 dnů máš od převzetí zboží i právo odstoupit od smlouvy bez udání důvodu — víc v obchodních podmínkách: https://www.saltyroad.cz/cs/shop/terms`;
+
   const discountLine =
     couponCode && discountAmount > 0
       ? `Kupón ${couponCode}: -${formatHalire(discountAmount)}\n`
@@ -68,6 +71,8 @@ ${discountLine}${shippingCouponLine}${giftLine}Celkem: ${formatHalire(totalAmoun
 
 ${deliveryText}
 ${paymentText}
+
+${cancelText}
 
 Tým Salty Road Meet`;
 
@@ -98,6 +103,7 @@ Tým Salty Road Meet`;
     <p><strong>Celkem: ${formatHalire(totalAmount)}</strong></p>
     <p>${deliveryText}</p>
     <p>${paymentText}</p>
+    <p>Rozmyslel/a sis to? Dokud objednávku neuhradíš, můžeš ji <a href="${cancelUrl}">sám/sama zrušit zde</a>. Po převzetí zboží máš navíc 14 dnů na odstoupení od smlouvy bez udání důvodu — víc v <a href="https://www.saltyroad.cz/cs/shop/terms">obchodních podmínkách</a>.</p>
     ${
       hasQr
         ? '<div style="margin: 20px 0;"><img src="cid:qr-code" alt="QR Platba" style="width: 200px; height: 200px;" /></div>'

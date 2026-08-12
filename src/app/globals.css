@@ -196,6 +196,19 @@
     animation: badge-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
+  /* Hides the scrollbar on a horizontally-scrolling row (event gallery
+     carousel) while keeping it fully scrollable/swipeable — the row already
+     has its own arrow buttons, so the browser's own bar is just visual
+     noise, not a functional loss. */
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
 }
 
 @keyframes reveal-fade-up {

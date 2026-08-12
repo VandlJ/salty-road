@@ -23,7 +23,7 @@ type Registration = {
   createdAt?: string | null;
 };
 
-export default function VehiclesSection() {
+export default function VehiclesSection({ title }: { title?: string } = {}) {
   const t = useTranslations("VehiclesPage");
   const [regs, setRegs] = useState<Registration[]>([]);
   // Starts true so the initial fetch shows a skeleton grid instead of an
@@ -114,8 +114,10 @@ export default function VehiclesSection() {
   return (
     <section id="vehicles" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="flex flex-col items-center mb-16 gap-4">
-        <SectionHeading as="h1" size="lg">
-          {t("title")}
+        {/* h2 when an explicit title is supplied — the archived homepage
+            already has its own h1 in the recap section above. */}
+        <SectionHeading as={title ? "h2" : "h1"} size="lg">
+          {title ?? t("title")}
         </SectionHeading>
       </div>
 

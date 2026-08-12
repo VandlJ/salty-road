@@ -1,37 +1,38 @@
-import type { Metadata } from "next";
+// TEMPLATE — NOT A ROUTE.
+//
+// This is the homepage exactly as it stood while Salty Road Meet Volume 1 was
+// still upcoming: hero with a "Registrovat" CTA, InfoSection (parking, program,
+// visitor rules, arrival/departure windows, entry fee), the live registration
+// form, confirmed vehicles, sponsors. When Volume 1 was archived (the homepage
+// became a look-back at the past event), this composition was preserved here
+// rather than left to git history, so Volume 2 has a working starting point.
+//
+// It lives outside src/app/ deliberately — Next.js can never route it, but
+// tsc/eslint still check it, so it can't silently rot as the components it
+// imports evolve.
+//
+// CAVEAT: TypeScript does NOT verify the i18n keys used below (this project has
+// no IntlMessages type declaration). The `InfoPage`, `RegisterPage`,
+// `RegisterForm` and original `Hero.*` keys in messages/*.json are kept alive
+// solely for this file. A "clean up unused translation keys" pass would break
+// it with a green typecheck — see the _comment key in InfoPage.
+//
+// To bring Volume 2 online: copy this back over src/app/[locale]/page.tsx,
+// update the dates/edition strings in messages/*.json, and restore the
+// register/info nav links in src/components/navbar.tsx.
+
 import { getTranslations } from "next-intl/server";
 import dynamic from "next/dynamic";
 import Hero from "@/components/hero";
-import EventRecapSection from "@/components/event-recap-section";
-import { getGalleryPhotosCached } from "@/lib/gallery";
+import InfoSection from "@/components/info-section";
+import RegistrationSection from "@/components/registration-section";
 import { SITE_URL, canonicalUrl, jsonLdScript } from "@/lib/seo";
 
 // Below-the-fold sections — still fully server-rendered (dynamic() defaults
 // to ssr: true), this just code-splits their JS into separate chunks so the
 // initial bundle needed for the hero/LCP doesn't have to include them.
-const EventGallerySection = dynamic(() => import("@/components/event-gallery-section"));
-const VideosSection = dynamic(() => import("@/components/videos-section"));
 const VehiclesSection = dynamic(() => import("@/components/vehicles-section"));
 const SponsorsSection = dynamic(() => import("@/components/sponsors-section"));
-const NextEditionSection = dynamic(() => import("@/components/next-edition-section"));
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
-  const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ArchivePage.meta" });
-  const description = t("description");
-
-  // Title comes from the layout's default; only the description is
-  // page-specific (the layout's is the site-wide fallback used by /check,
-  // /privacy and the shop pages).
-  return {
-    description,
-    openGraph: { description },
-  };
-}
 
 export default async function Page({
   params,
@@ -39,24 +40,17 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ArchivePage" });
-
-  const galleryPhotos = await getGalleryPhotosCached();
+  const t = await getTranslations({ locale, namespace: "Hero" });
+  const tReg = await getTranslations({ locale, namespace: "RegisterPage" });
 
   const eventJsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
-    name: `${t("hero.title1")} ${t("hero.title2")}`,
-    description: t("meta.description"),
-    // The site shows "25. 07. 2026" (ArchivePage.hero.dateValue) — same date
-    // in ISO form. endDate is what marks this as a finished event: without
-    // it, a startDate-only Event reads as open-ended/still running.
+    name: `${t("title1")} ${t("title2")}`,
+    description: tReg("subtitle"),
+    // The site shows "25. 07. 2026" (Hero.dateValue) — same date in ISO form.
     startDate: "2026-07-25",
-    endDate: "2026-07-25",
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    // Stays "scheduled" even though the event is over — schema.org has no
-    // "happened" status, and the alternatives (Cancelled/Postponed/MovedOnline)
-    // would all assert something false. A past endDate is the signal.
     eventStatus: "https://schema.org/EventScheduled",
     location: {
       "@type": "Place",
@@ -86,20 +80,14 @@ export default async function Page({
         dangerouslySetInnerHTML={{ __html: jsonLdScript(eventJsonLd) }}
       />
       <div className="relative h-screen w-full">
-        <Hero
-          namespace="ArchivePage.hero"
-          ctaKey="galleryButton"
-          ctaTargetId="gallery"
-        />
+        <Hero />
       </div>
       <div className="h-1 w-full bg-gradient-to-r from-brand-dark via-brand to-brand-dark" />
       <div className="bg-black">
-        <EventRecapSection />
-        <EventGallerySection photos={galleryPhotos} />
-        <VideosSection />
-        <VehiclesSection title={t("vehicles.title")} />
+        <InfoSection />
+        <RegistrationSection />
+        <VehiclesSection />
         <SponsorsSection />
-        <NextEditionSection />
       </div>
     </div>
   );
