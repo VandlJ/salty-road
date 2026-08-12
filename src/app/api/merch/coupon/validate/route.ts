@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { calculateCouponDiscount } from "@/lib/pricing";
 
 interface CouponValidateItem {
   sku: string;
@@ -72,22 +73,17 @@ export async function POST(req: Request) {
     });
     const variantBySku = new Map(variants.map((v) => [v.sku, v]));
 
-    let eligibleSubtotal = 0;
-    for (const item of typedItems) {
-      const variant = variantBySku.get(item.sku);
-      if (!variant) continue;
-      const applies = coupon.categories.length === 0 || coupon.categories.includes(variant.product.category);
-      if (applies) eligibleSubtotal += variant.price * item.qty;
-    }
+    // Same function the checkout charges with — this endpoint only previews,
+    // so the two must agree by construction rather than by coincidence.
+    const { eligibleSubtotal, discountAmount } = calculateCouponDiscount({
+      items: typedItems,
+      variantBySku,
+      coupon,
+    });
 
     if (eligibleSubtotal === 0) {
       return NextResponse.json({ error: "coupon_not_applicable" }, { status: 400 });
     }
-
-    const discountAmount =
-      coupon.type === "percent"
-        ? Math.round((eligibleSubtotal * coupon.value) / 100)
-        : Math.min(coupon.value, eligibleSubtotal);
 
     return NextResponse.json({
       code: coupon.code,

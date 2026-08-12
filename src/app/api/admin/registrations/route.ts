@@ -9,7 +9,7 @@ import { requireCurrentEdition } from "@/lib/edition";
 export async function GET() {
   try {
     const admin = await getAdminFromReq();
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
     // Scoped to the current edition so the list doesn't accumulate every
     // past year's exhibitors. Past editions are reviewed on their archive
@@ -33,7 +33,7 @@ export async function GET() {
 export async function PATCH(req: Request) {
   try {
     const admin = await getAdminFromReq();
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
     const body = await req.json();
     const { id, action } = body;
@@ -155,7 +155,7 @@ export async function PATCH(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const admin = await getAdminFromReq();
-    if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });

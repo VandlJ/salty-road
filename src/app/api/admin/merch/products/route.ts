@@ -3,29 +3,25 @@ import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
 import { compareVariantsForDisplay } from "@/lib/variantLabel";
+import { withAdmin } from "@/lib/apiHandler";
 
 const MAX_LEN = { slug: 80, category: 40, name: 100, description: 2000 };
 
-export async function GET() {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  try {
-    const products = await prisma.merchProduct.findMany({
-      // Same order the public shop grid uses, so the admin list matches
-      // what customers see (and reorder buttons feel intuitive).
-      orderBy: { order: Prisma.SortOrder.asc },
-      include: {
-        variants: { orderBy: { order: Prisma.SortOrder.asc } },
-      },
-    });
-    for (const p of products) p.variants.sort(compareVariantsForDisplay);
-    return NextResponse.json(products);
-  } catch (err) {
-    console.error("GET /api/admin/merch/products error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
+export const GET = withAdmin(
+  "GET /api/admin/merch/products",
+  async () => {
+      const products = await prisma.merchProduct.findMany({
+        // Same order the public shop grid uses, so the admin list matches
+        // what customers see (and reorder buttons feel intuitive).
+        orderBy: { order: Prisma.SortOrder.asc },
+        include: {
+          variants: { orderBy: { order: Prisma.SortOrder.asc } },
+        },
+      });
+      for (const p of products) p.variants.sort(compareVariantsForDisplay);
+      return NextResponse.json(products);
   }
-}
+);
 
 export async function POST(req: Request) {
   const admin = await getAdminFromReq();

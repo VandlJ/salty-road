@@ -42,8 +42,13 @@ export type PaymentMethod = (typeof PAYMENT_METHOD)[number];
 export const DELIVERY_METHOD = ["shipping", "pickup"] as const;
 export type DeliveryMethod = (typeof DELIVERY_METHOD)[number];
 
-export const COUPON_TYPE = ["percent", "fixed", "free_shipping"] as const;
-export type CouponType = (typeof COUPON_TYPE)[number];
+export const CouponKind = {
+  Percent: "percent",
+  Fixed: "fixed",
+  FreeShipping: "free_shipping",
+} as const;
+export const COUPON_TYPE = Object.values(CouponKind);
+export type CouponType = (typeof CouponKind)[keyof typeof CouponKind];
 
 // Deliberately an open list, unlike the sets above: the admin merch form
 // offers these as options but also accepts a free-text category, so this is

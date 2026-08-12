@@ -16,7 +16,7 @@ import {
 
 export async function GET() {
   const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const [
     registrationOpen,
@@ -42,7 +42,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const body = await req.json();
   const result: {

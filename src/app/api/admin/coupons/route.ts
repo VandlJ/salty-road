@@ -2,21 +2,17 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
+import { withAdmin } from "@/lib/apiHandler";
 
 const MAX_CODE_LEN = 40;
 
-export async function GET() {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  try {
-    const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: "desc" } });
-    return NextResponse.json(coupons);
-  } catch (err) {
-    console.error("GET /api/admin/coupons error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
+export const GET = withAdmin(
+  "GET /api/admin/coupons",
+  async () => {
+      const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: "desc" } });
+      return NextResponse.json(coupons);
   }
-}
+);
 
 export async function POST(req: Request) {
   const admin = await getAdminFromReq();

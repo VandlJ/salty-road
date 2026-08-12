@@ -1,43 +1,25 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getAdminFromReq } from "@/lib/adminAuth";
+import { withAdmin } from "@/lib/apiHandler";
 
-export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+export const PATCH = withAdmin<{ id: string }>(
+  "PATCH /api/admin/contact-messages/[id]",
+  async ({ req, params: { id } }) => {
+  const { read } = await req.json();
 
-  try {
-    const { id } = await params;
-    const { read } = await req.json();
+  const message = await prisma.contactMessage.update({
+    where: { id },
+    data: { read: !!read },
+  });
 
-    const message = await prisma.contactMessage.update({
-      where: { id },
-      data: { read: !!read },
-    });
-
-    return NextResponse.json(message);
-  } catch (err) {
-    console.error("PATCH /api/admin/contact-messages/[id] error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
+  return NextResponse.json(message);
   }
-}
+);
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  try {
-    const { id } = await params;
-    await prisma.contactMessage.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("DELETE /api/admin/contact-messages/[id] error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
+export const DELETE = withAdmin<{ id: string }>(
+  "DELETE /api/admin/contact-messages/[id]",
+  async ({ params: { id } }) => {
+  await prisma.contactMessage.delete({ where: { id } });
+  return NextResponse.json({ success: true });
   }
-}
+);

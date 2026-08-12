@@ -14,7 +14,7 @@ async function isAuthorized(): Promise<boolean> {
 
 export async function GET() {
   if (!(await isAuthorized())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {
@@ -50,7 +50,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   if (!(await isAuthorized())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {

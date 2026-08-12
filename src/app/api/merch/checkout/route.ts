@@ -9,6 +9,7 @@ import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-not
 import { getShippingFee } from "@/lib/shipping";
 import { variantLabel } from "@/lib/variantLabel";
 import { EMAIL_RE, PHONE_RE, CHECKOUT_MAX_LEN } from "@/lib/constants";
+import { calculateCouponDiscount, resolveShippingFee } from "@/lib/pricing";
 
 const MAX_ITEM_LINES = 20;
 const MAX_QTY_PER_LINE = 20;
@@ -217,24 +218,20 @@ export async function POST(req: Request) {
         }
 
         // Category-restricted coupons only discount the matching slice of
-        // the cart — empty `categories` means "applies to everything".
-        const eligibleSubtotal =
-          coupon.categories.length === 0
-            ? subtotal
-            : typedItems.reduce((sum, item) => {
-                const variant = variantBySku.get(item.sku)!;
-                return coupon.categories.includes(variant.product.category) ? sum + variant.price * item.qty : sum;
-              }, 0);
+        // the cart. Shared with the coupon-preview endpoint so the price
+        // quoted to the customer and the price charged can't drift apart.
+        const result = calculateCouponDiscount({
+          items: typedItems,
+          variantBySku,
+          coupon,
+        });
 
-        if (eligibleSubtotal === 0) {
+        if (result.eligibleSubtotal === 0) {
           throw new Error("INVALID_COUPON");
         }
 
         couponCode = coupon.code;
-        discountAmount =
-          coupon.type === "percent"
-            ? Math.round((eligibleSubtotal * coupon.value) / 100)
-            : Math.min(coupon.value, eligibleSubtotal);
+        discountAmount = result.discountAmount;
       }
 
       // Free gift: never trust eligibility or stock from the client — a
@@ -282,7 +279,11 @@ export async function POST(req: Request) {
         }
       }
 
-      const shippingFee = deliveryMethod === "pickup" ? 0 : shippingCouponCode ? 0 : baseShippingFee;
+      const shippingFee = resolveShippingFee({
+        deliveryMethod,
+        hasFreeShippingCoupon: shippingCouponCode !== null,
+        baseFee: baseShippingFee,
+      });
       const totalAmount = subtotal - discountAmount + shippingFee;
 
       return tx.order.create({

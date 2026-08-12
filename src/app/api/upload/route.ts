@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     // would have done.
     const admin = folder !== "registrations" ? await getAdminFromReq() : null;
     if (folder !== "registrations" && !admin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
     // The public registrations path is rate-limited against abuse; an

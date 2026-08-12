@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { conflict } from "@/lib/apiHandler";
 
 // Inferred from prisma.$transaction rather than Prisma.TransactionClient —
 // the extended client (see @/lib/prisma) doesn't structurally match that
@@ -56,5 +57,5 @@ export async function reconsumeCouponUse(tx: TxClient, code: string) {
     UPDATE "Coupon" SET "usedCount" = "usedCount" + 1
     WHERE code = ${code} AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
   `;
-  if (affected === 0) throw new Error("INSUFFICIENT_COUPON");
+  if (affected === 0) throw conflict("insufficient_coupon");
 }

@@ -93,10 +93,15 @@ describe("reconsumeCouponUse", () => {
     await expect(reconsumeCouponUse(tx, "SALTYVOL1")).resolves.toBeUndefined();
   });
 
-  it("throws when the coupon has meanwhile been exhausted", async () => {
+  it("throws a 409 when the coupon has meanwhile been exhausted", async () => {
     // The caller relies on this to roll the whole transaction back rather
-    // than re-opening an order on a coupon with no uses left.
+    // than re-opening an order on a coupon with no uses left. It's an
+    // ApiError so withAdmin turns it into a 409 without the route needing
+    // its own string-matching catch block.
     const { tx } = buildTx({ executeRawResult: 0 });
-    await expect(reconsumeCouponUse(tx, "SALTYVOL1")).rejects.toThrow("INSUFFICIENT_COUPON");
+    await expect(reconsumeCouponUse(tx, "SALTYVOL1")).rejects.toMatchObject({
+      code: "insufficient_coupon",
+      status: 409,
+    });
   });
 });

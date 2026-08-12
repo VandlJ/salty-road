@@ -12,7 +12,7 @@ const MAX_URL_LENGTH = 500;
 // would be pure waste.
 export async function GET() {
   const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   // Always the current edition's gallery — a past edition's photos are
   // frozen with its archive page.
@@ -23,7 +23,7 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => null);
   const photos = body?.photos;
