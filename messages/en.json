@@ -483,7 +483,14 @@
     "confirmSend": "Yes, send",
     "sending": "Sending…",
     "resultSummary": "Sent {sent} of {total} emails.",
-    "resultFailed": "{failed} failed to send — try again later."
+    "resultFailed": "{failed} failed to send — try again later.",
+    "manualTitle": "Send manually to a specific email",
+    "manualHint": "For people not in the registration list (e.g. a deleted registration) — sends immediately, no duplicate protection.",
+    "manualNameLabel": "Name (optional)",
+    "manualNamePlaceholder": "Jane",
+    "manualEmailLabel": "Email",
+    "manualSendButton": "Send to this email",
+    "manualSendSuccess": "Email sent."
   },
   "AdminMerchPage": {
     "title": "Merch Management",

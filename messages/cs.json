@@ -483,7 +483,14 @@
     "confirmSend": "Ano, odeslat",
     "sending": "Odesílám…",
     "resultSummary": "Odesláno {sent} z {total} e-mailů.",
-    "resultFailed": "{failed} se nepodařilo odeslat — zkuste to znovu později."
+    "resultFailed": "{failed} se nepodařilo odeslat — zkuste to znovu později.",
+    "manualTitle": "Poslat ručně na konkrétní e-mail",
+    "manualHint": "Pro lidi mimo seznam registrací (např. smazané registrace) — pošle se rovnou, bez ochrany proti duplicitě.",
+    "manualNameLabel": "Jméno (nepovinné)",
+    "manualNamePlaceholder": "Bedřich",
+    "manualEmailLabel": "E-mail",
+    "manualSendButton": "Poslat na tento e-mail",
+    "manualSendSuccess": "E-mail byl odeslán."
   },
   "AdminMerchPage": {
     "title": "Správa merche",

@@ -10,6 +10,7 @@ import { SITE_URL } from "@/lib/seo";
 // crew checking people off at /entry — independent of paymentStatus (an
 // accepted, arrived registration is by definition someone who was let in).
 const ELIGIBLE_WHERE = { status: "accepted", arrived: true } as const;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function GET() {
   const admin = await getAdminFromReq();
@@ -38,10 +39,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
-  const { couponCode, confirm } = await req.json();
+  const { couponCode, confirm, manualTo, manualName } = await req.json();
   if (typeof couponCode !== "string" || !couponCode.trim()) {
     return NextResponse.json({ error: "missing_coupon_code" }, { status: 400 });
   }
+
+  // Manual one-off send to an arbitrary address — for people not in the
+  // Registration table at all (e.g. a deleted registration), so it's a
+  // real send but deliberately untracked (no thankYouEmailSentAt to touch).
+  if (typeof manualTo === "string" && manualTo.trim()) {
+    if (!EMAIL_RE.test(manualTo.trim())) {
+      return NextResponse.json({ error: "invalid_email" }, { status: 400 });
+    }
+    const siteUrl = process.env.NEXT_PUBLIC_URL || SITE_URL;
+    const { subject, text, html } = vol1ExhibitorThankYouEmail({
+      firstName: typeof manualName === "string" ? manualName.trim() : "",
+      couponCode: couponCode.trim().toUpperCase(),
+      siteUrl,
+    });
+    await sendEmail(manualTo.trim(), subject, text, html, undefined, VOL1_THANK_YOU_EMAIL_FROM);
+    return NextResponse.json({ success: true });
+  }
+
   if (confirm !== true) {
     return NextResponse.json({ error: "confirmation_required" }, { status: 400 });
   }
