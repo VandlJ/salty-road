@@ -14,6 +14,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { buildAlternates, jsonLdScript, ORGANIZATION_JSON_LD, WEBSITE_JSON_LD, SITE_URL } from "@/lib/seo";
 import { routing } from "@/i18n/routing";
 import { getShopEnabledCached } from "@/lib/shop";
+import { toLocale } from "@/i18n/locale";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -57,7 +58,7 @@ const amika = localFont({
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'Hero' });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: 'Hero' });
 
   const title = `${t('title1')} ${t('title2')}`;
   // Dedicated SEO copy, deliberately not the RegisterForm section's UI

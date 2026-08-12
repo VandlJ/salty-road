@@ -15,15 +15,19 @@ const fadeUp = {
 // behaviour so src/templates/homepage-vol2.tsx keeps rendering identically
 // with a bare <Hero />. The archived homepage overrides them to point at the
 // gallery instead of a registration form.
+// Enumerated rather than a bare string so the message keys stay checkable —
+// next-intl can only verify t("…") when it knows which namespace it's in.
+type HeroNamespace = "Hero" | "ArchivePage.hero";
+
 export default function Hero({
   namespace = "Hero",
   ctaKey = "registerButton",
   ctaTargetId = "register",
 }: {
   /** Message namespace — next-intl accepts a dotted path, e.g. "ArchivePage.hero". */
-  namespace?: string;
+  namespace?: HeroNamespace;
   /** Key within `namespace` for the CTA button label. */
-  ctaKey?: string;
+  ctaKey?: "registerButton" | "galleryButton";
   /** Element id the CTA smooth-scrolls to. */
   ctaTargetId?: string;
 } = {}) {

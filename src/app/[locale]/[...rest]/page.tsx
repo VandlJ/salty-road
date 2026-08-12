@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { toLocale } from "@/i18n/locale";
 
 // Catch-all for any path under a locale that doesn't match a real route
 // (e.g. /cs/kk, /en/whatever). Without this, an unmatched path never
@@ -20,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "NotFoundPage" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "NotFoundPage" });
   return {
     title: t("title"),
     robots: { index: false, follow: false },

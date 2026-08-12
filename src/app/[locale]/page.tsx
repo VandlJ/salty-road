@@ -5,6 +5,7 @@ import Hero from "@/components/hero";
 import EventRecapSection from "@/components/event-recap-section";
 import { getGalleryPhotosCached } from "@/lib/gallery";
 import { SITE_URL, canonicalUrl, jsonLdScript } from "@/lib/seo";
+import { toLocale } from "@/i18n/locale";
 
 // Below-the-fold sections — still fully server-rendered (dynamic() defaults
 // to ssr: true), this just code-splits their JS into separate chunks so the
@@ -21,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ArchivePage.meta" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "ArchivePage.meta" });
   const description = t("description");
 
   // Title comes from the layout's default; only the description is
@@ -39,7 +40,7 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ArchivePage" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "ArchivePage" });
 
   const galleryPhotos = await getGalleryPhotosCached();
 

@@ -3,6 +3,17 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
+import { rawList } from "@/lib/i18nList";
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="list-disc list-outside pl-5 space-y-2">
+      {items.map((item) => (
+        <li key={item}>{item}</li>
+      ))}
+    </ul>
+  );
+}
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -29,27 +40,15 @@ export default function PrivacyPage() {
 
       <div className="space-y-12">
         <Section title={t("controllerTitle")}>
-          <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2].map((i) => (
-              <li key={i}>{t(`controllerList.item${i}`)}</li>
-            ))}
-          </ul>
+          <BulletList items={rawList<string>(t, "controllerList")} />
         </Section>
 
         <Section title={t("dataTitle")}>
-          <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <li key={i}>{t(`dataList.item${i}`)}</li>
-            ))}
-          </ul>
+          <BulletList items={rawList<string>(t, "dataList")} />
         </Section>
 
         <Section title={t("purposeTitle")}>
-          <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <li key={i}>{t(`purposeList.item${i}`)}</li>
-            ))}
-          </ul>
+          <BulletList items={rawList<string>(t, "purposeList")} />
         </Section>
 
         <Section title={t("cookiesTitle")}>
@@ -57,11 +56,7 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title={t("recipientsTitle")}>
-          <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <li key={i}>{t(`recipientsList.item${i}`)}</li>
-            ))}
-          </ul>
+          <BulletList items={rawList<string>(t, "recipientsList")} />
         </Section>
 
         <Section title={t("retentionTitle")}>
@@ -69,11 +64,7 @@ export default function PrivacyPage() {
         </Section>
 
         <Section title={t("rightsTitle")}>
-          <ul className="list-disc list-outside pl-5 space-y-2">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <li key={i}>{t(`rightsList.item${i}`)}</li>
-            ))}
-          </ul>
+          <BulletList items={rawList<string>(t, "rightsList")} />
         </Section>
 
         <Section title={t("contactTitle")}>

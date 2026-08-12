@@ -11,6 +11,7 @@ import AddressAutocomplete from "@/components/address-autocomplete";
 import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore, cartTotal } from "@/lib/cartStore";
 import { DEFAULT_SHIPPING_FEE } from "@/lib/shippingConstants";
+import { serverErrorToKey } from "@/lib/serverError";
 
 // Groups digits in 3s ("123 456 789") — the CZ/SK/PL convention and a
 // reasonable universal display format for the others too, since this is
@@ -21,7 +22,7 @@ function formatPhoneDigits(raw: string) {
   return digits.replace(/(\d{3})(?=\d)/g, "$1 ");
 }
 
-const ERROR_KEY_MAP: Record<string, string> = {
+const ERROR_KEY_MAP = {
   missing_fields: "checkoutErrorMissingFields",
   invalid_email: "checkoutErrorInvalidEmail",
   invalid_phone: "checkoutErrorInvalidPhone",
@@ -33,7 +34,7 @@ const ERROR_KEY_MAP: Record<string, string> = {
   invalid_coupon: "couponInvalid",
   coupon_not_applicable: "couponNotApplicable",
   server_error: "checkoutErrorGeneric",
-};
+} as const;
 
 export default function CheckoutPage() {
   const t = useTranslations("ShopPage");
@@ -241,7 +242,7 @@ export default function CheckoutPage() {
       const json = await res.json();
 
       if (!res.ok) {
-        setError(t(ERROR_KEY_MAP[json?.error] ?? "checkoutErrorGeneric"));
+        setError(t(serverErrorToKey(ERROR_KEY_MAP, json?.error, "checkoutErrorGeneric")));
         setSubmitting(false);
         return;
       }

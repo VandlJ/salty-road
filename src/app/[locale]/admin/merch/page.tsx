@@ -16,10 +16,12 @@ import { FadeSwap } from "@/components/fade-swap";
 import { AnimatePresence, motion } from "motion/react";
 import type { MerchProductAdmin, MerchVariantAdmin } from "@/types/merch";
 import { SIZE_ORDER, compareBySize } from "@/lib/variantLabel";
+import { serverErrorToKey } from "@/lib/serverError";
+import { MERCH_CATEGORY_SUGGESTIONS } from "@/lib/constants";
 
 type ActiveFilter = "all" | "active" | "inactive";
 
-const ERROR_KEY_MAP: Record<string, string> = {
+const ERROR_KEY_MAP = {
   missing_fields: "errorMissingFields",
   field_too_long: "errorFieldTooLong",
   invalid_slug: "errorInvalidSlug",
@@ -27,7 +29,7 @@ const ERROR_KEY_MAP: Record<string, string> = {
   sku_taken: "errorSkuTaken",
   invalid_price: "errorInvalidPrice",
   invalid_quantity: "errorInvalidQuantity",
-};
+} as const;
 
 export default function AdminMerchPage() {
   const t = useTranslations("AdminMerchPage");
@@ -222,8 +224,12 @@ export default function AdminMerchPage() {
   if (!loggedIn) return <AdminLoginForm onSuccess={recheck} />;
 
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean)));
+  // Categories are free text (the form allows a custom value), so an unknown
+  // one falls back to showing the raw string rather than a missing-key error.
   const categoryLabel = (c: string) =>
-    (CATEGORY_LABEL_KEY as Record<string, string>)[c] ? t(CATEGORY_LABEL_KEY[c as keyof typeof CATEGORY_LABEL_KEY]) : c;
+    Object.hasOwn(CATEGORY_LABEL_KEY, c)
+      ? t(CATEGORY_LABEL_KEY[c as keyof typeof CATEGORY_LABEL_KEY])
+      : c;
 
   const filteredProducts = products.filter((p) => {
     if (categoryFilter !== "all" && p.category !== categoryFilter) return false;
@@ -453,13 +459,15 @@ function groupVariantsByColor(variants: MerchVariantAdmin[]): ColorGroup[] {
   return groups;
 }
 
-const CATEGORY_OPTIONS = ["hoodie", "tshirt", "car-scent", "cap"] as const;
-const CATEGORY_LABEL_KEY: Record<(typeof CATEGORY_OPTIONS)[number], string> = {
+const CATEGORY_OPTIONS = MERCH_CATEGORY_SUGGESTIONS;
+// No `Record<..., string>` annotation on purpose — that widens the values to
+// `string` and next-intl can then no longer check them as message keys.
+const CATEGORY_LABEL_KEY = {
   hoodie: "categoryHoodie",
   tshirt: "categoryTshirt",
   "car-scent": "categoryCarScent",
   cap: "categoryCap",
-};
+} as const;
 
 function CategorySelect({
   value,
@@ -493,7 +501,7 @@ function CategorySelect({
         </option>
         {CATEGORY_OPTIONS.map((c) => (
           <option key={c} value={c} className="bg-[#111]">
-            {t(CATEGORY_LABEL_KEY[c] as "categoryHoodie")}
+            {t(CATEGORY_LABEL_KEY[c])}
           </option>
         ))}
         <option value="__custom__" className="bg-[#111]">
@@ -539,7 +547,7 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
       });
       const product = await productRes.json();
       if (!productRes.ok) {
-        setError(t(ERROR_KEY_MAP[product?.error] ?? "errorGeneric"));
+        setError(t(serverErrorToKey(ERROR_KEY_MAP, product?.error, "errorGeneric")));
         return;
       }
 
@@ -578,7 +586,7 @@ function NewProductForm({ t, onCreated }: { t: Translate; onCreated: () => void 
       if (!variantRes.ok) {
         // The product was created but the variant failed — surface the
         // error and let the admin add the variant from the product card.
-        setError(t(ERROR_KEY_MAP[variant?.error] ?? "errorGeneric"));
+        setError(t(serverErrorToKey(ERROR_KEY_MAP, variant?.error, "errorGeneric")));
         onCreated();
         return;
       }
@@ -1320,7 +1328,7 @@ function VariantRow({
     });
     const json = await res.json();
     if (!res.ok) {
-      setError(t(ERROR_KEY_MAP[json?.error] ?? "errorGeneric"));
+      setError(t(serverErrorToKey(ERROR_KEY_MAP, json?.error, "errorGeneric")));
       return;
     }
     onChange();
@@ -1469,7 +1477,7 @@ function AddVariantForm({
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(t(ERROR_KEY_MAP[json?.error] ?? "errorGeneric"));
+        setError(t(serverErrorToKey(ERROR_KEY_MAP, json?.error, "errorGeneric")));
         return;
       }
       setSku("");

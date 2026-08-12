@@ -27,6 +27,7 @@ import Hero from "@/components/hero";
 import InfoSection from "@/components/info-section";
 import RegistrationSection from "@/components/registration-section";
 import { SITE_URL, canonicalUrl, jsonLdScript } from "@/lib/seo";
+import { toLocale } from "@/i18n/locale";
 
 // Below-the-fold sections — still fully server-rendered (dynamic() defaults
 // to ssr: true), this just code-splits their JS into separate chunks so the
@@ -40,8 +41,8 @@ export default async function Page({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "Hero" });
-  const tReg = await getTranslations({ locale, namespace: "RegisterPage" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "Hero" });
+  const tReg = await getTranslations({ locale: toLocale(locale), namespace: "RegisterPage" });
 
   const eventJsonLd = {
     "@context": "https://schema.org",

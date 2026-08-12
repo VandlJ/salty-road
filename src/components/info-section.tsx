@@ -5,6 +5,20 @@ import Image from "next/image";
 import SectionHeading from "@/components/section-heading";
 import { motion } from "motion/react";
 
+// The parking/programme/rules lists are keyed item1..itemN and read by index,
+// which next-intl cannot verify — a key built by interpolation is just
+// `string`. PrivacyPage and ArchivePage.recap store their lists as real JSON
+// arrays instead, which is the pattern to copy; it doesn't fit here yet
+// because these items are rendered with t.rich (per-item links), and rich
+// formatting needs a message key rather than a value.
+//
+// Kept as one narrow, greppable cast rather than a shared helper on purpose:
+// this component is currently unreachable (only src/templates/homepage-vol2.tsx
+// imports it) and is due to be rebuilt from Edition data, at which point both
+// the cast and the item1..N shape should go.
+type InfoPageKey = Parameters<ReturnType<typeof useTranslations<"InfoPage">>>[0];
+const listKey = (list: string, index: number) => `${list}.item${index}` as InfoPageKey;
+
 export default function InfoSection() {
   const t = useTranslations("InfoPage");
 
@@ -23,7 +37,7 @@ export default function InfoSection() {
                 <div key={item} className="flex gap-3 p-4 rounded-sm border border-gray-800 bg-white/[0.03]">
                   <span className="mt-2.5 h-1.5 w-1.5 shrink-0 bg-brand" />
                   <span className="text-gray-200 text-base leading-relaxed font-light">
-                    {t.rich(`parkingList.item${item}`, {
+                    {t.rich(listKey("parkingList", item), {
                       mapLink: (chunks) => (
                         <a href="https://mapy.cz/s/cozufafuru" target="_blank" rel="noopener noreferrer" className="text-white font-medium underline hover:text-gray-300 transition-colors">
                           {chunks}
@@ -70,7 +84,7 @@ export default function InfoSection() {
               transition={{ staggerChildren: 0.1 }}
             >
               {[1, 2, 3, 4, 5, 6, 7].map((item) => {
-                 const text = t(`programList.item${item}`);
+                 const text = t(listKey("programList", item));
                  const parts = text.split(" - ");
                  const time = parts[0];
                  const rawEvent = parts.slice(1).join(" - ");
@@ -116,7 +130,7 @@ export default function InfoSection() {
                        <div className="inline-flex items-start text-left break-words max-w-full md:max-w-none text-pretty">
                          <span className="w-1.5 h-1.5 bg-brand mt-2.5 mr-3 shrink-0"></span>
                          <span>
-                           {t.rich(`programList.item${item}`, {
+                           {t.rich(listKey("programList", item), {
                              link: (chunks) => (
                                <a 
                                  href={links[item]} 
@@ -152,7 +166,7 @@ export default function InfoSection() {
                 <span className="shrink-0 text-brand font-extrabold text-lg leading-none tabular-nums">
                   {String(item).padStart(2, "0")}
                 </span>
-                <p className="text-gray-200 text-sm leading-relaxed font-light">{t(`rulesList.item${item}`)}</p>
+                <p className="text-gray-200 text-sm leading-relaxed font-light">{t(listKey("rulesList", item))}</p>
               </div>
             ))}
           </div>

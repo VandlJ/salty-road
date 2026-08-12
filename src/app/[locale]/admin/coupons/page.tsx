@@ -11,17 +11,18 @@ import { useAdminAuth } from "@/lib/useAdminAuth";
 import { formatPrice } from "@/lib/formatPrice";
 import DatePicker from "@/components/date-picker";
 import type { Coupon, MerchProductAdmin } from "@/types/merch";
+import { serverErrorToKey } from "@/lib/serverError";
 
 type Translate = ReturnType<typeof useTranslations<"AdminCouponsPage">>;
 type MerchTranslate = ReturnType<typeof useTranslations<"AdminMerchPage">>;
 
-const ERROR_KEY_MAP: Record<string, string> = {
+const ERROR_KEY_MAP = {
   missing_fields: "errorMissingFields",
   field_too_long: "errorFieldTooLong",
   invalid_value: "errorInvalidValue",
   invalid_max_uses: "errorInvalidMaxUses",
   code_taken: "errorCodeTaken",
-};
+} as const;
 
 const CATEGORY_LABEL_KEY: Record<string, string> = {
   hoodie: "categoryHoodie",
@@ -294,7 +295,7 @@ function NewCouponForm({
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(t(ERROR_KEY_MAP[json?.error] ?? "errorGeneric"));
+        setError(t(serverErrorToKey(ERROR_KEY_MAP, json?.error, "errorGeneric")));
         return;
       }
       setCode("");

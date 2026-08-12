@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { getShopEnabled } from "@/lib/shop";
 import { buildAlternates, canonicalUrl } from "@/lib/seo";
+import { toLocale } from "@/i18n/locale";
 
 export async function generateMetadata({
   params,
@@ -9,8 +10,8 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ShopPage" });
-  const tHero = await getTranslations({ locale, namespace: "Hero" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "ShopPage" });
+  const tHero = await getTranslations({ locale: toLocale(locale), namespace: "Hero" });
   // The shop is behind an admin-controlled kill switch (off by default) —
   // keep it out of search results until it's actually turned on.
   const enabled = await getShopEnabled();

@@ -4,6 +4,7 @@ import { getShopEnabled } from "@/lib/shop";
 import { buildAlternates, canonicalUrl, jsonLdScript } from "@/lib/seo";
 import { variantLabel } from "@/lib/variantLabel";
 import { getShopProduct as getProduct } from "@/lib/shopProduct";
+import { toLocale } from "@/i18n/locale";
 
 export async function generateMetadata({
   params,
@@ -11,7 +12,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const t = await getTranslations({ locale, namespace: "ShopPage" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "ShopPage" });
   const shopTitle = t("title");
   // Same admin-controlled kill switch as /shop — keep product pages out of
   // search results until the shop is actually turned on.
