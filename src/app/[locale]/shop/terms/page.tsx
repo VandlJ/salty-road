@@ -73,8 +73,10 @@ export default function ShopTermsPage() {
 
         <Section id="zarucni-podminky" title="Záruční podmínky">
           <p>
-            Délka záruční doby je uvedena na daňovém dokladu za zboží. Není-li tam uvedena, je stanovena
-            zákonem na <K>24 měsíců</K> (až na výjimky uvedené v zákoně).
+            Prodávající odpovídá kupujícímu-spotřebiteli za to, že zboží při převzetí nemá vady, a odpovídá i
+            za vadu, která se na zboží projeví v době <K>dvou let od převzetí</K> (práva z vadného plnění dle §
+            2161 a násl. zákona č. 89/2012 Sb., občanského zákoníku). Nejedná se o smluvně poskytovanou záruku
+            za jakost nad rámec zákona, pokud prodávající na daňovém dokladu výslovně neuvede jinak.
           </p>
           <p>
             Vykazuje-li objednané zboží zjevné nedostatky (například porušený transportní obal) již při
@@ -86,8 +88,7 @@ export default function ShopTermsPage() {
             V případě, že se při užívání zboží vyskytnou v záruční době vady zboží, může kupující v souladu se
             zákonem a tímto reklamačním řádem uplatňovat reklamaci. <K>Kupující je oprávněn odstoupit od kupní
             smlouvy</K> ve všech případech stanovených zákonem. Odstoupení nabývá účinnosti dnem přijetí zboží k
-            reklamaci prodávajícím. Prodávající má právo nepřijmout zboží k reklamaci od kupujícího v případě,
-            že nejsou splněny podmínky dané zákonem a obchodními podmínkami prodávajícího. V případě
+            reklamaci prodávajícím. V případě
             odstoupení od smlouvy se smlouva od počátku ruší a smluvní strany jsou povinny navrátit si všechna
             plnění z rušené smlouvy. Kupující musí prodávajícímu vydat vše, co na základě kupní smlouvy
             získal. Pokud to již není dobře možné (např. v mezidobí bylo zboží zničeno nebo spotřebováno),
@@ -127,7 +128,6 @@ export default function ShopTermsPage() {
 
         <Section id="zaverecna-ustanoveni-reklamace" title="Závěrečná ustanovení">
           <p>Tento reklamační řád vstupuje v platnost dnem <K>1. 8. 2026</K>.</p>
-          <p>Změny vyhrazeny.</p>
         </Section>
 
         <Section id="obchodni-podminky" title="Obchodní podmínky">
@@ -220,8 +220,11 @@ export default function ShopTermsPage() {
               Adresa pro zasílání reklamací
             </a>
             . Kupující v oznámení uvede číslo objednávky, variabilní symbol a případně číslo bankovního účtu
-            pro vrácení platby. Vzorový formulář pro odstoupení od smlouvy zasíláme na vyžádání na výše
-            uvedeném e-mailu.
+            pro vrácení platby. Kupující může, ale nemusí, použít{" "}
+            <Link href="/shop/withdrawal-form" className="underline hover:text-white transition-colors">
+              vzorový formulář pro odstoupení od smlouvy
+            </Link>
+            .
           </p>
           <p>
             Zboží je kupující povinen zaslat zpět prodávajícímu <K>bez zbytečného odkladu, nejpozději do 14
@@ -285,19 +288,6 @@ export default function ShopTermsPage() {
               className="underline hover:text-white transition-colors"
             >
               adr.coi.cz
-            </a>
-            .
-          </p>
-          <p>
-            Kupující může rovněž využít platformu pro řešení sporů online, která je zřízena Evropskou komisí na
-            adrese{" "}
-            <a
-              href="https://ec.europa.eu/consumers/odr/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-white transition-colors"
-            >
-              ec.europa.eu/consumers/odr
             </a>
             .
           </p>
