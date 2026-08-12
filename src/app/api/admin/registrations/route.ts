@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
 import { sendAcceptanceEmail, sendRejectionEmail } from "@/lib/email";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
+import { PAYMENT_STATUS, isOneOf } from "@/lib/constants";
 
 export async function GET() {
   try {
@@ -62,6 +63,9 @@ export async function PATCH(req: Request) {
 
     if (action === "updatePaymentStatus") {
       const { paymentStatus } = body;
+      if (!isOneOf(PAYMENT_STATUS, paymentStatus)) {
+        return NextResponse.json({ error: "invalid_payment_status" }, { status: 400 });
+      }
       const updated = await prisma.registration.update({
         where: { id },
         data: { paymentStatus },

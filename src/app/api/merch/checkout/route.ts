@@ -8,10 +8,8 @@ import { getOrderVs } from "@/lib/orderVs";
 import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
 import { getShippingFee } from "@/lib/shipping";
 import { variantLabel } from "@/lib/variantLabel";
+import { EMAIL_RE, PHONE_RE, CHECKOUT_MAX_LEN } from "@/lib/constants";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[0-9+() .-]{6,24}$/;
-const MAX_LEN = { customerName: 100, customerEmail: 200, customerPhone: 24, address: 300 };
 const MAX_ITEM_LINES = 20;
 const MAX_QTY_PER_LINE = 20;
 
@@ -81,7 +79,7 @@ export async function POST(req: Request) {
     }
 
     // Type-check before anything else — a non-string here otherwise skips
-    // the MAX_LEN guard entirely and surfaces as an opaque 500 from Prisma.
+    // the CHECKOUT_MAX_LEN guard entirely and surfaces as an opaque 500 from Prisma.
     if (typeof customerName !== "string") {
       return NextResponse.json({ error: "missing_fields" }, { status: 400 });
     }
@@ -97,7 +95,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
     }
 
-    for (const [field, maxLen] of Object.entries(MAX_LEN)) {
+    for (const [field, maxLen] of Object.entries(CHECKOUT_MAX_LEN)) {
       const value = body[field];
       if (typeof value === "string" && value.length > maxLen) {
         return NextResponse.json({ error: "field_too_long" }, { status: 400 });

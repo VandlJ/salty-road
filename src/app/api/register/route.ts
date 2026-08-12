@@ -7,8 +7,8 @@ import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { registrationReceivedEmail } from "@/emails/registration-received.mjs";
 import { registrationAdminNotificationEmail } from "@/emails/registration-admin-notification.mjs";
 import { SITE_URL } from "@/lib/seo";
+import { EMAIL_RE } from "@/lib/constants";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_PHOTOS = 5;
 const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
 // Only accept blob URLs we actually issued via /api/upload — never trust a

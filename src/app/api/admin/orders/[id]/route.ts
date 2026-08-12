@@ -4,29 +4,15 @@ import { getAdminFromReq } from "@/lib/adminAuth";
 import { sendPaymentConfirmationEmail } from "@/lib/email";
 import { generateInvoicePdf } from "@/lib/invoice";
 import { getOrderVs } from "@/lib/orderVs";
+import {
+  restoreStock,
+  releaseCouponUse,
+  reconsumeCouponUse,
+  type OrderStockItem,
+} from "@/lib/orderStock";
+import { ORDER_STATUS } from "@/lib/constants";
 
-const VALID_STATUSES = new Set(["pending", "paid", "shipped", "cancelled"]);
-
-type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
-
-// Mirrors the stock release/re-reserve above, for a coupon's usedCount —
-// cancelling an order should give the use back (so a maxUses-limited code
-// isn't permanently burned by an order that never happened), un-cancelling
-// should re-consume it.
-async function releaseCouponUse(tx: TxClient, code: string) {
-  await tx.$executeRaw`
-    UPDATE "Coupon" SET "usedCount" = "usedCount" - 1
-    WHERE code = ${code} AND "usedCount" > 0
-  `;
-}
-
-async function reconsumeCouponUse(tx: TxClient, code: string) {
-  const affected = await tx.$executeRaw`
-    UPDATE "Coupon" SET "usedCount" = "usedCount" + 1
-    WHERE code = ${code} AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
-  `;
-  if (affected === 0) throw new Error("INSUFFICIENT_COUPON");
-}
+const VALID_STATUSES: ReadonlySet<string> = new Set(ORDER_STATUS);
 
 export async function PATCH(
   req: Request,
@@ -51,16 +37,11 @@ export async function PATCH(
 
       newlyPaid = status === "paid" && current.status !== "paid";
 
-      const items = current.items as { sku: string; qty: number }[];
+      const items = current.items as OrderStockItem[];
 
       if (status === "cancelled" && current.status !== "cancelled") {
         // Order is being cancelled — release the stock it was holding.
-        for (const item of items) {
-          await tx.merchVariant.updateMany({
-            where: { sku: item.sku },
-            data: { quantity: { increment: item.qty } },
-          });
-        }
+        await restoreStock(tx, items, `PATCH order ${id} (cancel)`);
         if (current.couponCode) await releaseCouponUse(tx, current.couponCode);
         if (current.shippingCouponCode) await releaseCouponUse(tx, current.shippingCouponCode);
       } else if (status !== "cancelled" && current.status === "cancelled") {
@@ -143,13 +124,7 @@ export async function DELETE(
       // Release the stock the order was holding, unless it was already
       // cancelled (already released).
       if (current.status !== "cancelled") {
-        const items = current.items as { sku: string; qty: number }[];
-        for (const item of items) {
-          await tx.merchVariant.updateMany({
-            where: { sku: item.sku },
-            data: { quantity: { increment: item.qty } },
-          });
-        }
+        await restoreStock(tx, current.items as OrderStockItem[], `DELETE order ${id}`);
         if (current.couponCode) await releaseCouponUse(tx, current.couponCode);
         if (current.shippingCouponCode) await releaseCouponUse(tx, current.shippingCouponCode);
       }

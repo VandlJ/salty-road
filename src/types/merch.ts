@@ -1,3 +1,5 @@
+import type { OrderStatus, PaymentMethod, DeliveryMethod, CouponType } from "@/lib/constants";
+
 export type PhotoMode = "shared" | "per_variant";
 
 export type MerchVariant = {
@@ -55,10 +57,10 @@ export type Order = {
   address: string | null;
   items: OrderItem[];
   totalAmount: number; // halire
-  paymentMethod: "bank_transfer" | "cod";
-  deliveryMethod: "shipping" | "pickup";
+  paymentMethod: PaymentMethod;
+  deliveryMethod: DeliveryMethod;
   shippingFee: number; // halire
-  status: "pending" | "paid" | "shipped" | "cancelled";
+  status: OrderStatus;
   couponCode: string | null;
   discountAmount: number; // halire
   shippingCouponCode: string | null;
@@ -91,7 +93,7 @@ export type StockRequest = {
 export type Coupon = {
   id: string;
   code: string;
-  type: "percent" | "fixed" | "free_shipping";
+  type: CouponType;
   value: number;
   maxUses: number | null;
   usedCount: number;

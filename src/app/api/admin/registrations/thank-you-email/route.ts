@@ -5,12 +5,12 @@ import { sendEmail, VOL1_THANK_YOU_EMAIL_FROM } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { vol1ExhibitorThankYouEmail } from "@/emails/vol1-exhibitor-thank-you.mjs";
 import { SITE_URL } from "@/lib/seo";
+import { EMAIL_RE } from "@/lib/constants";
 
 // "Arrived" is the source of truth for who actually showed up — set by
 // crew checking people off at /entry — independent of paymentStatus (an
 // accepted, arrived registration is by definition someone who was let in).
 const ELIGIBLE_WHERE = { status: "accepted", arrived: true } as const;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function GET() {
   const admin = await getAdminFromReq();

@@ -3,8 +3,8 @@ import prisma from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { contactMessageEmail } from "@/emails/contact-message.mjs";
+import { EMAIL_RE } from "@/lib/constants";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_LEN = { name: 100, email: 200, message: 2000 };
 
 export async function POST(req: Request) {

@@ -3,8 +3,7 @@ import { getAdminFromReq } from "@/lib/adminAuth";
 import { EMAIL_TEMPLATES, buildEmailPreview } from "@/lib/emailPreview";
 import { sendEmail, SHOP_EMAIL_FROM, VOL1_THANK_YOU_EMAIL_FROM } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { EMAIL_RE } from "@/lib/constants";
 
 // Mirrors the sender each template actually goes out from in production,
 // so a test-send previews the real "From" address too, not just content.
