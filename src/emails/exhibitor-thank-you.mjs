@@ -1,18 +1,31 @@
-// Post-event thank-you email sent to Vol.1 exhibitors who actually showed
-// up (registration.status === "accepted" && arrived === true), with a
-// shop discount coupon. Sent via the admin "Vol.1 poděkování" bulk-send
-// tool, not automatically.
+// Post-event thank-you email sent to the exhibitors of one edition who
+// actually showed up (registration.status === "accepted" && arrived === true),
+// with a shop discount coupon. Sent via the admin "Poděkování vystavovatelům"
+// bulk-send tool, not automatically.
+//
+// editionName / nextEditionLabel are passed in rather than hard-coded so the
+// same template serves every future edition — the caller builds them from the
+// Edition rows.
 /**
- * @param {{ firstName: string, couponCode: string, siteUrl: string }} data
+ * @param {{
+ *   firstName: string, couponCode: string, siteUrl: string,
+ *   editionName: string, nextEditionLabel: string,
+ * }} data
  */
-export function vol1ExhibitorThankYouEmail({ firstName, couponCode, siteUrl }) {
-  const subject = "Díky, že jste byli u Salty Road Meet — dárek pro vás";
+export function exhibitorThankYouEmail({
+  firstName,
+  couponCode,
+  siteUrl,
+  editionName,
+  nextEditionLabel,
+}) {
+  const subject = `Díky, že jste byli u Salty Road Meet ${editionName} — dárek pro vás`;
   const shopUrl = `${siteUrl}/cs/shop`;
   const greeting = firstName ? `Ahoj ${firstName},` : "Ahoj,";
 
   const text = `${greeting}
 
-Salty Road Meet Vol. 1 je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.
+Salty Road Meet ${editionName} je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.
 
 Díky tomu, že jste dorazili se svými auty, podpořili naši akci a pomohli vytvořit atmosféru, kterou jsme si při plánování celého meetu přáli, se nám podařilo zaplnit prachatické náměstí a společně si užít skvělý den.
 
@@ -22,7 +35,7 @@ Vaší podpory si opravdu vážíme, a proto pro vás máme ještě jednu malou 
 
 Rozjeli jsme Salty Road e-shop!
 
-A protože jste se registrovali a byli přímo součástí Salty Road Meet Vol. 1, dáváme vám 10% slevu na celý nákup a na cokoliv z našeho e-shopu.
+A protože jste se registrovali a byli přímo součástí Salty Road Meet ${editionName}, dáváme vám 10% slevu na celý nákup a na cokoliv z našeho e-shopu.
 
 Váš slevový kód: ${couponCode}
 Uplatníte ho při dokončení objednávky na ${shopUrl}
@@ -31,13 +44,13 @@ Budeme samozřejmě rádi, když si z letošního ročníku odnesete i něco dal
 
 Protože my už teď přemýšlíme, co všechno uděláme příště ještě lépe.
 
-Vol. 1 nám ukázal, že tohle celé má smysl. A Salty Road Meet Vol. 2 v roce 2027 chceme posunout zase o pořádný kus dál.
+${editionName} nám ukázal, že tohle celé má smysl. A Salty Road Meet ${nextEditionLabel} chceme posunout zase o pořádný kus dál.
 
 Doufáme, že u toho budete znovu s námi.
 
 Ještě jednou díky za účast, podporu, skvělou atmosféru a za všechna milá slova, která se k nám po akci dostala. Opravdu si toho vážíme.
 
-Uvidíme se na Salty Road Meet Vol. 2!
+Uvidíme se na Salty Road Meet ${nextEditionLabel}!
 
 Mějte se skvěle!
 
@@ -55,7 +68,7 @@ info@saltyroad.cz`;
     <div style="padding:32px;color:#1a1a1a;font-size:15px;line-height:1.6;">
       <p style="margin:0 0 16px;">${greeting}</p>
 
-      <p style="margin:0 0 16px;">Salty Road Meet Vol. 1 je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.</p>
+      <p style="margin:0 0 16px;">Salty Road Meet ${editionName} je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.</p>
 
       <p style="margin:0 0 16px;">Díky tomu, že jste dorazili se svými auty, podpořili naši akci a pomohli vytvořit atmosféru, kterou jsme si při plánování celého meetu přáli, se nám podařilo zaplnit prachatické náměstí a společně si užít skvělý den.</p>
 
@@ -65,12 +78,12 @@ info@saltyroad.cz`;
 
       <p style="margin:0 0 4px;font-weight:700;">Rozjeli jsme Salty Road e-shop!</p>
 
-      <p style="margin:0 0 24px;">A protože jste se registrovali a byli přímo součástí Salty Road Meet Vol. 1, dáváme vám <strong>10% slevu</strong> na celý nákup a na cokoliv z našeho e-shopu.</p>
+      <p style="margin:0 0 24px;">A protože jste se registrovali a byli přímo součástí Salty Road Meet ${editionName}, dáváme vám <strong>10% slevu</strong> na celý nákup a na cokoliv z našeho e-shopu.</p>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
         <tr>
           <td align="center" style="background-color:#fafafa;border:2px dashed #dc2626;border-radius:4px;padding:20px;">
-            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#666666;font-weight:700;margin-bottom:8px;">Váš slevový kód pro vystavovatele Vol. 1</div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#666666;font-weight:700;margin-bottom:8px;">Váš slevový kód pro vystavovatele ${editionName}</div>
             <div style="font-size:26px;font-weight:800;letter-spacing:0.06em;color:#dc2626;font-family:monospace;margin-bottom:16px;">${couponCode}</div>
             <a href="${shopUrl}" style="display:inline-block;background-color:#dc2626;color:#ffffff;text-decoration:none;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:0.08em;padding:12px 28px;border-radius:4px;">Do e-shopu</a>
           </td>
@@ -81,13 +94,13 @@ info@saltyroad.cz`;
 
       <p style="margin:0 0 16px;">Protože my už teď přemýšlíme, co všechno uděláme příště ještě lépe.</p>
 
-      <p style="margin:0 0 16px;">Vol. 1 nám ukázal, že tohle celé má smysl. A Salty Road Meet Vol. 2 v roce 2027 chceme posunout zase o pořádný kus dál.</p>
+      <p style="margin:0 0 16px;">${editionName} nám ukázal, že tohle celé má smysl. A Salty Road Meet ${nextEditionLabel} chceme posunout zase o pořádný kus dál.</p>
 
       <p style="margin:0 0 16px;">Doufáme, že u toho budete znovu s námi.</p>
 
       <p style="margin:0 0 16px;">Ještě jednou díky za účast, podporu, skvělou atmosféru a za všechna milá slova, která se k nám po akci dostala. Opravdu si toho vážíme.</p>
 
-      <p style="margin:0 0 4px;font-weight:700;">Uvidíme se na Salty Road Meet Vol. 2!</p>
+      <p style="margin:0 0 4px;font-weight:700;">Uvidíme se na Salty Road Meet ${nextEditionLabel}!</p>
       <p style="margin:0 0 24px;">Mějte se skvěle!</p>
 
       <p style="margin:0;color:#666666;font-size:13px;">Tým Salty Road Meet<br />info@saltyroad.cz</p>

@@ -95,10 +95,18 @@ interface MerchOrderDetails {
 // with the new var yet.
 export const SHOP_EMAIL_FROM = process.env.SHOP_EMAIL_FROM || process.env.EMAIL_FROM;
 
-// Vol.1 exhibitor thank-you email is a one-off blast, not part of the
-// registration flow — reads better from the general-inquiries address than
-// EMAIL_FROM's registration@. Falls back to EMAIL_FROM if unset.
-export const VOL1_THANK_YOU_EMAIL_FROM = process.env.VOL1_THANK_YOU_EMAIL_FROM || process.env.EMAIL_FROM;
+// The exhibitor thank-you blast is a post-event one-off, not part of the
+// registration flow — it reads better from the general-inquiries address
+// than EMAIL_FROM's registration@.
+//
+// VOL1_THANK_YOU_EMAIL_FROM is the original, edition-specific name and is
+// still honoured so an environment that already sets it keeps working; it
+// can be renamed to THANK_YOU_EMAIL_FROM and the old one deleted whenever
+// convenient. Falls back to EMAIL_FROM if neither is set.
+export const THANK_YOU_EMAIL_FROM =
+  process.env.THANK_YOU_EMAIL_FROM ||
+  process.env.VOL1_THANK_YOU_EMAIL_FROM ||
+  process.env.EMAIL_FROM;
 
 export async function sendMerchOrderConfirmationEmail(
   to: string,

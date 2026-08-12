@@ -21,8 +21,8 @@ interface SendResult {
   total: number;
 }
 
-export default function AdminVol1ThankYouPage() {
-  const t = useTranslations("AdminVol1ThankYouPage");
+export default function AdminThankYouPage() {
+  const t = useTranslations("AdminThankYouPage");
   const { loggedIn, checking, recheck } = useAdminAuth();
   const [counts, setCounts] = useState<Counts | null>(null);
   const [coupons, setCoupons] = useState<Coupon[]>([]);

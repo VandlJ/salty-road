@@ -8,6 +8,7 @@ import { registrationReceivedEmail } from "@/emails/registration-received.mjs";
 import { registrationAdminNotificationEmail } from "@/emails/registration-admin-notification.mjs";
 import { SITE_URL } from "@/lib/seo";
 import { EMAIL_RE } from "@/lib/constants";
+import { requireCurrentEdition } from "@/lib/edition";
 
 const MAX_PHOTOS = 5;
 const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
@@ -93,10 +94,14 @@ export async function POST(req: Request) {
           .slice(0, MAX_PHOTOS)
       : [];
 
+    // A new sign-up always belongs to whichever edition is currently open.
+    const edition = await requireCurrentEdition();
+
     let record;
     try {
       record = await prisma.registration.create({
         data: {
+          editionId: edition.id,
           firstName,
           lastName,
           email,

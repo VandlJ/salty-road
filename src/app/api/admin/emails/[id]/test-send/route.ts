@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAdminFromReq } from "@/lib/adminAuth";
 import { EMAIL_TEMPLATES, buildEmailPreview } from "@/lib/emailPreview";
-import { sendEmail, SHOP_EMAIL_FROM, VOL1_THANK_YOU_EMAIL_FROM } from "@/lib/email";
+import { sendEmail, SHOP_EMAIL_FROM, THANK_YOU_EMAIL_FROM } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { EMAIL_RE } from "@/lib/constants";
 
@@ -10,7 +10,7 @@ import { EMAIL_RE } from "@/lib/constants";
 const TEMPLATE_FROM: Record<string, string | undefined> = {
   "merch-order-confirmation": SHOP_EMAIL_FROM,
   "merch-order-admin-notification": SHOP_EMAIL_FROM,
-  "vol1-exhibitor-thank-you": VOL1_THANK_YOU_EMAIL_FROM,
+  "exhibitor-thank-you": THANK_YOU_EMAIL_FROM,
 };
 
 export async function POST(

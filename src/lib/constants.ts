@@ -6,15 +6,35 @@
 // across the codebase (Registration.status alone appeared in 24 places) with
 // nothing keeping them in sync. Add a value here, not at the call site.
 
-export const REGISTRATION_STATUS = ["pending", "accepted", "declined"] as const;
-export type RegistrationStatus = (typeof REGISTRATION_STATUS)[number];
+// Each set is declared once as a named object (readable at the call site:
+// RegStatus.Accepted, not a bare "accepted" or an array index) plus the
+// tuple of its values, which is what isOneOf validates untrusted input
+// against. Prisma types these columns as plain `string`, so a literal
+// written inline gets no checking at all — hence the named members.
+export const RegStatus = {
+  Pending: "pending",
+  Accepted: "accepted",
+  Declined: "declined",
+} as const;
+export const REGISTRATION_STATUS = Object.values(RegStatus);
+export type RegistrationStatus = (typeof RegStatus)[keyof typeof RegStatus];
 
-/** Registration fee payment. Distinct from ORDER_STATUS, which tracks shop orders. */
-export const PAYMENT_STATUS = ["pending", "paid"] as const;
-export type PaymentStatus = (typeof PAYMENT_STATUS)[number];
+/** Registration fee payment. Distinct from OrderStatus, which tracks shop orders. */
+export const PayStatus = {
+  Pending: "pending",
+  Paid: "paid",
+} as const;
+export const PAYMENT_STATUS = Object.values(PayStatus);
+export type PaymentStatus = (typeof PayStatus)[keyof typeof PayStatus];
 
-export const ORDER_STATUS = ["pending", "paid", "shipped", "cancelled"] as const;
-export type OrderStatus = (typeof ORDER_STATUS)[number];
+export const OrderStatusValue = {
+  Pending: "pending",
+  Paid: "paid",
+  Shipped: "shipped",
+  Cancelled: "cancelled",
+} as const;
+export const ORDER_STATUS = Object.values(OrderStatusValue);
+export type OrderStatus = (typeof OrderStatusValue)[keyof typeof OrderStatusValue];
 
 export const PAYMENT_METHOD = ["bank_transfer", "cod"] as const;
 export type PaymentMethod = (typeof PAYMENT_METHOD)[number];

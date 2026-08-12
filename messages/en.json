@@ -432,8 +432,8 @@
     "messagesTileDesc": "Questions and requests from the contact form.",
     "couponsTile": "Discount coupons",
     "couponsTileDesc": "Create and manage discount codes.",
-    "vol1ThankYouTile": "Vol.1 thank-you",
-    "vol1ThankYouTileDesc": "Bulk thank-you email and discount code for exhibitors who showed up.",
+    "thankYouTile": "Vol.1 thank-you",
+    "thankYouTileDesc": "Bulk thank-you email and discount code for exhibitors who showed up.",
     "logout": "Log out"
   },
   "AdminGalleryPage": {
@@ -461,7 +461,7 @@
     "testSendSuccess": "Test email sent.",
     "testSendError": "Failed to send."
   },
-  "AdminVol1ThankYouPage": {
+  "AdminThankYouPage": {
     "title": "Vol.1 thank-you",
     "backToAdmin": "Back to admin",
     "intro": "Sends a thank-you and 10% discount code to every exhibitor who was accepted and actually showed up (checked off at Entry). Try the template first in the",

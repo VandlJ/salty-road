@@ -432,8 +432,8 @@
     "messagesTileDesc": "Dotazy a poptávky z kontaktního formuláře.",
     "couponsTile": "Slevové kupóny",
     "couponsTileDesc": "Vytváření a správa slevových kódů.",
-    "vol1ThankYouTile": "Vol.1 poděkování",
-    "vol1ThankYouTileDesc": "Hromadné poděkování a slevový kód vystavovatelům, co dorazili.",
+    "thankYouTile": "Vol.1 poděkování",
+    "thankYouTileDesc": "Hromadné poděkování a slevový kód vystavovatelům, co dorazili.",
     "logout": "Odhlásit"
   },
   "AdminGalleryPage": {
@@ -461,7 +461,7 @@
     "testSendSuccess": "Testovací e-mail byl odeslán.",
     "testSendError": "Odeslání se nezdařilo."
   },
-  "AdminVol1ThankYouPage": {
+  "AdminThankYouPage": {
     "title": "Vol.1 poděkování",
     "backToAdmin": "Zpět do administrace",
     "intro": "Pošle poděkování a 10% slevový kód všem vystavovatelům, kteří byli schváleni a reálně dorazili na akci (odbaveno ve Vjezdu). Šablonu si nejdřív vyzkoušejte v sekci",

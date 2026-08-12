@@ -106,6 +106,25 @@ async function main() {
     create: { key: "registration_open", value: "true" },
   });
 
+  // Registrations are scoped to an edition, so /api/register has nothing to
+  // attach a sign-up to without one. "upcoming" is the state the e2e
+  // registration flow exercises.
+  await prisma.edition.upsert({
+    where: { slug: "e2e" },
+    update: { status: "upcoming" },
+    create: {
+      slug: "e2e",
+      number: 1,
+      name: "E2E Edition",
+      startDate: new Date("2027-07-24T00:00:00.000Z"),
+      endDate: new Date("2027-07-24T23:59:59.000Z"),
+      venueName: "Velké náměstí",
+      venueLocality: "Prachatice",
+      status: "upcoming",
+      registrationOpen: true,
+    },
+  });
+
   const adminUsername = process.env.E2E_ADMIN_USERNAME || "e2e-admin";
   const adminPassword = process.env.E2E_ADMIN_PASSWORD || "e2e-test-password-12345";
   const hash = await bcrypt.hash(adminPassword, 10);
@@ -115,7 +134,7 @@ async function main() {
     create: { username: adminUsername, password: hash },
   });
 
-  console.log("Test DB seeded: test-hoodie, test-sticker, test-soldout, coupons, settings, admin user.");
+  console.log("Test DB seeded: test-hoodie, test-sticker, test-soldout, coupons, settings, edition, admin user.");
 }
 
 main()
