@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
-import { getAdminFromReq } from "@/lib/adminAuth";
 import { compareVariantsForDisplay } from "@/lib/variantLabel";
-import { withAdmin } from "@/lib/apiHandler";
+import { withAdmin, conflict } from "@/lib/apiHandler";
 
 const MAX_LEN = { slug: 80, category: 40, name: 100, description: 2000 };
 
@@ -23,11 +22,7 @@ export const GET = withAdmin(
   }
 );
 
-export async function POST(req: Request) {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  try {
+export const POST = withAdmin("POST /api/admin/merch/products", async ({ req }) => {
     const body = await req.json();
     const { slug, category, name, description } = body;
 
@@ -49,17 +44,19 @@ export async function POST(req: Request) {
     // New products go to the end of the shop display order.
     const { _max } = await prisma.merchProduct.aggregate({ _max: { order: true } });
 
-    const product = await prisma.merchProduct.create({
-      data: { slug, category, name, description, order: (_max.order ?? -1) + 1 },
-      include: { variants: true },
-    });
-
-    return NextResponse.json(product, { status: 201 });
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
-      return NextResponse.json({ error: "slug_taken" }, { status: 409 });
+    try {
+      const product = await prisma.merchProduct.create({
+        data: { slug, category, name, description, order: (_max.order ?? -1) + 1 },
+        include: { variants: true },
+      });
+      return NextResponse.json(product, { status: 201 });
+    } catch (err) {
+      // `slug` is unique — a collision means the admin reused one, which is
+      // a 409 for them to fix, not a server fault to log.
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+        throw conflict("slug_taken");
+      }
+      throw err;
     }
-    console.error("POST /api/admin/merch/products error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
-}
+);

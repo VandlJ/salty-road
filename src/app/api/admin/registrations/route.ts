@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getAdminFromReq } from "@/lib/adminAuth";
 import { sendAcceptanceEmail, sendRejectionEmail } from "@/lib/email";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
 import { PAYMENT_STATUS, isOneOf } from "@/lib/constants";
 import { requireCurrentEdition } from "@/lib/edition";
+import { withAdmin } from "@/lib/apiHandler";
 
-export async function GET() {
-  try {
-    const admin = await getAdminFromReq();
-    if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
+export const GET = withAdmin("GET /api/admin/registrations", async () => {
     // Scoped to the current edition so the list doesn't accumulate every
     // past year's exhibitors. Past editions are reviewed on their archive
     // page, not here.
@@ -24,20 +20,13 @@ export async function GET() {
       ]
     });
     return NextResponse.json(regs);
-  } catch (err) {
-    console.error("GET /api/admin/registrations error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
-}
+);
 
-export async function PATCH(req: Request) {
-  try {
-    const admin = await getAdminFromReq();
-    if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
+export const PATCH = withAdmin("PATCH /api/admin/registrations", async ({ req }) => {
     const body = await req.json();
     const { id, action } = body;
-    
+
     if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
     if (action === "accept" || action === "decline" || action === "pending") {
@@ -145,25 +134,15 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ success: true, updated });
     }
 
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch (err) {
-    console.error("PATCH /api/admin/registrations error:", err);
-    return NextResponse.json({ error: "Failed to update registration" }, { status: 500 });
+    return NextResponse.json({ error: "invalid_action" }, { status: 400 });
   }
-}
+);
 
-export async function DELETE(req: Request) {
-  try {
-    const admin = await getAdminFromReq();
-    if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
+export const DELETE = withAdmin("DELETE /api/admin/registrations", async ({ req }) => {
     const { id } = await req.json();
     if (!id) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
     await prisma.registration.delete({ where: { id } });
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("DELETE /api/admin/registrations error:", err);
-    return NextResponse.json({ error: "Failed to delete registration" }, { status: 500 });
   }
-}
+);

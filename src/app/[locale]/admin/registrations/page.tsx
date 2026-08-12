@@ -3,7 +3,6 @@
 import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import AdminLoginForm from "@/components/admin-login-form";
 import AdminFilterChip from "@/components/admin-filter-chip";
 import Skeleton from "@/components/skeleton";
 import { useAdminAuth } from "@/lib/useAdminAuth";
@@ -13,6 +12,7 @@ import PhotoGallery from "@/components/photo-gallery";
 import { FadeSwap } from "@/components/fade-swap";
 import { AnimatePresence, motion } from "motion/react";
 import AdminPageHeader from "@/components/admin-page-header";
+import AdminGate from "@/components/admin-gate";
 
 type StatusFilter = "all" | "pending" | "accepted" | "declined";
 type PaymentFilter = "all" | "paid" | "pending";
@@ -41,7 +41,8 @@ type Registration = {
 
 export default function AdminRegistrationsPage() {
   const t = useTranslations("AdminPage");
-  const { loggedIn, checking, recheck } = useAdminAuth();
+  const auth = useAdminAuth();
+  const { loggedIn } = auth;
   const [regs, setRegs] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -285,178 +286,425 @@ export default function AdminRegistrationsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regs, statusFilter, paymentFilter, deferredSearch]);
 
-  if (checking) return null;
-  if (!loggedIn) return <AdminLoginForm onSuccess={recheck} />;
-
   return (
-    <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between gap-4 mb-6 px-4 py-4 sm:px-6 bg-[#111]/90 border border-gray-700 rounded-sm">
-        <span className="font-bold uppercase tracking-widest text-sm sm:text-base">
-          {t("registrationForm")}
-        </span>
-        <button
-          onClick={toggleRegistrationOpen}
-          disabled={togglingRegistration}
-          role="switch"
-          aria-checked={registrationOpen}
-          className={`relative inline-flex h-7 w-14 flex-shrink-0 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-            registrationOpen ? "bg-green-600" : "bg-gray-600"
-          }`}
-        >
-          <span
-            className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-              registrationOpen ? "translate-x-8" : "translate-x-1"
+    <AdminGate auth={auth}>
+      <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between gap-4 mb-6 px-4 py-4 sm:px-6 bg-[#111]/90 border border-gray-700 rounded-sm">
+          <span className="font-bold uppercase tracking-widest text-sm sm:text-base">
+            {t("registrationForm")}
+          </span>
+          <button
+            onClick={toggleRegistrationOpen}
+            disabled={togglingRegistration}
+            role="switch"
+            aria-checked={registrationOpen}
+            className={`relative inline-flex h-7 w-14 flex-shrink-0 items-center rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              registrationOpen ? "bg-green-600" : "bg-gray-600"
             }`}
-          />
-        </button>
-      </div>
-
-      <AdminPageHeader title={t("registrations")} count={regs.length} />
-
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder={t("searchPlaceholder")}
-        className="w-full mb-4 p-3 bg-white/5 border-2 border-gray-600 text-white placeholder-gray-400 focus:border-white focus:outline-none text-sm sm:text-base rounded-sm"
-      />
-
-      <div className="flex flex-col gap-3 sm:gap-4 mb-8">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-            {t("status")}
-          </span>
-          <div className="flex items-center gap-2 overflow-x-auto flex-nowrap sm:flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 sm:pb-0">
-            <AdminFilterChip label={t("filterAll")} active={statusFilter === "all"} onClick={() => setStatusFilter("all")} count={regs.length} />
-            <AdminFilterChip label={t("statusPending")} active={statusFilter === "pending"} onClick={() => setStatusFilter("pending")} count={regs.filter((r) => getStatus(r) === "pending").length} />
-            <AdminFilterChip label={t("statusAccepted")} active={statusFilter === "accepted"} onClick={() => setStatusFilter("accepted")} count={regs.filter((r) => getStatus(r) === "accepted").length} />
-            <AdminFilterChip label={t("statusDeclined")} active={statusFilter === "declined"} onClick={() => setStatusFilter("declined")} count={regs.filter((r) => getStatus(r) === "declined").length} />
-          </div>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
-            {t("payment")}
-          </span>
-          <div className="flex items-center gap-2 overflow-x-auto flex-nowrap sm:flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 sm:pb-0">
-            <AdminFilterChip label={t("filterAll")} active={paymentFilter === "all"} onClick={() => setPaymentFilter("all")} count={regs.length} />
-            <AdminFilterChip label={t("paymentPaid")} active={paymentFilter === "paid"} onClick={() => setPaymentFilter("paid")} count={regs.filter((r) => getPayment(r) === "paid").length} />
-            <AdminFilterChip label={t("paymentPending")} active={paymentFilter === "pending"} onClick={() => setPaymentFilter("pending")} count={regs.filter((r) => getPayment(r) === "pending").length} />
-          </div>
-        </div>
-      </div>
-
-      <FadeSwap activeKey={loading && regs.length === 0 ? "skeleton" : "content"}>
-      {loading && regs.length === 0 ? (
-        <RegistrationsSkeleton />
-      ) : (
-        <>
-      {loading && (
-        <div className="text-white mb-6 text-center font-bold animate-pulse">
-          {t("loading")}
-        </div>
-      )}
-      {error && (
-        <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 font-bold">
-          {error}
-        </div>
-      )}
-      {!loading && !error && filteredRegs.length === 0 && (
-        <div className="text-center text-gray-500 font-bold mb-8">{t("noResultsFilter")}</div>
-      )}
-
-      <div className="grid gap-8">
-        <AnimatePresence mode="popLayout" initial={false}>
-        {filteredRegs.map((r, regIdx) => (
-          <motion.div
-            key={r.id}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.97 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="relative bg-[#111]/90 border border-gray-700 hover:border-gray-500 transition-all duration-300 shadow-xl overflow-hidden rounded-sm group"
           >
-            {/* Header / Status Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-4 sm:px-6 bg-white/5 border-b border-gray-700 gap-4">
-              <div className="flex flex-wrap items-center gap-4 sm:gap-8">
-                {/* Reorder Buttons */}
-                <div className="flex flex-row sm:flex-col gap-2 sm:gap-1">
-                  <button
-                    onClick={() => handleAction(r.id, "reorder", { direction: "up" })}
-                    className="p-1.5 hover:bg-white/10 rounded-sm transition-colors border border-gray-700 sm:border-0"
-                    title="Move Up"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
-                  </button>
-                  <button
-                    onClick={() => handleAction(r.id, "reorder", { direction: "down" })}
-                    className="p-1.5 hover:bg-white/10 rounded-sm transition-colors border border-gray-700 sm:border-0"
-                    title="Move Down"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </button>
-                </div>
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                registrationOpen ? "translate-x-8" : "translate-x-1"
+              }`}
+            />
+          </button>
+        </div>
 
-                <div className="flex flex-col">
-                  <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">
-                    {t("status")}
-                  </span>
-                  <span
-                    className={`inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider ${
-                      r.status === "accepted"
-                        ? "text-green-400"
-                        : r.status === "declined"
-                        ? "text-red-400"
-                        : "text-orange-400"
-                    }`}
-                  >
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        r.status === "accepted"
-                          ? "bg-green-500 shadow-[0_0_8px_rgba(74,222,128,0.6)]"
-                          : r.status === "declined"
-                          ? "bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.6)]"
-                          : "bg-orange-500 shadow-[0_0_8px_rgba(251,146,60,0.6)]"
-                      }`}
-                    ></span>
-                    {r.status === "accepted"
-                      ? t("statusAccepted")
-                      : r.status === "declined"
-                      ? t("statusDeclined")
-                      : t("statusPending")}
-                  </span>
-                </div>
+        <AdminPageHeader title={t("registrations")} count={regs.length} />
 
-                <div className="flex flex-col">
-                  <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">
-                    {t("payment")}
-                  </span>
-                  <div className="flex items-center gap-2">
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t("searchPlaceholder")}
+          className="w-full mb-4 p-3 bg-white/5 border-2 border-gray-600 text-white placeholder-gray-400 focus:border-white focus:outline-none text-sm sm:text-base rounded-sm"
+        />
+
+        <div className="flex flex-col gap-3 sm:gap-4 mb-8">
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+              {t("status")}
+            </span>
+            <div className="flex items-center gap-2 overflow-x-auto flex-nowrap sm:flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 sm:pb-0">
+              <AdminFilterChip label={t("filterAll")} active={statusFilter === "all"} onClick={() => setStatusFilter("all")} count={regs.length} />
+              <AdminFilterChip label={t("statusPending")} active={statusFilter === "pending"} onClick={() => setStatusFilter("pending")} count={regs.filter((r) => getStatus(r) === "pending").length} />
+              <AdminFilterChip label={t("statusAccepted")} active={statusFilter === "accepted"} onClick={() => setStatusFilter("accepted")} count={regs.filter((r) => getStatus(r) === "accepted").length} />
+              <AdminFilterChip label={t("statusDeclined")} active={statusFilter === "declined"} onClick={() => setStatusFilter("declined")} count={regs.filter((r) => getStatus(r) === "declined").length} />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold">
+              {t("payment")}
+            </span>
+            <div className="flex items-center gap-2 overflow-x-auto flex-nowrap sm:flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0 pb-1 sm:pb-0">
+              <AdminFilterChip label={t("filterAll")} active={paymentFilter === "all"} onClick={() => setPaymentFilter("all")} count={regs.length} />
+              <AdminFilterChip label={t("paymentPaid")} active={paymentFilter === "paid"} onClick={() => setPaymentFilter("paid")} count={regs.filter((r) => getPayment(r) === "paid").length} />
+              <AdminFilterChip label={t("paymentPending")} active={paymentFilter === "pending"} onClick={() => setPaymentFilter("pending")} count={regs.filter((r) => getPayment(r) === "pending").length} />
+            </div>
+          </div>
+        </div>
+
+        <FadeSwap activeKey={loading && regs.length === 0 ? "skeleton" : "content"}>
+        {loading && regs.length === 0 ? (
+          <RegistrationsSkeleton />
+        ) : (
+          <>
+        {loading && (
+          <div className="text-white mb-6 text-center font-bold animate-pulse">
+            {t("loading")}
+          </div>
+        )}
+        {error && (
+          <div className="text-white mb-6 p-4 border-2 border-red-500 bg-red-600/50 font-bold">
+            {error}
+          </div>
+        )}
+        {!loading && !error && filteredRegs.length === 0 && (
+          <div className="text-center text-gray-500 font-bold mb-8">{t("noResultsFilter")}</div>
+        )}
+
+        <div className="grid gap-8">
+          <AnimatePresence mode="popLayout" initial={false}>
+          {filteredRegs.map((r, regIdx) => (
+            <motion.div
+              key={r.id}
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="relative bg-[#111]/90 border border-gray-700 hover:border-gray-500 transition-all duration-300 shadow-xl overflow-hidden rounded-sm group"
+            >
+              {/* Header / Status Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 py-4 sm:px-6 bg-white/5 border-b border-gray-700 gap-4">
+                <div className="flex flex-wrap items-center gap-4 sm:gap-8">
+                  {/* Reorder Buttons */}
+                  <div className="flex flex-row sm:flex-col gap-2 sm:gap-1">
+                    <button
+                      onClick={() => handleAction(r.id, "reorder", { direction: "up" })}
+                      className="p-1.5 hover:bg-white/10 rounded-sm transition-colors border border-gray-700 sm:border-0"
+                      title="Move Up"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" /></svg>
+                    </button>
+                    <button
+                      onClick={() => handleAction(r.id, "reorder", { direction: "down" })}
+                      className="p-1.5 hover:bg-white/10 rounded-sm transition-colors border border-gray-700 sm:border-0"
+                      title="Move Down"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                    </button>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">
+                      {t("status")}
+                    </span>
                     <span
                       className={`inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider ${
-                        r.paymentStatus === "paid"
+                        r.status === "accepted"
                           ? "text-green-400"
+                          : r.status === "declined"
+                          ? "text-red-400"
                           : "text-orange-400"
                       }`}
                     >
                       <span
                         className={`w-2 h-2 rounded-full ${
-                          r.paymentStatus === "paid"
+                          r.status === "accepted"
                             ? "bg-green-500 shadow-[0_0_8px_rgba(74,222,128,0.6)]"
+                            : r.status === "declined"
+                            ? "bg-red-500 shadow-[0_0_8px_rgba(248,113,113,0.6)]"
                             : "bg-orange-500 shadow-[0_0_8px_rgba(251,146,60,0.6)]"
                         }`}
                       ></span>
-                      {r.paymentStatus === "paid"
-                        ? t("paymentPaid")
-                        : t("paymentPending")}
+                      {r.status === "accepted"
+                        ? t("statusAccepted")
+                        : r.status === "declined"
+                        ? t("statusDeclined")
+                        : t("statusPending")}
                     </span>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">
+                      {t("payment")}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold uppercase tracking-wider ${
+                          r.paymentStatus === "paid"
+                            ? "text-green-400"
+                            : "text-orange-400"
+                        }`}
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            r.paymentStatus === "paid"
+                              ? "bg-green-500 shadow-[0_0_8px_rgba(74,222,128,0.6)]"
+                              : "bg-orange-500 shadow-[0_0_8px_rgba(251,146,60,0.6)]"
+                          }`}
+                        ></span>
+                        {r.paymentStatus === "paid"
+                          ? t("paymentPaid")
+                          : t("paymentPending")}
+                      </span>
+                      <button
+                        onClick={() =>
+                          handleAction(r.id, "updatePaymentStatus", {
+                            paymentStatus:
+                              r.paymentStatus === "paid" ? "pending" : "paid",
+                          })
+                        }
+                        className="p-1 hover:bg-white/10 rounded-sm text-gray-500 hover:text-white transition-colors"
+                        title="Toggle Payment Status"
+                      >
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">
+                      {t("id")}
+                    </span>
+                    <span className="text-[10px] sm:text-xs font-mono text-white/50">
+                      #{r.id.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-left sm:text-right border-t sm:border-t-0 border-gray-800 pt-3 sm:pt-0">
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">
+                    {t("created")}
+                  </span>
+                  <span className="text-xs sm:text-sm font-mono text-gray-400">
+                    {r.createdAt ? formatDate(r.createdAt) : "—"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+                {/* Left Column: Photos (Gallery Grid) */}
+                <div className="lg:col-span-6 xl:col-span-5">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 h-full content-start">
+                    {r.photos && r.photos.length > 0 && r.photos.map((p, i) => (
+                      <div key={i} className="relative aspect-[4/3] group/photo border border-gray-700 hover:border-white transition-all overflow-hidden bg-black rounded-sm shadow-md">
+                        <Image
+                          src={getThumbnailUrl(p)}
+                          alt={`Vehicle photo ${i + 1}`}
+                          fill
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
+                          priority={regIdx === 0 && i === 0}
+                          className="object-cover transition-transform duration-500 group-hover/photo:scale-105"
+                        />
+
+                        {/* Photo Reorder Controls (Always Visible on Hover or Small screens) */}
+                        <div className="absolute top-1 left-1 flex gap-1 z-10 sm:opacity-0 group-hover/photo:opacity-100 transition-opacity">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleReorderPhoto(r.id, r.photos || [], i, 'prev'); }}
+                            disabled={i === 0}
+                            className="p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
+                            title="Move Previous"
+                          >
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleReorderPhoto(r.id, r.photos || [], i, 'next'); }}
+                            disabled={i === (r.photos?.length || 0) - 1}
+                            className="p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
+                            title="Move Next"
+                          >
+                            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                          </button>
+                        </div>
+
+                        {/* Photo Actions Overlay */}
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 sm:gap-3">
+                            <button
+                              onClick={() => openGallery(r.photos || [], i, `${r.brand} ${r.model}`)}
+                              className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors border border-white/20 backdrop-blur-sm"
+                              title="View"
+                            >
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                            </button>
+                            <div className="flex gap-2 sm:gap-3">
+                              <button
+                                onClick={() => downloadPhoto(p, `registration_${r.id}_photo_${i+1}.jpg`)}
+                                className="p-1.5 sm:p-2 bg-blue-600/80 hover:bg-blue-600 rounded-full text-white transition-colors border border-blue-400"
+                                title="Download"
+                              >
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                              </button>
+                              <label
+                                className="p-1.5 sm:p-2 bg-green-600/80 hover:bg-green-600 rounded-full text-white transition-colors cursor-pointer border border-green-400"
+                                title="Replace"
+                              >
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    if (e.target.files?.[0]) {
+                                      handlePhotoUpload(r.id, i, r.photos || [], e.target.files[0]);
+                                    }
+                                  }}
+                                />
+                                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                              </label>
+                              <button
+                                 onClick={() => handleDeletePhoto(r.id, r.photos || [], i)}
+                                 className="p-1.5 sm:p-2 bg-red-600/80 hover:bg-red-600 rounded-full text-white transition-colors border border-red-400"
+                                 title="Delete"
+                               >
+                                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                               </button>
+                            </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Add New Photo Card */}
+                    <label className="relative aspect-[4/3] border-2 border-dashed border-gray-700 hover:border-gray-400 hover:bg-white/5 transition-all cursor-pointer rounded-sm flex flex-col items-center justify-center gap-2 group/add">
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            handleAddPhoto(r.id, r.photos || [], e.target.files[0]);
+                          }
+                        }}
+                      />
+                      <div className="p-2.5 sm:p-3 bg-gray-800 rounded-full group-hover/add:bg-gray-700 transition-colors">
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover/add:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </div>
+                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 group-hover/add:text-gray-300">{t("addPhoto")}</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Middle Column: Info & Details */}
+                <div className="lg:col-span-6 xl:col-span-7 flex flex-col justify-between">
+                  <div>
+                    <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 mb-6 border-b border-gray-800 pb-6">
+                      <div>
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-1">
+                          {r.firstName} {r.lastName}
+                        </h2>
+                        <a
+                          href={`mailto:${r.email}`}
+                          className="text-gray-400 hover:text-white transition-colors text-sm font-mono flex items-center gap-2 overflow-hidden text-ellipsis"
+                        >
+                          <svg
+                            className="w-4 h-4 flex-shrink-0"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span className="truncate">{r.email}</span>
+                        </a>
+                      </div>
+                      {r.instagram && (
+                        <a
+                          href={`https://instagram.com/${r.instagram.replace(
+                            "@",
+                            ""
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-white bg-gradient-to-tr from-purple-600 to-pink-600 px-4 py-2 rounded-full text-xs sm:text-sm font-bold hover:shadow-lg hover:shadow-pink-500/20 transition-all transform hover:-translate-y-0.5 w-fit"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                          </svg>
+                          <span className="truncate">@{r.instagram.replace("@", "")}</span>
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="bg-white/5 p-4 rounded-sm border border-gray-700 mb-6 group/desc relative">
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
+                          {t("vehicleDetails")}
+                        </h3>
+                        {!editingDescriptionId && (
+                          <button
+                            onClick={() => {
+                              setEditingDescriptionId(r.id);
+                              setTempDescription(r.description);
+                            }}
+                            className="opacity-0 group-hover/desc:opacity-100 transition-opacity text-[10px] text-blue-400 hover:text-blue-300 font-bold uppercase tracking-wider"
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-lg sm:text-xl text-white mb-2">
+                        <span className="font-bold">
+                          {r.brand} {r.model}
+                        </span>
+                        <span className="text-gray-600 hidden sm:inline">|</span>
+                        <span className="font-mono text-gray-400 text-sm sm:text-lg">{r.year}</span>
+                      </div>
+                      {editingDescriptionId === r.id ? (
+                        <div className="flex flex-col gap-2">
+                          <textarea
+                            value={tempDescription}
+                            onChange={(e) => setTempDescription(e.target.value)}
+                            className="w-full bg-black/20 border border-gray-600 rounded p-2 text-white text-sm focus:border-blue-500 focus:outline-none min-h-[100px]"
+                          />
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => setEditingDescriptionId(null)}
+                              className="px-3 py-1 bg-gray-700 text-white text-xs rounded hover:bg-gray-600"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => saveDescription(r.id)}
+                              className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-500"
+                            >
+                              Save
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-gray-300 leading-relaxed text-sm whitespace-pre-wrap">
+                          {r.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Actions Toolbar */}
+                  <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-800 mt-2 sm:mt-6">
                     <button
-                      onClick={() =>
-                        handleAction(r.id, "updatePaymentStatus", {
-                          paymentStatus:
-                            r.paymentStatus === "paid" ? "pending" : "paid",
-                        })
-                      }
-                      className="p-1 hover:bg-white/10 rounded-sm text-gray-500 hover:text-white transition-colors"
-                      title="Toggle Payment Status"
+                      onClick={() => handleAction(r.id, "accept")}
+                      className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-sm shadow-lg hover:shadow-green-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
                     >
                       <svg
                         className="w-3.5 h-3.5"
@@ -468,368 +716,120 @@ export default function AdminRegistrationsPage() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          d="M5 13l4 4L19 7"
                         />
                       </svg>
+                      {t("accept")}
+                    </button>
+                    <button
+                      onClick={() => handleAction(r.id, "decline")}
+                      className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-sm shadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                      {t("decline")}
+                    </button>
+                    <button
+                      onClick={() => handleAction(r.id, "pending")}
+                      className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-gray-600 hover:bg-gray-500 text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-sm shadow-lg hover:shadow-gray-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                        />
+                      </svg>
+                      {t("revert")}
+                    </button>
+                    <div className="w-full sm:w-px sm:h-8 bg-gray-800 my-1 sm:my-0 sm:mx-2"></div>
+                    <button
+                      onClick={() => setRemoveId(r.id)}
+                      className="w-full sm:w-auto px-6 py-2.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] sm:text-xs border border-red-900/50 hover:border-red-500 rounded-sm transition-all flex items-center justify-center gap-2"
+                    >
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
+                      {t("remove")}
                     </button>
                   </div>
                 </div>
-
-                <div className="flex flex-col">
-                  <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1">
-                    {t("id")}
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-mono text-white/50">
-                    #{r.id.toUpperCase()}
-                  </span>
-                </div>
               </div>
-
-              <div className="text-left sm:text-right border-t sm:border-t-0 border-gray-800 pt-3 sm:pt-0">
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">
-                  {t("created")}
-                </span>
-                <span className="text-xs sm:text-sm font-mono text-gray-400">
-                  {r.createdAt ? formatDate(r.createdAt) : "—"}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
-              {/* Left Column: Photos (Gallery Grid) */}
-              <div className="lg:col-span-6 xl:col-span-5">
-                <div className="grid grid-cols-2 gap-2 sm:gap-3 h-full content-start">
-                  {r.photos && r.photos.length > 0 && r.photos.map((p, i) => (
-                    <div key={i} className="relative aspect-[4/3] group/photo border border-gray-700 hover:border-white transition-all overflow-hidden bg-black rounded-sm shadow-md">
-                      <Image
-                        src={getThumbnailUrl(p)}
-                        alt={`Vehicle photo ${i + 1}`}
-                        fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
-                        priority={regIdx === 0 && i === 0}
-                        className="object-cover transition-transform duration-500 group-hover/photo:scale-105"
-                      />
-
-                      {/* Photo Reorder Controls (Always Visible on Hover or Small screens) */}
-                      <div className="absolute top-1 left-1 flex gap-1 z-10 sm:opacity-0 group-hover/photo:opacity-100 transition-opacity">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleReorderPhoto(r.id, r.photos || [], i, 'prev'); }}
-                          disabled={i === 0}
-                          className="p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
-                          title="Move Previous"
-                        >
-                          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleReorderPhoto(r.id, r.photos || [], i, 'next'); }}
-                          disabled={i === (r.photos?.length || 0) - 1}
-                          className="p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white disabled:opacity-30 disabled:cursor-not-allowed backdrop-blur-sm"
-                          title="Move Next"
-                        >
-                          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                        </button>
-                      </div>
-
-                      {/* Photo Actions Overlay */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/photo:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 sm:gap-3">
-                          <button
-                            onClick={() => openGallery(r.photos || [], i, `${r.brand} ${r.model}`)}
-                            className="p-1.5 sm:p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors border border-white/20 backdrop-blur-sm"
-                            title="View"
-                          >
-                            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                          </button>
-                          <div className="flex gap-2 sm:gap-3">
-                            <button
-                              onClick={() => downloadPhoto(p, `registration_${r.id}_photo_${i+1}.jpg`)}
-                              className="p-1.5 sm:p-2 bg-blue-600/80 hover:bg-blue-600 rounded-full text-white transition-colors border border-blue-400"
-                              title="Download"
-                            >
-                              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                            </button>
-                            <label
-                              className="p-1.5 sm:p-2 bg-green-600/80 hover:bg-green-600 rounded-full text-white transition-colors cursor-pointer border border-green-400"
-                              title="Replace"
-                            >
-                              <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  if (e.target.files?.[0]) {
-                                    handlePhotoUpload(r.id, i, r.photos || [], e.target.files[0]);
-                                  }
-                                }}
-                              />
-                              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                            </label>
-                            <button
-                               onClick={() => handleDeletePhoto(r.id, r.photos || [], i)}
-                               className="p-1.5 sm:p-2 bg-red-600/80 hover:bg-red-600 rounded-full text-white transition-colors border border-red-400"
-                               title="Delete"
-                             >
-                               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                             </button>
-                          </div>
-                      </div>
-                    </div>
-                  ))}
-
-                  {/* Add New Photo Card */}
-                  <label className="relative aspect-[4/3] border-2 border-dashed border-gray-700 hover:border-gray-400 hover:bg-white/5 transition-all cursor-pointer rounded-sm flex flex-col items-center justify-center gap-2 group/add">
-                    <input
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={(e) => {
-                        if (e.target.files?.[0]) {
-                          handleAddPhoto(r.id, r.photos || [], e.target.files[0]);
-                        }
-                      }}
-                    />
-                    <div className="p-2.5 sm:p-3 bg-gray-800 rounded-full group-hover/add:bg-gray-700 transition-colors">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover/add:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </div>
-                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-gray-500 group-hover/add:text-gray-300">{t("addPhoto")}</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Middle Column: Info & Details */}
-              <div className="lg:col-span-6 xl:col-span-7 flex flex-col justify-between">
-                <div>
-                  <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 mb-6 border-b border-gray-800 pb-6">
-                    <div>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-1">
-                        {r.firstName} {r.lastName}
-                      </h2>
-                      <a
-                        href={`mailto:${r.email}`}
-                        className="text-gray-400 hover:text-white transition-colors text-sm font-mono flex items-center gap-2 overflow-hidden text-ellipsis"
-                      >
-                        <svg
-                          className="w-4 h-4 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                          />
-                        </svg>
-                        <span className="truncate">{r.email}</span>
-                      </a>
-                    </div>
-                    {r.instagram && (
-                      <a
-                        href={`https://instagram.com/${r.instagram.replace(
-                          "@",
-                          ""
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-white bg-gradient-to-tr from-purple-600 to-pink-600 px-4 py-2 rounded-full text-xs sm:text-sm font-bold hover:shadow-lg hover:shadow-pink-500/20 transition-all transform hover:-translate-y-0.5 w-fit"
-                      >
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                        </svg>
-                        <span className="truncate">@{r.instagram.replace("@", "")}</span>
-                      </a>
-                    )}
-                  </div>
-
-                  <div className="bg-white/5 p-4 rounded-sm border border-gray-700 mb-6 group/desc relative">
-                    <div className="flex justify-between items-center mb-3">
-                      <h3 className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                        {t("vehicleDetails")}
-                      </h3>
-                      {!editingDescriptionId && (
-                        <button
-                          onClick={() => {
-                            setEditingDescriptionId(r.id);
-                            setTempDescription(r.description);
-                          }}
-                          className="opacity-0 group-hover/desc:opacity-100 transition-opacity text-[10px] text-blue-400 hover:text-blue-300 font-bold uppercase tracking-wider"
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-lg sm:text-xl text-white mb-2">
-                      <span className="font-bold">
-                        {r.brand} {r.model}
-                      </span>
-                      <span className="text-gray-600 hidden sm:inline">|</span>
-                      <span className="font-mono text-gray-400 text-sm sm:text-lg">{r.year}</span>
-                    </div>
-                    {editingDescriptionId === r.id ? (
-                      <div className="flex flex-col gap-2">
-                        <textarea
-                          value={tempDescription}
-                          onChange={(e) => setTempDescription(e.target.value)}
-                          className="w-full bg-black/20 border border-gray-600 rounded p-2 text-white text-sm focus:border-blue-500 focus:outline-none min-h-[100px]"
-                        />
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => setEditingDescriptionId(null)}
-                            className="px-3 py-1 bg-gray-700 text-white text-xs rounded hover:bg-gray-600"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => saveDescription(r.id)}
-                            className="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-500"
-                          >
-                            Save
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <p className="text-gray-300 leading-relaxed text-sm whitespace-pre-wrap">
-                        {r.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Actions Toolbar */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-3 pt-4 border-t border-gray-800 mt-2 sm:mt-6">
-                  <button
-                    onClick={() => handleAction(r.id, "accept")}
-                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-sm shadow-lg hover:shadow-green-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {t("accept")}
-                  </button>
-                  <button
-                    onClick={() => handleAction(r.id, "decline")}
-                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-sm shadow-lg hover:shadow-orange-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M6 18L18 6M6 6l12 12"
-                      />
-                    </svg>
-                    {t("decline")}
-                  </button>
-                  <button
-                    onClick={() => handleAction(r.id, "pending")}
-                    className="flex-1 sm:flex-none px-4 sm:px-6 py-2.5 bg-gray-600 hover:bg-gray-500 text-white font-bold uppercase tracking-wider text-[10px] sm:text-xs rounded-sm shadow-lg hover:shadow-gray-500/30 transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
-                      />
-                    </svg>
-                    {t("revert")}
-                  </button>
-                  <div className="w-full sm:w-px sm:h-8 bg-gray-800 my-1 sm:my-0 sm:mx-2"></div>
-                  <button
-                    onClick={() => setRemoveId(r.id)}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-transparent hover:bg-red-900/30 text-red-400 hover:text-red-300 font-bold uppercase tracking-wider text-[10px] sm:text-xs border border-red-900/50 hover:border-red-500 rounded-sm transition-all flex items-center justify-center gap-2"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                    {t("remove")}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
-        </AnimatePresence>
-      </div>
-        </>
-      )}
-      </FadeSwap>
-
-      {/* Remove Confirmation Modal */}
-      <AnimatedModal
-        open={!!removeId}
-        panelRef={removeModalRef}
-        labelledBy="remove-modal-title"
-        panelClassName="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)]"
-      >
-        <h3 id="remove-modal-title" className="text-xl font-bold text-white mb-4 text-center">
-          {t("remove")}
-        </h3>
-        <p className="text-gray-300 mb-8 text-center font-medium">
-          {t("confirmRemove")}
-        </p>
-        <div className="flex gap-4">
-          <button
-            onClick={() => setRemoveId(null)}
-            className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
-          >
-            {t("cancel")}
-          </button>
-          <button
-            onClick={confirmRemove}
-            className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all"
-          >
-            {t("remove")}
-          </button>
+            </motion.div>
+          ))}
+          </AnimatePresence>
         </div>
-      </AnimatedModal>
+          </>
+        )}
+        </FadeSwap>
 
-      {gallery && (
-        <PhotoGallery
-          photos={gallery.photos}
-          initialIndex={gallery.index}
-          label={gallery.label}
-          getFullUrl={getFullUrl}
-          onClose={() => setGallery(null)}
-        />
-      )}
-    </section>
+        {/* Remove Confirmation Modal */}
+        <AnimatedModal
+          open={!!removeId}
+          panelRef={removeModalRef}
+          labelledBy="remove-modal-title"
+          panelClassName="bg-[#111] border-2 border-red-500 p-8 max-w-md w-full relative shadow-[0_0_20px_rgba(220,38,38,0.3)]"
+        >
+          <h3 id="remove-modal-title" className="text-xl font-bold text-white mb-4 text-center">
+            {t("remove")}
+          </h3>
+          <p className="text-gray-300 mb-8 text-center font-medium">
+            {t("confirmRemove")}
+          </p>
+          <div className="flex gap-4">
+            <button
+              onClick={() => setRemoveId(null)}
+              className="flex-1 px-4 py-3 bg-transparent border border-gray-500 text-gray-300 font-bold uppercase tracking-wider hover:bg-gray-800 hover:text-white transition-colors"
+            >
+              {t("cancel")}
+            </button>
+            <button
+              onClick={confirmRemove}
+              className="flex-1 px-4 py-3 bg-red-600 border border-red-500 text-white font-bold uppercase tracking-wider hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all"
+            >
+              {t("remove")}
+            </button>
+          </div>
+        </AnimatedModal>
+
+        {gallery && (
+          <PhotoGallery
+            photos={gallery.photos}
+            initialIndex={gallery.index}
+            label={gallery.label}
+            getFullUrl={getFullUrl}
+            onClose={() => setGallery(null)}
+          />
+        )}
+      </section>
+    </AdminGate>
   );
 }
 

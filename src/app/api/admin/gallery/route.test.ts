@@ -52,12 +52,12 @@ beforeEach(() => {
 describe("GET /api/admin/gallery", () => {
   it("rejects an unauthenticated request", async () => {
     isAdmin = false;
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/gallery"));
     expect(res.status).toBe(401);
   });
 
   it("returns an empty list when nothing has been uploaded yet", async () => {
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/gallery"));
     expect(res.status).toBe(200);
     expect((await res.json()).photos).toEqual([]);
   });
@@ -65,14 +65,14 @@ describe("GET /api/admin/gallery", () => {
   it("survives a malformed stored value instead of throwing", async () => {
     // A hand-edited column shouldn't take the homepage down.
     galleryStore = "not an array";
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/gallery"));
     expect(res.status).toBe(200);
     expect((await res.json()).photos).toEqual([]);
   });
 
   it("reads back a legacy plain-string-array value (pre-Instagram-tagging)", async () => {
     galleryStore = [PHOTO_A.url];
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/gallery"));
     expect((await res.json()).photos).toEqual([{ url: PHOTO_A.url, instagram: null }]);
   });
 });
@@ -89,7 +89,7 @@ describe("PUT /api/admin/gallery", () => {
     expect(res.status).toBe(200);
     expect((await res.json()).photos).toEqual([PHOTO_A, PHOTO_B]);
 
-    const read = await GET();
+    const read = await GET(new Request("http://localhost/api/admin/gallery"));
     expect((await read.json()).photos).toEqual([PHOTO_A, PHOTO_B]);
   });
 
@@ -105,7 +105,7 @@ describe("PUT /api/admin/gallery", () => {
     galleryStore = [PHOTO_A];
     const res = await PUT(putRequest({ photos: [] }));
     expect(res.status).toBe(200);
-    expect((await GET().then((r) => r.json())).photos).toEqual([]);
+    expect((await GET(new Request("http://localhost/api/admin/gallery")).then((r) => r.json())).photos).toEqual([]);
   });
 
   it("rejects a non-array photos field", async () => {
