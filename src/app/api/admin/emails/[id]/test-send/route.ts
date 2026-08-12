@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { getAdminFromReq } from "@/lib/adminAuth";
 import { EMAIL_TEMPLATES, buildEmailPreview } from "@/lib/emailPreview";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, SHOP_EMAIL_FROM, VOL1_THANK_YOU_EMAIL_FROM } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// Mirrors the sender each template actually goes out from in production,
+// so a test-send previews the real "From" address too, not just content.
+const TEMPLATE_FROM: Record<string, string | undefined> = {
+  "merch-order-confirmation": SHOP_EMAIL_FROM,
+  "merch-order-admin-notification": SHOP_EMAIL_FROM,
+  "vol1-exhibitor-thank-you": VOL1_THANK_YOU_EMAIL_FROM,
+};
 
 export async function POST(
   req: Request,
@@ -37,7 +45,8 @@ export async function POST(
       html,
       qrCodeBase64
         ? [{ filename: "qr-platba.png", content: qrCodeBase64, contentId: "qr-code" }]
-        : undefined
+        : undefined,
+      TEMPLATE_FROM[id]
     );
     return NextResponse.json({ success: true });
   } catch (err) {

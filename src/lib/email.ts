@@ -95,6 +95,11 @@ interface MerchOrderDetails {
 // with the new var yet.
 export const SHOP_EMAIL_FROM = process.env.SHOP_EMAIL_FROM || process.env.EMAIL_FROM;
 
+// Vol.1 exhibitor thank-you email is a one-off blast, not part of the
+// registration flow — reads better from the general-inquiries address than
+// EMAIL_FROM's registration@. Falls back to EMAIL_FROM if unset.
+export const VOL1_THANK_YOU_EMAIL_FROM = process.env.VOL1_THANK_YOU_EMAIL_FROM || process.env.EMAIL_FROM;
+
 export async function sendMerchOrderConfirmationEmail(
   to: string,
   order: MerchOrderDetails,
