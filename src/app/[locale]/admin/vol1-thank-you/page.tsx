@@ -32,6 +32,10 @@ export default function AdminVol1ThankYouPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<SendResult | null>(null);
+  const [manualName, setManualName] = useState("");
+  const [manualTo, setManualTo] = useState("");
+  const [manualSending, setManualSending] = useState(false);
+  const [manualResult, setManualResult] = useState<"success" | "error" | null>(null);
 
   const closeModal = useCallback(() => setConfirmOpen(false), []);
   const modalRef = useModalA11y<HTMLDivElement>(confirmOpen, closeModal);
@@ -102,6 +106,27 @@ export default function AdminVol1ThankYouPage() {
     } finally {
       setSending(false);
       setConfirmOpen(false);
+    }
+  }
+
+  async function handleManualSend() {
+    setManualSending(true);
+    setManualResult(null);
+    try {
+      const res = await fetch("/api/admin/registrations/thank-you-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ couponCode, manualTo, manualName }),
+      });
+      if (!res.ok) throw new Error("failed");
+      setManualResult("success");
+      setManualTo("");
+      setManualName("");
+    } catch (err) {
+      console.error(err);
+      setManualResult("error");
+    } finally {
+      setManualSending(false);
     }
   }
 
@@ -217,6 +242,47 @@ export default function AdminVol1ThankYouPage() {
               )}
             </div>
           )}
+
+          <div className="bg-[#111]/90 border border-gray-700 rounded-sm p-6 flex flex-col gap-4">
+            <div>
+              <h2 className="text-white text-sm font-bold">{t("manualTitle")}</h2>
+              <p className="text-gray-500 text-xs mt-1">{t("manualHint")}</p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-1 flex-1">
+                <label className="text-white text-xs font-bold">{t("manualNameLabel")}</label>
+                <input
+                  value={manualName}
+                  onChange={(e) => setManualName(e.target.value)}
+                  placeholder={t("manualNamePlaceholder")}
+                  className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+                />
+              </div>
+              <div className="flex flex-col gap-1 flex-1">
+                <label className="text-white text-xs font-bold">{t("manualEmailLabel")}</label>
+                <input
+                  type="email"
+                  value={manualTo}
+                  onChange={(e) => setManualTo(e.target.value)}
+                  placeholder="jmeno@email.cz"
+                  className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm focus:border-white focus:outline-none rounded-sm"
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleManualSend}
+              disabled={manualSending || !manualTo.trim() || !couponCode.trim()}
+              className="self-start px-6 py-2 bg-transparent border-2 border-white text-white font-bold text-sm tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed rounded-sm"
+            >
+              {manualSending ? t("sending") : t("manualSendButton")}
+            </button>
+            {manualResult && (
+              <p className={`text-sm font-bold ${manualResult === "success" ? "text-green-400" : "text-red-400"}`}>
+                {manualResult === "success" ? t("manualSendSuccess") : t("errorSend")}
+              </p>
+            )}
+          </div>
         </div>
       ) : null}
 
