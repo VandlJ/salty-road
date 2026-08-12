@@ -432,6 +432,8 @@
     "messagesTileDesc": "Dotazy a poptávky z kontaktního formuláře.",
     "couponsTile": "Slevové kupóny",
     "couponsTileDesc": "Vytváření a správa slevových kódů.",
+    "vol1ThankYouTile": "Vol.1 poděkování",
+    "vol1ThankYouTileDesc": "Hromadné poděkování a slevový kód vystavovatelům, co dorazili.",
     "logout": "Odhlásit"
   },
   "AdminGalleryPage": {
@@ -458,6 +460,28 @@
     "sending": "Odesílám…",
     "testSendSuccess": "Testovací e-mail byl odeslán.",
     "testSendError": "Odeslání se nezdařilo."
+  },
+  "AdminVol1ThankYouPage": {
+    "title": "Vol.1 poděkování",
+    "backToAdmin": "Zpět do administrace",
+    "intro": "Pošle poděkování a 10% slevový kód všem vystavovatelům, kteří byli schváleni a reálně dorazili na akci (odbaveno ve Vjezdu). Šablonu si nejdřív vyzkoušejte v sekci",
+    "introEmailsLink": "E-maily",
+    "loading": "Načítám…",
+    "errorLoad": "Nepodařilo se načíst přehled.",
+    "errorSend": "Odeslání se nezdařilo.",
+    "statTotal": "Dorazilo celkem",
+    "statAlreadySent": "Už posláno",
+    "statRemaining": "Zbývá poslat",
+    "couponCodeLabel": "Slevový kód",
+    "couponCodeHint": "Kód musí už existovat v sekci Slevové kupóny, jinak ho zákazníci v e-shopu nemohou uplatnit.",
+    "sendButton": "Poslat {count} vystavovatelům",
+    "confirmTitle": "Opravdu odeslat?",
+    "confirmBody": "Odešle se {count} e-mailů s kódem {code}. Tuto akci nelze vzít zpět.",
+    "cancel": "Zrušit",
+    "confirmSend": "Ano, odeslat",
+    "sending": "Odesílám…",
+    "resultSummary": "Odesláno {sent} z {total} e-mailů.",
+    "resultFailed": "{failed} se nepodařilo odeslat — zkuste to znovu později."
   },
   "AdminMerchPage": {
     "title": "Správa merche",

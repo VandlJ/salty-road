@@ -432,6 +432,8 @@
     "messagesTileDesc": "Questions and requests from the contact form.",
     "couponsTile": "Discount coupons",
     "couponsTileDesc": "Create and manage discount codes.",
+    "vol1ThankYouTile": "Vol.1 thank-you",
+    "vol1ThankYouTileDesc": "Bulk thank-you email and discount code for exhibitors who showed up.",
     "logout": "Log out"
   },
   "AdminGalleryPage": {
@@ -458,6 +460,28 @@
     "sending": "Sending…",
     "testSendSuccess": "Test email sent.",
     "testSendError": "Failed to send."
+  },
+  "AdminVol1ThankYouPage": {
+    "title": "Vol.1 thank-you",
+    "backToAdmin": "Back to admin",
+    "intro": "Sends a thank-you and 10% discount code to every exhibitor who was accepted and actually showed up (checked off at Entry). Try the template first in the",
+    "introEmailsLink": "Emails",
+    "loading": "Loading…",
+    "errorLoad": "Failed to load the overview.",
+    "errorSend": "Failed to send.",
+    "statTotal": "Arrived total",
+    "statAlreadySent": "Already sent",
+    "statRemaining": "Remaining to send",
+    "couponCodeLabel": "Discount code",
+    "couponCodeHint": "The code must already exist under Discount coupons, otherwise customers can't redeem it in the shop.",
+    "sendButton": "Send to {count} exhibitors",
+    "confirmTitle": "Really send?",
+    "confirmBody": "This will send {count} emails with code {code}. This cannot be undone.",
+    "cancel": "Cancel",
+    "confirmSend": "Yes, send",
+    "sending": "Sending…",
+    "resultSummary": "Sent {sent} of {total} emails.",
+    "resultFailed": "{failed} failed to send — try again later."
   },
   "AdminMerchPage": {
     "title": "Merch Management",
