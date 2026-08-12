@@ -3,18 +3,13 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import SectionHeading from "@/components/section-heading";
+import type { EditionVideo } from "@/content/editions";
 
-// thumbZoom counteracts pillarboxing baked into a video's own auto-generated
-// YouTube thumbnail (source wasn't shot 16:9, so YouTube pads the jpg itself
-// with black bars — object-cover can't crop that away since the image
-// already fills the container width). Tuned by eye per video.
-const VIDEOS = [
-  { id: "11di09owZRU", thumbZoom: "scale-[1.4] group-hover:scale-[1.47]" },
-  { id: "uKLELTHzO9M" },
-];
-
-export default function VideosSection() {
+export default function VideosSection({ videos }: { videos: EditionVideo[] }) {
   const t = useTranslations("ArchivePage.videos");
+
+  // Nothing to show for an edition with no footage yet.
+  if (videos.length === 0) return null;
 
   return (
     <section
@@ -28,7 +23,7 @@ export default function VideosSection() {
         <p className="text-gray-400 text-sm mb-10">{t("subtitle")}</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {VIDEOS.map(({ id, thumbZoom }) => (
+          {videos.map(({ id, thumbZoom }) => (
             <VideoTile key={id} youtubeId={id} thumbZoom={thumbZoom} title={t("title")} playLabel={t("playLabel")} />
           ))}
         </div>

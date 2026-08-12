@@ -4,13 +4,15 @@
 
 ## Stránky
 
-- [Domů (cs)](https://www.saltyroad.cz/cs): Ohlédnutí za Volume 1 — popis akce, galerie fotek, vystavené vozy, partneři
+- [Domů (cs)](https://www.saltyroad.cz/cs): Aktuální ročník — dokud další ročník nezačne, ohlédnutí za posledním
 - [Home (en)](https://www.saltyroad.cz/en): English version of the main page
+- [Volume 1 (cs)](https://www.saltyroad.cz/cs/vol1): Archiv prvního ročníku — popis akce, galerie fotek, videa, vystavené vozy, partneři
 - [Zásady ochrany osobních údajů](https://www.saltyroad.cz/cs/privacy): GDPR a zpracování osobních údajů
 - [Obchodní podmínky](https://www.saltyroad.cz/cs/shop/terms): Obchodní podmínky a reklamační řád e-shopu
 
 ## Poznámky
 
 - Web je dvojjazyčný (čeština výchozí, angličtina na `/en`).
+- Každý ročník má trvalou archivní stránku na `/<slug>` (např. `/cs/vol1`). Domovská stránka ukazuje ročník, který je zrovna aktuální — před akcí s registracemi, po akci jako ohlédnutí.
 - Volume 1 už proběhl, registrace vozidel jsou uzavřené.
 - Novinky o dalším ročníku organizátoři oznamují na Instagramu `@salty_road_meet`.

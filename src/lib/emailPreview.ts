@@ -59,7 +59,13 @@ export async function buildEmailPreview(id: string): Promise<EmailPreview> {
 
   switch (id) {
     case "registration-received":
-      return registrationReceivedEmail({ registrationId: "sample1234567890", siteUrl });
+      return registrationReceivedEmail({
+        registrationId: "sample1234567890",
+        siteUrl,
+        dateCs: "25. 7. 2026",
+        dateEn: "25 July 2026",
+        venue: "Velké náměstí, Prachatice",
+      });
 
     case "registration-admin-notification":
       return registrationAdminNotificationEmail({

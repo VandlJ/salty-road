@@ -1,16 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-let settingStore: Record<string, string>;
+// The gallery is stored as JSON on the Edition that owns it, so each year
+// keeps its own set of photos. `galleryStore` stands in for that column.
+let galleryStore: unknown;
+
+const EDITION = { id: "edition_test", slug: "test", status: "archived" };
 
 vi.mock("@/lib/prisma", () => ({
   default: {
-    setting: {
-      findUnique: vi.fn(({ where: { key } }: { where: { key: string } }) =>
-        Promise.resolve(key in settingStore ? { key, value: settingStore[key] } : null)
-      ),
-      upsert: vi.fn(({ where: { key }, create }: { where: { key: string }; create: { value: string } }) => {
-        settingStore[key] = create.value;
-        return Promise.resolve({ key, value: settingStore[key] });
+    edition: {
+      findFirst: vi.fn(() => Promise.resolve(EDITION)),
+      findUnique: vi.fn(() => Promise.resolve({ ...EDITION, galleryPhotos: galleryStore })),
+      update: vi.fn(({ data }: { data: { galleryPhotos: unknown } }) => {
+        galleryStore = data.galleryPhotos;
+        return Promise.resolve({ ...EDITION, galleryPhotos: galleryStore });
       }),
     },
   },
@@ -42,7 +45,7 @@ const PHOTO_A = { url: "https://blob.example.com/gallery/a.jpg", instagram: null
 const PHOTO_B = { url: "https://blob.example.com/gallery/b.jpg", instagram: "@some_photographer" };
 
 beforeEach(() => {
-  settingStore = {};
+  galleryStore = [];
   isAdmin = true;
 });
 
@@ -60,14 +63,15 @@ describe("GET /api/admin/gallery", () => {
   });
 
   it("survives a malformed stored value instead of throwing", async () => {
-    settingStore["gallery_photos"] = "not json{";
+    // A hand-edited column shouldn't take the homepage down.
+    galleryStore = "not an array";
     const res = await GET();
     expect(res.status).toBe(200);
     expect((await res.json()).photos).toEqual([]);
   });
 
   it("reads back a legacy plain-string-array value (pre-Instagram-tagging)", async () => {
-    settingStore["gallery_photos"] = JSON.stringify([PHOTO_A.url]);
+    galleryStore = [PHOTO_A.url];
     const res = await GET();
     expect((await res.json()).photos).toEqual([{ url: PHOTO_A.url, instagram: null }]);
   });
@@ -98,7 +102,7 @@ describe("PUT /api/admin/gallery", () => {
   });
 
   it("accepts an empty list (deleting the last photo)", async () => {
-    settingStore["gallery_photos"] = JSON.stringify([PHOTO_A]);
+    galleryStore = [PHOTO_A];
     const res = await PUT(putRequest({ photos: [] }));
     expect(res.status).toBe(200);
     expect((await GET().then((r) => r.json())).photos).toEqual([]);
@@ -131,8 +135,8 @@ describe("PUT /api/admin/gallery", () => {
   });
 
   it("leaves the stored value untouched when validation fails", async () => {
-    settingStore["gallery_photos"] = JSON.stringify([PHOTO_A]);
+    galleryStore = [PHOTO_A];
     await PUT(putRequest({ photos: [{ instagram: "@x" }] }));
-    expect(settingStore["gallery_photos"]).toBe(JSON.stringify([PHOTO_A]));
+    expect(galleryStore).toEqual([PHOTO_A]);
   });
 });

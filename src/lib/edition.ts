@@ -48,3 +48,24 @@ export async function requireCurrentEdition(): Promise<Edition> {
   if (!edition) throw new Error("NO_EDITION");
   return edition;
 }
+
+/**
+ * Date/venue strings for e-mail templates, which are plain .mjs files with no
+ * access to next-intl. Both locales are produced because the registration
+ * confirmation is bilingual in a single message.
+ */
+export function editionEmailFacts(edition: Edition) {
+  return {
+    dateCs: edition.startDate.toLocaleDateString("cs-CZ", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+    }),
+    dateEn: edition.startDate.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }),
+    venue: `${edition.venueName}, ${edition.venueLocality}`,
+  };
+}

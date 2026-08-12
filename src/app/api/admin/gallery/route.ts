@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { getAdminFromReq } from "@/lib/adminAuth";
 import { getGalleryPhotos, setGalleryPhotos, GALLERY_CACHE_TAG, type GalleryPhoto } from "@/lib/gallery";
+import { requireCurrentEdition } from "@/lib/edition";
 
 const MAX_PHOTOS = 500;
 const MAX_URL_LENGTH = 500;
@@ -13,8 +14,11 @@ export async function GET() {
   const admin = await getAdminFromReq();
   if (!admin) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const photos = await getGalleryPhotos();
-  return NextResponse.json({ photos });
+  // Always the current edition's gallery — a past edition's photos are
+  // frozen with its archive page.
+  const edition = await requireCurrentEdition();
+  const photos = await getGalleryPhotos(edition.id);
+  return NextResponse.json({ photos, editionName: edition.name });
 }
 
 export async function PUT(req: Request) {
@@ -49,7 +53,8 @@ export async function PUT(req: Request) {
     instagram: typeof p.instagram === "string" && p.instagram.trim() ? p.instagram : null,
   }));
 
-  await setGalleryPhotos(normalized);
+  const edition = await requireCurrentEdition();
+  await setGalleryPhotos(edition.id, normalized);
   // Push the change to the homepage now rather than after the 60s revalidate.
   // "max" is how long Next remembers the invalidation — it has to outlive the
   // cache entry itself (60s) or a stale entry could resurface after the marker

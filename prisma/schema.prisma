@@ -41,10 +41,16 @@ model AdminSession {
 // years lives here rather than in code, so a new edition is a row plus its
 // prose in messages/*.json — not a homepage rewrite.
 //
-// The date/venue/stats fields feed both the page copy and the Event JSON-LD.
-// galleryPhotos/videos/sponsors are JSON for the same reason the gallery was
-// a single Setting row before: ordered lists edited wholesale by one admin,
-// where a relational table buys nothing.
+// The date/venue fields feed both the page copy and the Event JSON-LD.
+//
+// galleryPhotos lives here (rather than in code) because the gallery has an
+// admin UI and its images are Blob uploads. Sponsors and videos deliberately
+// do NOT: sponsor logos are static files under public/sponsors, so adding one
+// needs a deploy anyway, and their per-logo `scaleClass` is presentational
+// tuning you can only judge by looking at the rendered page. Keeping the
+// metadata in the database while the asset needs a commit would split one
+// change across two places. Those live in src/content/editions.ts, keyed by
+// slug. Recap stat labels stay in messages/*.json since they're translated.
 model Edition {
   id               String   @id @default(cuid())
   slug             String   @unique // URL segment: "vol1", "vol2"
@@ -60,9 +66,6 @@ model Edition {
   registrationOpen Boolean  @default(false)
   registrationFee  Int      @default(29900) // halire
   galleryPhotos    Json     @default("[]") // [{ url, instagram }]
-  videos           Json     @default("[]") // [{ id, thumbZoom? }] — YouTube ids
-  sponsors         Json     @default("[]") // [{ src, alt, scaleClass? }]
-  recapStats       Json     @default("[]") // [{ value, label }]
   registrations    Registration[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
