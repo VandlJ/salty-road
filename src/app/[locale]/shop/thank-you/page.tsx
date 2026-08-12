@@ -22,6 +22,29 @@ export default function ThankYouPage() {
   const t = useTranslations("ShopPage");
   const [order, setOrder] = useState<LastOrder | null>(null);
   const [checked, setChecked] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelled, setCancelled] = useState(false);
+  const [cancelError, setCancelError] = useState(false);
+
+  async function handleCancel() {
+    if (!order) return;
+    if (!window.confirm(t("thankYouCancelConfirm"))) return;
+    setCancelling(true);
+    setCancelError(false);
+    try {
+      const res = await fetch(`/api/merch/orders/${encodeURIComponent(order.orderId)}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vs: order.vs }),
+      });
+      if (!res.ok) throw new Error("cancel_failed");
+      setCancelled(true);
+    } catch {
+      setCancelError(true);
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   useEffect(() => {
     // Reading sessionStorage on mount — client-only data source that can't
@@ -105,6 +128,24 @@ export default function ThankYouPage() {
             />
           )}
         </div>
+
+        {cancelled ? (
+          <p className="mt-8 text-white font-bold bg-[#111] border border-gray-700 rounded-sm p-4 text-sm">
+            {t("thankYouCancelSuccess")}
+          </p>
+        ) : (
+          <div className="mt-8 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="text-gray-400 hover:text-red-400 underline underline-offset-2 text-sm transition-colors disabled:opacity-50"
+            >
+              {cancelling ? t("cancelOrderSubmitting") : t("thankYouCancelOrder")}
+            </button>
+            {cancelError && <p className="text-red-400 text-xs">{t("thankYouCancelError")}</p>}
+          </div>
+        )}
 
         <Link
           href="/shop"

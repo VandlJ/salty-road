@@ -88,7 +88,7 @@
     "checkoutBankTransfer": "Bank transfer (QR payment)",
     "checkoutCod": "Cash on delivery",
     "checkoutSummary": "Order summary",
-    "checkoutSubmit": "Place order",
+    "checkoutSubmit": "Order now, pay now",
     "checkoutSubmitting": "Submitting…",
     "checkoutTermsPrefix": "By placing this order you agree to our",
     "checkoutTermsLink": "terms & conditions",
@@ -106,7 +106,18 @@
     "thankYouQrAlt": "Payment QR code",
     "thankYouCod": "You'll pay cash on delivery. A confirmation has been emailed to you.",
     "thankYouNoOrder": "We don't have a recent order to show.",
-    "thankYouBackToShop": "Back to shop"
+    "thankYouBackToShop": "Back to shop",
+    "thankYouCancelOrder": "Cancel order",
+    "thankYouCancelConfirm": "Are you sure you want to cancel this order? This can't be undone.",
+    "thankYouCancelSuccess": "Order cancelled.",
+    "thankYouCancelError": "Couldn't cancel the order. Please try again or contact us at shop@saltyroad.cz.",
+    "cancelOrderTitle": "Cancel order",
+    "cancelOrderIntro": "You can cancel your order yourself as long as you haven't paid yet. The order number and variable symbol are in your confirmation email.",
+    "cancelOrderSubmit": "Cancel order",
+    "cancelOrderSubmitting": "Cancelling…",
+    "cancelOrderSuccess": "Your order was cancelled. Any reserved stock has been released back to the shop.",
+    "cancelOrderErrorNotFound": "We couldn't find that order. Please check the order number and variable symbol.",
+    "cancelOrderErrorNotCancellable": "This order can no longer be cancelled this way — it's already been paid, shipped, or cancelled before. Email us at shop@saltyroad.cz."
   },
   "Hero": {
     "title1": "Salty Road Meet",

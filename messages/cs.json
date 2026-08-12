@@ -88,7 +88,7 @@
     "checkoutBankTransfer": "Bankovní převod (QR platba)",
     "checkoutCod": "Dobírka",
     "checkoutSummary": "Souhrn objednávky",
-    "checkoutSubmit": "Odeslat objednávku",
+    "checkoutSubmit": "Objednat s povinností platby",
     "checkoutSubmitting": "Odesílám…",
     "checkoutTermsPrefix": "Odesláním objednávky souhlasíte s",
     "checkoutTermsLink": "obchodními a reklamačními podmínkami",
@@ -106,7 +106,18 @@
     "thankYouQrAlt": "QR platba",
     "thankYouCod": "Objednávku uhradíte dobírkou při doručení. Potvrzení jsme poslali na e-mail.",
     "thankYouNoOrder": "Nemáme žádnou nedávnou objednávku k zobrazení.",
-    "thankYouBackToShop": "Zpět do e-shopu"
+    "thankYouBackToShop": "Zpět do e-shopu",
+    "thankYouCancelOrder": "Zrušit objednávku",
+    "thankYouCancelConfirm": "Opravdu chcete objednávku zrušit? Tuto akci nelze vrátit zpět.",
+    "thankYouCancelSuccess": "Objednávka byla zrušena.",
+    "thankYouCancelError": "Objednávku se nepodařilo zrušit. Zkuste to prosím znovu nebo nás kontaktujte na shop@saltyroad.cz.",
+    "cancelOrderTitle": "Zrušení objednávky",
+    "cancelOrderIntro": "Objednávku můžete sami zrušit, dokud ji neuhradíte. Číslo objednávky a variabilní symbol najdete v potvrzovacím e-mailu.",
+    "cancelOrderSubmit": "Zrušit objednávku",
+    "cancelOrderSubmitting": "Ruším…",
+    "cancelOrderSuccess": "Objednávka byla úspěšně zrušena. Rezervované zboží jsme vrátili zpět do e-shopu.",
+    "cancelOrderErrorNotFound": "Objednávku se nepodařilo najít. Zkontrolujte prosím číslo objednávky a variabilní symbol.",
+    "cancelOrderErrorNotCancellable": "Tuto objednávku už nelze takto zrušit — buď už byla uhrazena, odeslána, nebo zrušena dříve. Napište nám na shop@saltyroad.cz."
   },
   "Hero": {
     "title1": "Salty Road Meet",

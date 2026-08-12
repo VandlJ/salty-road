@@ -2,6 +2,7 @@
 
 import React from "react";
 import SectionHeading from "@/components/section-heading";
+import { Link } from "@/i18n/routing";
 
 // Legally binding text only exists in Czech (references Czech consumer
 // law, IČO, registered address) — shown as-is regardless of site locale
@@ -18,6 +19,9 @@ const SECTIONS = [
   { id: "cenove-podminky", label: "Cenové podmínky" },
   { id: "podminky-uhrady", label: "Podmínky a možnosti úhrady" },
   { id: "podminky-dodani", label: "Podmínky dodání" },
+  { id: "odstoupeni-od-smlouvy", label: "Odstoupení od smlouvy do 14 dnů" },
+  { id: "zruseni-objednavky", label: "Zrušení objednávky před úhradou" },
+  { id: "mimosoudni-reseni-sporu", label: "Mimosoudní řešení sporů" },
 ];
 
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -58,11 +62,12 @@ export default function ShopTermsPage() {
       <div className="space-y-12">
         <Section id="reklamacni-rad" title="Reklamační řád">
           <p>
-            Tento reklamační řád byl zpracován v souladu s ustanoveními zákona č. 40/1964 Sb., Občanského
-            zákoníku, v aktuálním znění (dále jen „zákon“) a vztahuje se na zboží, u něhož jsou v záruční době
-            uplatňována práva kupujícího z odpovědnosti za vady (dále jen <K>„reklamace“</K>) a které kupující
-            (spotřebitel ve smyslu § 52 odst. 3 zákona 40/1964 v aktuálním znění) zakoupil u prodávajícího
-            (<K>David Šmídmajer, Mírová 1013, Prachatice, 38301</K>).
+            Tento reklamační řád byl zpracován v souladu s ustanoveními zákona č. 89/2012 Sb., občanského
+            zákoníku, a zákona č. 634/1992 Sb., o ochraně spotřebitele, v aktuálním znění (dále jen „zákon“) a
+            vztahuje se na zboží, u něhož jsou v záruční době uplatňována práva kupujícího z odpovědnosti za
+            vady (dále jen <K>„reklamace“</K>) a které kupující (spotřebitel ve smyslu § 419 zákona č. 89/2012
+            Sb. v aktuálním znění) zakoupil u prodávajícího (<K>David Šmídmajer, Mírová 1013, Prachatice,
+            38301</K>).
           </p>
         </Section>
 
@@ -135,6 +140,16 @@ export default function ShopTermsPage() {
             <br />
             Fyzická osoba podnikající dle živnostenského zákona nezapsaná v obchodním rejstříku.
             <br />
+            E-mail:{" "}
+            <a href="mailto:shop@saltyroad.cz" className="underline hover:text-white transition-colors">
+              shop@saltyroad.cz
+            </a>
+            <br />
+            Telefon:{" "}
+            <a href="tel:+420724386935" className="underline hover:text-white transition-colors">
+              +420 724 386 935
+            </a>
+            <br />
             Pro prodej zboží prostřednictvím on-line obchodu umístěného na internetové adrese{" "}
             <a href="https://www.saltyroad.cz/cs/shop" className="underline hover:text-white transition-colors">
               https://www.saltyroad.cz/cs/shop
@@ -182,6 +197,107 @@ export default function ShopTermsPage() {
             písemnou formu a bude zasláno elektronickou poštou na adresu{" "}
             <a href="mailto:shop@saltyroad.cz" className="underline hover:text-white transition-colors">
               shop@saltyroad.cz
+            </a>
+            .
+          </p>
+        </Section>
+
+        <Section id="odstoupeni-od-smlouvy" title="Odstoupení od smlouvy do 14 dnů">
+          <p>
+            V souladu s § 1829 zákona č. 89/2012 Sb., občanského zákoníku, má kupující, který je spotřebitelem
+            a smlouvu uzavřel prostřednictvím on-line obchodu (tedy prostředky komunikace na dálku), právo
+            <K> odstoupit od kupní smlouvy do 14 dnů</K> od převzetí zboží, a to bez udání důvodu. Toto právo se
+            netýká právnických osob ani fyzických osob nakupujících v rámci své podnikatelské činnosti.
+          </p>
+          <p>
+            Pro dodržení lhůty postačí odeslat oznámení o odstoupení od smlouvy poslední den lhůty. Oznámení
+            lze zaslat e-mailem na adresu{" "}
+            <a href="mailto:shop@saltyroad.cz" className="underline hover:text-white transition-colors">
+              shop@saltyroad.cz
+            </a>{" "}
+            nebo písemně na adresu uvedenou v sekci{" "}
+            <a href="#adresa-pro-zasilani-reklamaci" className="underline hover:text-white transition-colors">
+              Adresa pro zasílání reklamací
+            </a>
+            . Kupující v oznámení uvede číslo objednávky, variabilní symbol a případně číslo bankovního účtu
+            pro vrácení platby. Vzorový formulář pro odstoupení od smlouvy zasíláme na vyžádání na výše
+            uvedeném e-mailu.
+          </p>
+          <p>
+            Zboží je kupující povinen zaslat zpět prodávajícímu <K>bez zbytečného odkladu, nejpozději do 14
+            dnů</K> od odstoupení od smlouvy, a to na vlastní náklady. Zboží by mělo být vráceno nepoškozené,
+            neopotřebené a pokud možno v původním obalu.
+          </p>
+          <p>
+            Prodávající vrátí kupujícímu <K>bez zbytečného odkladu, nejpozději do 14 dnů</K> od odstoupení od
+            smlouvy všechny peněžní prostředky, které od něj na základě smlouvy přijal (včetně nákladů na
+            dodání ve výši odpovídající nejlevnějšímu nabízenému způsobu dodání), stejným způsobem, jakým je
+            přijal, případně způsobem, na kterém se strany dohodnou. Prodávající není povinen vrátit přijaté
+            peněžní prostředky dříve, než mu kupující zboží předá nebo prokáže, že zboží prodávajícímu odeslal.
+          </p>
+          <p>
+            Právo na odstoupení od smlouvy se v souladu s § 1837 nevztahuje mimo jiné na zboží, které bylo
+            upraveno podle přání kupujícího nebo pro jeho osobu (např. zboží s individuálním potiskem na
+            zakázku), a na zboží v uzavřeném obalu, které z důvodu ochrany zdraví nebo z hygienických důvodů
+            není vhodné vrátit poté, co jej kupující porušil.
+          </p>
+        </Section>
+
+        <Section id="zruseni-objednavky" title="Zrušení objednávky před úhradou">
+          <p>
+            Dokud objednávku neuhradíte, můžete ji <K>kdykoli sami zrušit</K> — odkaz na zrušení najdete přímo
+            v e-mailu s potvrzením objednávky, případně jej{" "}
+            <Link href="/shop/cancel-order" className="underline hover:text-white transition-colors">
+              vyplňte zde
+            </Link>{" "}
+            (budete potřebovat číslo objednávky a variabilní symbol). Zrušením objednávky se rezervované zboží
+            ihned vrátí zpět do e-shopu.
+          </p>
+          <p>
+            Objednávky nezaplacené do 5 pracovních dnů jsou navíc automaticky stornovány, viz sekce{" "}
+            <a href="#podminky-uhrady" className="underline hover:text-white transition-colors">
+              Podmínky a možnosti úhrady
+            </a>
+            . Jakmile je objednávka uhrazena, je zrušení objednávky možné pouze uplatněním práva na odstoupení
+            od smlouvy dle sekce{" "}
+            <a href="#odstoupeni-od-smlouvy" className="underline hover:text-white transition-colors">
+              Odstoupení od smlouvy do 14 dnů
+            </a>
+            , případně dohodou s prodávajícím na e-mailu{" "}
+            <a href="mailto:shop@saltyroad.cz" className="underline hover:text-white transition-colors">
+              shop@saltyroad.cz
+            </a>
+            .
+          </p>
+        </Section>
+
+        <Section id="mimosoudni-reseni-sporu" title="Mimosoudní řešení sporů">
+          <p>
+            V případě, že mezi prodávajícím a kupujícím-spotřebitelem dojde ke vzniku spotřebitelského sporu z
+            kupní smlouvy, který se nepodaří vyřešit vzájemnou dohodou, může kupující podat návrh na
+            mimosoudní řešení sporu k <K>České obchodní inspekci</K> (Ústřední inspektorát – oddělení ADR, Štěpánská
+            567/15, 120 00 Praha 2, IČO: 000 20 869), a to prostřednictvím on-line formuláře dostupného na
+            internetových stránkách{" "}
+            <a
+              href="https://adr.coi.cz"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white transition-colors"
+            >
+              adr.coi.cz
+            </a>
+            .
+          </p>
+          <p>
+            Kupující může rovněž využít platformu pro řešení sporů online, která je zřízena Evropskou komisí na
+            adrese{" "}
+            <a
+              href="https://ec.europa.eu/consumers/odr/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white transition-colors"
+            >
+              ec.europa.eu/consumers/odr
             </a>
             .
           </p>
