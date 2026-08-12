@@ -7,6 +7,7 @@ import AdminLoginForm from "@/components/admin-login-form";
 import { AnimatedModal } from "@/components/animated-modal";
 import { useModalA11y } from "@/lib/useModalA11y";
 import { useAdminAuth } from "@/lib/useAdminAuth";
+import type { Coupon } from "@/types/merch";
 
 interface Counts {
   total: number;
@@ -24,7 +25,8 @@ export default function AdminVol1ThankYouPage() {
   const t = useTranslations("AdminVol1ThankYouPage");
   const { loggedIn, checking, recheck } = useAdminAuth();
   const [counts, setCounts] = useState<Counts | null>(null);
-  const [couponCode, setCouponCode] = useState("SALTYVOL1");
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [couponCode, setCouponCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -49,12 +51,34 @@ export default function AdminVol1ThankYouPage() {
     }
   }, [t]);
 
+  const loadCoupons = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/coupons");
+      if (!res.ok) throw new Error("failed");
+      const data: Coupon[] = await res.json();
+      setCoupons(data);
+      setCouponCode((prev) => {
+        if (prev && data.some((c) => c.code === prev)) return prev;
+        const usable = data.find((c) => {
+          const expired = c.expiresAt ? new Date(c.expiresAt) < new Date() : false;
+          const exhausted = c.maxUses !== null && c.usedCount >= c.maxUses;
+          return c.active && !expired && !exhausted;
+        });
+        return usable?.code ?? data[0]?.code ?? "";
+      });
+    } catch (err) {
+      console.error(err);
+      setError(t("errorLoad"));
+    }
+  }, [t]);
+
   useEffect(() => {
     if (loggedIn) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       loadCounts();
+      loadCoupons();
     }
-  }, [loggedIn, loadCounts]);
+  }, [loggedIn, loadCounts, loadCoupons]);
 
   async function handleSend() {
     setSending(true);
@@ -144,13 +168,33 @@ export default function AdminVol1ThankYouPage() {
           <div className="bg-[#111]/90 border border-gray-700 rounded-sm p-6 flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label className="text-white text-sm font-bold">{t("couponCodeLabel")}</label>
-              <p className="text-gray-500 text-xs">{t("couponCodeHint")}</p>
-              <input
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                maxLength={40}
-                className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm font-mono focus:border-white focus:outline-none rounded-sm uppercase sm:w-64"
-              />
+              {coupons.length === 0 ? (
+                <p className="text-gray-500 text-xs">
+                  {t("couponCodeHint")}{" "}
+                  <Link href="/admin/coupons" className="underline hover:text-white transition-colors">
+                    {t("couponCodeManageLink")}
+                  </Link>
+                </p>
+              ) : (
+                <select
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="p-2 bg-white/5 border-2 border-gray-500 text-white text-sm font-mono focus:border-white focus:outline-none rounded-sm sm:w-64"
+                >
+                  {coupons.map((c) => {
+                    const expired = c.expiresAt ? new Date(c.expiresAt) < new Date() : false;
+                    const exhausted = c.maxUses !== null && c.usedCount >= c.maxUses;
+                    const unusable = !c.active || expired || exhausted;
+                    return (
+                      <option key={c.id} value={c.code}>
+                        {c.code}
+                        {c.type === "percent" ? ` (-${c.value}%)` : ""}
+                        {unusable ? ` — ${t("couponUnusable")}` : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+              )}
             </div>
 
             <button

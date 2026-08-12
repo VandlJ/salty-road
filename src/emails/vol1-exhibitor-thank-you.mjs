@@ -12,7 +12,7 @@ export function vol1ExhibitorThankYouEmail({ firstName, couponCode, siteUrl }) {
 
   const text = `${greeting}
 
-Salty Road Meet 2026 je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.
+Salty Road Meet Vol. 1 je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.
 
 Díky tomu, že jste dorazili se svými auty, podpořili naši akci a pomohli vytvořit atmosféru, kterou jsme si při plánování celého meetu přáli, se nám podařilo zaplnit prachatické náměstí a společně si užít skvělý den.
 
@@ -22,7 +22,7 @@ Vaší podpory si opravdu vážíme, a proto pro vás máme ještě jednu malou 
 
 Rozjeli jsme Salty Road e-shop!
 
-A protože jste se registrovali a byli přímo součástí Salty Road Meet 2026, dáváme vám 10% slevu na celý nákup a na cokoliv z našeho e-shopu.
+A protože jste se registrovali a byli přímo součástí Salty Road Meet Vol. 1, dáváme vám 10% slevu na celý nákup a na cokoliv z našeho e-shopu.
 
 Váš slevový kód: ${couponCode}
 Uplatníte ho při dokončení objednávky na ${shopUrl}
@@ -49,14 +49,13 @@ info@saltyroad.cz`;
   <div style="max-width:560px;margin:0 auto;background-color:#ffffff;border-radius:4px;overflow:hidden;border:1px solid #e5e5e5;">
 
     <div style="background-color:#ffffff;padding:28px 32px;text-align:center;border-bottom:3px solid #dc2626;">
-      <img src="${siteUrl}/Logo/logosmallb.png" alt="" width="36" height="36" style="display:inline-block;vertical-align:middle;" />
-      <span style="display:inline-block;vertical-align:middle;margin-left:10px;color:#0a0a0a;font-size:20px;font-weight:800;letter-spacing:0.08em;">SALTY ROAD</span>
+      <img src="${siteUrl}/Logo/invoice-logo.png" alt="Salty Road" width="230" style="display:block;margin:0 auto;" />
     </div>
 
     <div style="padding:32px;color:#1a1a1a;font-size:15px;line-height:1.6;">
       <p style="margin:0 0 16px;">${greeting}</p>
 
-      <p style="margin:0 0 16px;">Salty Road Meet 2026 je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.</p>
+      <p style="margin:0 0 16px;">Salty Road Meet Vol. 1 je za námi a my bychom vám ještě jednou chtěli obrovsky poděkovat, že jste byli jeho součástí.</p>
 
       <p style="margin:0 0 16px;">Díky tomu, že jste dorazili se svými auty, podpořili naši akci a pomohli vytvořit atmosféru, kterou jsme si při plánování celého meetu přáli, se nám podařilo zaplnit prachatické náměstí a společně si užít skvělý den.</p>
 
@@ -66,7 +65,7 @@ info@saltyroad.cz`;
 
       <p style="margin:0 0 4px;font-weight:700;">Rozjeli jsme Salty Road e-shop!</p>
 
-      <p style="margin:0 0 24px;">A protože jste se registrovali a byli přímo součástí Salty Road Meet 2026, dáváme vám <strong>10% slevu</strong> na celý nákup a na cokoliv z našeho e-shopu.</p>
+      <p style="margin:0 0 24px;">A protože jste se registrovali a byli přímo součástí Salty Road Meet Vol. 1, dáváme vám <strong>10% slevu</strong> na celý nákup a na cokoliv z našeho e-shopu.</p>
 
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
         <tr>
