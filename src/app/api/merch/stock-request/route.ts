@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { stockRequestNotificationEmail } from "@/emails/stock-request-notification.mjs";
 import { variantLabel } from "@/lib/variantLabel";
+import { logError } from "@/lib/logError";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_LEN = { customerName: 100, customerEmail: 200 };
@@ -68,7 +69,7 @@ export async function POST(req: Request) {
         await sendEmail(orderEmail, notification.subject, notification.text);
       }
     } catch (err) {
-      console.error("Error sending stock request notification email:", err);
+      logError("merch:stock-request-email", err, { sku });
     }
 
     return NextResponse.json({ id: stockRequest.id }, { status: 201 });

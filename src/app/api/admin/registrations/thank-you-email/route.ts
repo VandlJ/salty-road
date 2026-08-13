@@ -8,6 +8,7 @@ import { SITE_URL } from "@/lib/seo";
 import { EMAIL_RE, RegStatus } from "@/lib/constants";
 import { requireCurrentEdition } from "@/lib/edition";
 import { withAdmin } from "@/lib/apiHandler";
+import { logError } from "@/lib/logError";
 
 // "Arrived" is the source of truth for who actually showed up — set by
 // crew checking people off at /entry — independent of paymentStatus (an
@@ -116,7 +117,7 @@ export const POST = withAdmin(
         });
         sent += 1;
       } catch (err) {
-        console.error(`Failed to send thank-you email to registration ${recipient.id}:`, err);
+        logError("registrations:thank-you-email", err, { registrationId: recipient.id });
         failed.push(recipient.id);
       }
       await sleep(SEND_DELAY_MS);

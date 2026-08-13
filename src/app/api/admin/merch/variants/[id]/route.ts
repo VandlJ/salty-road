@@ -4,6 +4,7 @@ import { sendRestockNotificationEmail } from "@/lib/email";
 import { SITE_URL } from "@/lib/seo";
 import { variantLabel } from "@/lib/variantLabel";
 import { withAdmin } from "@/lib/apiHandler";
+import { logError } from "@/lib/logError";
 
 const MAX_LEN = { color: 60, size: 20 };
 const MAX_PHOTOS = 20;
@@ -93,7 +94,7 @@ export const PATCH = withAdmin<{ id: string }>(
             productUrl,
           });
         } catch (err) {
-          console.error("Error sending restock notification email:", err);
+          logError("merch:restock-email", err, { sku: variant.sku, requestId: r.id });
         }
       }
     });

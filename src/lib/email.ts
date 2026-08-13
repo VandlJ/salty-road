@@ -4,6 +4,7 @@ import { registrationAcceptedEmail } from '@/emails/registration-accepted.mjs';
 import { merchOrderConfirmationEmail } from '@/emails/merch-order-confirmation.mjs';
 import { restockNotificationEmail } from '@/emails/restock-notification.mjs';
 import { paymentConfirmationEmail } from '@/emails/payment-confirmation.mjs';
+import { logError } from "@/lib/logError";
 
 // Instantiated lazily: the Resend constructor throws if the key is missing,
 // which would otherwise crash module evaluation (and the build) in any
@@ -47,7 +48,13 @@ export async function sendEmail(
       attachments,
     });
   } catch (error) {
-    console.error("Resend error:", error);
+    // Deliberately not rethrown: a mail outage must not fail the order or
+    // registration that triggered it. But this is the point where a Resend
+    // failure actually surfaces — the callers' own try/catch around
+    // sendEmail() never fires for one, because this catch already handled it
+    // and returned normally. Without reporting here, an outage looked
+    // identical to everything working.
+    logError("email:resend-send", error, { subject });
   }
 }
 

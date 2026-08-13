@@ -10,6 +10,7 @@ import { getShippingFee } from "@/lib/shipping";
 import { variantLabel } from "@/lib/variantLabel";
 import { EMAIL_RE, PHONE_RE, CHECKOUT_MAX_LEN } from "@/lib/constants";
 import { calculateCouponDiscount, resolveShippingFee } from "@/lib/pricing";
+import { logError } from "@/lib/logError";
 
 const MAX_ITEM_LINES = 20;
 const MAX_QTY_PER_LINE = 20;
@@ -364,7 +365,7 @@ export async function POST(req: Request) {
           await sendEmail(orderEmail, adminNotification.subject, adminNotification.text, undefined, undefined, SHOP_EMAIL_FROM);
         }
       } catch (err) {
-        console.error("Error sending merch order emails:", err);
+        logError("checkout:order-emails", err, { orderNumber: order.orderNumber });
       }
     });
 

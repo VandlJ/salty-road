@@ -9,6 +9,7 @@ import { registrationAdminNotificationEmail } from "@/emails/registration-admin-
 import { SITE_URL } from "@/lib/seo";
 import { EMAIL_RE } from "@/lib/constants";
 import { requireCurrentEdition, editionEmailFacts } from "@/lib/edition";
+import { logError } from "@/lib/logError";
 
 const MAX_PHOTOS = 5;
 const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
@@ -160,7 +161,7 @@ export async function POST(req: Request) {
             : Promise.resolve(),
         ]);
       } catch (err) {
-        console.error("Error sending registration emails:", err);
+        logError("register:emails", err, { registrationId: record.id });
       }
     });
 

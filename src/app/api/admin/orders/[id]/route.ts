@@ -11,6 +11,7 @@ import {
 } from "@/lib/orderStock";
 import { ORDER_STATUS, OrderStatusValue } from "@/lib/constants";
 import { withAdmin, badRequest, notFound, conflict } from "@/lib/apiHandler";
+import { logError } from "@/lib/logError";
 
 const VALID_STATUSES: ReadonlySet<string> = new Set(ORDER_STATUS);
 
@@ -78,7 +79,7 @@ export const PATCH = withAdmin<{ id: string }>(
             invoicePdf,
           });
         } catch (err) {
-          console.error("Error sending payment confirmation email:", err);
+          logError("orders:payment-confirmation-email", err, { orderNumber: order.orderNumber });
         }
       });
     }

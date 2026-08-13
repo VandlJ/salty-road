@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { contactMessageEmail } from "@/emails/contact-message.mjs";
 import { EMAIL_RE } from "@/lib/constants";
+import { logError } from "@/lib/logError";
 
 const MAX_LEN = { name: 100, email: 200, message: 2000 };
 
@@ -51,7 +52,7 @@ export async function POST(req: Request) {
           await sendEmail(orderEmail, notification.subject, notification.text);
         }
       } catch (err) {
-        console.error("Error sending contact message notification email:", err);
+        logError("contact:notification-email", err, { messageId: contactMessage.id });
       }
     });
 
