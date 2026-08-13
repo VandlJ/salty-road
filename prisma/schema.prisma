@@ -128,6 +128,11 @@ model MerchProduct {
   sellable       Boolean  @default(true)
   giftEligible   Boolean  @default(false)
   variants       MerchVariant[]
+
+  // The public shop grid and the free-gift picker, which are the two
+  // highest-traffic queries in the app.
+  @@index([active, sellable, order])
+  @@index([active, giftEligible, order])
 }
 
 model MerchVariant {
@@ -177,6 +182,9 @@ model Order {
   giftLabel      String? // snapshot of the gift product's name, for display without a join
 
   @@index([status])
+  // The admin orders list is an unpaginated findMany ordered by createdAt
+  // desc, and this is the one table that grows every season.
+  @@index([createdAt])
 }
 
 // A customer asked to be notified when a currently out-of-stock variant is
@@ -195,6 +203,8 @@ model StockRequest {
   fulfilled     Boolean  @default(false)
 
   @@index([fulfilled])
+  // The restock claim filters on both, inside a transaction.
+  @@index([sku, fulfilled])
 }
 
 model ContactMessage {
@@ -219,4 +229,6 @@ model Coupon {
   expiresAt  DateTime?
   categories String[]  @default([]) // MerchProduct.category values this coupon applies to; empty = all categories
   createdAt  DateTime  @default(now())
+
+  @@index([createdAt])
 }
