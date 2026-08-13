@@ -1,11 +1,9 @@
-import prisma from "@/lib/prisma";
-import { conflict } from "@/lib/apiHandler";
+// Type-only, so nothing here instantiates the Prisma client at runtime —
+// these helpers only ever act on the transaction client passed in.
+import type { TxClient } from "@/lib/prisma";
+import { conflict } from "@/lib/apiError";
 
-// Inferred from prisma.$transaction rather than Prisma.TransactionClient —
-// the extended client (see @/lib/prisma) doesn't structurally match that
-// stock type once extensions are applied. Same reasoning as the checkout
-// route, which declared this inline before it moved here.
-export type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
+export type { TxClient };
 
 // The slice of an Order's `items` JSON blob that stock movements care about.
 // A type alias rather than an interface on purpose: only aliases get the

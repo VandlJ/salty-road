@@ -1,37 +1,15 @@
-import { NextResponse } from "next/server";
 import type { Admin } from "@prisma/client";
 import { getAdminFromReq } from "@/lib/adminAuth";
+import { ApiError, errorResponse } from "@/lib/apiError";
+
+// Re-exported so the many routes that import them from here keep working.
+export { ApiError, errorResponse, notFound, badRequest, conflict } from "@/lib/apiError";
 
 // Every admin route opened with the same four lines — fetch the session,
 // 401 if absent, and a closing catch that logged "<METHOD> <path> error:"
 // and returned a 500. Repeated across 22 route files, it had already drifted:
 // the error body said "unauthorized" in 27 places and "Unauthorized" in 10,
 // which is a real difference to any client branching on it.
-
-/** `{ error: code }` with a status — the response shape every route already used. */
-export function errorResponse(code: string, status: number) {
-  return NextResponse.json({ error: code }, { status });
-}
-
-/**
- * A failure with a specific status, thrown from anywhere inside a handler
- * (including inside a transaction callback) and turned into a response by the
- * wrapper. Replaces the `throw new Error("NOT_FOUND")` + string-matching catch
- * blocks that each route used to carry.
- */
-export class ApiError extends Error {
-  constructor(
-    readonly code: string,
-    readonly status: number
-  ) {
-    super(code);
-    this.name = "ApiError";
-  }
-}
-
-export const notFound = () => new ApiError("not_found", 404);
-export const badRequest = (code: string) => new ApiError(code, 400);
-export const conflict = (code: string) => new ApiError(code, 409);
 
 type RouteContext<P> = { params: Promise<P> };
 
