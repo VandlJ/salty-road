@@ -12,6 +12,7 @@ import { formatPrice } from "@/lib/formatPrice";
 import { useCartStore, cartTotal } from "@/lib/cartStore";
 import { DEFAULT_SHIPPING_FEE } from "@/lib/shippingConstants";
 import { serverErrorToKey } from "@/lib/serverError";
+import { CHECKOUT_FIELD_MAX } from "@/lib/schemas/checkout";
 
 // Groups digits in 3s ("123 456 789") — the CZ/SK/PL convention and a
 // reasonable universal display format for the others too, since this is
@@ -290,7 +291,7 @@ export default function CheckoutPage() {
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
                 required
-                maxLength={49}
+                maxLength={CHECKOUT_FIELD_MAX.firstName}
                 className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
               />
             </div>
@@ -305,7 +306,7 @@ export default function CheckoutPage() {
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
                 required
-                maxLength={49}
+                maxLength={CHECKOUT_FIELD_MAX.lastName}
                 className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
               />
             </div>
@@ -321,7 +322,7 @@ export default function CheckoutPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              maxLength={200}
+              maxLength={CHECKOUT_FIELD_MAX.customerEmail}
               className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
             />
           </div>
@@ -404,7 +405,7 @@ export default function CheckoutPage() {
                         if (s.zip) setZip(s.zip);
                       }}
                       required={deliveryMethod === "shipping"}
-                      maxLength={150}
+                      maxLength={CHECKOUT_FIELD_MAX.street}
                     />
                   </div>
 
@@ -419,7 +420,7 @@ export default function CheckoutPage() {
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         required={deliveryMethod === "shipping"}
-                        maxLength={100}
+                        maxLength={CHECKOUT_FIELD_MAX.city}
                         className="w-full px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
                       />
                     </div>
@@ -436,7 +437,7 @@ export default function CheckoutPage() {
                         onChange={(e) => setZip(e.target.value)}
                         placeholder="123 45"
                         required={deliveryMethod === "shipping"}
-                        maxLength={10}
+                        maxLength={CHECKOUT_FIELD_MAX.zip}
                         className="w-full sm:w-32 px-4 py-3 bg-white/5 text-white border-2 border-gray-400 rounded-sm focus:outline-none focus:border-white transition-all duration-200"
                       />
                     </div>
