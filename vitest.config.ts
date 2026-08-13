@@ -14,9 +14,11 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     coverage: {
       provider: "v8",
-      // Only the logic we actually assert on — pages/components are covered
-      // by E2E instead, so leaving them in would produce a misleading number.
-      include: ["src/lib/**", "src/app/api/**"],
+      // Components were excluded when nothing here rendered one; they're in
+      // scope now that there are component tests. Pages stay out — they're
+      // covered by E2E, and including them would report a misleading number.
+      include: ["src/lib/**", "src/app/api/**", "src/components/**"],
+      exclude: ["src/test/**", "**/*.test.*"],
     },
   },
 });

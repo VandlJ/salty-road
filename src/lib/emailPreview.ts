@@ -5,7 +5,7 @@ import { registrationRejectedEmail } from "@/emails/registration-rejected.mjs";
 import { merchOrderConfirmationEmail } from "@/emails/merch-order-confirmation.mjs";
 import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
 import { eventInfoSummaryEmail } from "@/emails/event-info-summary.mjs";
-import { vol1ExhibitorThankYouEmail } from "@/emails/vol1-exhibitor-thank-you.mjs";
+import { exhibitorThankYouEmail } from "@/emails/exhibitor-thank-you.mjs";
 import { generateSPD, generateQRCodeBase64 } from "@/lib/qr";
 import { SITE_URL } from "@/lib/seo";
 
@@ -26,7 +26,7 @@ export const EMAIL_TEMPLATES: EmailTemplateMeta[] = [
   { id: "merch-order-confirmation", label: "Potvrzení objednávky (zákazník)", hasQr: true },
   { id: "merch-order-admin-notification", label: "Nová objednávka (admin)", hasQr: false },
   { id: "event-info-summary", label: "Předakcový souhrn informací", hasQr: false },
-  { id: "vol1-exhibitor-thank-you", label: "Vol.1 poděkování vystavovatelům", hasQr: false },
+  { id: "exhibitor-thank-you", label: "Poděkování vystavovatelům", hasQr: false },
 ];
 
 export interface EmailPreview {
@@ -59,7 +59,13 @@ export async function buildEmailPreview(id: string): Promise<EmailPreview> {
 
   switch (id) {
     case "registration-received":
-      return registrationReceivedEmail({ registrationId: "sample1234567890", siteUrl });
+      return registrationReceivedEmail({
+        registrationId: "sample1234567890",
+        siteUrl,
+        dateCs: "25. 7. 2026",
+        dateEn: "25 July 2026",
+        venue: "Velké náměstí, Prachatice",
+      });
 
     case "registration-admin-notification":
       return registrationAdminNotificationEmail({
@@ -116,8 +122,14 @@ export async function buildEmailPreview(id: string): Promise<EmailPreview> {
     case "event-info-summary":
       return eventInfoSummaryEmail();
 
-    case "vol1-exhibitor-thank-you":
-      return vol1ExhibitorThankYouEmail({ firstName: "Jan", couponCode: "SALTYVOL1", siteUrl });
+    case "exhibitor-thank-you":
+      return exhibitorThankYouEmail({
+        firstName: "Jan",
+        couponCode: "SALTYVOL1",
+        siteUrl,
+        editionName: "Volume 1",
+        nextEditionLabel: "Volume 2 v roce 2027",
+      });
 
     default:
       throw new Error("UNKNOWN_TEMPLATE");

@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Link, usePathname, useRouter } from "@/i18n/routing";
-import { useLocale, useTranslations } from "next-intl";
+import { useLocale, useTranslations, type Locale } from "next-intl";
 import CartLink from "@/components/cart-link";
 
 // Only ids that have a matching nav link belong here — the scroll-spy moves
@@ -186,7 +186,7 @@ export default function Navbar({ fixed = false, initialShopVisible = false }: { 
     };
   }, [isMenuOpen]);
 
-  const switchLocale = (nextLocale: string) => {
+  const switchLocale = (nextLocale: Locale) => {
     router.replace(pathname, { locale: nextLocale, scroll: false });
   };
 

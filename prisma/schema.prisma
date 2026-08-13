@@ -37,8 +37,46 @@ model AdminSession {
   @@index([adminId])
 }
 
+// One instalment of the event ("Volume 1"). Everything that differs between
+// years lives here rather than in code, so a new edition is a row plus its
+// prose in messages/*.json — not a homepage rewrite.
+//
+// The date/venue fields feed both the page copy and the Event JSON-LD.
+//
+// galleryPhotos lives here (rather than in code) because the gallery has an
+// admin UI and its images are Blob uploads. Sponsors and videos deliberately
+// do NOT: sponsor logos are static files under public/sponsors, so adding one
+// needs a deploy anyway, and their per-logo `scaleClass` is presentational
+// tuning you can only judge by looking at the rendered page. Keeping the
+// metadata in the database while the asset needs a commit would split one
+// change across two places. Those live in src/content/editions.ts, keyed by
+// slug. Recap stat labels stay in messages/*.json since they're translated.
+model Edition {
+  id               String   @id @default(cuid())
+  slug             String   @unique // URL segment: "vol1", "vol2"
+  number           Int      @unique // 1, 2 — display order and "N. ročník"
+  name             String // "Volume 1"
+  startDate        DateTime
+  endDate          DateTime
+  venueName        String // "Velké náměstí"
+  venueLocality    String // "Prachatice"
+  // "upcoming" (registration/teaser homepage) | "live" (event running now)
+  // | "archived" (look-back page). Exactly one edition should be non-archived.
+  status           String   @default("upcoming")
+  registrationOpen Boolean  @default(false)
+  registrationFee  Int      @default(29900) // halire
+  galleryPhotos    Json     @default("[]") // [{ url, instagram }]
+  registrations    Registration[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status])
+}
+
 model Registration {
   id          String   @id @default(cuid())
+  editionId   String
+  edition     Edition  @relation(fields: [editionId], references: [id])
   firstName   String
   lastName    String
   email       String
@@ -52,13 +90,15 @@ model Registration {
   paymentStatus String @default("pending")
   order       Int      @default(0)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   infoEmailSentAt DateTime?
   arrived     Boolean  @default(false)
   arrivedAt   DateTime?
   idempotencyKey String? @unique // client-generated, dedupes retried submits
-  thankYouEmailSentAt DateTime? // Vol.1 post-event thank-you + coupon email
+  thankYouEmailSentAt DateTime? // post-event thank-you + coupon email
 
-  @@index([status, order])
+  @@index([editionId, status, order])
+  @@index([editionId, status, arrived])
 }
 
 model MerchProduct {
@@ -69,6 +109,9 @@ model MerchProduct {
   description    String
   active         Boolean  @default(true)
   createdAt      DateTime @default(now())
+  // sitemap.ts previously had to fall back to createdAt for lastModified
+  // because there was no updatedAt on this model.
+  updatedAt      DateTime @updatedAt
   // "shared": `photos` below is used for every variant (e.g. same hoodie
   // photographed once, sold in multiple sizes). "per_variant": each
   // MerchVariant's own `images` is used instead (e.g. a cap sold in two
@@ -85,6 +128,11 @@ model MerchProduct {
   sellable       Boolean  @default(true)
   giftEligible   Boolean  @default(false)
   variants       MerchVariant[]
+
+  // The public shop grid and the free-gift picker, which are the two
+  // highest-traffic queries in the app.
+  @@index([active, sellable, order])
+  @@index([active, giftEligible, order])
 }
 
 model MerchVariant {
@@ -110,6 +158,9 @@ model Order {
   id             String    @id @default(cuid())
   orderNumber    Int       @unique @default(autoincrement()) // used as the bank variable symbol (VS)
   createdAt      DateTime  @default(now())
+  // Without this there is no record of *when* an order was marked paid or
+  // shipped — createdAt was the only timestamp on the model.
+  updatedAt      DateTime  @updatedAt
   customerName   String
   customerEmail  String
   customerPhone  String
@@ -131,6 +182,9 @@ model Order {
   giftLabel      String? // snapshot of the gift product's name, for display without a join
 
   @@index([status])
+  // The admin orders list is an unpaginated findMany ordered by createdAt
+  // desc, and this is the one table that grows every season.
+  @@index([createdAt])
 }
 
 // A customer asked to be notified when a currently out-of-stock variant is
@@ -149,6 +203,8 @@ model StockRequest {
   fulfilled     Boolean  @default(false)
 
   @@index([fulfilled])
+  // The restock claim filters on both, inside a transaction.
+  @@index([sku, fulfilled])
 }
 
 model ContactMessage {
@@ -173,4 +229,6 @@ model Coupon {
   expiresAt  DateTime?
   categories String[]  @default([]) // MerchProduct.category values this coupon applies to; empty = all categories
   createdAt  DateTime  @default(now())
+
+  @@index([createdAt])
 }

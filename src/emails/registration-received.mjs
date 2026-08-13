@@ -1,6 +1,16 @@
 // Sent immediately to the person who just submitted a registration —
 // confirms it was received and is now pending review.
-export function registrationReceivedEmail({ registrationId, siteUrl }) {
+//
+// Date and venue are passed in from the edition being registered for; they
+// were hard-coded to Volume 1's, which would have quietly told Volume 2
+// registrants to turn up in July 2026.
+/**
+ * @param {{
+ *   registrationId: string, siteUrl: string,
+ *   dateCs: string, dateEn: string, venue: string,
+ * }} data
+ */
+export function registrationReceivedEmail({ registrationId, siteUrl, dateCs, dateEn, venue }) {
   const subject = "Registration Confirmation / Potvrzení registrace - Salty Road Meet";
 
   const text = `
@@ -17,8 +27,8 @@ Teď nás čeká schvalovací proces vozů. Jakmile projdeme přihlášené regi
 🔍 Stav registrace můžeš sledovat zde:
 ${siteUrl}/cs/check
 
-📅 Datum konání: 25. 7. 2026
-📍 Místo konání: Velké náměstí a Kostelní náměstí, Prachatice
+📅 Datum konání: ${dateCs}
+📍 Místo konání: ${venue}
 
 Pokud máš mezitím jakýkoliv dotaz, ozvi se nám na info@saltyroad.cz.
 
@@ -40,8 +50,8 @@ We are now starting the vehicle approval process. Once we review the registratio
 🔍 You can check your registration status here:
 ${siteUrl}/en/check
 
-📅 Date: July 25, 2026
-📍 Location: Velké náměstí and Kostelní náměstí, Prachatice
+📅 Date: ${dateEn}
+📍 Location: ${venue}
 
 If you have any questions in the meantime, please contact us at info@saltyroad.cz.
 

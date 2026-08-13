@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { toLocale } from "@/i18n/locale";
 
 export async function generateMetadata({
   params,
@@ -7,8 +8,8 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "AdminHubPage" });
-  const tHero = await getTranslations({ locale, namespace: "Hero" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "AdminHubPage" });
+  const tHero = await getTranslations({ locale: toLocale(locale), namespace: "Hero" });
   const siteTitle = `${tHero("title1")} ${tHero("title2")}`;
 
   return {

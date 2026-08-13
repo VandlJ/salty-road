@@ -106,6 +106,34 @@ async function main() {
     create: { key: "registration_open", value: "true" },
   });
 
+  // Registrations are scoped to an edition, so /api/register has nothing to
+  // attach a sign-up to without one, and getCurrentEdition() only returns an
+  // "upcoming" edition once one exists.
+  //
+  // `number` is unique, and the add_edition migration already seeds Volume 1
+  // as number 1 into every database it runs against — CI included, since the
+  // workflow runs `prisma migrate deploy` before this script. So take the
+  // next free number rather than assuming this is the first edition.
+  //
+  // The result mirrors the real shape the app is built for: an archived past
+  // edition alongside an upcoming one, with the upcoming one current.
+  const { _max } = await prisma.edition.aggregate({ _max: { number: true } });
+  await prisma.edition.upsert({
+    where: { slug: "e2e" },
+    update: { status: "upcoming", registrationOpen: true },
+    create: {
+      slug: "e2e",
+      number: (_max.number ?? 0) + 1,
+      name: "E2E Edition",
+      startDate: new Date("2027-07-24T00:00:00.000Z"),
+      endDate: new Date("2027-07-24T23:59:59.000Z"),
+      venueName: "Velké náměstí",
+      venueLocality: "Prachatice",
+      status: "upcoming",
+      registrationOpen: true,
+    },
+  });
+
   const adminUsername = process.env.E2E_ADMIN_USERNAME || "e2e-admin";
   const adminPassword = process.env.E2E_ADMIN_PASSWORD || "e2e-test-password-12345";
   const hash = await bcrypt.hash(adminPassword, 10);
@@ -115,7 +143,7 @@ async function main() {
     create: { username: adminUsername, password: hash },
   });
 
-  console.log("Test DB seeded: test-hoodie, test-sticker, test-soldout, coupons, settings, admin user.");
+  console.log("Test DB seeded: test-hoodie, test-sticker, test-soldout, coupons, settings, edition, admin user.");
 }
 
 main()

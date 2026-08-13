@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getOrderVs } from "@/lib/orderVs";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { restoreStock, releaseCouponUse, type OrderStockItem } from "@/lib/orderStock";
 
 // Customer-facing self-service cancellation — no login needed, but the
 // caller has to prove they own the order by also knowing its VS (shown
@@ -10,15 +11,6 @@ import { rateLimit, getClientIp } from "@/lib/rateLimit";
 // relies on. Only "pending" orders can be cancelled this way; once an
 // order is paid/shipped, cancellation needs a real refund and goes
 // through the shop admin instead.
-type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
-
-async function releaseCouponUse(tx: TxClient, code: string) {
-  await tx.$executeRaw`
-    UPDATE "Coupon" SET "usedCount" = "usedCount" - 1
-    WHERE code = ${code} AND "usedCount" > 0
-  `;
-}
-
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await rateLimit(`order-cancel:${getClientIp(req)}`, 20, 60 * 60 * 1000))) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
@@ -37,13 +29,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       if (getOrderVs(current.createdAt, current.orderNumber) !== vs) throw new Error("NOT_FOUND");
       if (current.status !== "pending") throw new Error("NOT_CANCELLABLE");
 
-      const items = current.items as { sku: string; qty: number }[];
-      for (const item of items) {
-        await tx.merchVariant.updateMany({
-          where: { sku: item.sku },
-          data: { quantity: { increment: item.qty } },
-        });
-      }
+      await restoreStock(tx, current.items as OrderStockItem[], `customer cancel order ${id}`);
       if (current.couponCode) await releaseCouponUse(tx, current.couponCode);
       if (current.shippingCouponCode) await releaseCouponUse(tx, current.shippingCouponCode);
 

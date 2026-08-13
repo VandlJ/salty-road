@@ -1,9 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
 import React, { useCallback, useEffect, useState } from "react";
-import AdminLoginForm from "@/components/admin-login-form";
 import Skeleton from "@/components/skeleton";
 import { FadeSwap } from "@/components/fade-swap";
 import { AnimatePresence, motion } from "motion/react";
@@ -11,17 +9,20 @@ import { useAdminAuth } from "@/lib/useAdminAuth";
 import { formatPrice } from "@/lib/formatPrice";
 import DatePicker from "@/components/date-picker";
 import type { Coupon, MerchProductAdmin } from "@/types/merch";
+import { serverErrorToKey } from "@/lib/serverError";
+import AdminPageHeader from "@/components/admin-page-header";
+import AdminGate from "@/components/admin-gate";
 
 type Translate = ReturnType<typeof useTranslations<"AdminCouponsPage">>;
 type MerchTranslate = ReturnType<typeof useTranslations<"AdminMerchPage">>;
 
-const ERROR_KEY_MAP: Record<string, string> = {
+const ERROR_KEY_MAP = {
   missing_fields: "errorMissingFields",
   field_too_long: "errorFieldTooLong",
   invalid_value: "errorInvalidValue",
   invalid_max_uses: "errorInvalidMaxUses",
   code_taken: "errorCodeTaken",
-};
+} as const;
 
 const CATEGORY_LABEL_KEY: Record<string, string> = {
   hoodie: "categoryHoodie",
@@ -37,7 +38,8 @@ function categoryLabel(tMerch: MerchTranslate, category: string) {
 export default function AdminCouponsPage() {
   const t = useTranslations("AdminCouponsPage");
   const tMerch = useTranslations("AdminMerchPage");
-  const { loggedIn, checking, recheck } = useAdminAuth();
+  const auth = useAdminAuth();
+  const { loggedIn } = auth;
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -86,130 +88,115 @@ export default function AdminCouponsPage() {
     await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
   }
 
-  if (checking) return null;
-  if (!loggedIn) return <AdminLoginForm onSuccess={recheck} />;
-
   return (
-    <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-4xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
-          {t("title")}
-        </h1>
-        <Link
-          href="/admin"
-          className="flex items-center gap-2 px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-            <path d="M9 22V12h6v10" />
-          </svg>
-          {t("backToAdmin")}
-        </Link>
-      </div>
+    <AdminGate auth={auth}>
+      <section className="flex-1 w-full bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-4xl mx-auto">
+        <AdminPageHeader title={t("title")} />
 
-      <NewCouponForm t={t} tMerch={tMerch} categoryOptions={categories} onCreated={loadCoupons} />
+        <NewCouponForm t={t} tMerch={tMerch} categoryOptions={categories} onCreated={loadCoupons} />
 
-      {loading && (
-        <div className="text-white mt-6 text-center font-bold animate-pulse">{t("loading")}</div>
-      )}
-      {error && (
-        <div className="text-white mt-6 p-4 border-2 border-red-500 bg-red-600/50 font-bold rounded-sm">
-          {error}
-        </div>
-      )}
-      {!loading && !error && coupons.length === 0 && (
-        <div className="text-center text-gray-500 font-bold mt-6">{t("noCoupons")}</div>
-      )}
+        {loading && (
+          <div className="text-white mt-6 text-center font-bold animate-pulse">{t("loading")}</div>
+        )}
+        {error && (
+          <div className="text-white mt-6 p-4 border-2 border-red-500 bg-red-600/50 font-bold rounded-sm">
+            {error}
+          </div>
+        )}
+        {!loading && !error && coupons.length === 0 && (
+          <div className="text-center text-gray-500 font-bold mt-6">{t("noCoupons")}</div>
+        )}
 
-      <FadeSwap activeKey={loading && coupons.length === 0 ? "skeleton" : "content"}>
-      {loading && coupons.length === 0 ? (
-        <div className="grid gap-3 mt-6">
-          {[0, 1].map((i) => (
-            <Skeleton key={i} className="h-16 w-full rounded-sm" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid gap-3 mt-6">
-          <AnimatePresence mode="popLayout" initial={false}>
-          {coupons.map((coupon) => {
-            const expired = coupon.expiresAt ? new Date(coupon.expiresAt) < new Date() : false;
-            const exhausted = coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses;
-            return (
-              <motion.div
-                key={coupon.id}
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-wrap items-center justify-between gap-3 bg-[#111]/90 border border-gray-700 rounded-sm p-4"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-white text-lg">{coupon.code}</span>
-                    <span className="text-sm text-gray-400">
-                      {coupon.type === "percent"
-                        ? `-${coupon.value}%`
-                        : coupon.type === "fixed"
-                          ? `-${formatPrice(coupon.value)}`
-                          : t("typeFreeShipping")}
-                    </span>
-                    {(expired || exhausted) && (
-                      <span className="text-[10px] uppercase tracking-widest text-red-400 font-bold border border-red-900/50 bg-red-900/10 rounded-sm px-2 py-0.5">
-                        {expired ? t("expired") : t("exhausted")}
+        <FadeSwap activeKey={loading && coupons.length === 0 ? "skeleton" : "content"}>
+        {loading && coupons.length === 0 ? (
+          <div className="grid gap-3 mt-6">
+            {[0, 1].map((i) => (
+              <Skeleton key={i} className="h-16 w-full rounded-sm" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid gap-3 mt-6">
+            <AnimatePresence mode="popLayout" initial={false}>
+            {coupons.map((coupon) => {
+              const expired = coupon.expiresAt ? new Date(coupon.expiresAt) < new Date() : false;
+              const exhausted = coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses;
+              return (
+                <motion.div
+                  key={coupon.id}
+                  initial={{ opacity: 0, scale: 0.97 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.97 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex flex-wrap items-center justify-between gap-3 bg-[#111]/90 border border-gray-700 rounded-sm p-4"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold text-white text-lg">{coupon.code}</span>
+                      <span className="text-sm text-gray-400">
+                        {coupon.type === "percent"
+                          ? `-${coupon.value}%`
+                          : coupon.type === "fixed"
+                            ? `-${formatPrice(coupon.value)}`
+                            : t("typeFreeShipping")}
                       </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {t("used")}: {coupon.usedCount}
-                    {coupon.maxUses !== null ? ` / ${coupon.maxUses}` : ` (${t("unlimited")})`}
-                    {coupon.expiresAt && (
-                      <> · {t("expiresAt")}: {new Date(coupon.expiresAt).toLocaleDateString("cs-CZ")}</>
-                    )}
-                  </div>
-                  {coupon.categories.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {coupon.categories.map((c) => (
-                        <span
-                          key={c}
-                          className="text-[10px] uppercase tracking-wide text-gray-300 border border-gray-600 bg-white/5 rounded-sm px-2 py-0.5"
-                        >
-                          {categoryLabel(tMerch, c)}
+                      {(expired || exhausted) && (
+                        <span className="text-[10px] uppercase tracking-widest text-red-400 font-bold border border-red-900/50 bg-red-900/10 rounded-sm px-2 py-0.5">
+                          {expired ? t("expired") : t("exhausted")}
                         </span>
-                      ))}
+                      )}
                     </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => toggleActive(coupon)}
-                    role="switch"
-                    aria-checked={coupon.active}
-                    aria-label={coupon.active ? t("active") : t("inactive")}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
-                      coupon.active ? "bg-green-600" : "bg-gray-600"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
-                        coupon.active ? "translate-x-6" : "translate-x-1"
+                    <div className="text-xs text-gray-500 mt-1">
+                      {t("used")}: {coupon.usedCount}
+                      {coupon.maxUses !== null ? ` / ${coupon.maxUses}` : ` (${t("unlimited")})`}
+                      {coupon.expiresAt && (
+                        <> · {t("expiresAt")}: {new Date(coupon.expiresAt).toLocaleDateString("cs-CZ")}</>
+                      )}
+                    </div>
+                    {coupon.categories.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {coupon.categories.map((c) => (
+                          <span
+                            key={c}
+                            className="text-[10px] uppercase tracking-wide text-gray-300 border border-gray-600 bg-white/5 rounded-sm px-2 py-0.5"
+                          >
+                            {categoryLabel(tMerch, c)}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => toggleActive(coupon)}
+                      role="switch"
+                      aria-checked={coupon.active}
+                      aria-label={coupon.active ? t("active") : t("inactive")}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                        coupon.active ? "bg-green-600" : "bg-gray-600"
                       }`}
-                    />
-                  </button>
-                  <button
-                    onClick={() => removeCoupon(coupon.id)}
-                    className="text-red-500 hover:text-red-400 text-xs font-bold uppercase tracking-wide cursor-pointer"
-                  >
-                    {t("delete")}
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
-          </AnimatePresence>
-        </div>
-      )}
-      </FadeSwap>
-    </section>
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-md transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                          coupon.active ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </button>
+                    <button
+                      onClick={() => removeCoupon(coupon.id)}
+                      className="text-red-500 hover:text-red-400 text-xs font-bold uppercase tracking-wide cursor-pointer"
+                    >
+                      {t("delete")}
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+            </AnimatePresence>
+          </div>
+        )}
+        </FadeSwap>
+      </section>
+    </AdminGate>
   );
 }
 
@@ -294,7 +281,7 @@ function NewCouponForm({
       });
       const json = await res.json();
       if (!res.ok) {
-        setError(t(ERROR_KEY_MAP[json?.error] ?? "errorGeneric"));
+        setError(t(serverErrorToKey(ERROR_KEY_MAP, json?.error, "errorGeneric")));
         return;
       }
       setCode("");

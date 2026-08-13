@@ -209,7 +209,7 @@
       "statusDeclined": "Declined"
   },
   "InfoPage": {
-      "_comment": "DO NOT DELETE. The homepage no longer uses this namespace (Volume 1 is archived), but it holds the content for src/templates/homepage-vol2.tsx — InfoSection, programme, visitor rules, arrival, entry fee. i18n keys are not type-checked, so deleting them passes tsc and only crashes at runtime once Volume 2 is restored. Same applies to RegisterPage, RegisterForm, CheckPage and EntryPage.",
+      "_comment": "The homepage no longer uses this namespace (Volume 1 is archived); it holds the content for src/templates/homepage-vol2.tsx — InfoSection, programme, visitor rules, arrival, entry fee. Keys are now type-checked (see src/global.d.ts), so deleting one that's still used fails tsc rather than only breaking at runtime. Exception: parkingList/programList/rulesList items are read by index (listKey in info-section.tsx), which type checking cannot verify. Same applies to RegisterPage, RegisterForm, CheckPage and EntryPage.",
       "title": "What are you interested in?",
       "parkingTitle": "Parking",
       "parkingList": {
@@ -408,7 +408,6 @@
     "logout": "Log out",
     "merchLink": "Merch",
     "ordersLink": "Orders",
-    "backToAdmin": "Back to admin",
     "filterAll": "All",
     "noResultsFilter": "No registrations match the selected filter.",
     "searchPlaceholder": "Search name or car…"
@@ -432,15 +431,14 @@
     "messagesTileDesc": "Questions and requests from the contact form.",
     "couponsTile": "Discount coupons",
     "couponsTileDesc": "Create and manage discount codes.",
-    "vol1ThankYouTile": "Vol.1 thank-you",
-    "vol1ThankYouTileDesc": "Bulk thank-you email and discount code for exhibitors who showed up.",
+    "thankYouTile": "Vol.1 thank-you",
+    "thankYouTileDesc": "Bulk thank-you email and discount code for exhibitors who showed up.",
+    "backToAdmin": "Back to admin",
     "logout": "Log out"
   },
   "AdminGalleryPage": {
     "title": "Gallery",
-    "edition": "Salty Road Meet — Volume 1",
-    "backToAdmin": "Back to admin",
-    "hint": "Photos appear in the Gallery section of the homepage (currently the Volume 1 archive), in left-to-right order — once Volume 2 exists, it'll need its own gallery.",
+    "hint": "Photos belong to the edition named above and appear in its Gallery section, in left-to-right order. Each edition has its own gallery — creating a new one won't overwrite this.",
     "uploadPhotos": "Upload photos",
     "uploading": "Uploading…",
     "errorLoad": "Couldn't load the gallery.",
@@ -448,7 +446,6 @@
   },
   "AdminEmailsPage": {
     "title": "Emails",
-    "backToAdmin": "Back to admin",
     "loading": "Loading…",
     "errorLoad": "Could not load emails.",
     "subject": "Subject",
@@ -461,9 +458,8 @@
     "testSendSuccess": "Test email sent.",
     "testSendError": "Failed to send."
   },
-  "AdminVol1ThankYouPage": {
+  "AdminThankYouPage": {
     "title": "Vol.1 thank-you",
-    "backToAdmin": "Back to admin",
     "intro": "Sends a thank-you and 10% discount code to every exhibitor who was accepted and actually showed up (checked off at Entry). Try the template first in the",
     "introEmailsLink": "Emails",
     "loading": "Loading…",
@@ -501,7 +497,6 @@
     "giftThreshold": "Free gift threshold",
     "shippingFee": "Shipping cost",
     "shippingFreePromo": "Free shipping",
-    "backToAdmin": "Back to admin",
     "preview": "Preview",
     "filterAll": "All",
     "noResultsFilter": "No products match the selected filter.",
@@ -569,7 +564,6 @@
   },
   "AdminOrdersPage": {
     "title": "Orders",
-    "backToAdmin": "Back to admin",
     "stockRequestsTitle": "Out-of-stock requests",
     "stockRequestFulfill": "Fulfilled",
     "stockRequestReopen": "Reopen",
@@ -612,7 +606,6 @@
   },
   "AdminMessagesPage": {
     "title": "Messages",
-    "backToAdmin": "Back to admin",
     "loading": "Loading…",
     "errorLoad": "Failed to load messages.",
     "noMessages": "No messages yet.",
@@ -621,7 +614,6 @@
   "AdminCouponsPage": {
     "title": "Discount coupons",
     "typeFreeShipping": "Shipping",
-    "backToAdmin": "Back to admin",
     "loading": "Loading…",
     "errorLoad": "Could not load coupons.",
     "noCoupons": "No coupons yet.",
@@ -702,48 +694,48 @@
     "updated": "Last updated: August 12, 2026",
     "intro": "This policy describes what personal data we process in connection with saltyroad.cz — the Salty Road Meet event and the Salty Road shop — why, and what rights you have. Processing is carried out in accordance with Regulation (EU) 2016/679 (GDPR) and Czech Act No. 110/2019 Coll., on personal data processing.",
     "controllerTitle": "1. Data Controllers",
-    "controllerList": {
-      "item1": "Zephyron Tech s.r.o., Company ID (IČO) 23793538, Čermákova 2587/60, Jižní Předměstí, 301 00 Plzeň, Czech Republic, operates this website and the Salty Road shop and is the controller for personal data processed in connection with running them — technical data, website communication, and shop orders (name, contact details, delivery/billing details, order content and status). Contact: info@saltyroad.cz.",
-      "item2": "David Šmídmajer, Company ID (IČO) 22171347, Mírová 1013, Prachatice, 38301, Czech Republic, organizes the Salty Road Meet event and is the controller for personal data processed in connection with vehicle registration for the event. In the shop, he acts as the seller — the contracting party of the purchase agreement, see the shop's terms and conditions. Contact: shop@saltyroad.cz."
-    },
+    "controllerList": [
+      "Zephyron Tech s.r.o., Company ID (IČO) 23793538, Čermákova 2587/60, Jižní Předměstí, 301 00 Plzeň, Czech Republic, operates this website and the Salty Road shop and is the controller for personal data processed in connection with running them — technical data, website communication, and shop orders (name, contact details, delivery/billing details, order content and status). Contact: info@saltyroad.cz.",
+      "David Šmídmajer, Company ID (IČO) 22171347, Mírová 1013, Prachatice, 38301, Czech Republic, organizes the Salty Road Meet event and is the controller for personal data processed in connection with vehicle registration for the event. In the shop, he acts as the seller — the contracting party of the purchase agreement, see the shop's terms and conditions. Contact: shop@saltyroad.cz."
+    ],
     "dataTitle": "2. What data we process",
-    "dataList": {
-      "item1": "Event registration form: first name, last name, email, Instagram (optional), vehicle brand, model and year, vehicle description, vehicle photos.",
-      "item2": "Registration and payment status: internal approval status, registration fee payment status, event arrival confirmation.",
-      "item3": "Technical data: when visiting the site we process anonymized, aggregated traffic data (Vercel Web Analytics) — this service does not use cookies or store data that could identify an individual.",
-      "item4": "Shop: name, email, phone, delivery and/or billing address, order contents, chosen payment and delivery method, payment details generated for the order (QR payment/variable symbol), and IP address as a safeguard against fraudulent orders.",
-      "item5": "Billing and accounting data for shop orders — to meet obligations under Czech accounting and VAT law."
-    },
+    "dataList": [
+      "Event registration form: first name, last name, email, Instagram (optional), vehicle brand, model and year, vehicle description, vehicle photos.",
+      "Registration and payment status: internal approval status, registration fee payment status, event arrival confirmation.",
+      "Technical data: when visiting the site we process anonymized, aggregated traffic data (Vercel Web Analytics) — this service does not use cookies or store data that could identify an individual.",
+      "Shop: name, email, phone, delivery and/or billing address, order contents, chosen payment and delivery method, payment details generated for the order (QR payment/variable symbol), and IP address as a safeguard against fraudulent orders.",
+      "Billing and accounting data for shop orders — to meet obligations under Czech accounting and VAT law."
+    ],
     "purposeTitle": "3. Purpose and legal basis of processing",
-    "purposeList": {
-      "item1": "Organizing your vehicle's registration for the event and communicating about its status — performance of a contract / pre-contractual steps (Art. 6(1)(b) GDPR).",
-      "item2": "Publishing approved vehicles on the website (name, photo, description) — performance of a contract based on the consent given at registration.",
-      "item3": "Website operation and security, registration administration and event entry management — legitimate interest of the controller (Art. 6(1)(f) GDPR).",
-      "item4": "Aggregated website traffic (Vercel Analytics) — legitimate interest of the controller, without processing personal identifiers.",
-      "item5": "Concluding and performing the shop purchase agreement — processing the order, payment, delivery, and communicating about its status — performance of a contract (Art. 6(1)(b) GDPR).",
-      "item6": "Issuing tax documents and meeting accounting/tax obligations for orders — compliance with a legal obligation (Art. 6(1)(c) GDPR)."
-    },
+    "purposeList": [
+      "Organizing your vehicle's registration for the event and communicating about its status — performance of a contract / pre-contractual steps (Art. 6(1)(b) GDPR).",
+      "Publishing approved vehicles on the website (name, photo, description) — performance of a contract based on the consent given at registration.",
+      "Website operation and security, registration administration and event entry management — legitimate interest of the controller (Art. 6(1)(f) GDPR).",
+      "Aggregated website traffic (Vercel Analytics) — legitimate interest of the controller, without processing personal identifiers.",
+      "Concluding and performing the shop purchase agreement — processing the order, payment, delivery, and communicating about its status — performance of a contract (Art. 6(1)(b) GDPR).",
+      "Issuing tax documents and meeting accounting/tax obligations for orders — compliance with a legal obligation (Art. 6(1)(c) GDPR)."
+    ],
     "cookiesTitle": "4. Cookies",
     "cookiesText": "The website only uses technical cookies necessary for the admin and crew (organizing team) login to the non-public part of the site (PIN entry). These cookies do not track visitors and do not require consent under Czech Electronic Communications Act § 89. Website analytics (Vercel Web Analytics) does not use cookies.",
     "recipientsTitle": "5. Recipients and processors",
-    "recipientsList": {
-      "item1": "Vercel Inc. — website hosting, photo storage and analytics (processor).",
-      "item2": "Resend — sending registration and order status emails (processor).",
-      "item3": "Database provider (PostgreSQL) — storing registration and order data (processor).",
-      "item4": "Delivery companies (e.g. Zásilkovna, Česká pošta) — delivering shop orders (processor).",
-      "item5": "We do not share your data with third parties for marketing purposes."
-    },
+    "recipientsList": [
+      "Vercel Inc. — website hosting, photo storage and analytics (processor).",
+      "Resend — sending registration and order status emails (processor).",
+      "Database provider (PostgreSQL) — storing registration and order data (processor).",
+      "Delivery companies (e.g. Zásilkovna, Česká pošta) — delivering shop orders (processor).",
+      "We do not share your data with third parties for marketing purposes."
+    ],
     "retentionTitle": "6. Retention period",
     "retentionText": "We retain event registration data for the duration of the event preparation and the event itself, and for a reasonable period afterwards (in particular for handling complaints), but no longer than 12 months after the event. We retain shop order data for as long as needed to process the order and handle any complaints or withdrawal; billing and tax documents (invoices) are retained for the period required by law, i.e. 10 years from the end of the tax period in which the supply took place.",
     "rightsTitle": "7. Your rights",
-    "rightsList": {
-      "item1": "Right to access your personal data and receive a copy.",
-      "item2": "Right to rectification of inaccurate data.",
-      "item3": "Right to erasure (\"right to be forgotten\").",
-      "item4": "Right to restrict processing and right to object.",
-      "item5": "Right to data portability.",
-      "item6": "Right to lodge a complaint with the Czech Office for Personal Data Protection (uoou.cz)."
-    },
+    "rightsList": [
+      "Right to access your personal data and receive a copy.",
+      "Right to rectification of inaccurate data.",
+      "Right to erasure (\"right to be forgotten\").",
+      "Right to restrict processing and right to object.",
+      "Right to data portability.",
+      "Right to lodge a complaint with the Czech Office for Personal Data Protection (uoou.cz)."
+    ],
     "contactTitle": "8. Contact",
     "contactText": "You can exercise your rights by emailing info@saltyroad.cz (event registration and general inquiries) or shop@saltyroad.cz (shop orders)."
   }

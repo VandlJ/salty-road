@@ -156,7 +156,17 @@ export async function generateInvoicePdf(order: InvoiceOrder): Promise<Buffer> {
 
   y -= 116;
 
+  // Unlike generateSPD, a missing account doesn't make the document useless —
+  // the invoice is generated once an order is already paid, so the IBAN is
+  // informational. It is still expected on a Czech daňový doklad, and the
+  // layout below silently drops the row when it's absent, so say so rather
+  // than quietly shipping an invoice without it.
   const iban = process.env.BANK_ACCOUNT_IBAN;
+  if (!iban) {
+    console.warn(
+      `Invoice ${invoiceNumber}: BANK_ACCOUNT_IBAN is not set — issuing an invoice with no bank account.`
+    );
+  }
   const paidDate = formatDate(new Date());
   const metaColLeft: [string, string][] = [
     ["Číslo objednávky", String(order.orderNumber)],

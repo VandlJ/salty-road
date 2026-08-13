@@ -7,8 +7,10 @@ import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { registrationReceivedEmail } from "@/emails/registration-received.mjs";
 import { registrationAdminNotificationEmail } from "@/emails/registration-admin-notification.mjs";
 import { SITE_URL } from "@/lib/seo";
+import { EMAIL_RE } from "@/lib/constants";
+import { requireCurrentEdition, editionEmailFacts } from "@/lib/edition";
+import { logError } from "@/lib/logError";
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_PHOTOS = 5;
 const MAX_LEN = { firstName: 100, lastName: 100, brand: 100, model: 100, year: 10, description: 2000, instagram: 100 };
 // Only accept blob URLs we actually issued via /api/upload — never trust a
@@ -93,10 +95,14 @@ export async function POST(req: Request) {
           .slice(0, MAX_PHOTOS)
       : [];
 
+    // A new sign-up always belongs to whichever edition is currently open.
+    const edition = await requireCurrentEdition();
+
     let record;
     try {
       record = await prisma.registration.create({
         data: {
+          editionId: edition.id,
           firstName,
           lastName,
           email,
@@ -129,7 +135,11 @@ export async function POST(req: Request) {
         const adminEmail = process.env.ADMIN_EMAIL;
         const siteUrl = process.env.NEXT_PUBLIC_URL || SITE_URL;
 
-        const userEmail = registrationReceivedEmail({ registrationId: record.id, siteUrl });
+        const userEmail = registrationReceivedEmail({
+          registrationId: record.id,
+          siteUrl,
+          ...editionEmailFacts(edition),
+        });
         const adminNotification = registrationAdminNotificationEmail({
           firstName,
           lastName,
@@ -151,7 +161,7 @@ export async function POST(req: Request) {
             : Promise.resolve(),
         ]);
       } catch (err) {
-        console.error("Error sending registration emails:", err);
+        logError("register:emails", err, { registrationId: record.id });
       }
     });
 

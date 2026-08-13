@@ -1,69 +1,43 @@
 import { NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
-import { getAdminFromReq } from "@/lib/adminAuth";
 import { sendPaymentConfirmationEmail } from "@/lib/email";
 import { generateInvoicePdf } from "@/lib/invoice";
 import { getOrderVs } from "@/lib/orderVs";
+import {
+  restoreStock,
+  releaseCouponUse,
+  reconsumeCouponUse,
+  type OrderStockItem,
+} from "@/lib/orderStock";
+import { ORDER_STATUS, OrderStatusValue } from "@/lib/constants";
+import { withAdmin, badRequest, notFound, conflict } from "@/lib/apiHandler";
+import { logError } from "@/lib/logError";
 
-const VALID_STATUSES = new Set(["pending", "paid", "shipped", "cancelled"]);
+const VALID_STATUSES: ReadonlySet<string> = new Set(ORDER_STATUS);
 
-type TxClient = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
-
-// Mirrors the stock release/re-reserve above, for a coupon's usedCount —
-// cancelling an order should give the use back (so a maxUses-limited code
-// isn't permanently burned by an order that never happened), un-cancelling
-// should re-consume it.
-async function releaseCouponUse(tx: TxClient, code: string) {
-  await tx.$executeRaw`
-    UPDATE "Coupon" SET "usedCount" = "usedCount" - 1
-    WHERE code = ${code} AND "usedCount" > 0
-  `;
-}
-
-async function reconsumeCouponUse(tx: TxClient, code: string) {
-  const affected = await tx.$executeRaw`
-    UPDATE "Coupon" SET "usedCount" = "usedCount" + 1
-    WHERE code = ${code} AND ("maxUses" IS NULL OR "usedCount" < "maxUses")
-  `;
-  if (affected === 0) throw new Error("INSUFFICIENT_COUPON");
-}
-
-export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  try {
-    const { id } = await params;
+export const PATCH = withAdmin<{ id: string }>(
+  "PATCH /api/admin/orders/[id]",
+  async ({ req, params: { id } }) => {
     const { status } = await req.json();
 
-    if (!VALID_STATUSES.has(status)) {
-      return NextResponse.json({ error: "invalid_status" }, { status: 400 });
-    }
+    if (!VALID_STATUSES.has(status)) throw badRequest("invalid_status");
 
     let newlyPaid = false;
 
     const order = await prisma.$transaction(async (tx) => {
       const current = await tx.order.findUnique({ where: { id } });
-      if (!current) throw new Error("NOT_FOUND");
+      if (!current) throw notFound();
 
-      newlyPaid = status === "paid" && current.status !== "paid";
+      newlyPaid = status === OrderStatusValue.Paid && current.status !== OrderStatusValue.Paid;
 
-      const items = current.items as { sku: string; qty: number }[];
+      const items = current.items as OrderStockItem[];
 
-      if (status === "cancelled" && current.status !== "cancelled") {
+      if (status === OrderStatusValue.Cancelled && current.status !== OrderStatusValue.Cancelled) {
         // Order is being cancelled — release the stock it was holding.
-        for (const item of items) {
-          await tx.merchVariant.updateMany({
-            where: { sku: item.sku },
-            data: { quantity: { increment: item.qty } },
-          });
-        }
+        await restoreStock(tx, items, `PATCH order ${id} (cancel)`);
         if (current.couponCode) await releaseCouponUse(tx, current.couponCode);
         if (current.shippingCouponCode) await releaseCouponUse(tx, current.shippingCouponCode);
-      } else if (status !== "cancelled" && current.status === "cancelled") {
+      } else if (status !== OrderStatusValue.Cancelled && current.status === "cancelled") {
         // Order is being un-cancelled — re-reserve the stock. Same atomic
         // conditional decrement as checkout, so it can't go negative if
         // stock was sold elsewhere in the meantime.
@@ -72,7 +46,7 @@ export async function PATCH(
             where: { sku: item.sku, quantity: { gte: item.qty } },
             data: { quantity: { decrement: item.qty } },
           });
-          if (result.count === 0) throw new Error("INSUFFICIENT_STOCK");
+          if (result.count === 0) throw conflict("insufficient_stock");
         }
         if (current.couponCode) await reconsumeCouponUse(tx, current.couponCode);
         if (current.shippingCouponCode) await reconsumeCouponUse(tx, current.shippingCouponCode);
@@ -105,51 +79,26 @@ export async function PATCH(
             invoicePdf,
           });
         } catch (err) {
-          console.error("Error sending payment confirmation email:", err);
+          logError("orders:payment-confirmation-email", err, { orderNumber: order.orderNumber });
         }
       });
     }
 
     return NextResponse.json(order);
-  } catch (err) {
-    if (err instanceof Error && err.message === "NOT_FOUND") {
-      return NextResponse.json({ error: "not_found" }, { status: 404 });
-    }
-    if (err instanceof Error && err.message === "INSUFFICIENT_STOCK") {
-      return NextResponse.json({ error: "insufficient_stock" }, { status: 409 });
-    }
-    if (err instanceof Error && err.message === "INSUFFICIENT_COUPON") {
-      return NextResponse.json({ error: "insufficient_coupon" }, { status: 409 });
-    }
-    console.error("PATCH /api/admin/orders/[id] error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
-}
+);
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  try {
-    const { id } = await params;
-
+export const DELETE = withAdmin<{ id: string }>(
+  "DELETE /api/admin/orders/[id]",
+  async ({ params: { id } }) => {
     await prisma.$transaction(async (tx) => {
       const current = await tx.order.findUnique({ where: { id } });
-      if (!current) throw new Error("NOT_FOUND");
+      if (!current) throw notFound();
 
       // Release the stock the order was holding, unless it was already
       // cancelled (already released).
-      if (current.status !== "cancelled") {
-        const items = current.items as { sku: string; qty: number }[];
-        for (const item of items) {
-          await tx.merchVariant.updateMany({
-            where: { sku: item.sku },
-            data: { quantity: { increment: item.qty } },
-          });
-        }
+      if (current.status !== OrderStatusValue.Cancelled) {
+        await restoreStock(tx, current.items as OrderStockItem[], `DELETE order ${id}`);
         if (current.couponCode) await releaseCouponUse(tx, current.couponCode);
         if (current.shippingCouponCode) await releaseCouponUse(tx, current.shippingCouponCode);
       }
@@ -158,11 +107,5 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true });
-  } catch (err) {
-    if (err instanceof Error && err.message === "NOT_FOUND") {
-      return NextResponse.json({ error: "not_found" }, { status: 404 });
-    }
-    console.error("DELETE /api/admin/orders/[id] error:", err);
-    return NextResponse.json({ error: "server_error" }, { status: 500 });
   }
-}
+);

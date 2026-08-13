@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { getShopEnabled } from '@/lib/shop';
 import prisma from '@/lib/prisma';
 import { SITE_URL, LOCALES } from '@/lib/seo';
+import { getArchivedEditions, getCurrentEdition } from '@/lib/edition';
 
 // shopEnabled is flipped live from the admin panel — without this, Next.js
 // statically generates the sitemap once at build time and a later toggle
@@ -31,11 +32,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // meaningful signal (better than reporting "now" on every single crawl).
   const productModifiedAt = new Map(products.map((p) => [p.slug, p.createdAt]));
 
-  // /check is deliberately absent: Volume 1 is archived, so there's nothing
-  // left to look up. The route still answers 200 for anyone holding an old
-  // link (and carries a noindex), it just isn't advertised any more.
+  // Archived editions each keep a permanent page. The one currently on the
+  // homepage is skipped: it would be the same content under two URLs, and its
+  // canonical already points at the homepage until a newer edition takes over.
+  const [archived, current] = await Promise.all([getArchivedEditions(), getCurrentEdition()]);
+  const editionRoutes = archived
+    .filter((edition) => edition.id !== current?.id)
+    .map((edition) => `/${edition.slug}`);
+
+  // /check is deliberately absent: registration lookup only matters while an
+  // edition is taking sign-ups. The route still answers 200 for anyone holding
+  // an old link (and carries a noindex), it just isn't advertised any more.
   const routes = [
     '',
+    ...editionRoutes,
     '/privacy',
     '/shop/terms',
     ...(shopEnabled ? ['/shop', ...productSlugs.map((slug) => `/shop/${slug}`)] : []),

@@ -39,12 +39,12 @@ beforeEach(() => {
 describe("GET /api/admin/settings", () => {
   it("rejects an unauthenticated request", async () => {
     isAdmin = false;
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/settings"));
     expect(res.status).toBe(401);
   });
 
   it("returns defaults when nothing has been configured yet", async () => {
-    const res = await GET();
+    const res = await GET(new Request("http://localhost/api/admin/settings"));
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.registrationOpen).toBe(false);

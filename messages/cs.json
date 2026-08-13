@@ -209,7 +209,7 @@
       "statusDeclined": "Zamítnuto"
   },
   "InfoPage": {
-      "_comment": "NEMAZAT. Tento namespace už homepage nepoužívá (Volume 1 je archivovaný), ale drží obsah pro src/templates/homepage-vol2.tsx — InfoSection, program, návštěvní řád, příjezd, startovné. i18n klíče nejsou typově kontrolované, takže smazání projde tsc a spadne až za běhu, když se Volume 2 obnoví. Totéž platí pro RegisterPage, RegisterForm, CheckPage a EntryPage.",
+      "_comment": "Tento namespace už homepage nepoužívá (Volume 1 je archivovaný), drží obsah pro src/templates/homepage-vol2.tsx — InfoSection, program, návštěvní řád, příjezd, startovné. Klíče jsou nově typově kontrolované (viz src/global.d.ts), takže smazání použitého klíče shodí tsc, ne až runtime. Výjimka: položky parkingList/programList/rulesList se čtou přes index (listKey v info-section.tsx), ty typová kontrola nechytí. Totéž platí pro RegisterPage, RegisterForm, CheckPage a EntryPage.",
       "title": "Co vás zajímá?",
       "parkingTitle": "Parkování",
       "parkingList": {
@@ -408,7 +408,6 @@
     "logout": "Odhlásit",
     "merchLink": "Merch",
     "ordersLink": "Objednávky",
-    "backToAdmin": "Zpět do administrace",
     "filterAll": "Vše",
     "noResultsFilter": "Žádné registrace neodpovídají zvolenému filtru.",
     "searchPlaceholder": "Hledat jméno nebo auto…"
@@ -432,15 +431,14 @@
     "messagesTileDesc": "Dotazy a poptávky z kontaktního formuláře.",
     "couponsTile": "Slevové kupóny",
     "couponsTileDesc": "Vytváření a správa slevových kódů.",
-    "vol1ThankYouTile": "Vol.1 poděkování",
-    "vol1ThankYouTileDesc": "Hromadné poděkování a slevový kód vystavovatelům, co dorazili.",
+    "thankYouTile": "Vol.1 poděkování",
+    "thankYouTileDesc": "Hromadné poděkování a slevový kód vystavovatelům, co dorazili.",
+    "backToAdmin": "Zpět do administrace",
     "logout": "Odhlásit"
   },
   "AdminGalleryPage": {
     "title": "Galerie",
-    "edition": "Salty Road Meet — Volume 1",
-    "backToAdmin": "Zpět do administrace",
-    "hint": "Fotky se zobrazí na hlavní stránce (aktuálně archiv Volume 1) v sekci Galerie, v pořadí zleva doprava — až přibude Volume 2, bude pro něj potřeba samostatná galerie.",
+    "hint": "Fotky patří k ročníku uvedenému výše a zobrazí se v jeho sekci Galerie, v pořadí zleva doprava. Každý ročník má vlastní galerii — založením dalšího ročníku se tahle nepřepíše.",
     "uploadPhotos": "Nahrát fotky",
     "uploading": "Nahrávám…",
     "errorLoad": "Nelze načíst galerii.",
@@ -448,7 +446,6 @@
   },
   "AdminEmailsPage": {
     "title": "E-maily",
-    "backToAdmin": "Zpět do administrace",
     "loading": "Načítám…",
     "errorLoad": "Nepodařilo se načíst e-maily.",
     "subject": "Předmět",
@@ -461,9 +458,8 @@
     "testSendSuccess": "Testovací e-mail byl odeslán.",
     "testSendError": "Odeslání se nezdařilo."
   },
-  "AdminVol1ThankYouPage": {
+  "AdminThankYouPage": {
     "title": "Vol.1 poděkování",
-    "backToAdmin": "Zpět do administrace",
     "intro": "Pošle poděkování a 10% slevový kód všem vystavovatelům, kteří byli schváleni a reálně dorazili na akci (odbaveno ve Vjezdu). Šablonu si nejdřív vyzkoušejte v sekci",
     "introEmailsLink": "E-maily",
     "loading": "Načítám…",
@@ -501,7 +497,6 @@
     "giftThreshold": "Limit pro dárek zdarma",
     "shippingFee": "Cena dopravy",
     "shippingFreePromo": "Doprava zdarma",
-    "backToAdmin": "Zpět do administrace",
     "preview": "Náhled",
     "filterAll": "Vše",
     "noResultsFilter": "Žádné produkty neodpovídají zvolenému filtru.",
@@ -569,7 +564,6 @@
   },
   "AdminOrdersPage": {
     "title": "Objednávky",
-    "backToAdmin": "Zpět do administrace",
     "stockRequestsTitle": "Poptávky po nedostupném zboží",
     "stockRequestFulfill": "Vyřízeno",
     "stockRequestReopen": "Vrátit zpět",
@@ -612,7 +606,6 @@
   },
   "AdminMessagesPage": {
     "title": "Zprávy",
-    "backToAdmin": "Zpět do administrace",
     "loading": "Načítám…",
     "errorLoad": "Nelze načíst zprávy.",
     "noMessages": "Zatím žádné zprávy.",
@@ -621,7 +614,6 @@
   "AdminCouponsPage": {
     "title": "Slevové kupóny",
     "typeFreeShipping": "Doprava",
-    "backToAdmin": "Zpět do administrace",
     "loading": "Načítám…",
     "errorLoad": "Nelze načíst kupóny.",
     "noCoupons": "Zatím žádné kupóny.",
@@ -702,48 +694,48 @@
     "updated": "Poslední aktualizace: 12. 8. 2026",
     "intro": "Tyto zásady popisují, jaké osobní údaje v souvislosti s webem saltyroad.cz — akcí Salty Road Meet a e-shopem Salty Road — zpracováváme, proč a jaká máte práva. Zpracování probíhá v souladu s Nařízením (EU) 2016/679 (GDPR) a zákonem č. 110/2019 Sb., o zpracování osobních údajů.",
     "controllerTitle": "1. Správci osobních údajů",
-    "controllerList": {
-      "item1": "Zephyron Tech s.r.o., IČO 23793538, Čermákova 2587/60, Jižní Předměstí, 301 00 Plzeň, je provozovatelem tohoto webu a e-shopu Salty Road a správcem osobních údajů zpracovávaných v souvislosti s jejich provozem — technická data, komunikace přes web a objednávky v e-shopu (jméno, kontakt, doručovací a fakturační údaje, obsah a stav objednávky). Kontakt: info@saltyroad.cz.",
-      "item2": "David Šmídmajer, IČO 22171347, Mírová 1013, Prachatice, 38301, je pořadatelem akce Salty Road Meet a správcem osobních údajů zpracovávaných v souvislosti s registrací vozidel na akci. V e-shopu vystupuje jako prodávající — smluvní strana kupní smlouvy, viz obchodní podmínky. Kontakt: shop@saltyroad.cz."
-    },
+    "controllerList": [
+      "Zephyron Tech s.r.o., IČO 23793538, Čermákova 2587/60, Jižní Předměstí, 301 00 Plzeň, je provozovatelem tohoto webu a e-shopu Salty Road a správcem osobních údajů zpracovávaných v souvislosti s jejich provozem — technická data, komunikace přes web a objednávky v e-shopu (jméno, kontakt, doručovací a fakturační údaje, obsah a stav objednávky). Kontakt: info@saltyroad.cz.",
+      "David Šmídmajer, IČO 22171347, Mírová 1013, Prachatice, 38301, je pořadatelem akce Salty Road Meet a správcem osobních údajů zpracovávaných v souvislosti s registrací vozidel na akci. V e-shopu vystupuje jako prodávající — smluvní strana kupní smlouvy, viz obchodní podmínky. Kontakt: shop@saltyroad.cz."
+    ],
     "dataTitle": "2. Jaké údaje zpracováváme",
-    "dataList": {
-      "item1": "Registrační formulář na akci: jméno, příjmení, e-mail, Instagram (nepovinné), značka, model a rok vozidla, popis vozidla, fotografie vozidla.",
-      "item2": "Stav registrace a platby: interní stav schválení, stav platby registračního poplatku, potvrzení příjezdu na akci.",
-      "item3": "Technická data: při návštěvě webu zpracováváme anonymizovaná, souhrnná data o návštěvnosti (Vercel Web Analytics) — tato služba nepoužívá cookies ani neukládá data umožňující identifikaci konkrétní osoby.",
-      "item4": "E-shop: jméno, e-mail, telefon, doručovací a/nebo fakturační adresa, obsah objednávky, zvolený způsob platby a doručení, platební údaje generované k objednávce (QR platba/variabilní symbol) a IP adresa jako ochrana proti podvodným objednávkám.",
-      "item5": "Fakturační a účetní údaje k objednávkám v e-shopu — pro splnění povinností podle zákona o účetnictví a zákona o DPH."
-    },
+    "dataList": [
+      "Registrační formulář na akci: jméno, příjmení, e-mail, Instagram (nepovinné), značka, model a rok vozidla, popis vozidla, fotografie vozidla.",
+      "Stav registrace a platby: interní stav schválení, stav platby registračního poplatku, potvrzení příjezdu na akci.",
+      "Technická data: při návštěvě webu zpracováváme anonymizovaná, souhrnná data o návštěvnosti (Vercel Web Analytics) — tato služba nepoužívá cookies ani neukládá data umožňující identifikaci konkrétní osoby.",
+      "E-shop: jméno, e-mail, telefon, doručovací a/nebo fakturační adresa, obsah objednávky, zvolený způsob platby a doručení, platební údaje generované k objednávce (QR platba/variabilní symbol) a IP adresa jako ochrana proti podvodným objednávkám.",
+      "Fakturační a účetní údaje k objednávkám v e-shopu — pro splnění povinností podle zákona o účetnictví a zákona o DPH."
+    ],
     "purposeTitle": "3. Účel a právní základ zpracování",
-    "purposeList": {
-      "item1": "Organizace registrace vozidla na akci a komunikace o jejím stavu — plnění smlouvy / jednání o uzavření smlouvy (čl. 6 odst. 1 písm. b) GDPR).",
-      "item2": "Zveřejnění schválených vozidel na webu (jméno, foto, popis vozu) — plnění smlouvy na základě vašeho souhlasu uděleného při registraci.",
-      "item3": "Provoz a bezpečnost webu, administrace registrací a vstupu na akci — oprávněný zájem správce (čl. 6 odst. 1 písm. f) GDPR).",
-      "item4": "Souhrnná návštěvnost webu (Vercel Analytics) — oprávněný zájem správce, bez zpracování osobních identifikátorů.",
-      "item5": "Uzavření a plnění kupní smlouvy v e-shopu — vyřízení objednávky, platba, doručení a komunikace o jejím stavu — plnění smlouvy (čl. 6 odst. 1 písm. b) GDPR).",
-      "item6": "Vystavení daňových dokladů a plnění účetních a daňových povinností k objednávkám — plnění právní povinnosti (čl. 6 odst. 1 písm. c) GDPR)."
-    },
+    "purposeList": [
+      "Organizace registrace vozidla na akci a komunikace o jejím stavu — plnění smlouvy / jednání o uzavření smlouvy (čl. 6 odst. 1 písm. b) GDPR).",
+      "Zveřejnění schválených vozidel na webu (jméno, foto, popis vozu) — plnění smlouvy na základě vašeho souhlasu uděleného při registraci.",
+      "Provoz a bezpečnost webu, administrace registrací a vstupu na akci — oprávněný zájem správce (čl. 6 odst. 1 písm. f) GDPR).",
+      "Souhrnná návštěvnost webu (Vercel Analytics) — oprávněný zájem správce, bez zpracování osobních identifikátorů.",
+      "Uzavření a plnění kupní smlouvy v e-shopu — vyřízení objednávky, platba, doručení a komunikace o jejím stavu — plnění smlouvy (čl. 6 odst. 1 písm. b) GDPR).",
+      "Vystavení daňových dokladů a plnění účetních a daňových povinností k objednávkám — plnění právní povinnosti (čl. 6 odst. 1 písm. c) GDPR)."
+    ],
     "cookiesTitle": "4. Cookies",
     "cookiesText": "Web používá pouze technické cookies nezbytné pro přihlášení administrace a organizačního týmu (crew) do neveřejné části webu (vstupní PIN). Tyto cookies neslouží ke sledování návštěvníků a nevyžadují souhlas dle § 89 zákona č. 127/2005 Sb. Analytika webu (Vercel Web Analytics) cookies nepoužívá.",
     "recipientsTitle": "5. Příjemci a zpracovatelé údajů",
-    "recipientsList": {
-      "item1": "Vercel Inc. — hosting webu, ukládání fotografií a analytika (zpracovatel).",
-      "item2": "Resend — odesílání e-mailových zpráv o stavu registrace a objednávek (zpracovatel).",
-      "item3": "Poskytovatel databáze (PostgreSQL) — ukládání registračních a objednávkových údajů (zpracovatel).",
-      "item4": "Doručovací společnosti (např. Zásilkovna, Česká pošta) — doručení objednaného zboží z e-shopu (zpracovatel).",
-      "item5": "Údaje nepředáváme třetím stranám za účelem marketingu."
-    },
+    "recipientsList": [
+      "Vercel Inc. — hosting webu, ukládání fotografií a analytika (zpracovatel).",
+      "Resend — odesílání e-mailových zpráv o stavu registrace a objednávek (zpracovatel).",
+      "Poskytovatel databáze (PostgreSQL) — ukládání registračních a objednávkových údajů (zpracovatel).",
+      "Doručovací společnosti (např. Zásilkovna, Česká pošta) — doručení objednaného zboží z e-shopu (zpracovatel).",
+      "Údaje nepředáváme třetím stranám za účelem marketingu."
+    ],
     "retentionTitle": "6. Doba uchování",
     "retentionText": "Registrační údaje k akci uchováváme po dobu přípravy a konání akce a přiměřenou dobu poté (zejména z důvodu vyřízení případných reklamací), nejdéle však 12 měsíců od konání akce. Údaje o objednávkách v e-shopu uchováváme po dobu nutnou k jejich vyřízení a vyřešení případných reklamací nebo odstoupení od smlouvy; účetní a daňové doklady (faktury) uchováváme po dobu vyžadovanou zákonem, tj. 10 let od konce zdaňovacího období, ve kterém se plnění uskutečnilo.",
     "rightsTitle": "7. Vaše práva",
-    "rightsList": {
-      "item1": "Právo na přístup k osobním údajům a jejich kopii.",
-      "item2": "Právo na opravu nepřesných údajů.",
-      "item3": "Právo na výmaz (\"právo být zapomenut\").",
-      "item4": "Právo na omezení zpracování a právo vznést námitku.",
-      "item5": "Právo na přenositelnost údajů.",
-      "item6": "Právo podat stížnost u Úřadu pro ochranu osobních údajů (uoou.cz)."
-    },
+    "rightsList": [
+      "Právo na přístup k osobním údajům a jejich kopii.",
+      "Právo na opravu nepřesných údajů.",
+      "Právo na výmaz (\"právo být zapomenut\").",
+      "Právo na omezení zpracování a právo vznést námitku.",
+      "Právo na přenositelnost údajů.",
+      "Právo podat stížnost u Úřadu pro ochranu osobních údajů (uoou.cz)."
+    ],
     "contactTitle": "8. Kontakt",
     "contactText": "Svá práva můžete uplatnit e-mailem na info@saltyroad.cz (registrace na akci a obecné dotazy) nebo shop@saltyroad.cz (objednávky v e-shopu)."
   }

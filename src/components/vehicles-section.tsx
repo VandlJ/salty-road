@@ -23,7 +23,13 @@ type Registration = {
   createdAt?: string | null;
 };
 
-export default function VehiclesSection({ title }: { title?: string } = {}) {
+export default function VehiclesSection({
+  title,
+  editionSlug,
+}: { title?: string; editionSlug?: string } = {}) {
+  // Cars are scoped to one edition — without this the archive would fill up
+  // with the next edition's registrations as they get accepted.
+  const editionQuery = editionSlug ? `&edition=${encodeURIComponent(editionSlug)}` : "";
   const t = useTranslations("VehiclesPage");
   const [regs, setRegs] = useState<Registration[]>([]);
   // Starts true so the initial fetch shows a skeleton grid instead of an
@@ -49,7 +55,7 @@ export default function VehiclesSection({ title }: { title?: string } = {}) {
   async function load(pageNum = 1, append = false) {
     setLoading(true);
     try {
-      const res = await fetch(`/api/vehicles?page=${pageNum}&limit=20`);
+      const res = await fetch(`/api/vehicles?page=${pageNum}&limit=20${editionQuery}`);
       const json = await res.json();
       if (!res.ok) {
         setError(t("errorLoad"));
@@ -86,7 +92,7 @@ export default function VehiclesSection({ title }: { title?: string } = {}) {
     if (galleryOpenRef.current || document.hidden) return;
     try {
       const currentLimit = pageRef.current * 20;
-      const res = await fetch(`/api/vehicles?page=1&limit=${currentLimit}`);
+      const res = await fetch(`/api/vehicles?page=1&limit=${currentLimit}${editionQuery}`);
       const json = await res.json();
       if (res.ok) {
         setRegs(json.data);

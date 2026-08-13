@@ -1,19 +1,11 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import dynamic from "next/dynamic";
-import Hero from "@/components/hero";
-import EventRecapSection from "@/components/event-recap-section";
-import { getGalleryPhotosCached } from "@/lib/gallery";
-import { SITE_URL, canonicalUrl, jsonLdScript } from "@/lib/seo";
-
-// Below-the-fold sections — still fully server-rendered (dynamic() defaults
-// to ssr: true), this just code-splits their JS into separate chunks so the
-// initial bundle needed for the hero/LCP doesn't have to include them.
-const EventGallerySection = dynamic(() => import("@/components/event-gallery-section"));
-const VideosSection = dynamic(() => import("@/components/videos-section"));
-const VehiclesSection = dynamic(() => import("@/components/vehicles-section"));
-const SponsorsSection = dynamic(() => import("@/components/sponsors-section"));
-const NextEditionSection = dynamic(() => import("@/components/next-edition-section"));
+import EditionArchive from "@/components/edition-archive";
+import EditionUpcoming from "@/components/edition-upcoming";
+import { jsonLdScript } from "@/lib/seo";
+import { buildEventJsonLd } from "@/lib/eventJsonLd";
+import { requireCurrentEdition } from "@/lib/edition";
+import { toLocale } from "@/i18n/locale";
 
 export async function generateMetadata({
   params,
@@ -21,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ArchivePage.meta" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "ArchivePage.meta" });
   const description = t("description");
 
   // Title comes from the layout's default; only the description is
@@ -33,48 +25,27 @@ export async function generateMetadata({
   };
 }
 
+// The homepage follows whichever edition the site is currently on, and which
+// composition it renders is a branch on that edition's status — not a file
+// swap. Archiving Volume 1 previously meant overwriting this file and stashing
+// the old version in src/templates/ to paste back for Volume 2.
 export default async function Page({
   params,
 }: {
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ArchivePage" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "ArchivePage" });
 
-  const galleryPhotos = await getGalleryPhotosCached();
+  const edition = await requireCurrentEdition();
 
-  const eventJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Event",
+  const eventJsonLd = buildEventJsonLd({
+    edition,
+    locale,
     name: `${t("hero.title1")} ${t("hero.title2")}`,
     description: t("meta.description"),
-    // The site shows "25. 07. 2026" (ArchivePage.hero.dateValue) — same date
-    // in ISO form. endDate is what marks this as a finished event: without
-    // it, a startDate-only Event reads as open-ended/still running.
-    startDate: "2026-07-25",
-    endDate: "2026-07-25",
-    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-    // Stays "scheduled" even though the event is over — schema.org has no
-    // "happened" status, and the alternatives (Cancelled/Postponed/MovedOnline)
-    // would all assert something false. A past endDate is the signal.
-    eventStatus: "https://schema.org/EventScheduled",
-    location: {
-      "@type": "Place",
-      name: "Velké náměstí",
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: "Prachatice",
-        addressCountry: "CZ",
-      },
-    },
-    image: [`${SITE_URL}/OG_image.jpg`],
-    organizer: {
-      "@type": "Organization",
-      name: "Salty Road Meet",
-      url: SITE_URL,
-    },
-    url: canonicalUrl(locale, ""),
-  };
+    path: "",
+  });
 
   return (
     <div className="w-full">
@@ -85,22 +56,11 @@ export default async function Page({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLdScript(eventJsonLd) }}
       />
-      <div className="relative h-screen w-full">
-        <Hero
-          namespace="ArchivePage.hero"
-          ctaKey="galleryButton"
-          ctaTargetId="gallery"
-        />
-      </div>
-      <div className="h-1 w-full bg-gradient-to-r from-brand-dark via-brand to-brand-dark" />
-      <div className="bg-black">
-        <EventRecapSection />
-        <EventGallerySection photos={galleryPhotos} />
-        <VideosSection />
-        <VehiclesSection title={t("vehicles.title")} />
-        <SponsorsSection />
-        <NextEditionSection />
-      </div>
+      {edition.status === "archived" ? (
+        <EditionArchive edition={edition} vehiclesTitle={t("vehicles.title")} />
+      ) : (
+        <EditionUpcoming edition={edition} />
+      )}
     </div>
   );
 }

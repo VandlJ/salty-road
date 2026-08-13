@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
+import { withSentryConfig } from '@sentry/nextjs';
 
 const withNextIntl = createNextIntlPlugin();
 
@@ -12,9 +13,12 @@ const CSP = [
   // unless this moves to a nonce-based setup in the proxy/middleware.
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
+  // i.ytimg.com serves the video thumbnails on the archive page; the embed
+  // itself is framed from youtube-nocookie.com (see frame-src below).
+  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://i.ytimg.com",
   "font-src 'self' data:",
-  "connect-src 'self' https://vitals.vercel-insights.com",
+  "connect-src 'self' https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
+  "frame-src https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -67,4 +71,18 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Source maps so a production stack trace points at real code rather than
+// minified output. Uploading them needs SENTRY_AUTH_TOKEN at build time;
+// without it the build still succeeds, just without readable traces.
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.CI,
+  // Keeps the uploaded maps out of the deployed bundle, so they aren't
+  // downloadable by visitors.
+  sourcemaps: { deleteSourcemapsAfterUpload: true },
+  // Proxies Sentry's ingest through the app's own origin, so ad blockers
+  // don't silently drop browser error reports.
+  tunnelRoute: "/monitoring",
+});

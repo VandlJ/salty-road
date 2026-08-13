@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
-import { getAdminFromReq } from "@/lib/adminAuth";
 import { EMAIL_TEMPLATES } from "@/lib/emailPreview";
+import { withAdmin } from "@/lib/apiHandler";
 
-export async function GET() {
-  const admin = await getAdminFromReq();
-  if (!admin) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-
-  return NextResponse.json(EMAIL_TEMPLATES);
-}
+export const GET = withAdmin("GET /api/admin/emails", async () =>
+  NextResponse.json(EMAIL_TEMPLATES)
+);

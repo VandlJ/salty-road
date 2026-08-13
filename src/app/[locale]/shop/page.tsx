@@ -4,6 +4,7 @@ import Image from "next/image";
 import SectionHeading from "@/components/section-heading";
 import { formatPrice } from "@/lib/formatPrice";
 import { getShopProductList } from "@/lib/shopProduct";
+import { toLocale } from "@/i18n/locale";
 
 // Stock/active-product state changes at any time — must not be frozen into
 // a build-time static page (the rest of the [locale] tree became statically
@@ -17,7 +18,7 @@ export default async function ShopPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "ShopPage" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "ShopPage" });
   const products = await getShopProductList();
 
   return (

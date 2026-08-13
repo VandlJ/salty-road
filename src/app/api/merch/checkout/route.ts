@@ -8,17 +8,9 @@ import { getOrderVs } from "@/lib/orderVs";
 import { merchOrderAdminNotificationEmail } from "@/emails/merch-order-admin-notification.mjs";
 import { getShippingFee } from "@/lib/shipping";
 import { variantLabel } from "@/lib/variantLabel";
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_RE = /^[0-9+() .-]{6,24}$/;
-const MAX_LEN = { customerName: 100, customerEmail: 200, customerPhone: 24, address: 300 };
-const MAX_ITEM_LINES = 20;
-const MAX_QTY_PER_LINE = 20;
-
-interface CheckoutItemInput {
-  sku: string;
-  qty: number;
-}
+import { checkoutSchema, checkoutErrorCode } from "@/lib/schemas/checkout";
+import { calculateCouponDiscount, resolveShippingFee } from "@/lib/pricing";
+import { logError } from "@/lib/logError";
 
 // Inferred from prisma.$transaction itself rather than Prisma.TransactionClient
 // — the extended client (see @/lib/prisma) doesn't structurally match that
@@ -53,79 +45,35 @@ export async function POST(req: Request) {
   let idempotencyKey: string | null = null;
 
   try {
-    const body = await req.json();
+    // One schema replaces ~50 lines of hand-rolled guards. The route's own
+    // comment used to record why the type check had to come first: a
+    // non-string slipped past the length guard and surfaced as an opaque 500
+    // from Prisma. That ordering is no longer something to remember.
+    const parsed = checkoutSchema.safeParse(await req.json());
+    if (!parsed.success) {
+      return NextResponse.json({ error: checkoutErrorCode(parsed.error) }, { status: 400 });
+    }
+
     const {
       customerName,
       customerEmail,
       customerPhone,
       address,
       paymentMethod,
-      deliveryMethod: rawDeliveryMethod,
-      items,
+      deliveryMethod,
+      items: typedItems,
       couponCode: rawCouponCode,
       shippingCouponCode: rawShippingCouponCode,
       giftSku: rawGiftSku,
-      idempotencyKey: rawIdempotencyKey,
-    } = body;
-    idempotencyKey =
-      typeof rawIdempotencyKey === "string" && rawIdempotencyKey.length > 0
-        ? rawIdempotencyKey
-        : null;
-    const deliveryMethod = rawDeliveryMethod === "pickup" ? "pickup" : "shipping";
+    } = parsed.data;
+    idempotencyKey = parsed.data.idempotencyKey ?? null;
 
-    if (!customerName || !customerEmail || !customerPhone || !paymentMethod) {
-      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
-    }
-    if (deliveryMethod === "shipping" && !address) {
-      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
-    }
-
-    // Type-check before anything else — a non-string here otherwise skips
-    // the MAX_LEN guard entirely and surfaces as an opaque 500 from Prisma.
-    if (typeof customerName !== "string") {
-      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
-    }
-    if (deliveryMethod === "shipping" && typeof address !== "string") {
-      return NextResponse.json({ error: "missing_fields" }, { status: 400 });
-    }
-
-    if (typeof customerEmail !== "string" || !EMAIL_RE.test(customerEmail)) {
-      return NextResponse.json({ error: "invalid_email" }, { status: 400 });
-    }
-
-    if (typeof customerPhone !== "string" || !PHONE_RE.test(customerPhone)) {
-      return NextResponse.json({ error: "invalid_phone" }, { status: 400 });
-    }
-
-    for (const [field, maxLen] of Object.entries(MAX_LEN)) {
-      const value = body[field];
-      if (typeof value === "string" && value.length > maxLen) {
-        return NextResponse.json({ error: "field_too_long" }, { status: 400 });
-      }
-    }
-
+    // Bank transfer is the only method the shop actually settles; the schema
+    // accepts the enum, this is the business rule on top of it.
     if (paymentMethod !== "bank_transfer") {
       return NextResponse.json({ error: "invalid_payment_method" }, { status: 400 });
     }
 
-    if (
-      !Array.isArray(items) ||
-      items.length === 0 ||
-      items.length > MAX_ITEM_LINES ||
-      !items.every(
-        (i: unknown): i is CheckoutItemInput =>
-          typeof i === "object" &&
-          i !== null &&
-          typeof (i as CheckoutItemInput).sku === "string" &&
-          Number.isInteger((i as CheckoutItemInput).qty) &&
-          (i as CheckoutItemInput).qty > 0 &&
-          (i as CheckoutItemInput).qty <= MAX_QTY_PER_LINE
-      )
-    ) {
-      return NextResponse.json({ error: "invalid_items" }, { status: 400 });
-    }
-
-    const typedItems = items as CheckoutItemInput[];
     const skus = typedItems.map((i) => i.sku);
 
     // Look up current variants server-side — never trust price/name/label
@@ -219,24 +167,20 @@ export async function POST(req: Request) {
         }
 
         // Category-restricted coupons only discount the matching slice of
-        // the cart — empty `categories` means "applies to everything".
-        const eligibleSubtotal =
-          coupon.categories.length === 0
-            ? subtotal
-            : typedItems.reduce((sum, item) => {
-                const variant = variantBySku.get(item.sku)!;
-                return coupon.categories.includes(variant.product.category) ? sum + variant.price * item.qty : sum;
-              }, 0);
+        // the cart. Shared with the coupon-preview endpoint so the price
+        // quoted to the customer and the price charged can't drift apart.
+        const result = calculateCouponDiscount({
+          items: typedItems,
+          variantBySku,
+          coupon,
+        });
 
-        if (eligibleSubtotal === 0) {
+        if (result.eligibleSubtotal === 0) {
           throw new Error("INVALID_COUPON");
         }
 
         couponCode = coupon.code;
-        discountAmount =
-          coupon.type === "percent"
-            ? Math.round((eligibleSubtotal * coupon.value) / 100)
-            : Math.min(coupon.value, eligibleSubtotal);
+        discountAmount = result.discountAmount;
       }
 
       // Free gift: never trust eligibility or stock from the client — a
@@ -284,7 +228,11 @@ export async function POST(req: Request) {
         }
       }
 
-      const shippingFee = deliveryMethod === "pickup" ? 0 : shippingCouponCode ? 0 : baseShippingFee;
+      const shippingFee = resolveShippingFee({
+        deliveryMethod,
+        hasFreeShippingCoupon: shippingCouponCode !== null,
+        baseFee: baseShippingFee,
+      });
       const totalAmount = subtotal - discountAmount + shippingFee;
 
       return tx.order.create({
@@ -365,7 +313,7 @@ export async function POST(req: Request) {
           await sendEmail(orderEmail, adminNotification.subject, adminNotification.text, undefined, undefined, SHOP_EMAIL_FROM);
         }
       } catch (err) {
-        console.error("Error sending merch order emails:", err);
+        logError("checkout:order-emails", err, { orderNumber: order.orderNumber });
       }
     });
 

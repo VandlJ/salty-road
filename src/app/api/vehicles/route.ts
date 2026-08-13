@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { getCurrentEdition, getEditionBySlug } from "@/lib/edition";
+import { RegStatus } from "@/lib/constants";
 
 const MAX_LIMIT = 50;
 
@@ -19,9 +21,20 @@ export async function GET(req: Request) {
     const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), MAX_LIMIT) : 20;
     const skip = (page - 1) * limit;
 
+    // Scoped to one edition, otherwise the first accepted Volume 2 car would
+    // show up in Volume 1's archive. An explicit ?edition=<slug> serves the
+    // archive routes; without it this answers for the current edition.
+    const slug = url.searchParams.get("edition");
+    const edition = slug ? await getEditionBySlug(slug) : await getCurrentEdition();
+    if (!edition) {
+      return NextResponse.json({ error: "edition_not_found" }, { status: 404 });
+    }
+
+    const where = { editionId: edition.id, status: RegStatus.Accepted };
+
     const [regs, total] = await Promise.all([
       prisma.registration.findMany({
-        where: { status: "accepted" },
+        where,
         orderBy: [
           { order: "asc" },
           { createdAt: "desc" }
@@ -44,7 +57,7 @@ export async function GET(req: Request) {
         cacheStrategy: { ttl: 30 },
       }),
       prisma.registration.count({
-        where: { status: "accepted" },
+        where,
         cacheStrategy: { ttl: 30 },
       })
     ]);

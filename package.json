@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build --turbopack",
-    "vercel-build": "node scripts/prismaGenerateForEnv.mjs && next build --turbopack",
+    "vercel-build": "node scripts/vercelBuild.mjs",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
@@ -22,6 +22,7 @@
     "@pdf-lib/fontkit": "^1.1.1",
     "@prisma/client": "^6.15.0",
     "@prisma/extension-accelerate": "^3.0.1",
+    "@sentry/nextjs": "^10.70.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.6.1",
     "bcryptjs": "^3.0.2",
@@ -37,12 +38,16 @@
     "react-dom": "^19.2.3",
     "resend": "^6.7.0",
     "sharp": "^0.35.3",
+    "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.4",
     "@types/heic-convert": "^2.1.0",
     "@types/node": "^25.0.8",
     "@types/qrcode": "^1.5.6",

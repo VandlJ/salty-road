@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { toLocale } from "@/i18n/locale";
 
 export async function generateMetadata({
   params,
@@ -7,7 +8,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "AdminVol1ThankYouPage" });
+  const t = await getTranslations({ locale: toLocale(locale), namespace: "AdminThankYouPage" });
 
   return {
     title: t("title"),
@@ -15,6 +16,6 @@ export async function generateMetadata({
   };
 }
 
-export default function AdminVol1ThankYouLayout({ children }: { children: React.ReactNode }) {
+export default function AdminThankYouLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

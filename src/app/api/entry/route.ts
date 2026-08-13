@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { getAdminFromReq } from "@/lib/adminAuth";
 import { verifyCrewToken, CREW_COOKIE_NAME } from "@/lib/crewAuth";
+import { requireCurrentEdition } from "@/lib/edition";
+import { RegStatus } from "@/lib/constants";
 
 async function isAuthorized(): Promise<boolean> {
   const cookieStore = await cookies();
@@ -12,12 +14,16 @@ async function isAuthorized(): Promise<boolean> {
 
 export async function GET() {
   if (!(await isAuthorized())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {
+    // Door check-in is always about the edition happening now — a past
+    // edition's exhibitors must not appear on the crew's board.
+    const edition = await requireCurrentEdition();
+
     const regs = await prisma.registration.findMany({
-      where: { status: "accepted" },
+      where: { editionId: edition.id, status: RegStatus.Accepted },
       orderBy: [
         { order: "asc" },
         { createdAt: "desc" }
@@ -44,7 +50,7 @@ export async function GET() {
 
 export async function PATCH(req: Request) {
   if (!(await isAuthorized())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
   try {

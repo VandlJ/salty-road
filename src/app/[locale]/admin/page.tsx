@@ -3,8 +3,8 @@
 import React from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
-import AdminLoginForm from "@/components/admin-login-form";
 import { useAdminAuth } from "@/lib/useAdminAuth";
+import AdminGate from "@/components/admin-gate";
 
 const TILES = [
   {
@@ -89,9 +89,9 @@ const TILES = [
     ),
   },
   {
-    href: "/admin/vol1-thank-you",
-    titleKey: "vol1ThankYouTile",
-    descKey: "vol1ThankYouTileDesc",
+    href: "/admin/thank-you",
+    titleKey: "thankYouTile",
+    descKey: "thankYouTileDesc",
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -102,47 +102,47 @@ const TILES = [
 
 export default function AdminHubPage() {
   const t = useTranslations("AdminHubPage");
-  const { loggedIn, checking, recheck, logout } = useAdminAuth();
-
-  if (checking) return null;
-  if (!loggedIn) return <AdminLoginForm onSuccess={recheck} />;
+  const auth = useAdminAuth();
+  const { logout } = auth;
 
   return (
-    <section className="flex-1 bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-5xl mx-auto">
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-8 sm:mb-12 gap-4">
-        <div className="text-center sm:text-left">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
-            {t("title")}
-          </h1>
-          <p className="text-gray-400 mt-2">{t("subtitle")}</p>
-        </div>
-        <button
-          onClick={logout}
-          className="px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
-        >
-          {t("logout")}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {TILES.map((tile) => (
-          <Link
-            key={tile.href}
-            href={tile.href}
-            className="group flex flex-col gap-4 bg-[#111]/90 border border-gray-700 hover:border-white rounded-sm p-6 sm:p-8 shadow-xl transition-all duration-300 hover:-translate-y-1"
+    <AdminGate auth={auth}>
+      <section className="flex-1 bg-transparent text-white px-4 sm:px-8 pt-6 sm:pt-8 pb-4 sm:pb-8 max-w-5xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-center mb-8 sm:mb-12 gap-4">
+          <div className="text-center sm:text-left">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white drop-shadow-md">
+              {t("title")}
+            </h1>
+            <p className="text-gray-400 mt-2">{t("subtitle")}</p>
+          </div>
+          <button
+            onClick={logout}
+            className="px-4 py-2 bg-transparent border border-gray-600 text-gray-300 font-bold uppercase tracking-wider text-sm hover:bg-gray-800 hover:text-white transition-colors"
           >
-            <div className="text-gray-400 group-hover:text-white transition-colors">
-              {tile.icon}
-            </div>
-            <div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-wide">
-                {t(tile.titleKey)}
-              </h2>
-              <p className="text-sm text-gray-400 mt-1">{t(tile.descKey)}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </section>
+            {t("logout")}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {TILES.map((tile) => (
+            <Link
+              key={tile.href}
+              href={tile.href}
+              className="group flex flex-col gap-4 bg-[#111]/90 border border-gray-700 hover:border-white rounded-sm p-6 sm:p-8 shadow-xl transition-all duration-300 hover:-translate-y-1"
+            >
+              <div className="text-gray-400 group-hover:text-white transition-colors">
+                {tile.icon}
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white uppercase tracking-wide">
+                  {t(tile.titleKey)}
+                </h2>
+                <p className="text-sm text-gray-400 mt-1">{t(tile.descKey)}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+    </AdminGate>
   );
 }
