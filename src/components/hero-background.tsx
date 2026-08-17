@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { HeroVideo } from "@/lib/heroVideo";
 
@@ -12,15 +11,24 @@ import type { HeroVideo } from "@/lib/heroVideo";
 // /public/hero are the fallback for an edition that has never had one picked
 // — including a fresh database, where the homepage still has to look right.
 //
-// The poster is the video's own first frame, not a separate photo, so the
-// hand-off from still to motion has no visible jump — the video fades in over
-// an image it already matches pixel for pixel.
+// The poster is the video's own first frame, and it is carried by the <video>
+// element's own `poster` attribute rather than by a separate <Image> stacked
+// underneath. That detail is the whole performance story here.
 //
-// Why the video is mounted from an effect rather than rendered server-side:
-// the wordmark <Image> in hero.tsx is this page's LCP element, and a <video>
-// in the initial HTML starts fetching immediately at high priority. On mobile
-// that cost measurably more LCP than the loop is worth. Mounting after
-// hydration puts the ~2MB fetch strictly after first paint.
+// The previous arrangement — poster <Image>, then a <video> mounted after
+// hydration and faded in — made the *video* the Largest Contentful Paint.
+// It is full-bleed, so once it painted it replaced the poster as the largest
+// element, and because it only appeared after hydration its paint time was
+// the LCP time. Measured with Lighthouse on a throttled phone: LCP element
+// = the <video>, render delay 5.7s.
+//
+// With the poster on the video element there is one box, painted once, from
+// markup the server already sent. The poster paints at first contentful
+// paint, and later video frames render into the same element at the same
+// size, which is not a new LCP candidate. Sources are still attached after
+// the page is idle, so the megabyte never competes with the critical path —
+// but now deferring it no longer costs anything, because the pixels the
+// user sees are already there.
 
 // A pre-edited 12.7s cut supplied as-is, so there is no window to choose and
 // no single resolution ladder to build: the source is 1040x576, and encoding
@@ -65,8 +73,9 @@ const BUNDLED: HeroVideo = {
 
 export default function HeroBackground({ heroVideo }: { heroVideo?: HeroVideo | null }) {
   const clip = heroVideo ?? BUNDLED;
-  const [showVideo, setShowVideo] = useState(false);
-  const [visible, setVisible] = useState(false);
+  // Whether the <source> children have been attached. The element itself is
+  // always rendered, poster and all; this only gates the download.
+  const [sourcesAttached, setSourcesAttached] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -85,13 +94,34 @@ export default function HeroBackground({ heroVideo }: { heroVideo?: HeroVideo | 
     if (conn?.saveData) return;
     if (conn?.effectiveType && /^(slow-)?2g$/.test(conn.effectiveType)) return;
 
-    // Setting state in an effect is normally a smell, hence the rule — but
-    // deferring the fetch until after hydration is the entire purpose of this
-    // component, and it can't be a lazy initial state without a hydration
-    // mismatch (the server has no matchMedia to agree with).
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setShowVideo(true);
+    // Wait for the browser to be idle rather than firing the moment
+    // hydration finishes. Hydration is exactly when the main thread and the
+    // connection are busiest, and this is a decoration — on a throttled
+    // phone the megabyte landing in that window is what turns a fast page
+    // into a slow-feeling one.
+    const attach = () => setSourcesAttached(true);
+    const idle = window as Window & {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof idle.requestIdleCallback === "function") {
+      // The timeout is the floor: on a page that never goes idle the loop
+      // should still start, just late.
+      const id = idle.requestIdleCallback(attach, { timeout: 2500 });
+      return () => idle.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(attach, 1200);
+    return () => window.clearTimeout(id);
   }, []);
+
+  // Attaching <source> children to a live element does nothing on its own —
+  // the browser only re-reads them on an explicit load().
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !sourcesAttached) return;
+    video.load();
+    void video.play().catch(() => {});
+  }, [sourcesAttached]);
 
   // Stop decoding once the hero has mostly scrolled away, and while the tab
   // is in the background.
@@ -133,54 +163,44 @@ export default function HeroBackground({ heroVideo }: { heroVideo?: HeroVideo | 
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, [showVideo]);
+  }, [sourcesAttached]);
 
   return (
     <>
-      <Image
-        src={clip.poster}
-        alt=""
-        fill
-        sizes="100vw"
-        className="object-cover"
-        priority
-        // Deliberately not fetchPriority="high": see hero.tsx — the wordmark
-        // is the LCP element and these two compete for early bandwidth.
-        quality={60}
-      />
-
-      {showVideo && (
-        <video
-          ref={videoRef}
-          // A poster attribute would double up on the <Image> above and
-          // load the same bytes twice; the Image is the poster here.
-          autoPlay
-          muted
-          loop
-          playsInline
-          // Not "none": the element only exists once we've decided to play it,
-          // so there's nothing left to defer.
-          preload="auto"
-          aria-hidden="true"
-          tabIndex={-1}
-          // Only revealed once a frame is actually decodable, otherwise the
-          // first paint of the element is a black rectangle over the poster.
-          onCanPlay={() => setVisible(true)}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-            visible ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          {/* The browser takes the first source whose type it can play and
-              whose media query matches. That ordering is what makes Safari
-              work: it decodes neither AV1-in-WebM nor, on most machines, AV1
-              at all, so it falls through to the H.264 entry at the end. The
-              `media` attribute is only set when a clip actually has
-              resolution variants to gate. */}
-          {clip.sources.map((s) => (
+      {/* The poster is now the Largest Contentful Paint, but it arrives as a
+          plain `poster` attribute, which the preload scanner treats as
+          ordinary priority — on the deployed site it started downloading
+          2.9s into the load. React hoists this into <head>, so the request
+          goes out with the document. */}
+      <link rel="preload" as="image" href={clip.poster} fetchPriority="high" />
+      <video
+        ref={videoRef}
+        // The poster is this element's own first frame, so the still and the
+        // motion are one box that paints once — see the note at the top of
+        // this file for why that is what fixed LCP.
+        poster={clip.poster}
+        autoPlay
+        muted
+        loop
+        playsInline
+        // Nothing to preload: the sources are attached from an effect once
+        // the browser is idle, and load() is called then.
+        preload="none"
+        aria-hidden="true"
+        tabIndex={-1}
+        className="absolute inset-0 h-full w-full object-cover"
+      >
+        {/* The browser takes the first source whose type it can play and
+            whose media query matches. That ordering is what makes Safari
+            work: it decodes neither AV1-in-WebM nor, on most machines, AV1
+            at all, so it falls through to the H.264 entry at the end. The
+            `media` attribute is only set when a clip actually has
+            resolution variants to gate. */}
+        {sourcesAttached &&
+          clip.sources.map((s) => (
             <source key={s.url} src={s.url} type={s.type} media={s.media} />
           ))}
-        </video>
-      )}
+      </video>
 
       {/* Darkening pass. Two layers on purpose: a flat scrim that guarantees
           contrast for the white wordmark and CTA wherever the shot happens to

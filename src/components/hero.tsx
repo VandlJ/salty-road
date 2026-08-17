@@ -66,8 +66,11 @@ export default function Hero({
             // (3840px) even on a 380px-wide mobile render.
             sizes="(max-width: 1024px) 100vw, 1024px"
             className="w-full h-auto drop-shadow-2xl"
+            // `priority` (so it is preloaded) but no longer fetchPriority
+            // "high": measurement showed the hero poster is the Largest
+            // Contentful Paint, not this, and two images claiming top
+            // priority just made them queue behind each other.
             priority
-            fetchPriority="high"
             quality={65}
           />
         </div>
