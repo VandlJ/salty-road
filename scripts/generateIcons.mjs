@@ -15,7 +15,7 @@
 // The ICO is written by hand rather than with a library: the container is a
 // 6-byte header plus one 16-byte entry per size, and every size can hold a
 // PNG verbatim, so a dependency would buy nothing.
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import sharp from "sharp";
 
 const SVG = "src/app/icon.svg";
@@ -24,10 +24,39 @@ const SVG = "src/app/icon.svg";
 const ICO_SIZES = [16, 32, 48];
 const APPLE_SIZE = 180;
 
-async function png(size) {
-  // A high density matters: the mark is 259 fine paths, and rasterising at the
-  // target size directly loses the spokes to aliasing.
-  return sharp(SVG, { density: 600 }).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+// A high density matters: the mark is 259 fine paths, and rasterising at the
+// target size directly loses the spokes to aliasing.
+async function png(size, svg = SVG) {
+  const input = typeof svg === "string" && svg.startsWith("<") ? Buffer.from(svg) : svg;
+  return sharp(input, { density: 600 }).resize(size, size).png({ compressionLevel: 9 }).toBuffer();
+}
+
+/**
+ * The icon.svg flips its fill with prefers-color-scheme, which a raster
+ * cannot do. Each raster therefore has to commit to one variant, and they
+ * commit differently:
+ *
+ *  - The ICO keeps the transparent background and the dark mark. Google draws
+ *    search-result favicons on a light chip, and a browser falling back to
+ *    the ICO is showing it in default (light) tab chrome.
+ *  - apple-icon.png gets the black tile and the white mark. iOS composites a
+ *    transparent home-screen icon onto black anyway, and Apple's own guidance
+ *    is that app icons are opaque — so this is the one place the tile belongs.
+ */
+function darkTileVariant() {
+  const svg = readFileSync(SVG, "utf8");
+  const opening = svg.match(/<svg[^>]*>/)[0];
+  const viewBox = opening.match(/viewBox="([^"]+)"/)[1].split(/\s+/).map(Number);
+  const [x, y, w, h] = viewBox;
+  const withTile = svg.replace(
+    opening,
+    `${opening}\n<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#000000"/>`
+  );
+  // Appended last, not injected after the opening tag: the SVG already carries
+  // a `path { fill: #111111 }` rule, and between two rules of equal
+  // specificity the later one wins. Inserted first, this override lost and the
+  // mark came out dark on a black tile.
+  return withTile.replace("</svg>", `<style>path { fill: #ffffff; }</style>\n</svg>`);
 }
 
 function buildIco(images) {
@@ -67,6 +96,6 @@ console.log(
   ).toFixed(1)} KB`
 );
 
-const apple = await png(APPLE_SIZE);
+const apple = await png(APPLE_SIZE, darkTileVariant());
 writeFileSync("src/app/apple-icon.png", apple);
 console.log(`src/app/apple-icon.png  ${APPLE_SIZE}px, ${(apple.length / 1024).toFixed(1)} KB`);
