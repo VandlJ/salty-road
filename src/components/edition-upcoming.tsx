@@ -34,7 +34,7 @@ export default function EditionUpcoming({
       <div className="h-1 w-full bg-gradient-to-r from-brand-dark via-brand to-brand-dark" />
       <div className="bg-black">
         <InfoSection />
-        <RegistrationSection />
+        <RegistrationSection headingAs="h2" />
         <VehiclesSection editionSlug={edition.slug} />
         <SponsorsSection sponsors={content.sponsors} pressArticleUrl={content.pressArticleUrl} />
       </div>

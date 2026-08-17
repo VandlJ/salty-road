@@ -6,7 +6,14 @@ import { useTranslations } from "next-intl";
 import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
-export default function RegistrationSection() {
+export default function RegistrationSection({
+  // h1 when this section *is* the page (/register), h2 when it sits under the
+  // homepage hero, which owns that page's h1. A page with two h1s has no
+  // main heading as far as a crawler is concerned.
+  headingAs = "h1",
+}: {
+  headingAs?: "h1" | "h2";
+} = {}) {
   const t = useTranslations("RegisterPage");
   const [registrationOpen, setRegistrationOpen] = useState<boolean | null>(null);
 
@@ -29,7 +36,7 @@ export default function RegistrationSection() {
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
         className="flex flex-col items-center"
       >
-        <SectionHeading as="h1" size="lg" className="mb-16">
+        <SectionHeading as={headingAs} size="lg" className="mb-16">
           {t.rich("title", { line: (chunks) => <span className="block">{chunks}</span> })}
         </SectionHeading>
 

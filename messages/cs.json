@@ -127,6 +127,7 @@
     "locationLabel": "Místo",
     "locationValue": "Velké náměstí, Prachatice",
     "registerButton": "Registrovat",
+    "seoHeading": "Salty Road Meet — sraz aut v Prachaticích",
     "metaDescription": "Sraz aut Salty Road Meet — Velké náměstí, Prachatice. Přehlídka vozidel, hudba a doprovodný program. Podívejte se, jak probíhal první ročník."
   },
   "ArchivePage": {
@@ -137,10 +138,12 @@
       "dateValue": "25. 07. 2026",
       "locationLabel": "Místo",
       "locationValue": "Velké náměstí, Prachatice",
+      "seoHeading": "Salty Road Meet — sraz aut v Prachaticích",
       "galleryButton": "Prohlédnout fotky"
     },
     "meta": {
-      "description": "Ohlédnutí za prvním ročníkem Salty Road Meet — 25. července 2026 na Velkém náměstí v Prachaticích. Fotky, program a vystavené vozy."
+      "title": "Salty Road Meet — sraz aut v Prachaticích",
+      "description": "Sraz aut Salty Road Meet — 25. července 2026, Velké náměstí Prachatice. Ohlédnutí za prvním ročníkem: fotky, vystavené vozy a program."
     },
     "recap": {
       "title": "Jak to probíhalo",

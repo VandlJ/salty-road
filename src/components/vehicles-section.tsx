@@ -120,9 +120,11 @@ export default function VehiclesSection({
   return (
     <section id="vehicles" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-20 sm:px-8 max-w-6xl mx-auto scroll-mt-24 text-center overflow-hidden">
       <div className="flex flex-col items-center mb-16 gap-4">
-        {/* h2 when an explicit title is supplied — the archived homepage
-            already has its own h1 in the recap section above. */}
-        <SectionHeading as={title ? "h2" : "h1"} size="lg">
+        {/* Always h2: this section only ever renders inside a homepage
+            composition, and the hero there owns the page's single h1. It used
+            to become an h1 whenever no explicit title was passed, which gave
+            the upcoming homepage two competing h1s. */}
+        <SectionHeading as="h2" size="lg">
           {title ?? t("title")}
         </SectionHeading>
       </div>

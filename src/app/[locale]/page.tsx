@@ -15,13 +15,21 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale: toLocale(locale), namespace: "ArchivePage.meta" });
   const description = t("description");
+  const title = t("title");
 
-  // Title comes from the layout's default; only the description is
-  // page-specific (the layout's is the site-wide fallback used by /check,
-  // /privacy and the shop pages).
+  // `absolute` bypasses the layout's `%s | Salty Road Meet Volume 1`
+  // template, which would otherwise append the site name to a title that
+  // already contains it.
+  //
+  // The homepage sets its own title rather than inheriting the layout's
+  // default ("Salty Road Meet Volume 1"), because that default names the
+  // brand and nothing else — not what the event is, not where it is. This is
+  // the page that has to answer a search for a car meet in Prachatice, and
+  // the title is the strongest on-page signal it has.
   return {
+    title: { absolute: title },
     description,
-    openGraph: { description },
+    openGraph: { title, description },
   };
 }
 

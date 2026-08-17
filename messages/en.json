@@ -127,6 +127,7 @@
     "locationLabel": "Location",
     "locationValue": "Velké náměstí, Prachatice",
     "registerButton": "Register",
+    "seoHeading": "Salty Road Meet — car meet in Prachatice",
     "metaDescription": "Car meet Salty Road Meet — Velké náměstí, Prachatice, Czech Republic. Vehicle showcase, music and a full-day programme. See how the first edition went."
   },
   "ArchivePage": {
@@ -137,10 +138,12 @@
       "dateValue": "25/07/2026",
       "locationLabel": "Location",
       "locationValue": "Velké náměstí, Prachatice",
+      "seoHeading": "Salty Road Meet — car meet in Prachatice",
       "galleryButton": "View the photos"
     },
     "meta": {
-      "description": "Looking back at the first Salty Road Meet — July 25, 2026 at Velké náměstí in Prachatice, Czech Republic. Photos, programme and the cars on display."
+      "title": "Salty Road Meet — car meet in Prachatice",
+      "description": "Salty Road Meet car meet — July 25, 2026, Velké náměstí, Prachatice, Czech Republic. Looking back at the first edition: photos, the cars on display and the programme."
     },
     "recap": {
       "title": "How it went",
