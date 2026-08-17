@@ -9,8 +9,23 @@ const prisma = new PrismaClient();
 const TEST_COUPON_CODES = ["TEST10", "TESTFIX", "TESTSHIP", "TESTONCE"];
 
 async function main() {
-  if (process.env.DATABASE_URL?.includes("saltyroad.cz")) {
-    console.error("Refusing to run: DATABASE_URL looks like production.");
+  // The previous guard looked for "saltyroad.cz" in DATABASE_URL. That never
+  // matches: the app connects through Prisma Accelerate, so the URL is a
+  // prisma:// address with an API key and no trace of the real host. The check
+  // read as protection while providing none.
+  //
+  // Inverted, so an unrecognised URL is refused rather than trusted: this
+  // seeds and deletes data, and the only databases it has any business
+  // touching are a local one and CI's throwaway Postgres (both localhost).
+  // Anything else needs a deliberate ALLOW_REMOTE_TEST_SEED=1.
+  const url = process.env.DATABASE_URL ?? "";
+  const isLocal = /^postgres(ql)?:\/\/[^/@]*@?(localhost|127\.0\.0\.1)(:\d+)?\//.test(url);
+  if (!isLocal && process.env.ALLOW_REMOTE_TEST_SEED !== "1") {
+    console.error(
+      "Refusing to run: DATABASE_URL is not a localhost database.\n" +
+        "This script deletes and rewrites data. If the target really is a\n" +
+        "disposable remote test database, re-run with ALLOW_REMOTE_TEST_SEED=1."
+    );
     process.exit(1);
   }
 
