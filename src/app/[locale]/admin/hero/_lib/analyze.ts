@@ -35,7 +35,30 @@ const ANALYSIS_WIDTH = 96;
 const THUMB_HEIGHT = 112;
 const THUMB_COUNT = 36;
 
+// One in-flight seek per element, enforced.
+//
+// A video element has a single "seeked" event, so two overlapping seeks both
+// listen for it and the second currentTime assignment simply overwrites the
+// first. Both promises then resolve, each believing the element is parked at
+// its own timestamp, and whichever caller reads a frame next gets the wrong
+// one. That is not theoretical here: the boundary-brightness probe fires as
+// the admin drags, and a wrong reading flips the advisor's verdict on the
+// check that actually blocks publishing.
+const seekQueue = new WeakMap<HTMLVideoElement, Promise<unknown>>();
+
 export function seekTo(video: HTMLVideoElement, t: number): Promise<void> {
+  const previous = seekQueue.get(video) ?? Promise.resolve();
+  // Swallow the predecessor's rejection so one timed-out seek doesn't poison
+  // every later one; its own caller still sees the failure.
+  const next = previous.then(
+    () => rawSeek(video, t),
+    () => rawSeek(video, t)
+  );
+  seekQueue.set(video, next);
+  return next;
+}
+
+function rawSeek(video: HTMLVideoElement, t: number): Promise<void> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       cleanup();

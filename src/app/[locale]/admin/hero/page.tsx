@@ -129,21 +129,30 @@ export default function AdminHeroPage() {
   // Boundary brightness is measured, not interpolated from the coarse
   // samples — it is the check that blocks applying, so it has to look at the
   // actual frames the loop starts and ends on.
+  //
+  // Debounced, because this runs on every pointermove of a drag: each pass is
+  // two seeks on the shared work element, so an unthrottled drag queued
+  // hundreds of them and the readings arrived long after the handle had moved
+  // on. Waiting for the drag to settle costs nothing — the value only matters
+  // once the admin stops somewhere.
   useEffect(() => {
     const video = workRef.current;
     if (!video || !analysis || phase.step !== "ready") return;
     let cancelled = false;
-    (async () => {
-      try {
-        const s = await lumaAt(video, range.start + 0.02);
-        const e = await lumaAt(video, Math.max(range.start, range.end - 0.05));
-        if (!cancelled) setBoundaryLuma({ start: s, end: e });
-      } catch {
-        /* A failed probe leaves the previous reading; the next drag retries. */
-      }
-    })();
+    const timer = setTimeout(() => {
+      void (async () => {
+        try {
+          const s = await lumaAt(video, range.start + 0.02);
+          const e = await lumaAt(video, Math.max(range.start, range.end - 0.05));
+          if (!cancelled) setBoundaryLuma({ start: s, end: e });
+        } catch {
+          /* A failed probe leaves the previous reading; the next drag retries. */
+        }
+      })();
+    }, 150);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
   }, [analysis, range.start, range.end, phase.step]);
 
@@ -168,11 +177,25 @@ export default function AdminHeroPage() {
   const canApply = analysis !== null && selectionIsApplicable(advice) && phase.step === "ready";
 
   const apply = async () => {
-    const video = workRef.current;
-    if (!video || !analysis || !file) return;
+    if (!analysis || !file || !objectUrl) return;
     setError(null);
 
+    // A dedicated element rather than the shared workRef one. The encoder
+    // seeks and then reads the frame it landed on, so anything else moving
+    // that element in between — a boundary-brightness probe that was already
+    // in flight when Publish was pressed — would be silently baked into the
+    // output. Its own element cannot be moved by anyone.
+    const video = document.createElement("video");
+    video.src = objectUrl;
+    video.muted = true;
+    video.preload = "auto";
+
     try {
+      await new Promise<void>((resolve, reject) => {
+        video.onloadeddata = () => resolve();
+        video.onerror = () => reject(new Error("decode"));
+      });
+
       const encoded = await encodeRenditions(
         video,
         specs,
@@ -239,6 +262,10 @@ export default function AdminHeroPage() {
     } catch {
       setError(t("errors.apply"));
       setPhase({ step: "ready" });
+    } finally {
+      // Frees the decoder whether the publish succeeded or blew up.
+      video.removeAttribute("src");
+      video.load();
     }
   };
 
