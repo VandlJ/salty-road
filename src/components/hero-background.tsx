@@ -20,21 +20,33 @@ import type { HeroVideo } from "@/lib/heroVideo";
 // the wordmark <Image> in hero.tsx is this page's LCP element, and a <video>
 // in the initial HTML starts fetching immediately at high priority. On mobile
 // that cost measurably more LCP than the loop is worth. Mounting after
-// hydration puts the ~1.3MB fetch strictly after first paint.
-// Ordered most- to least-preferred, matching what the picker encodes: AV1
-// first because it is meaningfully smaller, H.264 last because Safari plays
-// nothing else here.
+// hydration puts the ~2MB fetch strictly after first paint.
+
+// A pre-edited 12.7s cut supplied as-is, so there is no window to choose and
+// no single resolution ladder to build: the source is 1040x576, and encoding
+// a 1920 rendition from it would only ship an upscale. It already loops
+// cleanly — both boundary frames are bright and land on a cut.
+//
+// Two entries, most- to least-preferred. AV1 is a re-encode at CRF 36, which
+// is visually indistinguishable from the source at this bitrate while saving
+// ~25%. The MP4 is the delivered file stream-copied, not re-encoded: the
+// source is already a 1.67 Mbps H.264, and a second lossy pass for the one
+// browser family that needs it would only add generation loss.
+//
+// All three filenames change whenever the clip does, rather than new content
+// being written over /hero/poster.webp. next/image caches optimised variants
+// by source URL, so reusing a path can serve the previous clip's poster from
+// cache — which is exactly what happened while this one was swapped in.
 const BUNDLED: HeroVideo = {
-  poster: "/hero/poster.webp",
+  poster: "/hero/loop-poster.webp",
   sources: [
-    { url: "/hero/loop-1920.webm", type: "video/webm", media: "(min-width: 1280px)", width: 1920, height: 1080, bytes: 1_931_653 },
-    { url: "/hero/loop-1280.webm", type: "video/webm", width: 1280, height: 720, bytes: 1_330_352 },
-    { url: "/hero/loop-1280.mp4", type: "video/mp4", width: 1280, height: 720, bytes: 1_519_858 },
+    { url: "/hero/loop-av1.webm", type: "video/webm", width: 1040, height: 576, bytes: 1_987_755 },
+    { url: "/hero/loop-h264.mp4", type: "video/mp4", width: 1040, height: 576, bytes: 2_637_600 },
   ],
-  start: 6,
-  end: 13.44,
-  sourceName: "salty_wide.mp4",
-  sourceBytes: 0,
+  start: 0,
+  end: 12.67,
+  sourceName: "salty_wide_short.mp4",
+  sourceBytes: 2_637_513,
   updatedAt: "2026-08-17T00:00:00.000Z",
 };
 
@@ -104,10 +116,11 @@ export default function HeroBackground({ heroVideo }: { heroVideo?: HeroVideo | 
           }`}
         >
           {/* The browser takes the first source whose type it can play and
-              whose media query matches, so the 1080p rendition is reserved for
-              viewports wide enough to resolve it and Safari — which decodes
-              neither AV1-in-WebM nor, on most machines, AV1 at all — falls
-              through to the H.264 one at the end. */}
+              whose media query matches. That ordering is what makes Safari
+              work: it decodes neither AV1-in-WebM nor, on most machines, AV1
+              at all, so it falls through to the H.264 entry at the end. The
+              `media` attribute is only set when a clip actually has
+              resolution variants to gate. */}
           {clip.sources.map((s) => (
             <source key={s.url} src={s.url} type={s.type} media={s.media} />
           ))}
