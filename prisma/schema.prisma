@@ -66,6 +66,10 @@ model Edition {
   registrationOpen Boolean  @default(false)
   registrationFee  Int      @default(29900) // halire
   galleryPhotos    Json     @default("[]") // [{ url, instagram }]
+  // The hero's looping background clip — see src/lib/heroVideo.ts for the
+  // shape. Null means none was ever chosen, and the homepage falls back to
+  // the files committed under /public/hero.
+  heroVideo        Json?
   registrations    Registration[]
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

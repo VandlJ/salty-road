@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import type { Edition } from "@prisma/client";
+import { parseHeroVideo } from "@/lib/heroVideo";
 import Hero from "@/components/hero";
 import { getEditionContent } from "@/content/editions";
 
@@ -28,7 +29,7 @@ export default function EditionUpcoming({
   return (
     <>
       <div className="relative h-screen w-full">
-        <Hero />
+        <Hero heroVideo={parseHeroVideo(edition.heroVideo)} />
       </div>
       <div className="h-1 w-full bg-gradient-to-r from-brand-dark via-brand to-brand-dark" />
       <div className="bg-black">

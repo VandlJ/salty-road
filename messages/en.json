@@ -419,6 +419,8 @@
     "registrationsTileDesc": "Review and approve submitted vehicles.",
     "galleryTile": "Gallery",
     "galleryTileDesc": "Event photos shown on the homepage.",
+    "heroTile": "Hero video",
+    "heroTileDesc": "Pick the stretch of the clip that loops on the homepage.",
     "merchTile": "Merch",
     "merchTileDesc": "Manage shop products and stock.",
     "ordersTile": "Orders",
@@ -443,6 +445,61 @@
     "uploading": "Uploading…",
     "errorLoad": "Couldn't load the gallery.",
     "errorSave": "Saving failed."
+  },
+  "AdminHeroPage": {
+    "title": "Hero video",
+    "subtitle": "Pick the stretch of the source clip that loops behind the homepage.",
+    "pick": {
+      "cta": "Choose a video from your computer",
+      "hint": "The file is never uploaded — trimming and encoding both happen here in the browser. Only the finished loop (a few MB) is sent."
+    },
+    "live": {
+      "title": "Currently live",
+      "none": "Nothing picked yet — the homepage is using the clip shipped in the code.",
+      "range": "Window {start}s → {end}s",
+      "source": "From {name}",
+      "weight": "smallest rendition {mb} MB"
+    },
+    "revert": "Revert",
+    "revertConfirm": "Remove the chosen loop? The homepage goes back to the clip shipped in the code.",
+    "timelineHint": "Drag the white handles. The thin white lines are detected cuts — a handle snaps to one when you release it close enough. Arrow keys nudge by a frame, Shift by ten. The yellow trace is brightness; below the red line the picture is effectively black.",
+    "apply": "Publish to the site",
+    "applyHint": "Encodes {count} renditions ({list}) plus a poster, uploads them and switches the homepage over immediately.",
+    "saved": "Done. The homepage is playing this loop.",
+    "stats": {
+      "duration": "Duration",
+      "estimatedSize": "Estimated size",
+      "cuts": "Cuts in clip",
+      "fps": "Frames/s"
+    },
+    "progress": {
+      "analyzing": "Analysing the clip — finding cuts and measuring brightness",
+      "encoding": "Encoding rendition {rendition}",
+      "uploading": "Uploading"
+    },
+    "errors": {
+      "decode": "That file could not be opened. Try an MP4 or MOV with a common codec (H.264).",
+      "noCodec": "This browser cannot encode video. Open the page in Chrome or Edge on a desktop.",
+      "apply": "Publishing failed. Please try again."
+    },
+    "advice": {
+      "allGood": "This looks right — length and weight are fine and both ends sit on a cut.",
+      "emptySelection": "Nothing is selected.",
+      "tooShort": "Only {duration}s. Under {min}s a loop reads as a twitchy GIF rather than footage.",
+      "shortish": "{duration}s is on the short side. From {ideal}s the loop feels more natural.",
+      "longish": "{duration}s is long. Past {ideal}s the bytes stop paying for themselves on a decorative element.",
+      "tooLong": "{duration}s is too much. Past {max}s the download is noticeable even on a decent connection.",
+      "heavyish": "About {mb} MB. Under {ideal} MB it loads on a phone without a wait.",
+      "tooHeavy": "About {mb} MB, over the {max} MB limit. Shorten the selection.",
+      "seamStartNotOnCut": "The start is not on a cut, so the loop restarts mid-shot.",
+      "seamEndNotOnCut": "The end is not on a cut, so the loop chops a shot in half.",
+      "seamNeitherOnCut": "Neither end sits on a cut — the loop point will be visible.",
+      "startTooDark": "The first frame is nearly black (luma {luma}). The poster is taken from it, so the hero flashes black on load.",
+      "endTooDark": "The last frame is nearly black (luma {luma}). The loop point will flash.",
+      "startDarkish": "The first frame is quite dark (luma {luma}). Consider a brighter start.",
+      "endDarkish": "The last frame is quite dark (luma {luma}).",
+      "blackFrameInside": "There is a black frame inside the selection (at {at}s) — it looks like the page broke for a moment."
+    }
   },
   "AdminEmailsPage": {
     "title": "Emails",

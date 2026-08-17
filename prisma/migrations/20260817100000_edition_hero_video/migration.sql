@@ -1,0 +1,13 @@
+-- The hero's looping background clip, per edition.
+--
+-- Nullable rather than defaulted to an empty object: NULL is a meaningful
+-- state here — "nobody has picked a clip for this edition", which is what
+-- makes the hero fall back to the files committed under /public/hero. An
+-- edition that has been given a clip and an edition that never had one need
+-- to stay distinguishable, so the homepage knows which to render.
+--
+-- A JSON column rather than columns per variant because the shape is a list
+-- of encoded renditions whose length depends on what the admin's browser
+-- could encode (AV1 is optional), and the whole blob is read and written as
+-- one unit by exactly one screen.
+ALTER TABLE "Edition" ADD COLUMN "heroVideo" JSONB;

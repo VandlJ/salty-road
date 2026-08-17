@@ -6,6 +6,7 @@ import Image from "next/image";
 import React from "react";
 import { motion } from "motion/react";
 import HeroBackground from "@/components/hero-background";
+import type { HeroVideo } from "@/lib/heroVideo";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
@@ -23,6 +24,7 @@ export default function Hero({
   namespace = "Hero",
   ctaKey = "registerButton",
   ctaTargetId = "register",
+  heroVideo = null,
 }: {
   /** Message namespace — next-intl accepts a dotted path, e.g. "ArchivePage.hero". */
   namespace?: HeroNamespace;
@@ -30,6 +32,8 @@ export default function Hero({
   ctaKey?: "registerButton" | "galleryButton";
   /** Element id the CTA smooth-scrolls to. */
   ctaTargetId?: string;
+  /** Clip chosen in /admin/hero; null falls back to the files in /public/hero. */
+  heroVideo?: HeroVideo | null;
 } = {}) {
   const t = useTranslations(namespace);
 
@@ -45,7 +49,7 @@ export default function Hero({
   return (
     <section className="absolute inset-0 z-0 overflow-hidden">
       {/* Looping clip + poster + darkening gradient */}
-      <HeroBackground />
+      <HeroBackground heroVideo={heroVideo} />
       {/* Content */}
       <motion.div
         className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-4 md:-translate-y-12"

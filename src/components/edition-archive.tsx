@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import type { Edition } from "@prisma/client";
+import { parseHeroVideo } from "@/lib/heroVideo";
 import Hero from "@/components/hero";
 import EventRecapSection from "@/components/event-recap-section";
 import { getGalleryPhotosCached } from "@/lib/gallery";
@@ -33,7 +34,7 @@ export default async function EditionArchive({
   return (
     <>
       <div className="relative h-screen w-full">
-        <Hero namespace="ArchivePage.hero" ctaKey="galleryButton" ctaTargetId="gallery" />
+        <Hero namespace="ArchivePage.hero" ctaKey="galleryButton" ctaTargetId="gallery" heroVideo={parseHeroVideo(edition.heroVideo)} />
       </div>
       <div className="h-1 w-full bg-gradient-to-r from-brand-dark via-brand to-brand-dark" />
       <div className="bg-black">
