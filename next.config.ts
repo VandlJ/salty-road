@@ -17,6 +17,10 @@ const CSP = [
   // itself is framed from youtube-nocookie.com (see frame-src below).
   "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://i.ytimg.com",
   "font-src 'self' data:",
+  // The hero loop lives in /public, so default-src would already cover it —
+  // stated explicitly so widening default-src later can't silently allow
+  // third-party media.
+  "media-src 'self'",
   "connect-src 'self' https://vitals.vercel-insights.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io",
   "frame-src https://www.youtube-nocookie.com",
   "frame-ancestors 'none'",

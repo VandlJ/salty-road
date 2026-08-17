@@ -5,16 +5,16 @@ import { useTranslations } from "next-intl";
 import Image from "next/image";
 import React from "react";
 import { motion } from "motion/react";
+import HeroBackground from "@/components/hero-background";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 18 },
   visible: { opacity: 1, y: 0 },
 };
 
-// Props all default to the pre-archive ("Volume 1 is coming, register now")
-// behaviour so src/templates/homepage-vol2.tsx keeps rendering identically
-// with a bare <Hero />. The archived homepage overrides them to point at the
-// gallery instead of a registration form.
+// Props default to the upcoming-edition behaviour ("registration is open,
+// sign up") so edition-upcoming.tsx can render a bare <Hero />;
+// edition-archive.tsx overrides them to point at the gallery instead.
 // Enumerated rather than a bare string so the message keys stay checkable —
 // next-intl can only verify t("…") when it knows which namespace it's in.
 type HeroNamespace = "Hero" | "ArchivePage.hero";
@@ -44,25 +44,8 @@ export default function Hero({
 
   return (
     <section className="absolute inset-0 z-0 overflow-hidden">
-      {/* Background Image */}
-      <Image
-        src="/hero.webp"
-        alt="Hero Background"
-        fill
-        sizes="100vw"
-        className="object-cover"
-        priority
-        // Not fetchPriority="high" — the wordmark image below is the actual
-        // LCP element (dominant painted content), so this competing for
-        // early mobile bandwidth against it was pushing LCP out. `priority`
-        // alone still gets this preloaded/discovered early, just not at the
-        // same fetch priority.
-        // The dark overlay + blur right on top of this image (below) hides
-        // compression artifacts, so a lower quality is a free byte saving.
-        quality={60}
-      />
-      {/* Glassmorphism overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      {/* Looping clip + poster + darkening gradient */}
+      <HeroBackground />
       {/* Content */}
       <motion.div
         className="absolute inset-0 z-10 flex flex-col items-center justify-center w-full px-4 md:px-8 overflow-hidden -translate-y-4 md:-translate-y-12"
