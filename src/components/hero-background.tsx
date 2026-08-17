@@ -80,6 +80,48 @@ export default function HeroBackground({ heroVideo }: { heroVideo?: HeroVideo | 
     setShowVideo(true);
   }, []);
 
+  // Stop decoding once the hero has mostly scrolled away, and while the tab
+  // is in the background.
+  //
+  // A looping <video> keeps a decoder and a compositor layer busy for as long
+  // as it plays, whether or not anyone can see it — on a page this long that
+  // is the whole visit, for a decoration that left the screen in the first
+  // second. Browsers throttle background *tabs* inconsistently and do nothing
+  // at all about an off-screen element, so both cases are handled here.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    let onScreen = true;
+    const sync = () => {
+      if (onScreen && !document.hidden) {
+        // Rejected autoplay is not an error worth surfacing; the poster
+        // underneath is a complete fallback.
+        void video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    };
+
+    // 0.3 rather than 0: "mostly gone" is the point at which it stops being
+    // worth decoding, and a 0 threshold would keep it running until the very
+    // last pixel of a full-height hero left the viewport.
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.intersectionRatio >= 0.3;
+        sync();
+      },
+      { threshold: [0, 0.3, 0.6] }
+    );
+    observer.observe(video);
+    document.addEventListener("visibilitychange", sync);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, [showVideo]);
+
   return (
     <>
       <Image
