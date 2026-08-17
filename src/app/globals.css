@@ -11,6 +11,50 @@
   --color-brand-dark: #b91c1c;
 }
 
+/* The hero's entrance, as CSS rather than as a JS animation library.
+
+   It used to be a Motion stagger, which meant the server sent the hero with
+   `opacity: 0` and nothing in it could paint until the bundle had downloaded,
+   parsed and hydrated. The wordmark is this page's largest contentful
+   element, so that *was* the Largest Contentful Paint: 6.0s on throttled
+   mobile against a 1.2s First Contentful Paint. A CSS animation runs off the
+   first style resolution instead, with no JavaScript in the path.
+
+   Kept out of @layer base deliberately: utilities in a layer lose to
+   Tailwind's own, and these classes are applied alongside Tailwind classes on
+   the same elements. */
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.hero-rise {
+  animation: hero-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Staggered siblings. The wordmark deliberately has no delay — a delay with
+   `both` fill would hold it transparent for that long, which is exactly the
+   LCP problem this replaced. */
+.hero-rise-1 {
+  animation-delay: 0.16s;
+}
+
+.hero-rise-2 {
+  animation-delay: 0.28s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-rise {
+    animation: none;
+  }
+}
+
 /* Custom base styles go in a Tailwind layer so they are processed predictably */
 @layer base {
   :root {

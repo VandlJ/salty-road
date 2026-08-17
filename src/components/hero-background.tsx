@@ -27,21 +27,34 @@ import type { HeroVideo } from "@/lib/heroVideo";
 // a 1920 rendition from it would only ship an upscale. It already loops
 // cleanly — both boundary frames are bright and land on a cut.
 //
-// Two entries, most- to least-preferred. AV1 is a re-encode at CRF 36, which
-// is visually indistinguishable from the source at this bitrate while saving
-// ~25%. The MP4 is the delivered file stream-copied, not re-encoded: the
-// source is already a 1.67 Mbps H.264, and a second lossy pass for the one
-// browser family that needs it would only add generation loss.
+// The desktop pair is AV1 first — a CRF 36 re-encode, indistinguishable from
+// the source on a detailed frame while saving ~25% — then the delivered file
+// stream-copied rather than re-encoded, since the source is already a
+// 1.67 Mbps H.264 and a second lossy pass for Safari's sake would only cost
+// quality.
 //
-// All three filenames change whenever the clip does, rather than new content
-// being written over /hero/poster.webp. next/image caches optimised variants
-// by source URL, so reusing a path can serve the previous clip's poster from
+// Phones get a single 720-wide H.264 at 1.0MB instead of 2.0-2.6MB. It is
+// H.264 rather than AV1 because at this size AV1 came out *larger* (1.03MB vs
+// 1.00MB) — the efficiency gain does not survive the resolution drop — so one
+// file covers every phone including Safari. That matters more here than
+// anywhere: the video is full-bleed, which makes it a Largest Contentful
+// Paint candidate, and mobile is where the bytes are slowest to arrive.
+//
+// Ordering is load-bearing. Sources are tried top to bottom and the first one
+// whose type is playable *and* whose media query matches wins, so desktop
+// Safari skips the AV1 and lands on the desktop MP4, while a phone fails both
+// min-width gates and lands on the 720.
+//
+// Filenames change whenever the clip does, rather than new content being
+// written over an existing path. next/image caches optimised variants by
+// source URL, so reusing a path can serve the previous clip's poster from
 // cache — which is exactly what happened while this one was swapped in.
 const BUNDLED: HeroVideo = {
   poster: "/hero/loop-poster.webp",
   sources: [
-    { url: "/hero/loop-av1.webm", type: "video/webm", width: 1040, height: 576, bytes: 1_987_755 },
-    { url: "/hero/loop-h264.mp4", type: "video/mp4", width: 1040, height: 576, bytes: 2_637_600 },
+    { url: "/hero/loop-av1.webm", type: "video/webm", media: "(min-width: 768px)", width: 1040, height: 576, bytes: 1_987_755 },
+    { url: "/hero/loop-h264.mp4", type: "video/mp4", media: "(min-width: 768px)", width: 1040, height: 576, bytes: 2_637_600 },
+    { url: "/hero/loop-720.mp4", type: "video/mp4", width: 720, height: 398, bytes: 1_043_932 },
   ],
   start: 0,
   end: 12.67,
