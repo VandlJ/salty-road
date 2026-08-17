@@ -40,3 +40,10 @@ next-env.d.ts
 
 # Gemini specific
 GEMINI.md
+
+# env — appended by `vercel env pull`, which lands secrets in .env.local
+# and .env.<environment>. The negation matters: .env.example is the only
+# one meant to be tracked, and a bare .env* would hide it from anyone
+# cloning fresh.
+.env*
+!.env.example

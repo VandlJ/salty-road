@@ -127,6 +127,7 @@
     "locationLabel": "Místo",
     "locationValue": "Velké náměstí, Prachatice",
     "registerButton": "Registrovat",
+    "seoHeading": "Salty Road Meet — sraz aut v Prachaticích",
     "metaDescription": "Sraz aut Salty Road Meet — Velké náměstí, Prachatice. Přehlídka vozidel, hudba a doprovodný program. Podívejte se, jak probíhal první ročník."
   },
   "ArchivePage": {
@@ -137,10 +138,12 @@
       "dateValue": "25. 07. 2026",
       "locationLabel": "Místo",
       "locationValue": "Velké náměstí, Prachatice",
+      "seoHeading": "Salty Road Meet — sraz aut v Prachaticích",
       "galleryButton": "Prohlédnout fotky"
     },
     "meta": {
-      "description": "Ohlédnutí za prvním ročníkem Salty Road Meet — 25. července 2026 na Velkém náměstí v Prachaticích. Fotky, program a vystavené vozy."
+      "title": "Salty Road Meet — sraz aut v Prachaticích",
+      "description": "Sraz aut Salty Road Meet — 25. července 2026, Velké náměstí Prachatice. Ohlédnutí za prvním ročníkem: fotky, vystavené vozy a program."
     },
     "recap": {
       "title": "Jak to probíhalo",
@@ -419,6 +422,8 @@
     "registrationsTileDesc": "Přehled a schvalování přihlášených vozů.",
     "galleryTile": "Galerie",
     "galleryTileDesc": "Fotky z akce zobrazené na hlavní stránce.",
+    "heroTile": "Hero video",
+    "heroTileDesc": "Výběr úseku klipu, který se přehrává na úvodní stránce.",
     "merchTile": "Merch",
     "merchTileDesc": "Správa produktů a skladu e-shopu.",
     "ordersTile": "Objednávky",
@@ -443,6 +448,61 @@
     "uploading": "Nahrávám…",
     "errorLoad": "Nelze načíst galerii.",
     "errorSave": "Uložení se nepovedlo."
+  },
+  "AdminHeroPage": {
+    "title": "Hero video",
+    "subtitle": "Vyber ze zdrojového klipu úsek, který se bude na úvodní stránce přehrávat ve smyčce.",
+    "pick": {
+      "cta": "Vyber video ze svého počítače",
+      "hint": "Soubor se nikam nenahrává — ořez i překódování proběhnou přímo tady v prohlížeči. Nahraje se až hotová smyčka (pár MB)."
+    },
+    "live": {
+      "title": "Aktuálně na webu",
+      "none": "Zatím nic nevybráno — úvodní stránka používá klip nasazený v kódu.",
+      "range": "Úsek {start} s → {end} s",
+      "source": "Ze souboru {name}",
+      "weight": "nejmenší varianta {mb} MB"
+    },
+    "revert": "Vrátit zpět",
+    "revertConfirm": "Opravdu smazat vybranou smyčku? Úvodní stránka se vrátí ke klipu nasazenému v kódu.",
+    "timelineHint": "Táhni za bílé úchyty. Bílé svislé čárky jsou detekované střihy — úchyt na ně sám dosedne, když ho pustíš dost blízko. Šipkami doladíš po jednom snímku, se Shiftem po deseti. Žlutá křivka je jas; kde klesne pod červenou čáru, je obraz prakticky černý.",
+    "apply": "Nasadit na web",
+    "applyHint": "Vytvoří {count} variant ({list}) a poster, nahraje je a hned přepne úvodní stránku.",
+    "saved": "Hotovo. Úvodní stránka teď přehrává tuhle smyčku.",
+    "stats": {
+      "duration": "Délka",
+      "estimatedSize": "Odhad velikosti",
+      "cuts": "Střihů v klipu",
+      "fps": "Snímků/s"
+    },
+    "progress": {
+      "analyzing": "Analyzuji klip — hledám střihy a měřím jas",
+      "encoding": "Překóduji variantu {rendition}",
+      "uploading": "Nahrávám"
+    },
+    "errors": {
+      "decode": "Tenhle soubor se nepodařilo otevřít. Zkus MP4 nebo MOV s běžným kodekem (H.264).",
+      "noCodec": "Tenhle prohlížeč neumí video kódovat. Otevři stránku v Chrome nebo Edge na počítači.",
+      "apply": "Nasazení selhalo. Zkus to prosím znovu."
+    },
+    "advice": {
+      "allGood": "Výběr vypadá dobře — smyčka i velikost sedí a oba konce jsou na střihu.",
+      "emptySelection": "Není vybraný žádný úsek.",
+      "tooShort": "Jen {duration} s. Kratší než {min} s působí jako trhaný GIF, ne jako záběr.",
+      "shortish": "{duration} s je krátké. Od {ideal} s smyčka působí přirozeněji.",
+      "longish": "{duration} s je dlouhé. Nad {ideal} s už se ta data na dekoraci nevyplatí.",
+      "tooLong": "{duration} s je moc. Nad {max} s je stahování znát i na slušném připojení.",
+      "heavyish": "Odhadem {mb} MB. Do {ideal} MB se to na mobilu načte bez čekání.",
+      "tooHeavy": "Odhadem {mb} MB — to je nad limitem {max} MB. Zkrať výběr.",
+      "seamStartNotOnCut": "Začátek není na střihu, takže smyčka naskočí doprostřed záběru.",
+      "seamEndNotOnCut": "Konec není na střihu, takže smyčka utne záběr v půlce.",
+      "seamNeitherOnCut": "Ani jeden konec není na střihu — přechod smyčky bude vidět.",
+      "startTooDark": "První snímek je skoro černý (jas {luma}). Poster se z něj bere, takže hero po načtení problikne černou.",
+      "endTooDark": "Poslední snímek je skoro černý (jas {luma}). Na přechodu smyčky to problikne.",
+      "startDarkish": "První snímek je dost tmavý (jas {luma}). Zvaž světlejší začátek.",
+      "endDarkish": "Poslední snímek je dost tmavý (jas {luma}).",
+      "blackFrameInside": "Uvnitř výběru je černý snímek (v {at} s) — vypadá to, jako by se stránka na chvíli rozbila."
+    }
   },
   "AdminEmailsPage": {
     "title": "E-maily",

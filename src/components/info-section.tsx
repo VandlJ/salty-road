@@ -24,7 +24,7 @@ export default function InfoSection() {
 
   return (
     <section id="info" className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto min-h-dvh scroll-mt-24 text-center overflow-hidden">
-      <SectionHeading as="h1" size="lg" className="mb-16">
+      <SectionHeading as="h2" size="lg" className="mb-16">
         {t("title")}
       </SectionHeading>
 

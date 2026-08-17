@@ -27,7 +27,7 @@ export default function EventRecapSection() {
       id="recap"
       className="reveal-on-scroll bg-transparent text-white px-4 pt-12 pb-12 md:pb-20 max-w-4xl mx-auto scroll-mt-24 text-center overflow-hidden"
     >
-      <SectionHeading as="h1" size="lg" className="mb-12">
+      <SectionHeading as="h2" size="lg" className="mb-12">
         {t("title")}
       </SectionHeading>
 
