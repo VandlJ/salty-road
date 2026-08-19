@@ -1,10 +1,25 @@
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
+import { retryTransient, RETRYABLE_OPERATIONS } from "@/lib/prismaRetry";
 
 function createClient() {
   return new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["query", "info"] : [],
-  }).$extends(withAccelerate());
+  })
+    .$extends(withAccelerate())
+    .$extends({
+      name: "retryTransientAccelerateErrors",
+      query: {
+        // A single glitch on the Accelerate-to-database hop (Cloudflare
+        // error 1016, seen in production) otherwise fails every read on the
+        // page in one shot — see lib/prismaRetry.ts for the incident and why
+        // only read operations are retried.
+        $allOperations: ({ operation, args, query }) =>
+          RETRYABLE_OPERATIONS.has(operation)
+            ? retryTransient(() => query(args))
+            : query(args),
+      },
+    });
 }
 
 type ExtendedPrismaClient = ReturnType<typeof createClient>;
