@@ -30,19 +30,22 @@ const CSP = [
 ].join('; ');
 
 const nextConfig: NextConfig = {
-  // sharp ships prebuilt native bindings (libvips) per-platform — Turbopack
-  // bundling it into the route's server chunk (rather than leaving it a
-  // plain node_modules require) breaks the runtime's ability to resolve the
-  // matching linux-x64 .so file, hence ERR_DLOPEN_FAILED on /api/upload.
-  serverExternalPackages: ["sharp"],
   // Font + logo assets for invoice PDF generation are read via
   // fs.readFileSync at runtime (@/lib/invoice.ts) — Next's build-time file
   // tracing doesn't always pick up dynamically-constructed fs paths, so
   // they're pinned explicitly to ship with both serverless functions that
   // generate invoices (mark-as-paid, and the on-demand admin download).
+  //
+  // /api/upload gets the same treatment for sharp's native libvips binary:
+  // Turbopack's output file tracer has a known bug (lovell/sharp#4567) where
+  // it traces @img/sharp-linux-x64 but not its sibling
+  // @img/sharp-libvips-linux-x64, so libvips-cpp.so never ships with the
+  // deployed function (ERR_DLOPEN_FAILED). Fixed upstream in Next 16.3, kept
+  // here too as a safety net since this class of nft bug has recurred.
   outputFileTracingIncludes: {
     "/api/admin/orders/[id]": ["./src/assets/fonts/**", "./src/assets/invoice-logo.png"],
     "/api/admin/orders/[id]/invoice": ["./src/assets/fonts/**", "./src/assets/invoice-logo.png"],
+    "/api/upload": ["./node_modules/@img/sharp-libvips-linux-x64/**"],
   },
   images: {
     // Next.js 16 restricts custom `quality` props to this allowlist (default
