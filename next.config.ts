@@ -30,6 +30,11 @@ const CSP = [
 ].join('; ');
 
 const nextConfig: NextConfig = {
+  // sharp ships prebuilt native bindings (libvips) per-platform — Turbopack
+  // bundling it into the route's server chunk (rather than leaving it a
+  // plain node_modules require) breaks the runtime's ability to resolve the
+  // matching linux-x64 .so file, hence ERR_DLOPEN_FAILED on /api/upload.
+  serverExternalPackages: ["sharp"],
   // Font + logo assets for invoice PDF generation are read via
   // fs.readFileSync at runtime (@/lib/invoice.ts) — Next's build-time file
   // tracing doesn't always pick up dynamically-constructed fs paths, so
